@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+   <data>
+   
+   <record id="product_template_only_form_view" model="ir.ui.view">
+        <field name="name">product.template.product.form</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+       
+       
+        <field name="arch" type="xml">
+	         <field name="type" position="after">
+	           <field name="thiet_bi_id"></field>
+          			<field name="brand_id"></field>
+	         </field>
+	         
+        	 <xpath expr="//field[@name='uom_id']" position="attributes">
+        		 <attribute name="options">{'no_create': False}</attribute>
+        	 </xpath>
+        </field>
+    </record>
+    
+    
+    
+    
+    <record id="product_template_only_form_view_2" model="ir.ui.view">
+        <field name="name">product.template.product.form</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+	         <field name="type" position="after">
+	           <field name="thiet_bi_id"></field>
+          			<field name="brand_id"></field>
+	         </field>
+        </field>
+    </record>
+
+   <record id="product_template_only_form_view" model="ir.ui.view">
+        <field name="name">product.template.product.form</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+        	 <xpath expr="//field[@name='uom_id']" position="attributes">
+        		 <attribute name="options">{'no_create': False}</attribute>
+        	 </xpath>
+        </field>
+    </record>
+    
+    
+       
+     <record id="stock.product_template_action_product" model="ir.actions.act_window">
+        <field name="name">Products</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_type">form</field>
+        <field name="context">{"search_default_consumable": 1, 'default_type': 'product'}</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to define a new product.
+            </p>
+        </field>
+    </record>
+    
+    
+    <record id="view_stock_product_template_tree" model="ir.ui.view">
+            <field name="name">product.template.stock.tree.inherit</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="stock.view_stock_product_template_tree"/>
+            <field name="arch" type="xml">
+               <field name="sequence" position="replace"></field>
+                <field name="list_price" position="replace">
+                	   <field name="thiet_bi_id"></field>
+          			<field name="brand_id"></field>
+                	   <field name="tracking"></field>
+                	   
+                </field>
+                <field name="standard_price" position="replace">
+                    <field name="ghi_chu_ban_dau"></field>
+                    <field name="ghi_chu_ngay_nhap"></field>
+                    <field name="ghi_chu_ngay_xuat"></field>
+                </field>
+        		<field name="virtual_available" position="attributes">
+        			<attribute name="invisible">1</attribute>
+                </field>
+            </field>
+        </record>
+   
+   
+   </data>
+</odoo>

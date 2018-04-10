@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+<data>
+		<record id="view_inventory_form" model="ir.ui.view">
+		        <field name="name">stock.inventory.form.inherit</field>
+		        <field name="model">stock.inventory</field>
+		        <field name="inherit_id" ref="stock.view_inventory_form"></field>
+		        <field name="arch" type="xml">
+		          		<xpath expr="//field[@name='line_ids']/tree/field[@name='product_id']" position="after">
+		          			<field name="thiet_bi_id"></field>
+		          			<field name="brand_id"></field>
+		          			<field name="categ_id"></field>
+		          		</xpath>
+		          </field>
+		        </record>
+
+</data>
+</odoo>

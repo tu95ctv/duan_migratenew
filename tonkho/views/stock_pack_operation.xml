@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+<data>
+  <record id="view_pack_operation_lot_form_inherit" model="ir.ui.view">
+         <field name="name">tonkho.pack.operation.inherit</field>
+         <field name="model">stock.pack.operation</field>
+         <field name="inherit_id" ref="stock.view_pack_operation_lot_form" />
+         <field name="arch" type="xml">
+            <xpath expr="//field[@name='pack_lot_ids']/tree/field[@name='qty']" position="replace">
+            	<field name="id"></field>
+             	<field name="pn" invisible="context.get('only_create', False)"/>
+                <field name="pn_for_create" invisible="not context.get('only_create', False)"/> 
+                <field name="qty"/>
+            </xpath>
+            <xpath expr="//field[@name='pack_lot_ids']/tree/field[@name='lot_name']" position="attributes">
+               <attribute name="string" >S/N</attribute>
+            </xpath>
+            <xpath expr="//field[@name='pack_lot_ids']/tree/field[@name='lot_id']" position="attributes">
+               <attribute name="string" >Sử dụng S/N có sẵn</attribute>
+            </xpath>
+         </field>
+      </record>
+
+</data>
+</odoo>
