@@ -447,6 +447,8 @@ def importthuvien(odoo_or_self_of_wizard):
                 'fields' : [
                         ('name', {'func':None,'xl_title':u'Họ và Tên','key':False,'required':True}),
                          ( 'login',{'func':None,'xl_title':u'Địa chỉ email','key':True ,'required':True}),
+                        ('password',{'func':None,'required':True,'set_val':'123456'}),
+
                          ('phone',{'func':None,'xl_title':u'Số điện thoại','key':False}),
 #                         ('cac_sep_ids',{'func':None,'xl_title':u'Cấp trên','key':False,'key_name':'login','m2m':True}),
                          ('cac_sep_ids',{'key':False,'required':False,
@@ -478,6 +480,7 @@ def importthuvien(odoo_or_self_of_wizard):
                 'model':'hr.department',
                 'fields' : [
                          ('name',{'func':None,'xl_title':u'công ty','key':True,'required':True}),
+
                         ('parent_id',{'fields':[('name',{'xl_title':u'parent_id','key':True,'required':True}),
                                                        ]
                                             }

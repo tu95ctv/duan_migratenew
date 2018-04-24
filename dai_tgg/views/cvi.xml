@@ -55,8 +55,8 @@
          <field name="arch" type="xml">
             <form string=" Form">
              <header>
-                  <button name="action_confirmed" type="object" string="Confirm"  class="oe_highlight"    attrs="{'invisible':['|',('is_sep','=',False),'|',('loai_record','!=','Công Việc'),'|',('cam_sua','=',True),'&amp;',('state','!=','ready_delete'),('state','!=','approved')]}"/>
-                  <button name="action_approved" type="object" string="Approved"  class="oe_highlight"   attrs="{'invisible':['|',('is_sep','=',False),'|',('loai_record','!=','Công Việc'),'|',('cam_sua','=',True),('state','!=','confirmed')]}" />
+                  <button name="action_confirmed" type="object" string="Confirm"  class="oe_highlight"    attrs="{'invisible':['|',('is_sep','=',False),'|',('loai_record','!=','Công Việc'),'|',('state','=','confirmed')]}"/>
+                  <button name="action_approved" type="object" string="Approved"  class="oe_highlight"   attrs="{'invisible':['|',('is_sep','=',False),'|',('loai_record','!=','Công Việc'),'|',('state','=','approved')]}" />
                   <field name="state" widget="statusbar"  attrs="{'invisible':[('loai_record','!=','Công Việc')]}"/>
                </header>
                <sheet>
@@ -67,7 +67,7 @@
                        <field name="loai_record" attrs="{'invisible':[('tvcv_id','!=',False)],'required':True}" invisible="context.get('default_loai_record')" /> 
                         <field name="loai_record_show" attrs="{'invisible':[('tvcv_id','=',False)]}" invisible="context.get('default_loai_record')" />
                         <field name="user_id" readonly="1"  attrs="{'invisible':[('loai_record','!=','Công Việc')]}" /> <!-- 'readonly':[('is_admin','=', False),('cam_sua','=', True)], -->
-                        <field name="department_id" /><!--  attrs="{'readonly':[('is_admin','=', False)]}"   -->
+                        <field name="department_id" attrs="{'readonly':[('is_admin','=', False)]}" /><!--  attrs="{'readonly':[('is_admin','=', False)]}"   -->
                         <field name="department_ids" />
                         <field name="cd_parent_id" readonly="1" attrs="{'invisible':[('cd_parent_id','=',False)]}" />
                         <field name="gd_parent_id" readonly="1" attrs="{'invisible':[('gd_parent_id','=',False)]}" />

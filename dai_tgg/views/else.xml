@@ -55,10 +55,10 @@
             <tree>
                <field name="id" />
                <field name="name" />
-               
+               <!-- 
                <field name="name_khong_dau"></field>
             	<field name="name_viet_tat"></field>
-            	
+            	 -->
             	
                <field name="login" />
                <field name="date" string="Ngày sinh" />
@@ -308,7 +308,7 @@
          <field name="inherit_id" ref="hr.view_department_tree" />
          <field name="arch" type="xml">
             <xpath expr="//field[@name='display_name']" position="after">
-               <field name="partner_id" />
+               <field name="cong_ty_type" />
             </xpath>
          </field>
       </record>
@@ -320,7 +320,6 @@
          <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
                <field name="cong_ty_type" />
-               <field name="partner_id" />
             </xpath>
          </field>
       </record>

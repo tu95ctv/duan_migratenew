@@ -35,6 +35,8 @@
        'views/stock_production_lot.xml',
        'views/product_template.xml',
         'views/stock_move_line.xml',
+        'views/stock_picking11.xml',
+#         'views/delete_menu.xml',
     'report/pick_operation_report.xml',
         
         

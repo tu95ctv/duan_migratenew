@@ -18,7 +18,7 @@ class CviSuCo(models.Model):
     doitac_ids = fields.Many2many('res.partner',string=u'Đối Tác')
 #     department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',compute='department_id_',store=True)
     
-    department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',required=True)
+    department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',required=True,readonly=True,default = lambda self:  self.env.user.department_id.id)
     department_ids = fields.Many2many('hr.department', string=u'Đơn vị liên quan' )
     loai_record = fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record')
     loai_record_show =  fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record',compute='loai_record_show_')

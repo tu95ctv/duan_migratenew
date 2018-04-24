@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api,exceptions,tools,_
+import sys
+VERSION_INFO   = sys.version_info[0]
 class LTKSetting(models.TransientModel):
     _name = 'ltk.config.settings'
     _inherit = 'res.config.settings'
@@ -43,22 +45,48 @@ class LTKSetting(models.TransientModel):
         ], u"Show thông tin admin, sếp", implied_group='dai_tgg.group_show_thong_tin_admin_sep')
     is_cvi_id_in_pivot =fields.Boolean(string=u'có CV ID khi xuất pivot')
     show_id_in_cvi_name_get = fields.Boolean(string=u'Show ID ở CV name get')
+#     @api.multi
+#     def set_is_cam_sua_truoc_ngay(self):
+#         self.env['ir.values'].sudo().set_default(
+#             'ltk.config.settings', 'is_cam_sua_truoc_ngay', self.is_cam_sua_truoc_ngay)
+#         self.env['ir.values'].sudo().set_default(
+#             'ltk.config.settings', 'cam_sua_truoc_ngay', self.cam_sua_truoc_ngay)
+#     @api.multi
+#     def set_deposit_product_id_defaults(self):
+#         return self.env['ir.values'].sudo().set_default(
+#             'ltk.config.settings', 'is_cvi_id_in_pivot', self.is_cvi_id_in_pivot)
+#     @api.multi
+#     def set_is_cvi_id_in_pivot(self):
+#         return self.env['ir.values'].sudo().set_default(
+#             'ltk.config.settings', 'allow_edit_time', self.allow_edit_time)
+#            
+#     @api.multi
+#     def set_is_cam_sua_do_time(self):
+#         return self.env['ir.values'].sudo().set_default(
+#             'ltk.config.settings', 'is_cam_sua_do_time', self.is_cam_sua_do_time)   
+        
     @api.multi
-    def set_is_cam_sua_truoc_ngay(self):
-        self.env['ir.values'].sudo().set_default(
-            'ltk.config.settings', 'is_cam_sua_truoc_ngay', self.is_cam_sua_truoc_ngay)
-        self.env['ir.values'].sudo().set_default(
-            'ltk.config.settings', 'cam_sua_truoc_ngay', self.cam_sua_truoc_ngay)
-    @api.multi
-    def set_deposit_product_id_defaults(self):
-        return self.env['ir.values'].sudo().set_default(
-            'ltk.config.settings', 'is_cvi_id_in_pivot', self.is_cvi_id_in_pivot)
-    @api.multi
-    def set_is_cvi_id_in_pivot(self):
-        return self.env['ir.values'].sudo().set_default(
-            'ltk.config.settings', 'allow_edit_time', self.allow_edit_time)
-         
-    @api.multi
-    def set_is_cam_sua_do_time(self):
-        return self.env['ir.values'].sudo().set_default(
-            'ltk.config.settings', 'is_cam_sua_do_time', self.is_cam_sua_do_time)
+    def set_values(self):
+        super(LTKSetting, self).set_values()
+        for fname in [ 'is_cam_sua_truoc_ngay','cam_sua_truoc_ngay','is_cvi_id_in_pivot','allow_edit_time','is_cam_sua_do_time']:
+            if VERSION_INFO==2:
+                self.env['ir.values'].sudo().set_default(
+            'ltk.config.settings',fname,getattr(self, fname))
+            else:
+                self.env['ir.config_parameter'].sudo().set_param('dai_tgg.'+fname, getattr(self, fname))
+    @api.model
+    def get_values(self):
+        res = super(LTKSetting, self).get_values()
+        for fname in ['cam_sua_truoc_ngay','is_cam_sua_truoc_ngay','is_cvi_id_in_pivot','is_cam_sua_do_time']:   
+            res.update(
+               {fname:self.env['ir.config_parameter'].sudo().get_param('dai_tgg.' + fname)}
+            )
+        for fname in ['allow_edit_time']:#,'cam_sua_truoc_ngay','is_cvi_id_in_pivot','allow_edit_time','is_cam_sua_do_time']:   
+            res.update(
+               {fname:int(self.env['ir.config_parameter'].sudo().get_param('dai_tgg.' + fname))}
+            )
+            
+        return res
+    
+    
+    

@@ -7,7 +7,7 @@ class CongTyType(models.Model):
     name = fields.Char()   
 class Department(models.Model):
     _inherit = 'hr.department'
-    _inherits = {'res.partner': 'partner_id'}
+    _parent_name = "parent_id"
 #     name_for_report = fields.Char()
 #     partner_id = fields.Many2one('res.partner')
     cong_ty_type = fields.Many2one('congtytype', string=u'Loại đơn vị')

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+<data>
+ <delete model="ir.ui.menu" id="stock.menu_stock_scrap"/>
+ <delete model="ir.ui.menu" id="stock.menu_procurement_compute"/>
+ <delete model="ir.ui.menu" id="stock.menu_reordering_rules_config"/>
+</data>
+</odoo>

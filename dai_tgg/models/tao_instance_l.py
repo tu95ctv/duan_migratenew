@@ -1,4 +1,4 @@
- # -*- coding: utf-8 -*-
+sequence_id # -*- coding: utf-8 -*-
 import re
 import xlrd
 import time
@@ -126,7 +126,7 @@ def import_strect(odoo_or_self_of_wizard):
                             ('sn',{'func':sn_map,'contain':u'Serial number','key':'Both','col_index':7}),
                             
 #                             ('stt',{'func':None,'xl_title':u'stt','key':True}),
-#                             ('so_the',{'func':None,'xl_title':u'Sá»‘ tháº»','key':True}),
+#                             ('so_the',{'func':None,'xl_title':u'SÃ¡Â»â€˜ thÃ¡ÂºÂ»','key':True}),
 #                             ('pn',{'func':valid_sn_pn,'xl_title':u'Part-Number','key':True}),
 #                             ('pn_id',{'model':'pn','func':valid_sn_pn,'xl_title':u'Part-Number','key':False}),
 #                             ('sn_false',{'func':sn_bi_false,'xl_title':None,'key':False,'col_index':7}),
@@ -190,7 +190,7 @@ def ham_tao_tv_con(self_,val,field_attr,key_search_dict,update_dict,noti_dict):
         i = val[0]
         val = val[1]
         val = val.strip().capitalize()
-        name_tv_con = val  # + u'|CÃ´ng Viá»‡c Cha: '  + key_search_dict['name']
+        name_tv_con = val  # + u'|CÃƒÂ´ng ViÃ¡Â»â€¡c Cha: '  + key_search_dict['name']
         parent_id = get_or_create_object_sosanh (self_,'tvcv',{'name':parent_id_name},noti_dict=noti_dict)
         if i ==len_alist-1:
             diem_percent_l =100- (len_alist-1)*diem_percent
@@ -220,23 +220,23 @@ def importthuvien(odoo_or_self_of_wizard):
             begin_row_offset = 1
             not_active_include_search  =False
             
-            if r.type_choose==u'ThÆ° viá»‡n cÃ´ng viá»‡c':
+            if r.type_choose==u'ThÃ†Â° viÃ¡Â»â€¡n cÃƒÂ´ng viÃ¡Â»â€¡c':
                 not_active_include_search  =True
                 sheet_names = xl_workbook.sheet_names()
                 model_name = 'tvcv'
                 
                 field_dict_goc= (
-                         ('name', {'func':None,'xl_title':u'CÃ´ng viá»‡c','key':True,'break_when_xl_field_empty':True}),#'func_de_tranh_empty':lambda r:  len(r) > 2
-                         ( 'code',{'func':None,'xl_title':u'MÃ£ CV','key':False }),
-                         ('do_phuc_tap',{'func':None,'xl_title':u'Ä�á»™ phá»©c táº¡p','key':False,'func_write_log':write_log}),
-                         ('don_vi',{'model':'donvi','func':lambda x: unicode(x).title().strip(),'xl_title':u'Ä�Æ¡n vá»‹','key':False}),
-                         ('thoi_gian_hoan_thanh',{'func':None,'xl_title':u'Thá»�i gian hoÃ n thÃ nh','key':False}),
+                         ('name', {'func':None,'xl_title':u'CÃƒÂ´ng viÃ¡Â»â€¡c','key':True,'break_when_xl_field_empty':True}),#'func_de_tranh_empty':lambda r:  len(r) > 2
+                         ( 'code',{'func':None,'xl_title':u'MÃƒÂ£ CV','key':False }),
+                         ('do_phuc_tap',{'func':None,'xl_title':u'Ã„ï¿½Ã¡Â»â„¢ phÃ¡Â»Â©c tÃ¡ÂºÂ¡p','key':False,'func_write_log':write_log}),
+                         ('don_vi',{'model':'donvi','func':lambda x: unicode(x).title().strip(),'xl_title':u'Ã„ï¿½Ã†Â¡n vÃ¡Â»â€¹','key':False}),
+                         ('thoi_gian_hoan_thanh',{'func':None,'xl_title':u'ThÃ¡Â»ï¿½i gian hoÃƒÂ n thÃƒÂ nh','key':False}),
                          ('dot_xuat_hay_dinh_ky',{'model':'dotxuathaydinhky','func':None,'xl_title':None,'key':False,'col_index':7}),
-                         ('diem',{'func':None,'xl_title':u'Ä�iá»ƒm','key':False}),
+                         ('diem',{'func':None,'xl_title':u'Ã„ï¿½iÃ¡Â»Æ’m','key':False}),
                         # ('is_active',{'func':active_function,'xl_title':u'active','key':False,'col_index':'skip_field_if_not_found_column_in_some_sheet','use_fnc_even_cell_is_False':True}),
                          ('active',{'func':active_function,'xl_title':u'active','key':True,'col_index':'skip_field_if_not_found_column_in_some_sheet','use_fnc_even_cell_is_False':True}),
                          ('children_ids',{'model':'tvcv',
-                        'xl_title':u'CÃ¡c cÃ´ng viá»‡c con',
+                        'xl_title':u'CÃƒÂ¡c cÃƒÂ´ng viÃ¡Â»â€¡c con',
                         'key':False,'col_index':'skip_field_if_not_found_column_in_some_sheet','m2m':True,'dung_ham_de_tao_val_rieng':ham_tao_tv_con
                                                                                                     }),
                         )
@@ -246,67 +246,67 @@ def importthuvien(odoo_or_self_of_wizard):
                 sheet_names = ['Sheet1']
                 model_name = 'res.users'
                 field_dict= (
-                         ('name', {'func':None,'xl_title':u'Há»� vÃ  TÃªn','key':False,'break_when_xl_field_empty':True}),
-                         ( 'login',{'func':None,'xl_title':u'Ä�á»‹a chá»‰ email','key':True ,'break_when_xl_field_empty':True}),
-                         ('phone',{'func':None,'xl_title':u'Sá»‘ Ä‘iá»‡n thoáº¡i','key':False}),
-                         #('tram_id',{'model':'tram','func':None,'xl_title':u'Tráº¡m','key':False}),
-                         #('parent_id',{'model':'res.users','func':None,'xl_title':u'Cáº¥p trÃªn','key':False,'key_name':'login','split_first_item_if_comma':True}),
-                         ('cac_sep_ids',{'model':'res.users','func':None,'xl_title':u'Cáº¥p trÃªn','key':False,'key_name':'login','m2m':True}),
-                        ('cty_id',{'model':'congty','func':None,'xl_title':u'Bá»™ Pháº­n','key':False}),
+                         ('name', {'func':None,'xl_title':u'HÃ¡Â»ï¿½ vÃƒÂ  TÃƒÂªn','key':False,'break_when_xl_field_empty':True}),
+                         ( 'login',{'func':None,'xl_title':u'Ã„ï¿½Ã¡Â»â€¹a chÃ¡Â»â€° email','key':True ,'break_when_xl_field_empty':True}),
+                         ('phone',{'func':None,'xl_title':u'SÃ¡Â»â€˜ Ã„â€˜iÃ¡Â»â€¡n thoÃ¡ÂºÂ¡i','key':False}),
+                         #('tram_id',{'model':'tram','func':None,'xl_title':u'TrÃ¡ÂºÂ¡m','key':False}),
+                         #('parent_id',{'model':'res.users','func':None,'xl_title':u'CÃ¡ÂºÂ¥p trÃƒÂªn','key':False,'key_name':'login','split_first_item_if_comma':True}),
+                         ('cac_sep_ids',{'model':'res.users','func':None,'xl_title':u'CÃ¡ÂºÂ¥p trÃƒÂªn','key':False,'key_name':'login','m2m':True}),
+                        ('cty_id',{'model':'congty','func':None,'xl_title':u'BÃ¡Â»â„¢ PhÃ¡ÂºÂ­n','key':False}),
                         )
                 title_rows = [1]
-            elif r.type_choose ==u'CÃ´ng Ty':
+            elif r.type_choose ==u'CÃƒÂ´ng Ty':
                 model_name = 'congty'
-                sheet_names = [u'CÃ´ng Ty']
+                sheet_names = [u'CÃƒÂ´ng Ty']
                 field_dict= (
-                        ('name',{'func':None,'xl_title':u'cÃ´ng ty','key':True}),
+                        ('name',{'func':None,'xl_title':u'cÃƒÂ´ng ty','key':True}),
                         ('parent_id',{'model':'congty','func':None,'xl_title':u'parent_id','key':False}),
                           ('cong_ty_type',{'model':'congtytype','func':None,'xl_title':u'cong_ty_type','key':False}),
                         )
                 title_rows = [1]
-            elif r.type_choose ==u'Kiá»ƒm KÃª':
+            elif r.type_choose ==u'KiÃ¡Â»Æ’m KÃƒÂª':
                 sheet_names = [u'web']
                 begin_row_offset = 2               
                 model_name = 'kiemke'
                 field_dict= (
-                        ('kiem_ke_id',{'func':None,'xl_title':u'ID - KhÃ´ng sá»­a cá»™t nÃ y','key':True}),
-                        ('ten_vat_tu',{'func':None,'xl_title':u'TÃªn tÃ i sáº£n','key':False}),
-                        ('so_the',{'func':None,'xl_title':u'Sá»‘ tháº»','key':False}),
+                        ('kiem_ke_id',{'func':None,'xl_title':u'ID - KhÃƒÂ´ng sÃ¡Â»Â­a cÃ¡Â»â„¢t nÃƒÂ y','key':True}),
+                        ('ten_vat_tu',{'func':None,'xl_title':u'TÃƒÂªn tÃƒÂ i sÃ¡ÂºÂ£n','key':False}),
+                        ('so_the',{'func':None,'xl_title':u'SÃ¡Â»â€˜ thÃ¡ÂºÂ»','key':False}),
                         ('pn',{'func':valid_sn_pn,'xl_title':u'Part-Number','key':False}),
                         ('pn_id',{'model':'pn','func':valid_sn_pn,'xl_title':u'Part-Number','key':False}),
                         ('sn',{'func':valid_sn_pn,'xl_title':u'Serial number','key':False}),
                         ('sn_false',{'func':sn_bi_false,'xl_title':u'Serial number','key':False}),
-                        ('ma_du_an',{'func':None,'xl_title':u'MÃ£ dá»± Ã¡n','key':False}),
-                        ('ten_du_an',{'func':None,'xl_title':u'TÃªn dá»± Ã¡n','key':False}),
-                        ('ma_vach',{'func':None,'xl_title':u'MÃ£ váº¡ch','key':False}),
-                        ('trang_thai',{'func':None,'xl_title':u'Tráº¡ng thÃ¡i','key':False}),
-                        ('hien_trang_su_dung',{'func':None,'xl_title':u'Hiá»‡n tráº¡ng sá»­ dá»¥ng','key':False}),
-                        ('ghi_chu',{'func':None,'xl_title':u'Ghi chÃº','key':False}),
-                        ('don_vi',{'func':None,'xl_title':u'Ä�Æ¡n vá»‹','key':False}),
-                        ('vi_tri_lap_dat',{'func':None,'xl_title':u'Vá»‹ trÃ­ láº¯p Ä‘áº·t','key':False}),
-                        ('loai_tai_san',{'func':None,'xl_title':u'Loáº¡i tÃ i sáº£n','key':False}),
+                        ('ma_du_an',{'func':None,'xl_title':u'MÃƒÂ£ dÃ¡Â»Â± ÃƒÂ¡n','key':False}),
+                        ('ten_du_an',{'func':None,'xl_title':u'TÃƒÂªn dÃ¡Â»Â± ÃƒÂ¡n','key':False}),
+                        ('ma_vach',{'func':None,'xl_title':u'MÃƒÂ£ vÃ¡ÂºÂ¡ch','key':False}),
+                        ('trang_thai',{'func':None,'xl_title':u'TrÃ¡ÂºÂ¡ng thÃƒÂ¡i','key':False}),
+                        ('hien_trang_su_dung',{'func':None,'xl_title':u'HiÃ¡Â»â€¡n trÃ¡ÂºÂ¡ng sÃ¡Â»Â­ dÃ¡Â»Â¥ng','key':False}),
+                        ('ghi_chu',{'func':None,'xl_title':u'Ghi chÃƒÂº','key':False}),
+                        ('don_vi',{'func':None,'xl_title':u'Ã„ï¿½Ã†Â¡n vÃ¡Â»â€¹','key':False}),
+                        ('vi_tri_lap_dat',{'func':None,'xl_title':u'VÃ¡Â»â€¹ trÃƒÂ­ lÃ¡ÂºÂ¯p Ã„â€˜Ã¡ÂºÂ·t','key':False}),
+                        ('loai_tai_san',{'func':None,'xl_title':u'LoÃ¡ÂºÂ¡i tÃƒÂ i sÃ¡ÂºÂ£n','key':False}),
                         )
                 title_rows = range(6,11)
                 begin_row_offset = 1
-            elif r.type_choose ==u'Váº­t TÆ° LTK':
+            elif r.type_choose ==u'VÃ¡ÂºÂ­t TÃ†Â° LTK':
                 sheet_names = [u'LTK']
                 model_name = 'vattu'
                 field_dict= (
-#                             ('name',{'func':None,'xl_title':u'TÃªn tÃ i sáº£n','key':True}),
+#                             ('name',{'func':None,'xl_title':u'TÃƒÂªn tÃƒÂ i sÃ¡ÂºÂ£n','key':True}),
                       
                         ('stt',{'func':None,'xl_title':u'STT','key':True}),
-                        ('phan_loai',{'func':None,'xl_title':u'PhÃ¢n loáº¡i thiáº¿t bá»‹','key':False}),
-                        ('pn',{'func':valid_sn_pn,'xl_title':u'MÃ£ card (P/N)','key':False}),
-                        ('pn_id',{'model':'pn','func':valid_sn_pn,'xl_title':u'MÃ£ card (P/N)','key':False}),
-                        ('sn',{'func':valid_sn_pn,'xl_title':u'Sá»‘ serial (S/N)','key':False}),
-                        ('loai_card',{'func':None,'xl_title':u'Loáº¡i card','key':False}),
-                        ('he_thong',{'func':None,'xl_title':u'TÃªn há»‡ thá»‘ng thiáº¿t bá»‹','key':False}),
-                        ('cabinet_rack',{'func':None,'xl_title':u'TÃªn tá»§ (Cabinet / rack)','key':False}),
-                        ('shelf',{'func':lambda i: str(int(i)) if isinstance(i,float)  else i,'xl_title':u'NgÄƒn (shelf)','key':False}),
-                        ('stt_shelf',{'func':lambda i: str(int(i)) if isinstance(i,float)  else i,'xl_title':u'Sá»‘ thá»© tá»± (trong shelf)','key':False}),
+                        ('phan_loai',{'func':None,'xl_title':u'PhÃƒÂ¢n loÃ¡ÂºÂ¡i thiÃ¡ÂºÂ¿t bÃ¡Â»â€¹','key':False}),
+                        ('pn',{'func':valid_sn_pn,'xl_title':u'MÃƒÂ£ card (P/N)','key':False}),
+                        ('pn_id',{'model':'pn','func':valid_sn_pn,'xl_title':u'MÃƒÂ£ card (P/N)','key':False}),
+                        ('sn',{'func':valid_sn_pn,'xl_title':u'SÃ¡Â»â€˜ serial (S/N)','key':False}),
+                        ('loai_card',{'func':None,'xl_title':u'LoÃ¡ÂºÂ¡i card','key':False}),
+                        ('he_thong',{'func':None,'xl_title':u'TÃƒÂªn hÃ¡Â»â€¡ thÃ¡Â»â€˜ng thiÃ¡ÂºÂ¿t bÃ¡Â»â€¹','key':False}),
+                        ('cabinet_rack',{'func':None,'xl_title':u'TÃƒÂªn tÃ¡Â»Â§ (Cabinet / rack)','key':False}),
+                        ('shelf',{'func':lambda i: str(int(i)) if isinstance(i,float)  else i,'xl_title':u'NgÃ„Æ’n (shelf)','key':False}),
+                        ('stt_shelf',{'func':lambda i: str(int(i)) if isinstance(i,float)  else i,'xl_title':u'SÃ¡Â»â€˜ thÃ¡Â»Â© tÃ¡Â»Â± (trong shelf)','key':False}),
                         ('slot',{'func':lambda i: str(int(i)) if isinstance(i,float) else i,'xl_title':u'Khe (Slot)','key':False}),
-                        ('ghi_chu',{'func':None,'xl_title':u'Ghi chÃº - MÃ´ táº£ thÃªm','key':False}),
-                        ('sn_false',{'func':sn_bi_false,'xl_title':u'Sá»‘ serial (S/N)','key':False}),
+                        ('ghi_chu',{'func':None,'xl_title':u'Ghi chÃƒÂº - MÃƒÂ´ tÃ¡ÂºÂ£ thÃƒÂªm','key':False}),
+                        ('sn_false',{'func':sn_bi_false,'xl_title':u'SÃ¡Â»â€˜ serial (S/N)','key':False}),
                         )
                 title_rows = range(0,7)
             elif r.type_choose ==u'INVENTORY_240G':
@@ -389,7 +389,7 @@ def importthuvien(odoo_or_self_of_wizard):
                 sheet_names = xl_workbook.sheet_names()
                 begin_row_offset = 1
             for sheet_name in sheet_names:
-                if r.type_choose==u'ThÆ° viá»‡n cÃ´ng viá»‡c':
+                if r.type_choose==u'ThÃ†Â° viÃ¡Â»â€¡n cÃƒÂ´ng viÃ¡Â»â€¡c':
                     field_dict = deepcopy(field_dict_goc)
                     
                 sheet = xl_workbook.sheet_by_name(sheet_name)
@@ -418,7 +418,7 @@ def importthuvien(odoo_or_self_of_wizard):
                     ##print 'row_number',row,'sh',sheet_name
                     key_search_dict = {}
                     update_dict = {}
-                    if r.type_choose==u'ThÆ° viá»‡n cÃ´ng viá»‡c':
+                    if r.type_choose==u'ThÃ†Â° viÃ¡Â»â€¡n cÃƒÂ´ng viÃ¡Â»â€¡c':
                         cong_viec_cate_id = get_or_create_object_sosanh(self,'tvcvcate',{'name':sheet_name},{} )
                         update_dict['cong_viec_cate_id'] = cong_viec_cate_id.id
                     elif r.type_choose==u'User':
@@ -449,7 +449,7 @@ def importthuvien(odoo_or_self_of_wizard):
                             if field_attr['col_index'] =='skip_field_if_not_found_column_in_some_sheet':
                                 continue
                         except KeyError as e:
-                            raise KeyError (u'Ko co col_index cá»§a field %s'% field)
+                            raise KeyError (u'Ko co col_index cÃ¡Â»Â§a field %s'% field)
                         ##print 'row,col',row,col
                         col = field_attr['col_index']
                         val = sheet.cell_value(row,col)
@@ -489,7 +489,7 @@ def importthuvien(odoo_or_self_of_wizard):
 #                                 i = val[0]
 #                                 val = val[1]
 #                                 val = val.strip().capitalize()
-#                                 name_tv_con = val  # + u'|CÃ´ng Viá»‡c Cha: '  + key_search_dict['name']
+#                                 name_tv_con = val  # + u'|CÃƒÂ´ng ViÃ¡Â»â€¡c Cha: '  + key_search_dict['name']
 #                                 parent_id = get_or_create_object_sosanh (self,'tvcv',{'name':parent_id_name},noti_dict=noti_dict)
 #                                 if i ==len_alist-1:
 #                                     diem_percent_l =100- (len_alist-1)*diem_percent

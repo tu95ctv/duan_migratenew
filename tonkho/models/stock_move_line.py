@@ -9,6 +9,14 @@ class StockMoveLine(models.Model):
 #     lot_id = fields.Many2one('stock.production.lot', 'Lot')
     pn = fields.Char(related='lot_id.pn', string=u'Part Number')
     pn_for_create = fields.Char(string=u'Part Number')
+    
+    @api.onchange('lot_name')
+    def lot_id_when_picking_type(self):
+        if self.lot_name:
+            lot_id = self.env['stock.production.lot'].search([('name','=',self.lot_name),('product_id','=',self.product_id.id)]).id
+            self.lot_id = lot_id
+        
+        
     def _action_done(self):
         """ This method is called during a move's `action_done`. It'll actually move a quant from
         the source location to the destination location, and unreserve if needed in the source

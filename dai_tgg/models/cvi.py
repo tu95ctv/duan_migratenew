@@ -4,6 +4,8 @@ from odoo import models, fields, api,exceptions,tools,_
 from odoo.addons.dai_tgg.mytools import  convert_utc_to_gmt_7,name_compute,convert_odoo_datetime_to_vn_datetime,convert_odoo_datetime_to_vn_str,name_compute_char_join_rieng,convert_vn_datetime_to_utc_datetime,Convert_date_orm_to_str
 from odoo.exceptions import ValidationError,UserError
 import datetime
+import sys
+VERSION_INFO   = sys.version_info[0]
 
 def skip_depends_if_not_congviec_decorator(depend_func):
     def wrapper(*args,**kargs):
@@ -30,6 +32,13 @@ def het_time(r,TIME_ALLOW_SECONDS):
     delta_time =  datetime.datetime.now() - create_date
     return  delta_time>TIME_ALLOW   
     
+    
+def get_value_of_one_setting(self,fname,tien_to = 'dai_tgg.'):
+    if VERSION_INFO==2:
+        return self.env['ir.values'].get_default('ltk.config.settings', tien_to+ fname)
+    else:
+        return self.env['ir.config_parameter'].sudo().get_param(tien_to + fname)
+
 class CamSua(models.Model):
     _name = 'camsua'
     _auto = False
@@ -59,19 +68,21 @@ class CamSua(models.Model):
             if not r.id:
                 r.ly_do_cam_sua_do_time = u'Không cấm sửa do new'
                 r.cam_sua_do_time = False
-#             if self.user_has_groups('dai_tgg.time_allow_field_edit_group') or self.user_has_groups('base.group_erp_manager'):
-#                 r.ly_do_cam_sua_do_time = u'Không cấm sửa do nằm trong group hoặc edmin'
-#                 r.cam_sua_do_time = False
-            elif self.env['ir.values'].get_default('ltk.config.settings', 'is_cam_sua_truoc_ngay'):
-                cam_sua_truoc_ngay = self.env['ir.values'].get_default('ltk.config.settings', 'cam_sua_truoc_ngay')
+            
+#             elif self.env['ir.values'].get_default('ltk.config.settings', 'is_cam_sua_truoc_ngay'):
+            elif get_value_of_one_setting(self,'is_cam_sua_truoc_ngay'):
+#                 cam_sua_truoc_ngay = self.env['ir.values'].get_default('ltk.config.settings', 'cam_sua_truoc_ngay')
+                cam_sua_truoc_ngay = get_value_of_one_setting(self,'cam_sua_truoc_ngay')
                 if fields.Date.from_string(r.ngay_bat_dau) < fields.Date.from_string(cam_sua_truoc_ngay):
                     r.cam_sua_do_time = True
                     r.ly_do_cam_sua_do_time = u'cấm sửa do trước ngày'
                     r.cam_sua_do_chot = True
-            elif not self.env['ir.values'].get_default('ltk.config.settings', 'is_cam_sua_do_time'):
+#             elif not self.env['ir.values'].get_default('ltk.config.settings', 'is_cam_sua_do_time'):
+            elif not get_value_of_one_setting(self,'is_cam_sua_do_time'):
                 r.ly_do_cam_sua_do_time = u'Không cấm sửa do is_cam_sua_do_time = False'
             else:
-                TIME_ALLOW_SECONDS = self.env['ir.values'].get_default('ltk.config.settings', 'allow_edit_time')
+#                 TIME_ALLOW_SECONDS = self.env['ir.values'].get_default('ltk.config.settings', 'allow_edit_time')
+                TIME_ALLOW_SECONDS = get_value_of_one_setting(self,'allow_edit_time')
                 cam_sua = het_time(r,TIME_ALLOW_SECONDS)
                 r.cam_sua_do_time =  cam_sua
                 if cam_sua:
@@ -117,7 +128,7 @@ class DuyetDiem(models.TransientModel):
         if active_ids:
             cac_linh_ids = self.env.user.cac_linh_ids
             for r in self.env['cvi'].browse(active_ids):
-                if r.is_sep or r.is_admin or (cac_linh_ids and (r.create_uid == r.env.user or r.user_id == r.env.user)):
+                if r.is_sep:#or r.is_admin or (cac_linh_ids and (r.create_uid == r.env.user or r.user_id == r.env.user)):
                     r.state = 'approved'
                 else:
                     raise UserError (u'Bạn không phải là lãnh đạo của nhân viên tạo record này')
@@ -129,7 +140,7 @@ class DuyetDiem(models.TransientModel):
         if active_ids:
             cac_linh_ids = self.env.user.cac_linh_ids
             for r in self.env['cvi'].browse(active_ids):
-                if r.is_sep or r.is_admin or (cac_linh_ids and (r.create_uid == r.env.user or r.user_id == r.env.user)):
+                if r.is_sep:# or r.is_admin or (cac_linh_ids and (r.create_uid == r.env.user or r.user_id == r.env.user)):
                     r.state = 'confirmed'
                 else:
                     raise UserError (u'Bạn không phải là lãnh đạo của nhân viên tạo record này')
@@ -151,22 +162,22 @@ class Cvi(models.Model):
     IS_CAM_SUA_DO_CHOT = True
     
     
-    @api.multi
-    def action_ready_delete(self):
-        for r in self:
-            if r.state == 'approved':
-                if r.is_sep or r.is_admin:
-                    r.state = 'ready_delete'
-                else:
-                    raise UserError(u'Bạn không có quyến set từ Approve thành Ready Delete')
-            else:
-                r.state = 'ready_delete'
+#     @api.multi
+#     def action_ready_delete(self):
+#         for r in self:
+#             if r.state == 'approved':
+#                 if r.is_sep or r.is_admin:
+#                     r.state = 'ready_delete'
+#                 else:
+#                     raise UserError(u'Bạn không có quyến set từ Approve thành Ready Delete')
+#             else:
+#                 r.state = 'ready_delete'
 
     @api.multi
     def action_confirmed(self):
         for r in self:
             if r.state == 'approved':
-                if r.is_sep or r.is_admin:
+                if r.is_sep:# or r.is_admin:
                     r.state = 'confirmed'
                 else:
                     raise UserError(u'Bạn không có quyến set từ Approve thành Confirm')
@@ -176,7 +187,7 @@ class Cvi(models.Model):
     @api.multi
     def action_approved(self):
         for r in self:
-            if r.is_sep or r.is_admin:
+            if r.is_sep:#or r.is_admin:
                 r.state = 'approved'
             else:
                 raise UserError(u'Bạn không có quyền aprroved')
@@ -190,8 +201,9 @@ class Cvi(models.Model):
                 r.department_id = r.user_id.department_id
 
     state = fields.Selection([
-                              ('ready_delete',u'Cho phép xóa'),('confirmed','Confirmed'), ('approved','Approved'),
-                          ],default='confirmed',required=True)
+#                               ('ready_delete',u'Cho phép xóa'),
+                              ('confirmed',u'Xác Nhận'), ('approved',u'Lãnh Đạo đã duyệt'),
+                          ],default='confirmed',required=True,string=u'Trạng thái')
     ti_le_chia_diem = fields.Float(digits=(6,2),string=u'Tỉ lệ chia điểm')
     id_for_pivot = fields.Integer(compute='name_',store=True)
     tvcv_id_name = fields.Char(compute='tvcv_id_name_',string=u'Thư Viện Công Việc',store=True)
@@ -324,7 +336,9 @@ class Cvi(models.Model):
     def is_sep_(self): 
         cac_linh_ids = self.env.user.cac_linh_ids
         for r in self:
-            if self.env.uid in r.user_id.cac_sep_ids.mapped('id') or self.user_has_groups('dai_tgg.cham_diem_group') or (cac_linh_ids and (r.create_uid == r.env.user or r.user_id == r.env.user)):# +  r.user_id.cac_sep_ids.cac_sep_ids.mapped('id'):
+            if self.env.uid in r.user_id.cac_sep_ids.mapped('id') or self.user_has_groups('dai_tgg.cham_diem_group') \
+            or (cac_linh_ids and (r.create_uid == r.env.user or r.user_id == r.env.user)) \
+            or  self.user_has_groups('base.group_erp_manager'):# +  r.user_id.cac_sep_ids.cac_sep_ids.mapped('id'):
                 r.is_sep = True
             else:
                 r.is_sep = False
