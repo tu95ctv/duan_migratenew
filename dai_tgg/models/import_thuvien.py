@@ -43,6 +43,7 @@ class ImportThuVien(models.Model):
                                    (u'GTGT',u'GTGT'),(u'XFP, SFP các loại',u'XFP, SFP các loại')  ])
     file = fields.Binary()
     filename = fields.Char()
+    department_id = fields.Many2one('hr.department')
     update_number=fields.Integer()
     create_number=fields.Integer()
     skipupdate_number=fields.Integer()

@@ -16,8 +16,9 @@ class PT(models.Model):
     """ Quants are the smallest unit of stock physical instances """
     _inherit = 'product.template'
     type = fields.Selection(selection_add=[],default = 'product')
-    thiet_bi_id = fields.Many2one('tonkho.thietbi')
-    brand_id = fields.Many2one('tonkho.brand')
+    thiet_bi_id = fields.Many2one('tonkho.thietbi', string = u'Thiết Bị')
+    brand_id = fields.Many2one('tonkho.brand',string=u'Hãng sản xuất')
+    department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo')
     ghi_chu_ban_dau =  fields.Text(string=u'Ghi chú ban đầu')
     ghi_chu_ngay_nhap = fields.Text(string=u'Ghi chú ngày nhập')
     ghi_chu_ngay_xuat = fields.Text(string=u'Ghi chú ngày xuất')

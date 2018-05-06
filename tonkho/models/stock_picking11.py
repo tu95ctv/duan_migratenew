@@ -9,11 +9,17 @@ def _select_nextval(cr, seq_name):
     cr.execute("SELECT nextval('%s')" % seq_name)
     return cr.fetchone()
 
+class ToTrinh(models.Model):
+    _name = 'totrinh'
+    name = fields.Char(u'Về Việc',required=True)
+    so_to_trinh = fields.Char()
+    ngay_to_trinh = fields.Date()
+    
 class StockPicking(models.Model):
     _inherit = "stock.picking"
-    department_id = fields.Many2one('hr.department',default=lambda self:self.env.user.department_id, readonly=True, string=u'Đơn Vị')
+    department_id = fields.Many2one('hr.department',default=lambda self:self.env.user.department_id, readonly=True, string=u'Đơn Vị', required=True)
     stt_bien_ban = fields.Integer(default=lambda self:self.env.user.department_id.sequence_id.number_next_actual,readonly=True)
-    don_vi_reference = fields.Char(readonly=True)
+#     stt_bien_ban = fields.Integer(default=lambda self:self.default_name,readonly=True)
     source_member_ids = fields.Many2many('res.partner','source_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân Viên Giao')
     dest_member_ids = fields.Many2many('res.partner','dest_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân Viên Nhận')
     ban_giao_or_nghiem_thu = fields.Selection([(u'ban_giao',u'Bàn Giao'),(u'nghiem_thu',u'Nghiệm Thu'),(u'su_dung',u'Đưa Vào Sử Dụng'),(u'nhap_kho_vat_tu_loi',u'Nhập kho vật tư lỗi')],default=u'ban_giao',string=u'Bàn Giao Hay Nghiệm Thu')
@@ -23,20 +29,61 @@ class StockPicking(models.Model):
 #         'stock.pack.operation', 'picking_id', 'Non pack',
 #         domain=[('product_id', '!=', False)],
 #         )
+#     name = fields.Char(
+#         'Reference',
+#         default=lambda self:self.env.user.department_id.sequence_id.number_next_actual,
+#         copy=False,  index=True,
+# #         states={'done': [('readonly', True)], 'cancel': [('readonly', True)]}
+#         )
+    name = fields.Char(
+        'Reference',
+        default=lambda self:self.default_name(),
+        copy=False,  index=True,
+#         states={'done': [('readonly', True)], 'cancel': [('readonly', True)]}
+        )
     ly_do = fields.Text(u'Lý Do')#Tình trạng vật tư: Vật tư đang sử dụng lỗi, đem SVTECH bảo hành,
     so_ban_in = fields.Integer(u'Số Bản In',default=2)
     ben_giao_giu = fields.Integer(u'Bên Giao Giữ', default=1)
     ben_nhan_giu = fields.Integer(u'Bên Nhận Giữ',default=1)
     totrinh_id = fields.Many2one('totrinh', string=u'Tờ trình')
-    
+   
+    def default_name(self):
+        defaults = self.default_get([ 'department_id','picking_type_id'])
+        department_id = self.env['hr.department'].browse(defaults.get('department_id'))
+        number_next = self.env.user.department_id.sequence_id.number_next_actual
+        name = department_id.name + '/' + '%s'%number_next
+        return name
     @api.onchange('picking_type_id')
     def onchange_picking_type_New(self):
         if self.picking_type_id:
-            location_id = self.env.user.department_id.default_stock_location_id.id
-            if self.picking_type_id.code in  [ 'outgoing', 'internal']:
-                self.location_id = location_id
+            default_stock_location_id = self.env.user.department_id.default_stock_location_id.id
+            if self.picking_type_id.code in  [ 'internal']:
+                self.location_id = default_stock_location_id
+                self.location_dest_id = False
+                return {
+                    'domain':{
+                        'location_id': [('usage','=',u'internal')],
+                        'location_dest_id': [('usage','=',u'internal')]
+                        }
+                    }
+            elif self.picking_type_id.code in  [ 'outgoing']:
+                self.location_id = default_stock_location_id
+                self.location_dest_id = False
+                return {
+                    'domain':{
+                        'location_id': [('usage','=',u'internal')],
+#                         'location_dest_id': [('usage','=','view')]                      
+                       }
+                    }
             elif self.picking_type_id.code == 'incoming':
-                self.location_dest_id = location_id
+                self.location_id = False
+                self.location_dest_id = default_stock_location_id
+                return {
+                    'domain':{
+#                         'location_id': [('usage','=','view')],                      
+                        'location_dest_id': [('usage','=',u'internal')]
+                       }
+                    }
                 
 #     @api.model
 #     def default_get(self, fields):
@@ -54,6 +101,26 @@ class StockPicking(models.Model):
         self.don_vi_nhan = self.location_dest_id.partner_id.name if self.location_dest_id.partner_id.name else self.location_dest_id.name
     def don_vi_giao_(self):
         self.don_vi_giao = self.location_id.partner_id.name if self.location_id.partner_id.name else self.location_id.name
+    
+#     def name_compute(self,picking_type_id,department_id):
+# #         picking_type_id = self.picking_type_id
+# #         department_id = self.department_id
+#         number_next = _select_nextval(self._cr, 'ir_sequence_%03d' % department_id.sequence_id.id)[0]
+#         name = department_id.name + '/' + picking_type_id.sequence_id.prefix.split('/')[1] + '/' + '%s'%number_next
+#         return name
+    
+    
+    
+    @api.onchange('department_id','picking_type_id')
+    def name_(self):
+        if self.department_id and self.picking_type_id:
+            picking_type_id = self.picking_type_id
+            department_id = self.department_id
+            number_next = department_id.sequence_id.number_next_actual
+            name = department_id.name + '/' + picking_type_id.sequence_id.prefix.split('/')[1] + '/' + '%s'%number_next
+            self.name = name
+        
+        
 #     @api.multi
 #     def write(self,vals):
 #         pack_operation_product_ids = vals.get('pack_operation_product_ids')
@@ -81,12 +148,14 @@ class StockPicking(models.Model):
     @api.model
     def create(self, vals):
         defaults = self.default_get([ 'department_id','picking_type_id'])
+        
         picking_type_id = self.env['stock.picking.type'].browse(vals.get('picking_type_id', defaults.get('picking_type_id')))
         department_id = self.env['hr.department'].browse(vals.get('department_id', defaults.get('department_id')))
         number_next = _select_nextval(self._cr, 'ir_sequence_%03d' % department_id.sequence_id.id)[0]
-        don_vi_reference = department_id.name + '/' + picking_type_id.sequence_id.prefix.split('/')[1] + '/' + '%s'%number_next
-        vals['don_vi_reference'] = don_vi_reference
+        name = department_id.name + '/' + picking_type_id.sequence_id.prefix.split('/')[1] + '/' + '%s'%number_next
+        
+#         vals['don_vi_reference'] = don_vi_reference
         vals['stt_bien_ban'] = number_next #department_id.sequence_id.next_by_id()
-        vals['name'] = don_vi_reference
+        vals['name'] = name
         return super(StockPicking, self).create(vals)
     

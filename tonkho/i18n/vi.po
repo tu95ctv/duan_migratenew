@@ -1,19 +1,21 @@
 # Translation of Odoo Server.
 # This file contains the translation of the following modules:
-#	* tonkho
+# 	* tonkho
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 10.0+e-20161103\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-04-05 02:54+0000\n"
-"PO-Revision-Date: 2018-04-05 02:54+0000\n"
+"PO-Revision-Date: 2018-05-02 17:18+0700\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: \n"
+"Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: \n"
+"Language: vi\n"
+"X-Generator: Poedit 2.0.5\n"
 
 #. module: tonkho
 #: model:ir.ui.view,arch_db:tonkho.ky_ten
@@ -103,7 +105,7 @@ msgstr "Bàn Giao"
 #. module: tonkho
 #: model:ir.model.fields,field_description:tonkho.field_stock_picking_ban_giao_or_nghiem_thu
 msgid "Bàn Giao Hay Nghiệm Thu"
-msgstr "Bàn Giao Hay Nghiệm Thu VN 1"
+msgstr "Bàn Giao Hay Nghiệm Thu"
 
 #. module: tonkho
 #: model:ir.model.fields,field_description:tonkho.field_stock_picking_ben_giao_giu
@@ -338,7 +340,7 @@ msgstr "Stock quant"
 #. module: tonkho
 #: model:ir.model.fields,field_description:tonkho.field_stock_picking_stt_bien_ban
 msgid "Stt bien ban"
-msgstr "Stt bien ban ahaha"
+msgstr "STT Của Biên Bảng"
 
 #. module: tonkho
 #: model:ir.model.fields,field_description:tonkho.field_stock_picking_so_ban_in
@@ -373,7 +375,7 @@ msgstr "TRUNG TÂM HẠ TẦNG MẠNG MIỀN NAM"
 #. module: tonkho
 #: model:ir.model.fields,field_description:tonkho.field_product_template_thiet_bi_id
 msgid "Thiet bi id"
-msgstr "Thiet bi id"
+msgstr "Thiết Bị"
 
 #. module: tonkho
 #: model:ir.model,name:tonkho.model_stock_picking
@@ -456,4 +458,3 @@ msgstr "Đưa Vào Sử Dụng"
 #: model:ir.ui.view,arch_db:tonkho.bien_ban_description
 msgid "Độc Lập - Tự Do - Hạnh Phúc"
 msgstr "Độc Lập - Tự D"
-

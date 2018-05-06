@@ -44,6 +44,8 @@ class StockPicking(models.Model):
         internal_transfers = self.env['stock.picking.type'].search([('name','=','Internal Transfers')])[0].id
         res['picking_type_id'] = internal_transfers
         return res
+    
+    
     def ban_giao_or_nghiem_thu_show(self):
         adict = {u'ban_giao':u'Bàn Giao',u'nghiem_thu':u'Nghiệm Thu'}
         if self.ban_giao_or_nghiem_thu != False:

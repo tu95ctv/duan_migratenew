@@ -4,7 +4,6 @@ import xlrd
 import base64
 import re
 from odoo.osv import expression    
-from tao_instance import import_ada_prc,import_user
 
 class Word#print(models.TransientModel):
     _name = "word#print"

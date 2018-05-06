@@ -8,5 +8,5 @@ from . import models
 #from . import adaptor
 #from . import imports
 from . import tao_instance
-from . import tao_instance_new, cvisuco, cvi,ctr,conf,tvcv,users,company,dlcv,to_trinh_and_more
+from . import tao_instance_new, cvisuco, cvi,ctr,conf,tvcv,users,company,dlcv,to_trinh
 from . import import_thuvien

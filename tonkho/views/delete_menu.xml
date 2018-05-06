@@ -4,5 +4,13 @@
  <delete model="ir.ui.menu" id="stock.menu_stock_scrap"/>
  <delete model="ir.ui.menu" id="stock.menu_procurement_compute"/>
  <delete model="ir.ui.menu" id="stock.menu_reordering_rules_config"/>
+  
+  
+  
+  <delete model="ir.ui.menu" id="stock.menu_valuation"/>
+  <delete model="ir.ui.menu" id="stock.stock_move_menu"/>
+  <delete model="ir.ui.menu" id="stock.stock_move_line_menu"/>
+  <delete model="ir.ui.menu" id="stock.menu_warehouse_report"/>
+  
 </data>
 </odoo>

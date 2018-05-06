@@ -6,9 +6,8 @@ from odoo.exceptions import UserError
 # 'stock.move.line'
 class StockMoveLine(models.Model):
     _inherit = "stock.move.line"
-#     lot_id = fields.Many2one('stock.production.lot', 'Lot')
-    pn = fields.Char(related='lot_id.pn', string=u'Part Number')
-    pn_for_create = fields.Char(string=u'Part Number')
+    pn = fields.Char(related='lot_id.pn', string=u'Part Number relate')
+    pn_for_create = fields.Char(string=u'Part Number Create')
     
     @api.onchange('lot_name')
     def lot_id_when_picking_type(self):

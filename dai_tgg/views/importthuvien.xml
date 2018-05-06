@@ -24,7 +24,9 @@
                         <field name="filename" />
                         <field name="file" filename="filename" />
                         <field name="sheet_name"></field>
+                        <field name="department_id"></field>
                      </group>
+                     
                      <group>
                         <field name="type_choose" />
                         <field name="log" />

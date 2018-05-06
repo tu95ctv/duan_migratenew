@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: Odoo Server 10.0+e-20161103\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 07:12+0000\n"
-"PO-Revision-Date: 2018-04-17 08:46+0700\n"
+"PO-Revision-Date: 2018-05-04 10:07+0700\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -926,7 +926,7 @@ msgstr "By Lots"
 #. module: stock
 #: selection:product.template,tracking:0
 msgid "By Unique Serial Number"
-msgstr "By Unique Serial Number"
+msgstr "Truy xuất bằng Serial"
 
 #. module: stock
 #: code:addons/stock/models/stock_move.py:389
@@ -1775,7 +1775,7 @@ msgstr "Địa điểm đích"
 #: model:ir.model.fields,field_description:stock.field_stock_picking_location_dest_id
 #: model:ir.ui.view,arch_db:stock.view_stock_quant_form
 msgid "Destination Location Zone"
-msgstr "Kho nhận (Destination Stock ddd)"
+msgstr "Kho Nhận"
 
 #. module: stock
 #: model:ir.model.fields,field_description:stock.field_procurement_order_move_dest_id
@@ -2545,7 +2545,7 @@ msgstr "Nội bộ"
 #. module: stock
 #: model:ir.ui.view,arch_db:stock.view_template_property_form
 msgid "Internal Category"
-msgstr "Nhóm nội bộ"
+msgstr "Nhóm"
 
 #. module: stock
 #: selection:stock.location,usage:0
@@ -4701,7 +4701,7 @@ msgstr "Receipt in 3 steps"
 #: model:stock.picking.type,name:stock.picking_type_in
 #, python-format
 msgid "Receipts"
-msgstr "Nhập hang kaka"
+msgstr "Nhập Hàng"
 
 #. module: stock
 #: selection:stock.warehouse,reception_steps:0
@@ -5263,7 +5263,7 @@ msgstr "Địa điểm nguồn"
 #: model:ir.model.fields,field_description:stock.field_stock_picking_location_id
 #: model:ir.ui.view,arch_db:stock.view_stock_quant_form
 msgid "Source Location Zone"
-msgstr "Kho giao (Source stock file 5)"
+msgstr "Kho Giao"
 
 #. module: stock
 #: model:ir.model.fields,field_description:stock.field_stock_pack_operation_package_id

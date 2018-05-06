@@ -19,7 +19,6 @@ class DLCV(models.TransientModel):
     chon_thang = fields.Selection([(u'Tháng Trước',u'Tháng Trước'),(u'Tháng Này',u'Tháng Này')],string = u'Chọn tháng')
     department_ids = fields.Many2many('hr.department')
 
-
     @api.multi
     def download_cvi_binh(self):
 #         download_cvi(self)

@@ -11,17 +11,14 @@
         <field name="arch" type="xml">
 	         <field name="type" position="after">
 	           <field name="thiet_bi_id"></field>
-          			<field name="brand_id"></field>
+          	  <field name="brand_id"></field>
+          	  <field name="department_id"></field>
 	         </field>
-	         
         	 <xpath expr="//field[@name='uom_id']" position="attributes">
         		 <attribute name="options">{'no_create': False}</attribute>
         	 </xpath>
         </field>
     </record>
-    
-    
-    
     
     <record id="product_template_only_form_view_2" model="ir.ui.view">
         <field name="name">product.template.product.form</field>
@@ -30,8 +27,9 @@
         <field name="arch" type="xml">
 	         <field name="type" position="after">
 	           <field name="thiet_bi_id"></field>
-          			<field name="brand_id"></field>
-	         </field>
+          		<field name="brand_id"></field>
+	  <field name="department_id"></field>
+          	           </field>
         </field>
     </record>
 
@@ -73,6 +71,8 @@
                 	   <field name="thiet_bi_id"></field>
           			<field name="brand_id"></field>
                 	   <field name="tracking"></field>
+                	     <field name="department_id"></field>
+          	  			<field name="create_uid"></field>	
                 	   
                 </field>
                 <field name="standard_price" position="replace">
