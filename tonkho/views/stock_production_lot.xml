@@ -34,7 +34,7 @@
         </field>
     </record>
     
-    
+    <!-- 
        <record id="view_production_lot_form_simple" model="ir.ui.view">
         <field name="name">stock.production.lot.form.simple</field>
         <field name="model">stock.production.lot</field>
@@ -45,6 +45,6 @@
             </field>
         </field>
     </record>
-    
+     -->
 </data>
 </odoo>
