@@ -2,7 +2,7 @@
 from odoo import models, fields, api,exceptions,tools,_
 import re
 from odoo.addons.dai_tgg.models.tao_instance_new import importthuvien
-from odoo.addons.dai_tgg.models.tao_instance import import_strect
+# from odoo.addons.dai_tgg.models.tao_instance import import_strect
 
 M = {'LTK':['LTK'],'PTR':['pas'],'TTI':['TTI'],'BDG':['BDG'],'VTU':['VTU']}
 def convert_sheetname_to_tram(sheet_name):
@@ -68,7 +68,8 @@ class ImportThuVien(models.Model):
         importthuvien(self)
         return True
     def import_strect(self):
-        import_strect(self)
+        pass
+#         import_strect(self)
         return True
     def get_tram_from_sheet_name(self):
         M = {'LTK':['LTK'],'PTR':['PTR'],'TTI':['TTI'],'BDG':['BDG','VTU']}

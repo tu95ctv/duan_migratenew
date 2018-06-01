@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 <data>
+	
 
       <record id="view_production_lot_tree_inherit" model="ir.ui.view">
          <field name="name">stock.production.lot.tree</field>
          <field name="model">stock.production.lot</field>
          <field name="inherit_id" ref="stock.view_production_lot_tree" />
          <field name="arch" type="xml">
-            <field name="name" position="after">
+         <field name="product_id" position="replace"></field>
+         <field name="ref" position="replace"></field>
+         	<field name="name" position="before">
+  				<field name="product_id"></field>
             	<field name="pn"></field>
+            </field>
+            <field name="name" position="after">
             	<field name="ghi_chu"></field>
            	   <field name="ghi_chu_ban_dau"></field>
                    <field name="ghi_chu_ngay_nhap"></field>
@@ -34,7 +40,7 @@
         </field>
     </record>
     
-    <!-- 
+   
        <record id="view_production_lot_form_simple" model="ir.ui.view">
         <field name="name">stock.production.lot.form.simple</field>
         <field name="model">stock.production.lot</field>
@@ -45,6 +51,6 @@
             </field>
         </field>
     </record>
-     -->
+     
 </data>
 </odoo>

@@ -1,0 +1,40 @@
+<odoo>
+<data>
+ 
+ <record id="stock.group_stock_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="base.module_category_warehouse_management"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    <record id="stock.group_stock_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="category_id" ref="base.module_category_warehouse_management"/>
+        <field name="implied_ids" eval="[(4, ref('stock.group_stock_user'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+    
+    
+<!-- 
+ 
+ <record id="ltk_dang_chay" model="stock.location"> 
+          <field name="name">LTK Đang Chạy</field> 
+          <field name="usage">inventory</field> 
+      </record>
+    
+     <record id="ptr_dang_chay" model="stock.location"> 
+          <field name="name">137 Đang Chạy</field> 
+          <field name="usage">inventory</field> 
+      </record>
+      
+       <record id="dpb_dang_chay" model="stock.location"> 
+          <field name="name">DBP Đang Chạy</field> 
+          <field name="usage">inventory</field> 
+      </record>
+      
+       <record id="tti_dang_chay" model="stock.location"> 
+          <field name="name">TTI Đang Chạy</field> 
+          <field name="usage">inventory</field> 
+      </record>
+       -->
+</data>
+</odoo>

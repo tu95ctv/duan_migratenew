@@ -115,6 +115,9 @@ class CamSua(models.Model):
         for r in self:
             if r.cam_sua:
                 raise UserError(u'Không được Xóa tại bạn không phải là chủ topic')
+            else:
+                if r.state != 'mark_delete':
+                    raise UserError(u'Muốn Xóa thì phải Đánh Dấu Xóa trước đã')
 #             else:
 #                 if r.state !='ready_delete' and not r.is_admin:
 #                     raise UserError(u'Bạn phải chuyển trạng thái qua Ready Delete đã rồi mới được xóa')
@@ -153,7 +156,8 @@ class Cvi(models.Model):
     _name = 'cvi'
     _parent_name = 'gd_parent_id'
 #         _inherit = ['mail.thread']
-    _inherit = ['camsua','cvisuco']
+    _inherit = ['camsua','cvisuco','mail.thread', 'mail.activity.mixin']
+
     _auto = True
     _order = "id desc"
     ALLOW_WRITE_FIELDS_TIME = ['gio_ket_thuc','comment_ids','cd_children_ids','gd_children_ids','percent_diemtt']
@@ -172,7 +176,14 @@ class Cvi(models.Model):
 #                     raise UserError(u'Bạn không có quyến set từ Approve thành Ready Delete')
 #             else:
 #                 r.state = 'ready_delete'
-
+    
+    @api.multi
+    def action_mark_delete(self):
+        for r in self:
+            if r.state == 'confirmed':
+                r.state = 'mark_delete'
+                
+                
     @api.multi
     def action_confirmed(self):
         for r in self:
@@ -202,6 +213,7 @@ class Cvi(models.Model):
 
     state = fields.Selection([
 #                               ('ready_delete',u'Cho phép xóa'),
+                              ('mark_delete',u'Đánh Dấu Để Xóa'),
                               ('confirmed',u'Xác Nhận'), ('approved',u'Lãnh Đạo đã duyệt'),
                           ],default='confirmed',required=True,string=u'Trạng thái')
     ti_le_chia_diem = fields.Float(digits=(6,2),string=u'Tỉ lệ chia điểm')

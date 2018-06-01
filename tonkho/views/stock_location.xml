@@ -9,9 +9,12 @@
         <field name="priority" eval="2"/>
         <field name="inherit_id" ref="stock.view_location_tree2"/>
         <field name="arch" type="xml">
-                            <field name="company_id" position="replace">
-                            		<field name="department_id"></field>
-                            </field>
+	           <field name="company_id" position="replace">
+	           		<field name="department_id"></field>
+        			<field name="phong_ban_id"></field>
+	           		<field name="location_id"></field>
+        			<field name="cho_phep_khac_tram_chon"></field>
+	           </field>
         </field>
     </record>
     
@@ -20,8 +23,14 @@
         <field name="model">stock.location</field>
         <field name="inherit_id" ref="stock.view_location_form"/>
         <field name="arch" type="xml">
+        	<field name="partner_id" position="replace"></field>
+        	<field name="scrap_location" position="replace"></field>
+        	<field name="return_location" position="replace"></field>
         	<field name="company_id" position="before">
         		<field name="department_id"></field>
+        		<field name="phong_ban_id"></field>
+        		<field name="cho_phep_am"></field>
+        		<field name="cho_phep_khac_tram_chon"></field>
         	</field>
         </field>
         </record>

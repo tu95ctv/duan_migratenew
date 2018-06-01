@@ -115,7 +115,8 @@
       
       
         
-      
+      <menuitem name="Menu Khác" id="else_more_menu" parent="ctrtvcv_icon" sequence="2" />
+    <menuitem id="comment_menu" parent="else_more_menu" action="comment_action" sequence="6" />
       
       
       

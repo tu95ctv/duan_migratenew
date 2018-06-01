@@ -11,6 +11,13 @@
   <delete model="ir.ui.menu" id="stock.stock_move_menu"/>
   <delete model="ir.ui.menu" id="stock.stock_move_line_menu"/>
   <delete model="ir.ui.menu" id="stock.menu_warehouse_report"/>
+  <!-- <delete model="ir.ui.menu" id="mail.mail_channel_menu_root_chat"/> -->
   
+  <menuitem
+        id="mail.mail_channel_menu_root_chat"
+        name="Discuss"
+        action="mail.mail_channel_action_client_chat"
+        web_icon="mail,static/description/icon.png"
+        sequence="1"/>
 </data>
 </odoo>

@@ -13,27 +13,19 @@
                </header>
                <sheet>
                   <group>
-                     <field name="group_time_allow_field_edit_group" widget="radio" />
                      <field name="is_cam_sua_do_time" />
                      <field name="allow_edit_time" />
                      <field name="is_cam_sua_truoc_ngay" />
                      <field name="cam_sua_truoc_ngay" />
                   </group>
-                  <group string="CV Pivot">
-                     <field name="is_cvi_id_in_pivot" />
-                  </group>
-                  <group>
-                  <field name="show_id_in_cvi_name_get"></field>
-                  </group>
-                  <group string="Show cột lãnh đạo trong các table công việc con trong công việc cha">
-                     <field name="group_show_cot_lanh_dao" widget="radio" />
-                  </group>
-                  <group>
+               
+     
+                
+                  <group string="Else">
                      <field name="group_co_tvcv_giai_doan_con" widget="radio" />
                      <field name="group_show_thong_tin_create_write" widget="radio" />
-                     <field name="group_show_loai_record" widget="radio" />
+                     <!--<field name="group_show_loai_record" widget="radio" />-->
                      <field name="group_show_thong_tin_admin_sep" widget="radio" />
-                     <field name="group_cho_xoa_cvi_cua_minh" widget="radio" />
                   </group>
                </sheet>
             </form>
@@ -48,5 +40,9 @@
          <field name="view_mode">form</field>
          <field name="target">inline</field>
       </record>
+      
+      
+            <menuitem name="Cấu hình" id="config_menu" parent="else_more_menu" action="ltk_config_settings_action" sequence="3" />
+      
   </data>
 </openerp>

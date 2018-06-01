@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_tonkho_tonkho,tonkho.tonkho,model_tonkho_tonkho,,1,0,0,0
+access_tonkho_thietbi,tonkho.thiebi,model_tonkho_thiebi,stock.group_stock_user,1,1,1,1
+access_tonkho_brand,tonkho.brand,model_tonkho_brand,stock.group_stock_user,1,1,1,1

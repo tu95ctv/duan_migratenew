@@ -2,12 +2,21 @@
 from odoo import models, fields, api,exceptions,tools,_
 from odoo.addons.dai_tgg.mytools import  name_compute,name_khong_dau_compute
 
+
+@api.model
+def _lang_get(self):
+    return self.env['res.lang'].get_installed()
 class PartnerABC(models.Model):
     _inherit = ['res.partner']#,'khongdaumodel']
     _auto = True
     job_id = fields.Many2one('hr.job', string='Job Title')
+    department_id = fields.Many2one('hr.department',string=u'Đơn Vị')
     name_khong_dau = fields.Char(compute='name_khong_dau_', store=True)
     name_viet_tat =  fields.Char(compute='name_khong_dau_', store=True)
+    lang = fields.Selection(_lang_get, string='Language', 
+                            help="If the selected language is loaded in the system, all documents related to "
+                                 "this contact will be printed in this language. If not, it will be English.",default='vi_VN')
+    
     
     @api.depends('name')
     def name_khong_dau_(self):
@@ -26,7 +35,6 @@ class PartnerABC(models.Model):
     
 class User(models.Model):
     _inherit = 'res.users'
-    department_id = fields.Many2one('hr.department')
 
 #     department_id = fields.Many2one('hr.department')
     ctr_ids = fields.Many2many('ctr', 'ctr_res_users_rel_d4','res_users_id','ctr_id',string=u'Các ca đã trực')

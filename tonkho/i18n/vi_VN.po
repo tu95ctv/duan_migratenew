@@ -645,7 +645,7 @@ msgstr "Tất cả hoạt động"
 #: model:ir.actions.act_window,name:stock.stock_picking_action_picking_type
 #: model:ir.ui.menu,name:stock.all_picking
 msgid "All Transfers"
-msgstr "Dịch Chuyển Vật Tư"
+msgstr "Điều Chuyển Vật Tư"
 
 #. module: stock
 #: selection:stock.picking,move_type:0
@@ -926,7 +926,7 @@ msgstr "By Lots"
 #. module: stock
 #: selection:product.template,tracking:0
 msgid "By Unique Serial Number"
-msgstr "Truy xuất bằng Serial"
+msgstr "Bằng Serial Number"
 
 #. module: stock
 #: code:addons/stock/models/stock_move.py:389
@@ -3091,7 +3091,7 @@ msgstr "Lô/Số sê-ri"
 #: model:ir.ui.view,arch_db:stock.report_package_barcode
 #: model:res.request.link,name:stock.req_link_tracking
 msgid "Lot/Serial Number"
-msgstr "Lot/Serial Number"
+msgstr "Serial Number"
 
 #. module: stock
 #: code:addons/stock/models/stock_pack_operation.py:199
@@ -3145,7 +3145,7 @@ msgstr "Lots visible"
 #: model:ir.ui.view,arch_db:stock.view_production_lot_form
 #: model:ir.ui.view,arch_db:stock.view_production_lot_tree
 msgid "Lots/Serial Numbers"
-msgstr "Lots/Serial Numbers"
+msgstr "Serial Numbers"
 
 #. module: stock
 #: model:ir.model.fields,field_description:stock.field_stock_pack_operation_pack_lot_ids
@@ -3518,7 +3518,7 @@ msgstr "Chưa dịch chuyển kho"
 #. module: stock
 #: selection:product.template,tracking:0
 msgid "No Tracking"
-msgstr "No Tracking"
+msgstr "Không Có SN"
 
 #. module: stock
 #: selection:stock.config.settings,group_stock_adv_location:0
@@ -6903,3 +6903,17 @@ msgstr "↳Put in Pack"
 #: model:ir.ui.view,arch_db:stock.view_inventory_form
 msgid "⇒ Set quantities to 0"
 msgstr "⇒ Thiết lập số lượng về 0"
+
+
+
+#. module: base
+#: model:ir.model.fields,field_description:base.field_res_partner_parent_id
+#: model:ir.model.fields,field_description:base.field_res_users_parent_id
+msgid "Related Company"
+msgstr "Công ty"
+
+#. module: product
+#: model:ir.model.fields,field_description:product.field_product_product_categ_id
+#: model:ir.model.fields,field_description:product.field_product_template_categ_id
+msgid "Internal Category"
+msgstr "Nhóm"

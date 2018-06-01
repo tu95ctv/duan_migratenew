@@ -96,11 +96,9 @@
          <field name="groups" eval="[(4, ref('base.group_user'))]" />
          <field name="view_mode">tree,form</field>
       </record>
-   <menuitem name="Menu Ca trực" id="ctrmenu_menu" parent="ctrtvcv_icon" action="ctr_action" sequence="2" />
+      <menuitem name="Công Việc/Trực" id="ctrtvcv_icon" web_icon="dai_tgg,static/src/image/customers-icon-18.png" />
+	   <menuitem name="Menu Ca trực" id="ctrmenu_menu" parent="ctrtvcv_icon" action="ctr_action" sequence="2" />
       <menuitem name="Ca trực" id="ctr_menu" parent="ctrmenu_menu" action="ctr_action" sequence="1" />
-      <menuitem id="suco_menu" parent="ctrmenu_menu" action="suco_action" sequence="2" />
-      <menuitem id="loai_suco_menu" parent="ctrmenu_menu" action="loai_suco_action" sequence="3" />
-      <menuitem id="suvu_menu" parent="ctrmenu_menu" action="suvu_action" sequence="4" />
-      <menuitem id="loai_suvu_menu" parent="ctrmenu_menu" action="loai_suvu_action" sequence="5" />
+      
   </data>
 </openerp>

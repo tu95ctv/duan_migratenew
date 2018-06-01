@@ -45,7 +45,9 @@ class TVCV(models.Model):
     _parent_name = 'parent_id'
     _inherit = ['khongdaumodel']
     _auto = True
-
+    
+    
+    department_id = fields.Many2one('hr.department')
     name = fields.Char(string=u'Tên công việc')
 #     name_khong_dau = fields.Char(compute='name_khong_dau_', store=True)
 #     name_viet_tat =  fields.Char(compute='name_khong_dau_', store=True)
@@ -66,6 +68,7 @@ class TVCV(models.Model):
     ghi_chu = fields.Text(u'Ghi Chú')
     valid_thu_vien = fields.Boolean(compute='valid_thu_vien_',store=True,string=u'Valid thư viện')
     active = fields.Boolean(default=True)
+    state = fields.Selection([('draft',u'Bản Nháp'),('confirmed',u'Xác Nhận')],default='draft')
    
 #     @api.model
 #     def fields_view_get(self, view_id=None, view_type=False, toolbar=False, submenu=False):

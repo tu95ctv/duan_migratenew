@@ -24,7 +24,9 @@
     #'css': ['static/src/css/style.css'], 
     # always loaded
     'data': [
-#         'security/security.xml',
+            'security/data.xml',
+        'security/security.xml',
+        
         # 'security/ir.model.access.csv',
 #         'views/stock_pack_operation.xml',
 #         'views/stock_picking.xml',
@@ -37,8 +39,14 @@
         'views/stock_move_line.xml',
         'views/stock_picking11.xml',
         'views/delete_menu.xml',
+        'views/xoakho.xml',
+        'views/setting.xml',
+        'views/warehouse.xml',
     'report/pick_operation_report.xml',
-        
+#         'views/pn.xml',
+
+        'views/product_product.xml',
+
         
         
         #'views/assets.xml',

@@ -23,6 +23,7 @@ class CviSuCo(models.Model):
     loai_record = fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record')
     loai_record_show =  fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record',compute='loai_record_show_')
     ngay_bat_dau =  fields.Date(compute='ngay_bat_dau_',store=True,string=u'Ngày')
+    date =  fields.Date(compute='ngay_bat_dau2_',store=True,string=u'Ngày')
     gio_bat_dau = fields.Datetime(string=u'Giờ bắt đầu ', default=fields.Datetime.now)
     gio_ket_thuc = fields.Datetime(string=u'Giờ Kết Thúc')
     duration = fields.Float(digits=(6, 1), help='Duration in Hours',compute = '_get_duration', store = True,string=u'Thời lượng (giờ)')
@@ -157,7 +158,12 @@ class CviSuCo(models.Model):
         for r in self:
             if r.gio_bat_dau:
                 r.ngay_bat_dau = convert_odoo_datetime_to_vn_datetime(r.gio_bat_dau).date()
-                
+    @api.depends('gio_bat_dau')
+    def ngay_bat_dau2_(self):#trong su kien
+        for r in self:
+            if r.gio_bat_dau:
+                utc_datetime_inputs = fields.Datetime.from_string(r.gio_bat_dau)
+                r.date = utc_datetime_inputs.date()            
     
     @api.depends('gio_ket_thuc','gio_bat_dau')
     def _get_duration(self):

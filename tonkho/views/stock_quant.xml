@@ -9,24 +9,52 @@
          <field name="model">stock.quant</field>
          <field name="inherit_id" ref="stock.view_stock_quant_tree" />
          <field name="arch" type="xml">
+         	<field name="product_uom_id" position="replace"></field>
+         	<field name="location_id" position="replace"></field>
             <field name="lot_id" position="before">
+            	<field name="product_uom_id"></field>
             	<field name="pn"></field>
             </field>
+            
+            <field name="lot_id" position="after">
+            	<field name="categ_id"></field>
+            	<field name="tracking"></field>
+         	<field name="location_id" ></field>
+            </field>
+            
+            
          </field>
      </record>
      
      
    <record id="stock_quant_action_product" model="ir.actions.act_window">
-        <field name="name">Stock quant</field>
+        <field name="name">Số Lượng Trong Kho</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">stock.quant</field>
         <field name="view_mode">tree,form</field>
+         <field name="domain"></field> 
+        <field name="context">{'search_default_internal_loc':1}</field>
         <field name="view_type">form</field>
         </record>
     
   
+  
+       <record id="quant_search_view" model="ir.ui.view">
+         <field name="name">stock.quant.search.inherit</field>
+         <field name="model">stock.quant</field>
+         <field name="inherit_id" ref="stock.quant_search_view" />
+         <field name="arch" type="xml">
+            <xpath expr="//filter[@name='locationgroup']" position="before">
+            	
+          <filter string='CateG' name="categ" domain="[]" context="{'group_by': 'categ_id'}"/>
+          <filter string='Tracking' name="tracking" domain="[]" context="{'group_by': 'tracking'}"/>
+            	
+            </xpath>
+         </field>
+     </record>
      
-   <menuitem id="menu_stock_quant_action_product" name="Số lượng" action="stock_quant_action_product"
+     
+   <menuitem id="menu_stock_quant_action_product" name="Số Lượng Trong Kho" action="stock_quant_action_product"
         parent="stock.menu_stock_inventory_control" sequence="1"/>
    </data>
  </odoo>

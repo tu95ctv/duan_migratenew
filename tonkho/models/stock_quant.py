@@ -8,14 +8,22 @@ class Quant(models.Model):
     """ Quants are the smallest unit of stock physical instances """
     _inherit = "stock.quant"
     pn = fields.Char(related='lot_id.pn')
+    categ_id = fields.Many2one(
+        'product.category', 'Internal Category',
+#         change_default=True, default=_get_default_category_id,
+         help="Select category for the current product",related='product_id.categ_id',store=True)
+    
+    tracking = fields.Selection([
+        ('serial', 'By Unique Serial Number'),
+        ('lot', 'By Lots'),
+        ('none', 'No Tracking')], string="Tracking", related='product_id.tracking',store=True)
+    
     @api.constrains('location_id','quantity')
     def not_allow_negative_qty(self):
-        print ('hereeeeeeeee**')
         for r in self:
-            if r.location_id.usage =='internal':
+            if not r.location_id.cho_phep_am:
                 if r.quantity < 0:
                     raise UserError ( u' Không cho phép tạo âm')
-                
     def action_view_stock_moves(self):
         self.ensure_one()
         action = self.env.ref('stock.stock_move_line_action').read()[0]
