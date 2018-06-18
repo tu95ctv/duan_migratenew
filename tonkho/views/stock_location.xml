@@ -11,9 +11,10 @@
         <field name="arch" type="xml">
 	           <field name="company_id" position="replace">
 	           		<field name="department_id"></field>
-        			<field name="phong_ban_id"></field>
+        			<field name="partner_id_of_stock_for_report"></field>
 	           		<field name="location_id"></field>
         			<field name="cho_phep_khac_tram_chon"></field>
+        		<field name="is_kho_cha"></field>
 	           </field>
         </field>
     </record>
@@ -28,14 +29,16 @@
         	<field name="return_location" position="replace"></field>
         	<field name="company_id" position="before">
         		<field name="department_id"></field>
-        		<field name="phong_ban_id"></field>
+        		<field name="partner_id_of_stock_for_report"></field>
         		<field name="cho_phep_am"></field>
         		<field name="cho_phep_khac_tram_chon"></field>
+        		<field name="is_kho_cha"></field>
         	</field>
         </field>
         </record>
         
-        
+        <menuitem action="stock.action_location_form" id="menu_action_location_form" name="Vị Trí Vật Tư"
+         parent="stock.menu_stock_inventory_control"  sequence="12" groups="stock.group_stock_multi_locations"/>
 </data>
 
 </odoo>

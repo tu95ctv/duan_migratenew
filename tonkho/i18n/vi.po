@@ -322,15 +322,12 @@ msgstr "Lô/Số sê-ri"
 msgid "Lot/Serial Number Details"
 msgstr "Lot/Serial Number Details"
 
-#. module: tonkho
-#: model:ir.model.fields,field_description:tonkho.field_stock_picking_ly_do
-msgid "Lý Do"
-msgstr "Lý Do kaka"
+
 
 #. module: tonkho
 #: model:ir.ui.view,arch_db:tonkho.report_picking_dai_hcm
 msgid "Lý do:"
-msgstr "Lý do:"
+msgstr "Lý do ờ file 1"
 
 #. module: tonkho
 #: model:ir.model.fields,field_description:tonkho.field_tonkho_brand_name
@@ -453,10 +450,6 @@ msgstr "Lấy Trong Kho"
 msgid "Stt"
 msgstr "Stt"
 
-#. module: tonkho
-#: model:ir.model.fields,field_description:tonkho.field_stock_picking_stt_bien_ban
-msgid "Stt Bien Ban"
-msgstr "Stt Bien Ban"
 
 #. module: tonkho
 #: model:ir.model.fields,field_description:tonkho.field_stock_picking_so_ban_in
@@ -499,7 +492,7 @@ msgstr "Thông Tin Thêm"
 #: model:ir.model.fields,field_description:tonkho.field_stock_quant_tracking
 #: model:ir.ui.view,arch_db:tonkho.quant_search_view
 msgid "Tracking"
-msgstr "Tracking"
+msgstr "Có SN?"
 
 #. module: tonkho
 #: model:ir.model,name:tonkho.model_stock_picking
@@ -636,7 +629,7 @@ msgstr "Đơn Vị Giao"
 #. module: tonkho
 #: model:ir.model.fields,field_description:tonkho.field_stock_picking_don_vi_nhan
 msgid "Đơn Vị Nhận"
-msgstr "Đơn Vị Nhận kaka"
+msgstr "Đơn Vị Nhận"
 
 #. module: tonkho
 #: model:ir.ui.view,arch_db:tonkho.ben_giao_nhan_info

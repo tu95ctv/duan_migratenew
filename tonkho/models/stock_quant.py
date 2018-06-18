@@ -15,9 +15,21 @@ class Quant(models.Model):
     
     tracking = fields.Selection([
         ('serial', 'By Unique Serial Number'),
-        ('lot', 'By Lots'),
-        ('none', 'No Tracking')], string="Tracking", related='product_id.tracking',store=True)
-    
+#         ('lot', 'By Lots'),
+        ('none', 'No Tracking')], string=u"Có SN", related='product_id.tracking',store=True)
+    department_id = fields.Many2one('hr.department',related='location_id.department_id',store=True,string=u"Phòng Ban")
+    stock_location_id_selection = fields.Selection('get_stock_for_selection_field_',store=False)
+    trang_thai = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',related='lot_id.trang_thai',store=True,string=u'Trạng Thái')
+
+    def get_stock_for_selection_field_(self):
+        locs = self.env['stock.location'].search([('is_kho_cha','=',True)])
+        rs = list(map(lambda i:(i.name,i.name),locs))
+        return rs
+    department_id_selection = fields.Selection('department_id_selection_', store=False)
+    def department_id_selection_(self):
+        locs = self.env['hr.department'].search([])
+        rs = list(map(lambda i:(i.name,i.name),locs))
+        return rs
     @api.constrains('location_id','quantity')
     def not_allow_negative_qty(self):
         for r in self:
@@ -34,3 +46,23 @@ class Quant(models.Model):
             ('lot_id', '=', self.lot_id.id),
             ('package_id', '=', self.package_id.id)]
         return action
+    
+        
+    @api.model
+    def search(self, args, offset=0, limit=None, order=None, count=False):
+        context = self._context or {}
+        if context.get('kho_da_chon') !=None:
+            choosed_list = context.get('kho_da_chon') [0][2]
+            args +=[('id','not in',choosed_list)]
+#         if context.get('type'):
+#             if context.get('type') in ('out_invoice', 'out_refund'):
+#                 args += [('type_tax_use', '=', 'sale')]
+#             elif context.get('type') in ('in_invoice', 'in_refund'):
+#                 args += [('type_tax_use', '=', 'purchase')]
+# 
+#         if context.get('journal_id'):
+#             journal = self.env['account.journal'].browse(context.get('journal_id'))
+#             if journal.type in ('sale', 'purchase'):
+#                 args += [('type_tax_use', '=', journal.type)]
+
+        return super(Quant, self).search(args, offset, limit, order, count=count)

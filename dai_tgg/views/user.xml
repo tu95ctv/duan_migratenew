@@ -52,22 +52,16 @@
          <field name="name">resuser.tree</field>
          <field name="model">res.users</field>
          <field name="priority">1</field>
+         <field name="inherit_id" ref="base.view_users_tree"></field>
          <field name="arch" type="xml">
-            <tree>
+         	<field name="login" position="after">
                <field name="id" />
                <field name="name" />
-               <!-- 
-               <field name="name_khong_dau"></field>
-            	<field name="name_viet_tat"></field>
-            	 -->
-            	
-               <field name="login" />
                <field name="date" string="Ngày sinh" />
-               <!--   <field name="contact_address" string="Địa chỉ" /> -->
                <field name="phone" />
                <field name="job_id" />
                <field name="department_id" />
-            </tree>
+               </field>
          </field>
       </record>
       <record model="ir.actions.act_window" id="users_action">

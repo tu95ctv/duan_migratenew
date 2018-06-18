@@ -13,5 +13,6 @@ class InventoryLine(models.Model):
     brand_id = fields.Many2one('tonkho.brand', related='product_id.brand_id',store=True)
     pn = fields.Char(related = 'prod_lot_id.pn',store=True)
     stt = fields.Integer()
-    
+#     id_of_product_id =  fields.Integer(related='product_id.id')
+    tracking =  fields.Selection(related='product_id.tracking', store=True)
     

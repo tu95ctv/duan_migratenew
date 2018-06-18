@@ -9,11 +9,12 @@ stock_quant,\
 stock_move_line,\
 stock_move,\
 stock_picking11,\
-product_product,\
 xoakho,\
-part_number,\
-res_partner
+res_partner,\
+product_product
 
+# res_config_setting,\
+# part_number,\
 # stock_pack_operation,\
 # stock_pack_operation_lot,\
 #stock_picking,\

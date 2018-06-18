@@ -10,11 +10,13 @@
             <form>
                <header>
                   <button name="importthuvien" string="import thư viện" type="object" class="btn-primary" />
+                  <!-- 
                   <button name="import_strect" string="import_strect" type="object" class="btn-primary" />
                   <button name="map_noc_voi_ltk" string="map_kiemke_voi_noc" type="object" class="btn-primary" />
                   <button name="map_noc_voi_ltk" string="map NOC voi LTK" type="object" class="btn-primary" />
                   <button name="map_noc_voi_kiemke" string="map NOC voi KK" type="object" class="btn-primary" />
                   <button name="get_tram_from_sheet_name" string="get_tram_from_sheet_name" type="object" class="btn-primary" />
+                   -->
                   <button name="trigger" string="trigger" type="object" class="btn-primary" />
                   <button name="test_code" string="test_code" type="object" class="btn-primary" />
                </header>
@@ -25,6 +27,8 @@
                         <field name="file" filename="filename" />
                         <field name="sheet_name"></field>
                         <field name="department_id"></field>
+                        <field name="dong_test"></field>
+                        <field name="skip_field_cause_first_import"></field>
                      </group>
                      
                      <group>

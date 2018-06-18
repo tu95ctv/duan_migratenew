@@ -49,10 +49,10 @@ class CamSua(models.Model):
     ly_do_cam_sua_do_time = fields.Char(compute='cam_sua_do_time_')
     ly_do_cam_sua_do_diff_user = fields.Char(compute='cam_sua_do_diff_user_')
     is_admin = fields.Boolean(compute='is_admin_')
-    ALLOW_WRITE_FIELDS_TIME = ['gio_ket_thuc','comment_ids']
-    ALLOW_WRITE_FIELDS_DIFF_USER = ['gio_ket_thuc','comment_ids','percent_diemtt']
-    ALLOW_WRITE_FIELDS_CHOT=[]
-    IS_CAM_SUA_DO_CHOT = False
+#     ALLOW_WRITE_FIELDS_TIME = ['gio_ket_thuc','comment_ids']
+#     ALLOW_WRITE_FIELDS_DIFF_USER = ['gio_ket_thuc','comment_ids','percent_diemtt']
+#     ALLOW_WRITE_FIELDS_CHOT=[]
+#     IS_CAM_SUA_DO_CHOT = False
     @api.multi
     def is_admin_(self):
         for r in self:
@@ -155,15 +155,14 @@ class DuyetDiem(models.TransientModel):
 class Cvi(models.Model):
     _name = 'cvi'
     _parent_name = 'gd_parent_id'
-#         _inherit = ['mail.thread']
-    _inherit = ['camsua','cvisuco','mail.thread', 'mail.activity.mixin']
+    _inherit = ['cvisuco','camsua']
 
     _auto = True
     _order = "id desc"
-    ALLOW_WRITE_FIELDS_TIME = ['gio_ket_thuc','comment_ids','cd_children_ids','gd_children_ids','percent_diemtt']
-    ALLOW_WRITE_FIELDS_CHOT = ['gio_ket_thuc','comment_ids','cd_children_ids','gd_children_ids',]
-    ALLOW_WRITE_FIELDS_DIFF_USER = ['gio_ket_thuc','comment_ids','cd_children_ids','gd_children_ids','percent_diemtc']
-    IS_CAM_SUA_DO_CHOT = True
+#     ALLOW_WRITE_FIELDS_TIME = ['gio_ket_thuc','comment_ids','cd_children_ids','gd_children_ids','percent_diemtt']
+#     ALLOW_WRITE_FIELDS_CHOT = ['gio_ket_thuc','comment_ids','cd_children_ids','gd_children_ids',]
+#     ALLOW_WRITE_FIELDS_DIFF_USER = ['gio_ket_thuc','comment_ids','cd_children_ids','gd_children_ids','percent_diemtc']
+#     IS_CAM_SUA_DO_CHOT = True
     
     
 #     @api.multi
@@ -348,7 +347,7 @@ class Cvi(models.Model):
     def is_sep_(self): 
         cac_linh_ids = self.env.user.cac_linh_ids
         for r in self:
-            if self.env.uid in r.user_id.cac_sep_ids.mapped('id') or self.user_has_groups('dai_tgg.cham_diem_group') \
+            if self.env.uid in r.user_id.cac_sep_ids.mapped('id') or self.user_has_groups('dai_tgg.group_cham_diem_cvi') \
             or (cac_linh_ids and (r.create_uid == r.env.user or r.user_id == r.env.user)) \
             or  self.user_has_groups('base.group_erp_manager'):# +  r.user_id.cac_sep_ids.cac_sep_ids.mapped('id'):
                 r.is_sep = True

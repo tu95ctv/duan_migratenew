@@ -47,7 +47,7 @@ class TVCV(models.Model):
     _auto = True
     
     
-    department_id = fields.Many2one('hr.department')
+    department_id = fields.Many2one('hr.department',ondelete='restrict')
     name = fields.Char(string=u'Tên công việc')
 #     name_khong_dau = fields.Char(compute='name_khong_dau_', store=True)
 #     name_viet_tat =  fields.Char(compute='name_khong_dau_', store=True)

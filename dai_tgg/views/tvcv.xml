@@ -50,7 +50,7 @@
                         <field name="id" />
                         <field name="name"/>
                			<field name="state" groups="dai_tgg.thay_doi_thu_vien_group"></field>
-               			<field name="department_id"></field>
+               			<field name="department_id" attrs="{'invisible':[('loai_record','!=','Công Việc')]}"></field>
                          <!-- TÊn -->
                        <!--  <field name="name_khong_dau"/>
                         <field name="name_viet_tat"/> -->
@@ -100,7 +100,7 @@
          <field name="model">tvcv</field>
          <field name="arch" type="xml">
             <tree>
-               <field name="loai_record"  groups="dai_tgg.show_loai_record" invisible="1"/>
+               <field name="loai_record"   invisible="1"/>
                <field name="name" />
                 <field name="name_khong_dau" groups="base.group_erp_manager"/>
                 <field name="name_viet_tat" groups="base.group_erp_manager"/>

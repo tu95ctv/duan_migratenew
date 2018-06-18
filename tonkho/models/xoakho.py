@@ -41,9 +41,30 @@ class XoaKho(models.TransientModel):
     _name = 'tonkho.xoakho'
     @api.multi
     def xoakho_action(self):
-        for model_name in ['stock.quant','stock.production.lot','stock.inventory','stock.picking',]:#'stock.move','stock_move','product_product,
+        for model_name in ['stock.quant','stock.production.lot','stock.inventory',]:#'stock.move','stock_move','product_product,'stock.picking'
             print ('xoa %s'%model_name)
             self.env[model_name].search([]).unlink()
+            
+    def xoa_stock_move(self):
+        for model_name in ['stock.move']:#'stock.move','stock_move','product_product,'stock.picking'
+            print ('xoa %s'%model_name)
+            self.env[model_name].search([]).unlink()
+    def xoa_stock_move_line(self):
+        for model_name in ['stock.move.line']:#'stock.move','stock_move','product_product,'stock.picking'
+            print ('xoa %s'%model_name)
+            self.env[model_name].search([]).unlink()
+    def xoa_stock_picking(self):
+        for model_name in ['stock.picking']:#'stock.move','stock_move','product_product,'stock.picking'
+            print ('xoa %s'%model_name)
+            self.env[model_name].search([]).unlink()
+    def xoa_product_template(self):
+        for model_name in ['product.template']:#'stock.move','stock_move','product_product,'stock.picking'
+            print ('xoa %s'%model_name)
+            self.env[model_name].search([]).unlink()
+                   
+            
+            
+            # xoa theo thu tu sau o phppgadmin, stock_move, stock_move_line,stock_picking,(product_template-->product_product)
             
 
      

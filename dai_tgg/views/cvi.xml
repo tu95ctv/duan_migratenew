@@ -237,7 +237,20 @@
                         </field>
                      </page>
                      <page string="COMMENTS" attrs="{'invisible':[('loai_record','=','Comment')]}">
-                        <field name="comment_ids" context="{'tree_view_ref':'dai_tgg.comment_list', 'default_loai_record':'Comment'                         }" />
+                        <field name="comment_ids" context="{ 'default_loai_record':'Comment'}">
+                        	<tree>
+                        		<field name="gio_bat_dau" />
+					               <field name="gio_ket_thuc" />
+					               <field name="tvcv_id" />
+					               <field name="noi_dung" />
+                        	
+                        	</tree>
+                        
+                        </field><!-- 'tree_view_ref':'dai_tgg.comment_list', -->
+                       
+                       
+                       
+                       
                         <!-- 'form_view_ref':'dai_tgg.comment_form' -->
                      </page>
                      <page string="THÔNG TIN KHÁC">
@@ -268,12 +281,12 @@
                      </page>
                   </notebook>
                </sheet>
-               
+               <!-- 
                <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers"/>
                     <field name="message_ids" widget="mail_thread"/>
                 </div>
-                 
+                  -->
             </form>
          </field>
       </record>
@@ -285,7 +298,7 @@
          <field name="arch" type="xml">
             <tree decoration-danger="not valid_diemtc" string="CVI Tree">
                <field name="id" />
-               <field name="loai_record" groups="dai_tgg.group_show_loai_record" />
+               <field name="loai_record" invisible="1"/>
                <field name="name" groups="base.group_erp_manager" />
                <!--             <field name="comments_show_html"></field> -->
                <field name="user_id" />
@@ -312,8 +325,8 @@
                <field name="diemtc" />
                <field name="valid_diemtc" invisible="1" />
                <field name="valid_diemtc_conclusion" />
-               <field name="is_sep" groups="dai_tgg.group_show_thong_tin_admin_sep" />
-               <field name="is_admin" groups="dai_tgg.group_show_thong_tin_admin_sep" />
+               <field name="is_sep" invisible="1"/>
+               <field name="is_admin"  invisible="1"/>
                <field name="percent_diemtc" attrs="{'invisible' : [('is_sep', '=', False),('is_admin', '=', False)]}" />
                <field name="diemld" attrs="{'invisible' : [('is_sep', '=', False),('is_admin', '=', False)]}" />
                <field name="create_uid" groups="dai_tgg.show_thong_tin_create_write" />
@@ -362,11 +375,11 @@
       </record>
       
        -->
+       
+         <!-- 
       <record id="cvi_pivot" model="ir.ui.view">
          <field name="name">Sự kiện pivot</field>
          <field name="model">cvi</field>
-         <!--    <field name="groups_id" eval="[(4, ref('base.group_erp_manager'))]" />  -->
-         <!-- không có tác dụng -->
          <field name="arch" type="xml">
             <pivot string="Something">
                <field name="department_id" type="row" />
@@ -378,7 +391,7 @@
             </pivot>
          </field>
       </record>
-      <!-- 
+    
         <record id="action_dynamic_domain" model="ir.actions.server">
             <field name="name">action_dynamic_domain cong viec</field>
             <field name="priority" eval="1" />
@@ -420,8 +433,8 @@
                <field name="name" />
                <field name="user_id" />
                <field name="tvcv_id" string="Loại" />
-               <filter name="this month" string="CV Tháng này" domain="[('ngay_bat_dau','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01')), ('ngay_bat_dau','&gt;=',time.strftime('%Y-%m-01'))]" help="Chọn tháng này" />
-               <filter name="last month" string="CV Tháng Trước" domain="[('ngay_bat_dau','&gt;=',(context_today()+relativedelta(months=-1)).strftime('%Y-%m-01')), ('ngay_bat_dau','&lt;',time.strftime('%Y-%m-01'))]" help="Chọn tháng này" />
+               <filter name="this month" string="Sự Cố Tháng này" domain="[('ngay_bat_dau','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01')), ('ngay_bat_dau','&gt;=',time.strftime('%Y-%m-01'))]" help="Chọn tháng này" />
+               <filter name="last month" string="Sự Cố Tháng Trước" domain="[('ngay_bat_dau','&gt;=',(context_today()+relativedelta(months=-1)).strftime('%Y-%m-01')), ('ngay_bat_dau','&lt;',time.strftime('%Y-%m-01'))]" help="Chọn tháng này" />
                <group expand="0" string="Group By">
                   <filter string="group theo Loại" context="{'group_by':'tvcv_id'}" />
                </group>
@@ -431,10 +444,10 @@
       <record id="cvi_list_sample" model="ir.ui.view">
          <field name="name">cvi list sample</field>
          <field name="model">cvi</field>
-         <field name="priority">16</field>
+         <field name="priority">14</field>
          <!-- <field name="mode">primary</field> -->
          <field name="arch" type="xml">
-            <tree decoration-danger="not valid_diemtc">
+            <tree ><!-- decoration-danger="not valid_diemtc" -->
                <field name="id" />
                <field name="loai_record" />
                <field name="user_id" />
@@ -452,6 +465,8 @@
             </tree>
          </field>
       </record>
+     
+
       <record id="cvi_list_sample_no_create" model="ir.ui.view">
          <field name="name">cvi list sample no create</field>
          <field name="model">cvi</field>
@@ -464,6 +479,7 @@
             </xpath>
          </field>
       </record>
+     
       <record id="cvi_form_no_create" model="ir.ui.view">
          <field name="name">cvi list sample no create</field>
          <field name="model">cvi</field>
@@ -476,6 +492,7 @@
             </xpath>
          </field>
       </record>
+     
       <record model="ir.actions.act_window" id="suco_action">
          <field name="name">Sự Cố</field>
          <field name="res_model">cvi</field>
@@ -483,7 +500,10 @@
          <field name="context">{'default_loai_record':'Sự Cố'}</field>
          <field name="view_mode">tree,form</field>
          <field name="search_view_id" ref="suco_search" />
+         <field name="view_id" ref="dai_tgg.cvi_list_sample_no_create" />
       </record>
+      
+      
       <!-- END SỰ CỐ-->
       <!-- SU VU -->
       <record model="ir.actions.act_window" id="suvu_action">
@@ -492,6 +512,8 @@
          <field name="domain">[('loai_record','=','Sự Vụ')]</field>
          <field name="context">{'default_loai_record':'Sự Vụ'}</field>
          <field name="view_mode">tree,form</field>
+         <field name="search_view_id" ref="suco_search" />
+         <field name="view_id" ref="dai_tgg.cvi_list_sample_no_create" />
       </record>
       <!-- END SU VU -->
       <menuitem name=" Menu Công Việc" id="menu_menu" parent="ctrtvcv_icon" sequence="1" />

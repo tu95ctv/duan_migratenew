@@ -25,6 +25,8 @@ class ImportThuVien(models.Model):
                                     (u'User',u'User')
                                     #,(u'Công Ty',u'Công Ty')
                                     ,(u'Department',u'Department')
+                                    ,(u'Partner',u'Partner')
+                                    ,(u'location partner',u'location partner')
                                     ,(u'Stock Location',u'Stock Location')
                                     ,(u'stock production lot',u'stock production lot')
                                     ,(u'Kiểm Kê',u'Kiểm Kê'),(u'Vật Tư LTK',u'Vật Tư LTK')
@@ -52,7 +54,9 @@ class ImportThuVien(models.Model):
                                     (u'vattu',u'vattu'),(u'kknoc',u'kknoc'),
                                     (u'cvi',u'cvi')
                                     ])
+    dong_test = fields.Integer(default=0)#0 la initify vô hạn
     log = fields.Text()
+    skip_field_cause_first_import = fields.Boolean(default=True)
 
     def test_code(self):
         self.env['stock.inventory'].browse([13]).line_ids.unlink()

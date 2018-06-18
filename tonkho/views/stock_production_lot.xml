@@ -1,56 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-<data>
-	
-
+   <data>
       <record id="view_production_lot_tree_inherit" model="ir.ui.view">
          <field name="name">stock.production.lot.tree</field>
          <field name="model">stock.production.lot</field>
          <field name="inherit_id" ref="stock.view_production_lot_tree" />
          <field name="arch" type="xml">
-         <field name="product_id" position="replace"></field>
-         <field name="ref" position="replace"></field>
-         	<field name="name" position="before">
-  				<field name="product_id"></field>
-            	<field name="pn"></field>
+            <field name="product_id" position="replace" />
+            <field name="ref" position="replace" />
+            <field name="name" position="before">
+               <field name="product_id" />
+               <field name="pn" />
             </field>
             <field name="name" position="after">
-            	<field name="ghi_chu"></field>
-           	   <field name="ghi_chu_ban_dau"></field>
-                   <field name="ghi_chu_ngay_nhap"></field>
-                   <field name="ghi_chu_ngay_xuat"></field>
+               <field name="trang_thai"></field>
+               <field name="ghi_chu" />
+               <field name="ghi_chu_ban_dau" />
+               <field name="ghi_chu_ngay_nhap" />
+               <field name="ghi_chu_ngay_xuat" />
+            </field>
+         </field>
+      </record>
+      <record id="view_production_lot_form" model="ir.ui.view">
+         <field name="name">stock.production.lot.form.inherit</field>
+         <field name="model">stock.production.lot</field>
+         <field name="inherit_id" ref="stock.view_production_lot_form" />
+         <field name="arch" type="xml">
+            <data>
+               <xpath expr="//button[2]" position="after">
+                  <button string="Product Moves" type="object" name="action_view_stock_move_lines" class="oe_stat_button" icon="fa-arrows-v" groups="stock.group_stock_user" />
+               </xpath>
+               <field name="ref" position="attributes">
+                  <attribute name="invisible">1</attribute>
+               </field>
+               <field name="ref" position="before">
+                  <field name="pn" />
+               	  <field name="trang_thai"></field>
+                  <field name="ghi_chu" />
+               </field>
+            </data>
+         </field>
+      </record>
+      <record id="view_production_lot_form_simple" model="ir.ui.view">
+         <field name="name">stock.production.lot.form.simple</field>
+         <field name="model">stock.production.lot</field>
+         <field name="inherit_id" ref="stock.view_production_lot_form_simple" />
+         <field name="arch" type="xml">
+            <field name="ref" position="replace">
+               <field name="pn" />
+               <field name="trang_thai"></field>
+               <field name="ghi_chu" />
             </field>
          </field>
       </record>
       
-      
-      
-      <record id="view_production_lot_form" model="ir.ui.view">
-        <field name="name">stock.production.lot.form.inherit</field>
+      <record model="ir.ui.view" id="search_product_lot_filter">
+        <field name="name">Production Lots Filter</field>
         <field name="model">stock.production.lot</field>
-        <field name="inherit_id" ref="stock.view_production_lot_form"></field>
+        <field name="inherit_id" ref="stock.search_product_lot_filter"></field>
         <field name="arch" type="xml">
-           <field name="ref" position="attributes">
-           			<attribute name="invisible">1</attribute>
-           </field>
-            <field name="ref" position="before">
-            	<field name="pn"></field>
-            </field>
-            
+           		<xpath expr="//filter[@name='group_by_product']" position="after">
+           		<field name = "trang_thai"></field>
+           		<field name = "pn"></field>
+                <filter name="group_by_trang_thai" string="Group By Trạng Thái" domain="[]" context="{'group_by':'trang_thai'}"/>
+                <filter name="group_by_pn" string="Group By Part number" domain="[]" context="{'group_by':'pn'}"/>
+                 </xpath>
         </field>
     </record>
     
-   
-       <record id="view_production_lot_form_simple" model="ir.ui.view">
-        <field name="name">stock.production.lot.form.simple</field>
-        <field name="model">stock.production.lot</field>
-        <field name="inherit_id" ref="stock.view_production_lot_form_simple"></field>
-        <field name="arch" type="xml">
-            <field name="ref" position="after">
-            	<field name="pn"></field>
-            </field>
-        </field>
-    </record>
-     
-</data>
+    
+               <!--  <filter string='Group by Trạng Thái' name="group_by_trang_thai" domain="[]" context="{'group_by': 'trang_thai'}"/> -->
+      
+   </data>
 </odoo>
+

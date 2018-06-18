@@ -8,18 +8,19 @@ from odoo.osv import expression
 class StockLocation(models.Model):
     _inherit = 'stock.location'
     department_id =  fields.Many2one('hr.department')
-    phong_ban_id =  fields.Many2one('res.partner')
+    partner_id_of_stock_for_report =  fields.Many2one('res.partner',string=u'Phòng Ban để báo cáo')
     cho_phep_am =  fields.Boolean(default=True,string=u'Cho phép số lượng âm')
     cho_phep_khac_tram_chon =  fields.Boolean(string=u'Cho phép khác trạm chọn')
-    
+    is_kho_cha =  fields.Boolean(string=u'Kho Cha')
     
 #     @api.model
 #     def name_search(self, name, args=None, operator='ilike', limit=100):
 #         print ( 'self._context',self._context)
 #         return super(StockLocation,self).name_search( name, args=args, operator=operator, limit=limit)
     
-    def get_report_name_(self):
-        return self.department_id.get_department_name_for_report_() or self.phong_ban_id.name or self.name
+    def get_stock_location_name_for_report_(self):
+#         return self.department_id.get_department_name_for_report_() or self.partner_id_of_stock_for_report.name or self.name
+        return self.partner_id_of_stock_for_report.name
         
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):

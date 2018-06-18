@@ -11,7 +11,7 @@ class CTR(models.Model):
     date = fields.Date(string=u'Ngày',default= convert_utc_to_gmt_7(datetime.datetime.now()).date() )#readonly = True
     gio_bat_dau_ca = fields.Datetime(u'Giờ bắt đầu ca ',default=lambda self: self.gio_bat_dau_defaut_or_ket_thuc_())
     gio_ket_thuc_ca = fields.Datetime(u'Giờ Kết Thúc ca',default=lambda self: self.gio_bat_dau_defaut_or_ket_thuc_(is_tinh_gio_bat_dau_or_ket_thuc = 'gio_ket_thuc'))#
-    department_id = fields.Many2one('hr.department',string=u'Đơn vị',default=lambda self:self.env.user.department_id, readonly=True, required=True)
+    department_id = fields.Many2one('hr.department',string=u'Đơn vị',default=lambda self:self.env.user.department_id, readonly=True, required=True,ondelete='restrict')
     member_ids = fields.Many2many('res.users', string=u'Những thành viên trực',default =  lambda self : [self.env.user.id],required=True)
     cvi_ids = fields.Many2many('cvi','ctr_cvi_relate','ctr_id','cvi_id',string=u'Công Việc/Sự Cố/Sự Vụ')
     cvi_show =  fields.Char(compute='cvi_show_',string=u'Công Việc/Sự Cố/ Sự Vụ')
@@ -38,7 +38,7 @@ class CTR(models.Model):
         for r in self:
             cvi_ids = r.cvi_ids
             if cvi_ids:
-                r.cvi_show = u' | '.join(map(lambda r: r.get_names(),cvi_ids))
+                r.cvi_show = u' | '.join(list(map(lambda r: r.get_names(),cvi_ids)))
           
     def get_names(self):
             name = name_compute(self,
@@ -47,7 +47,6 @@ class CTR(models.Model):
                    ('ca',{'pr':u'Buổi'}),
                     ('member_ids',{'pr':u'Người Trực','func':convert_memebers_to_str})
                    ]
-                                          
                                  )
             return name
     @api.multi
@@ -79,7 +78,7 @@ class CTR(models.Model):
         now_vn_datetime = convert_utc_to_gmt_7(datetime.datetime.now())
         now_hour = now_vn_datetime.hour
         alist = [(u'Sáng',7),(u'Chiều',14),(u'Đêm',22)]
-        new_list= map(lambda i:abs(now_hour-i[1]),alist)
+        new_list= list(map(lambda i:abs(now_hour-i[1]),alist))
         index =  new_list.index(min (new_list))
         buoi_ca = alist[index][0]
         if gio_bat_dau_vn_return:

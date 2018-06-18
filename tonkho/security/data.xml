@@ -1,19 +1,25 @@
 <odoo>
 <data>
- 
- <record id="stock.group_stock_user" model="res.groups">
-        <field name="name">User</field>
-        <field name="category_id" ref="base.module_category_warehouse_management"/>
-        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+
+   
+        
+       <!-- 
+        <record id="stock.stock_picking_type_menu" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6,0, [])]"/>
     </record>
-    <record id="stock.group_stock_manager" model="res.groups">
-        <field name="name">Manager</field>
-        <field name="category_id" ref="base.module_category_warehouse_management"/>
-        <field name="implied_ids" eval="[(4, ref('stock.group_stock_user'))]"/>
-        <field name="users" eval="[(4, ref('base.user_root'))]"/>
-    </record>
-    
-    
+        <menuitem
+            action="stock.stock_picking_type_action"
+            id="stock.stock_picking_type_menu"
+            parent="stock.menu_stock_root" sequence="0"
+            name="Dashboard"
+            />   
+            
+             --> 
+               <!--      groups="base.group_erp_manager" -->    
+            
+            
+
+
 <!-- 
  
  <record id="ltk_dang_chay" model="stock.location"> 

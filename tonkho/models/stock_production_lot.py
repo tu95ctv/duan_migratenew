@@ -7,11 +7,31 @@ from odoo.osv import expression
 class StockProductionLot(models.Model):
     _inherit = "stock.production.lot"
     pn = fields.Char(string=u'Part Number')
-    ghi_chu = fields.Text(string=u'Ghi chú')
+    ghi_chu = fields.Text(string=u'Ghi chú',compute='ghi_chu_',store=True)
     ghi_chu_ban_dau =  fields.Text(string=u'Ghi Chú Ban Đầu')
     ghi_chu_ngay_nhap = fields.Text(string=u'Ghi Chú Ngày Nhập')
     ghi_chu_ngay_xuat = fields.Text(string=u'Ghi Chú Ngày Xuất')
     pn_id = fields.Many2one('tonkho.pn')
+    move_line_ids = fields.One2many('stock.move.line','lot_id')
+    trang_thai = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',compute='trang_thai_depend_move_line_ids_',store=True, string=u'Trạng Thái')
+    
+    def action_view_stock_move_lines(self):
+        self.ensure_one()
+        action = self.env.ref('stock.stock_move_line_action').read()[0]
+        action['domain'] = [('lot_id', '=', self.id)]
+        return action
+    
+    @api.depends('move_line_ids.trang_thai')
+    def trang_thai_depend_move_line_ids_(self):
+        for r in self:
+            if r.move_line_ids:
+                r.trang_thai = r.move_line_ids[-1].trang_thai
+    
+    @api.depends('move_line_ids.ghi_chu')
+    def ghi_chu_(self):
+        for r in self:
+            if r.move_line_ids:
+                r.ghi_chu = r.move_line_ids[-1].ghi_chu
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
         location_id = self._context.get('d4_location_id')

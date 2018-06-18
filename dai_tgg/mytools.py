@@ -11,7 +11,6 @@ if VERSION_INFO ==2:
 else:
     unicode  =  str
 
-
 def viet_tat(string):
     string = string.strip()
     ns = re.sub('\s{2,}', ' ', string)
@@ -73,40 +72,38 @@ def convert_date_odoo_to_str_vn_date(odoo_date):
     return Convert_date_orm_to_str(odoo_date,format_date = '%d/%m/%Y')
     
     
-def name_compute(r,adict=None,join_char = u' - '):
+def name_compute(r,adict=None,join_char = u' - ',junc_char=u':'):
     names = []
-#     adict = [('cate_cvi',{'pr':''}),('noi_dung',{'pr':'','func':lambda r: r.name }),('id',{'pr':''})]
     for fname,attr_dict in adict:
         val = getattr(r,fname)
         func = attr_dict.get('func',None)
-        pr_more = attr_dict.get('pr_more','')
-        sf_more = attr_dict.get('sf_more','')
-        
+        karg = attr_dict.get('karg',{})
         if func:
-            val = func(val)
+            val = func(val,**karg)
         if  not val:# Cho có trường hợp New ID
-            if attr_dict.get('skip_if_False',True) and  (pr_more=='' and sf_more==''):
+            if attr_dict.get('skip_if_False',True):
                 continue
             if  fname=='id' :
                 val ='New'
             else:
                 val ='_'
         if attr_dict.get('pr',None):
-            item =  attr_dict['pr'] + u': ' + unicode(val)
+            a_junc_char = attr_dict.get('junc_char',junc_char)
+            item =  attr_dict['pr'] + a_junc_char + ' ' + unicode(val)
         else:
             item = unicode (val)
-            
-        if pr_more:
-            item =  pr_more +  val
-        if sf_more:
-            item =  val + sf_more
-            
         names.append(item)
     if names:
         name = join_char.join(names)
     else:
         name = False
     return name
+
+
+
+
+
+
 
 def name_compute_char_join_rieng(r,adict=None,join_char = u' - '):
     names = []

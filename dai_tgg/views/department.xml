@@ -18,6 +18,8 @@
          <field name="arch" type="xml">
             <xpath expr="//field[@name='name']" position="after">
                <field name="cong_ty_type" />
+               <field name="short_name" />
+               
             </xpath>
          </field>
       </record>
@@ -31,6 +33,8 @@
             <xpath expr="//field[@name='display_name']" position="after">
             	<field name="partner_id"/>
                <field name="cong_ty_type" />
+                              <field name="report_name" />
+                              <field name="short_name" />
             </xpath>
          </field>
       </record>

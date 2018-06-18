@@ -20,14 +20,16 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','stock','hr'],#'dai_tgg',
+    'depends': ['base','stock','hr','dai_tgg'],#'dai_tgg',
     #'css': ['static/src/css/style.css'], 
     # always loaded
     'data': [
             'security/data.xml',
         'security/security.xml',
-        
-        # 'security/ir.model.access.csv',
+    'report/header.xml',
+    'report/main.xml',
+    'report/table.xml',
+        'security/ir.model.access.csv',
 #         'views/stock_pack_operation.xml',
 #         'views/stock_picking.xml',
         'views/stock_quant.xml',
@@ -40,12 +42,11 @@
         'views/stock_picking11.xml',
         'views/delete_menu.xml',
         'views/xoakho.xml',
-        'views/setting.xml',
         'views/warehouse.xml',
-    'report/pick_operation_report.xml',
+#     'report/totrinh_report.xml',
 #         'views/pn.xml',
-
-        'views/product_product.xml',
+    'views/product_product.xml',
+    
 
         
         

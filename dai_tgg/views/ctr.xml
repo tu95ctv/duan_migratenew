@@ -1,6 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <openerp>
-  <data>
-	  <record id="ctr_search" model="ir.ui.view">
+   <data>
+      <record id="ctr_search" model="ir.ui.view">
          <field name="name">ca truc search</field>
          <field name="priority" eval="1" />
          <field name="model">ctr</field>
@@ -21,7 +22,7 @@
          <field name="name">ctr.form</field>
          <field name="model">ctr</field>
          <field name="arch" type="xml">
-            <form string="Truc ca Form">
+            <form string="Ca Trực Form">
                <sheet>
                   <group>
                      <group>
@@ -33,9 +34,7 @@
                         <field name="gio_ket_thuc_ca" invisible="1" />
                      </group>
                      <group>
-                        <field name="member_ids"        
-                        domain="['|',('department_id','child_of',department_id),('department_id','parent_of',department_id)]"
-                       >
+                        <field name="member_ids" domain="['|',('department_id','child_of',department_id),('department_id','parent_of',department_id)]">
                            <tree>
                               <field name="name" string="Tên người Trực" />
                               <field name="department_id" />
@@ -43,29 +42,36 @@
                         </field>
                      </group>
                   </group>
-             
                   <notebook>
                      <page string="Công Việc/Sự Cố/Sự Vụ">
-                        <field name="cvi_ids" context="{'active_ctr_id':active_id,'tree_view_ref':'dai_tgg.cvi_list_sample'}" 
-                        domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('department_ids','=',department_id)]" />
+                        <!--   <field name="cvi_ids" context="{'active_ctr_id':active_id,'tree_view_ref':'dai_tgg.cvi_list_sample'}" 
+                        domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('department_ids','=',department_id)]" /> -->
+                        <field name="cvi_ids" context="{'active_ctr_id':active_id}" domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('department_ids','=',department_id)]" />
                      </page>
                      <page string="Nhận Ca, Giao Ca">
-                     			<group>
-                                             <field name="giao_ca_truoc_ids"
-                                              context="{'tree_view_ref':'dai_tgg.comment_list_has_ctr',
-                                                              'default_loai_record':'Comment',
-                                             }"></field>
-                     			</group>
-                     			
-                     			<group>
-                                             <field name="giao_ca_ids" context="{'tree_view_ref':'dai_tgg.comment_list',
-                                             'form_view_ref':'dai_tgg.comment_form',
-                                             'default_loai_record':'Comment',
-                                             'loai_record_more':['Công Việc'],
-                                             'giao_ca_context':True,
-                                             'comment_context':True,
-                                             }" domain="[('loai_record','=','Comment')]"></field>
-                     			</group>
+                        <!-- 'tree_view_ref':'dai_tgg.comment_list_has_ctr', -->
+                        <group>
+                           <field name="giao_ca_truoc_ids" context="{'default_loai_record':'Comment'}">
+                              <tree>
+                                 <field name="gio_bat_dau" />
+                                 <field name="gio_ket_thuc" />
+                                 <field name="tvcv_id"  string="Loại Comment"/>
+                                 <field name="noi_dung" />
+                                 <field name="giao_ca_id"/>
+                              </tree>
+                           </field>
+                        </group>
+                        <group>
+                           <!-- 'tree_view_ref':'dai_tgg.comment_list','form_view_ref':'dai_tgg.comment_form', -->
+                           <field name="giao_ca_ids" context="{  'default_loai_record':'Comment',  'loai_record_more':['Công Việc'], 'giao_ca_context':True,'comment_context':True,}" domain="[('loai_record','=','Comment')]">
+                              <tree>
+                                 <field name="gio_bat_dau" />
+                                 <field name="gio_ket_thuc" />
+                                 <field name="tvcv_id" string="Loại Comment" />
+                                 <field name="noi_dung" />
+                              </tree>
+                           </field>
+                        </group>
                      </page>
                   </notebook>
                </sheet>
@@ -83,10 +89,10 @@
                <field name="cvi_show" />
                <field name="member_ids" />
                <field name="department_id" />
-                    <field name="create_uid" string="Người tạo" groups="dai_tgg.show_thong_tin_create_write"></field>
-                    <field name="write_uid" string="Người sửa" groups="dai_tgg.show_thong_tin_create_write"></field>
-                    <field name="create_date" string="Ngày giờ Tạo" groups="dai_tgg.show_thong_tin_create_write"></field>
-                    <field name="write_date" string="Ngày giờ sửa" groups="dai_tgg.show_thong_tin_create_write"></field>
+               <field name="create_uid" string="Người tạo" groups="dai_tgg.show_thong_tin_create_write" />
+               <field name="write_uid" string="Người sửa" groups="dai_tgg.show_thong_tin_create_write" />
+               <field name="create_date" string="Ngày giờ Tạo" groups="dai_tgg.show_thong_tin_create_write" />
+               <field name="write_date" string="Ngày giờ sửa" groups="dai_tgg.show_thong_tin_create_write" />
             </tree>
          </field>
       </record>
@@ -97,8 +103,8 @@
          <field name="view_mode">tree,form</field>
       </record>
       <menuitem name="Công Việc/Trực" id="ctrtvcv_icon" web_icon="dai_tgg,static/src/image/customers-icon-18.png" />
-	   <menuitem name="Menu Ca trực" id="ctrmenu_menu" parent="ctrtvcv_icon" action="ctr_action" sequence="2" />
+      <menuitem name="Menu Ca trực" id="ctrmenu_menu" parent="ctrtvcv_icon" action="ctr_action" sequence="2" />
       <menuitem name="Ca trực" id="ctr_menu" parent="ctrmenu_menu" action="ctr_action" sequence="1" />
-      
-  </data>
+   </data>
 </openerp>
+

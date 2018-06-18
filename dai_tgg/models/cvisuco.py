@@ -4,26 +4,21 @@ from odoo.addons.dai_tgg.mytools import convert_odoo_datetime_to_vn_str,name_com
 from unidecode import unidecode
 
 class CviSuCo(models.Model):
+    
     _name = 'cvisuco'
     _auto = False
     name = fields.Char(compute='name_',store=True)
     noi_dung = fields.Text(string=u'Nội dung')
     noi_dung_khong_dau = fields.Text(string=u'Nội dung không dấu', compute='noi_dung_khong_dau_',)  
-    
-    #moi them
     cvi_id = fields.Many2one('cvi')
     giao_ca_id = fields.Many2one('ctr',string=u'Ca Trực')
-    # end moi them
     file_ids = fields.Many2many('dai_tgg.file','cvi_file_relate','cvi_id','file_id',string=u'Files đính kèm')
     doitac_ids = fields.Many2many('res.partner',string=u'Đối Tác')
-#     department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',compute='department_id_',store=True)
-    
-    department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',required=True,readonly=True,default = lambda self:  self.env.user.department_id.id)
+    department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',required=True,readonly=True,default = lambda self:  self.env.user.department_id.id,ondelete='restrict')
     department_ids = fields.Many2many('hr.department', string=u'Đơn vị liên quan' )
     loai_record = fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record')
     loai_record_show =  fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record',compute='loai_record_show_')
     ngay_bat_dau =  fields.Date(compute='ngay_bat_dau_',store=True,string=u'Ngày')
-    date =  fields.Date(compute='ngay_bat_dau2_',store=True,string=u'Ngày')
     gio_bat_dau = fields.Datetime(string=u'Giờ bắt đầu ', default=fields.Datetime.now)
     gio_ket_thuc = fields.Datetime(string=u'Giờ Kết Thúc')
     duration = fields.Float(digits=(6, 1), help='Duration in Hours',compute = '_get_duration', store = True,string=u'Thời lượng (giờ)')
@@ -31,17 +26,10 @@ class CviSuCo(models.Model):
     ctr_ids  = fields.Many2many('ctr','ctr_cvi_relate','cvi_id','ctr_id',string=u'Ca Trực')
     ctr_show = fields.Char(compute='ctr_show_',string=u'Số ca trực')
     tvcv_id = fields.Many2one('tvcv', string=u'Thư Viện Công việc/ Loại Sự Cố/ Loại Sự Vụ',ondelete='restrict')
-   
-    
-    # sua lai comment
-    #tu
-#     comment_ids = fields.One2many('comment','cvi_id',string=u'Comments/Ghi Chú/Tiến Độ')
     comment_ids = fields.One2many('cvi','cvi_id',string=u'Comments/Ghi Chú/Tiến Độ')
     comments_show = fields.Char(compute='comments_show_',string=u'Comments/Ghi Chú/Tiến Độ')
     trig_field = fields.Boolean()
-    
-                
-                
+
     @api.depends('noi_dung')
     def noi_dung_khong_dau_(self):
         for r in self:
@@ -65,7 +53,6 @@ class CviSuCo(models.Model):
                                        join_char = ' ')
                 comment_ids_text_lists.append(i_text)
             r.comments_show = u' | '.join(comment_ids_text_lists)
-#             r.comments_show_html = u'</br>'.join(comment_ids_text_lists)
                 
         
 
@@ -83,6 +70,8 @@ class CviSuCo(models.Model):
         res = super(CviSuCo, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
         if view_type in ['tree','form']:
             loai_record_context = self._context.get('default_loai_record')
+            if view_type =='tree':
+                print ('loai_record_context',loai_record_context)
             if loai_record_context in [u'Sự Cố',u'Sự Vụ',u'Comment']:
                 fields = res.get('fields')
                 fields['tvcv_id']['string'] =u'Loại ' + loai_record_context # ['|',('ctr_ids','=','active_id'),'&',('ctr_ids','!=',False),('gio_ket_thuc','=',False)]
@@ -105,7 +94,7 @@ class CviSuCo(models.Model):
                          'default_loai_record':loai_record,
                          'tree_view_ref':tree_view_ref, 
                          'search_view_ref': search_view_ref ,}'''
-                
+                 
             fields['tvcv_id']['context'] = context
         return res
     @api.depends('loai_record')
@@ -158,12 +147,12 @@ class CviSuCo(models.Model):
         for r in self:
             if r.gio_bat_dau:
                 r.ngay_bat_dau = convert_odoo_datetime_to_vn_datetime(r.gio_bat_dau).date()
-    @api.depends('gio_bat_dau')
-    def ngay_bat_dau2_(self):#trong su kien
-        for r in self:
-            if r.gio_bat_dau:
-                utc_datetime_inputs = fields.Datetime.from_string(r.gio_bat_dau)
-                r.date = utc_datetime_inputs.date()            
+#     @api.depends('gio_bat_dau')
+#     def ngay_bat_dau2_(self):#trong su kien
+#         for r in self:
+#             if r.gio_bat_dau:
+#                 utc_datetime_inputs = fields.Datetime.from_string(r.gio_bat_dau)
+#                 r.date = utc_datetime_inputs.date()            
     
     @api.depends('gio_ket_thuc','gio_bat_dau')
     def _get_duration(self):

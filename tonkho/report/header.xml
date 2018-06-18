@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+   <data>
+      <template id="bien_ban_description">
+         <t t-call="tonkho.cong_hoa_xhcn_so_STT" />
+         <t t-call="tonkho.bien_ban_ban_giao_vat_tu" />
+            <t t-call="tonkho.totrinh" />
+            <t t-call="tonkho.ngay_thang_dia_diem" />
+         <t t-call="tonkho.cac_ben" />
+      </template>
+      <template id="tonkho.cong_hoa_xhcn_so_STT">
+         <div class="row">
+            <div class="col-xs-6" style="text-align: center;">
+               <div>TRUNG TÂM HẠ TẦNG MẠNG MIỀN NAM</div>
+               <div >
+                  ĐÀI VIỄN THÔNG HCM
+               </div>
+               <div>
+                  Số:
+                  <span t-field="o.stt_bien_ban" />
+                  /
+                  <span t-esc="o.ban_giao_or_nghiem_thu" />-<span t-field="o.department_id.short_name" />
+               </div>
+            </div>
+            <div class="col-xs-6" style="text-align: center;font-size:19px;">
+               <p>
+                  <b>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</b>
+               </p>
+               <p style="margin:-10px;font-size:13px;">
+                  <b>Độc Lập - Tự Do - Hạnh Phúc</b>
+               </p>
+               <div style="margin-top:15px;font-style:italic;">
+                  <!-- 	<b t-field="o.date" t-field-options="{&quot;format&quot;: &quot;dd/MM/YYYY&quot;}" /> -->
+                  <!--                   	<b t-field="o.date" t-field-options="{&quot;format&quot;: &quot; Ngày dd,Tháng MM, NamYYYY&quot;}" /> 
+                 -->
+                  <span>TP HCM, Ngày</span>
+                  <span t-field="o.date" t-field-options="{&quot;format&quot;: &quot;dd&quot;}" />
+                  Tháng
+                  <span t-field="o.date" t-field-options="{&quot;format&quot;: &quot;MM&quot;}" />
+                  Năm
+                  <span t-field="o.date" t-field-options="{&quot;format&quot;: &quot;YYYY&quot;}" />
+               </div>
+            </div>
+         </div>
+      </template>
+      <template id="tonkho.bien_ban_ban_giao_vat_tu">
+         <h2 style="text-align: center;font-weight:bold;font-size:40px;margin: 30px 0px 30px 0px;">
+            BIÊN BẢN
+            <span t-esc="o.ban_giao_or_nghiem_thu_show().upper()" />
+            VẬT TƯ
+         </h2>
+         <p />
+         <p />
+      </template>
+      <template id="totrinh">
+         <t t-if="o.totrinh_id">
+            <p>
+               Căn cứ vào tờ trình
+               <t t-esc="o.totrinh_id.get_names_for_report()" />
+            </p>
+         </t>
+      </template>
+      <template id="tonkho.ngay_thang_dia_diem">
+         <div>
+            Hôm nay ngày:
+            <b t-field="o.date" t-field-options="{&quot;format&quot;: &quot;dd/MM/YYYY&quot;}" />
+            , Tại:
+            <!--     <span t-esc="o.department_id.get_department_name_for_report_()" />-->
+            <span t-esc="o.noi_ban_giao.name" />.
+         </div>
+      </template>
+      <template id="tonkho.cac_ben">
+         Chúng tôi gồm:
+         <p>
+               Đại diện bên giao:<t t-esc="o.location_id.get_stock_location_name_for_report_()" />
+            <t t-call="tonkho.ben_giao_nhan_info">
+               <t t-set="member_ids" t-value="o.source_member_ids" />
+            </t>
+         </p>
+         <p>
+               Đại diện bên nhận:<t t-esc="o.location_dest_id.get_stock_location_name_for_report_()" />
+            <t t-call="tonkho.ben_giao_nhan_info">
+               <t t-set="member_ids" t-value="o.dest_member_ids" />
+            </t>
+         </p>
+         <p>
+            Chúng tôi đã tiến hành
+            <span t-esc="o.ban_giao_or_nghiem_thu_show().lower()" />
+            các vật tư bên dưới:
+         </p>
+      </template>
+      <template id="ben_giao_nhan_info">
+         <t t-if="member_ids">
+               <t t-foreach="member_ids" t-as="member">
+                  <div class="row">
+                     <div class="col-xs-5" style="padding-left:40px;">
+                        Ông/Bà:
+                        <span t-field="member.name" />
+                     </div>
+                     <div class="col-xs-3" style="padding-left:40px;">
+                        Chức Vụ:
+                        <span t-field="member.job_id" />
+                     </div>
+                     <div class="col-xs-4" style="padding-left:40px;">
+                        Đơn Vị:
+                        <t t-if="member.parent_id">
+                           <span t-esc="member.parent_id.name" />
+                        </t>
+                     </div>
+                  </div>
+               </t>
+         </t>
+         <t t-else="">
+            <br />
+            <br />
+         </t>
+      </template>
+   </data>
+</odoo>

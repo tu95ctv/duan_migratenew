@@ -5,6 +5,9 @@
          <field name="model">product.product</field>
          <field name="inherit_id" ref="stock.product_form_view_procurement_button" />
          <field name="arch" type="xml">
+         	
+         	
+         	<field name="lst_price" position="replace" />
             <field name="sale_ok" position="attributes">
                <attribute name="invisible">1</attribute>
             </field>
@@ -37,7 +40,8 @@
             <field name="uom_id" position="after">
                <field name="thiet_bi_id" />
                <field name="brand_id" />
-               <field name="department_id" />
+              <!--  <field name="department_id" /> -->
+               <field name="quant_ids"/>
             </field>
             <xpath expr="//header" position="attributes">
                <attribute name="invisible">1</attribute>
@@ -93,7 +97,40 @@
       </record>
       
       
-      
+      <record id="product_product_tree_view_ỉnherit" model="ir.ui.view">
+         <field name="name">product.template.stock.tree.inherit</field>
+         <field name="model">product.product</field>
+         <field name="inherit_id" ref="product.product_product_tree_view" />
+         <field name="arch" type="xml">
+            
+            <field name="uom_id" position="replace" />
+            <field name="default_code" position="replace" />
+            <field name="barcode" position="replace" />
+            <field name="lst_price" position="replace" />
+            
+            <field name="name" position="after">
+               <field name="uom_id" />
+               <field name="categ_id" />
+               <field name="thiet_bi_id" />
+               <field name="brand_id" />
+               <field name="tracking" />
+               <field name="location_id" />
+              <!--  <field name="quant_ids" domain="[('location_id.usage','=','internal')]"/> -->
+            </field>
+            <!-- 
+            <field name="standard_price" position="replace">
+               <field name="ghi_chu_ban_dau" />
+               <field name="ghi_chu_ngay_nhap" />
+               <field name="ghi_chu_ngay_xuat" />
+               <field name="create_uid" />
+            </field>
+            
+             -->
+         
+       
+             
+         </field>
+      </record>
       
 </data>
 </odoo>

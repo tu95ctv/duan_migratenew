@@ -8,8 +8,10 @@
          <field name="model">res.partner</field>
          <field name="inherit_id" ref="base.view_partner_form" />
          <field name="arch" type="xml">
-            
-                <!--
+            <!--  <xpath expr="//field[@name='parent_id']" position="attributes">
+            <attribute name="attrs">{'readonly':False}</attribute>
+            </xpath>
+              
             <xpath expr="//group/group" position="replace">
                <field name="type" invisible="1" />
             </xpath>

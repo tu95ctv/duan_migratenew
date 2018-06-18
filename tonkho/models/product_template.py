@@ -18,15 +18,25 @@ class PT(models.Model):
     type = fields.Selection(selection_add=[],default = 'product')
     thiet_bi_id = fields.Many2one('tonkho.thietbi', string = u'Thiết Bị')
     brand_id = fields.Many2one('tonkho.brand',string=u'Hãng sản xuất')
-    department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',default= lambda self:self.env.user.department_id)
     ghi_chu_ban_dau =  fields.Text(string=u'Ghi Chú Ban Đầu')
     ghi_chu_ngay_nhap = fields.Text(string=u'Ghi Chú Ngày Nhập')
     ghi_chu_ngay_xuat = fields.Text(string=u'Ghi Chú Ngày Xuất')
+    quant_ids = fields.One2many('stock.quant', 'product_id',domain=[('location_id.usage','=','internal')],string=u'Trong Kho')#domain=[('location_id.usage','=','internal')]
+    stock_location_id_selection = fields.Selection('get_stock_for_selection_field_', store=False)
+    tracking = fields.Selection([
+        ('serial', 'By Unique Serial Number'),
+#         ('lot', 'By Lots'),
+        ('none', 'No Tracking')], string="Tracking", default='none', required=True)
+    def get_stock_for_selection_field_(self):
+        locs = self.env['stock.location'].search([('is_kho_cha','=',True)])
+        rs = list(map(lambda i:(i.name,i.name),locs))
+        return rs
     
-#     @api.multi
+    
+    
+    
     def write(self, vals):
-        #You can not change the unit of measure of a product that has already been used in a done stock move
-        return super(PT, self.with_context(search_move_line_in_write=1)).write(vals)
+        return super(PT, self.with_context(search_move_line_in_write=1)).write(vals) # vi sao phai lam vay --> de change uom cua PT
     
 
             

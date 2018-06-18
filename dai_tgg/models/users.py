@@ -7,21 +7,25 @@ from odoo.addons.dai_tgg.mytools import  name_compute,name_khong_dau_compute
 def _lang_get(self):
     return self.env['res.lang'].get_installed()
 class PartnerABC(models.Model):
+#     _inherit = ['dai_tgg.namekhongdau']
     _inherit = ['res.partner']#,'khongdaumodel']
     _auto = True
     job_id = fields.Many2one('hr.job', string='Job Title')
-    department_id = fields.Many2one('hr.department',string=u'Đơn Vị')
+    department_id = fields.Many2one('hr.department',string=u'Đơn Vị',ondelete='restrict')
     name_khong_dau = fields.Char(compute='name_khong_dau_', store=True)
     name_viet_tat =  fields.Char(compute='name_khong_dau_', store=True)
     lang = fields.Selection(_lang_get, string='Language', 
                             help="If the selected language is loaded in the system, all documents related to "
                                  "this contact will be printed in this language. If not, it will be English.",default='vi_VN')
+#     parent_id = fields.Many2one('res.partner',compute='parent_id_',store=True)
+#     
+#     @api.depends('department_id')
+#     def parent_id_(self):
+#         for r in self:
+#             r.parent_id = r.department_id.partner_id
     
     
-    @api.depends('name')
-    def name_khong_dau_(self):
-        pass
-        name_khong_dau_compute(self)
+        
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
         args = args or []
