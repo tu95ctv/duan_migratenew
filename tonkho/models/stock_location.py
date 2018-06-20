@@ -8,7 +8,7 @@ from odoo.osv import expression
 class StockLocation(models.Model):
     _inherit = 'stock.location'
     department_id =  fields.Many2one('hr.department')
-    partner_id_of_stock_for_report =  fields.Many2one('res.partner',string=u'Phòng Ban để báo cáo')
+    partner_id_of_stock_for_report =  fields.Many2one('res.partner',string=u'Phòng ban cho báo cáo')
     cho_phep_am =  fields.Boolean(default=True,string=u'Cho phép số lượng âm')
     cho_phep_khac_tram_chon =  fields.Boolean(string=u'Cho phép khác trạm chọn')
     is_kho_cha =  fields.Boolean(string=u'Kho Cha')

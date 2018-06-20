@@ -55,7 +55,7 @@
                <t t-else="" />
             </td>
             <td>
-               <span t-field="move_line_id.trang_thai" />
+               <span t-field="move_line_id.tinh_trang" />
             </td>
             
             <td>
@@ -85,7 +85,7 @@
                   <strong>Part Number</strong>
                </th>
                <th t-if="has_serial_number" style="text-align: center;width:16%;">
-                  <strong>Serial Number</strong>
+                  <strong>S/N</strong>
                </th>
                <td style="text-align: center;width:5%">
                   <strong>TT</strong>

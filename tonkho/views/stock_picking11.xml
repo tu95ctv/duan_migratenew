@@ -27,8 +27,8 @@
             <xpath expr="//button[@name='action_toggle_is_locked']" position="after">
              <!--  <button name="action_draft" string="Draft" type="object" />  -->
              <!--  <button name="ghom_stock_move_lines" string="Tạo Bản In" type="object" />  -->
-               <button name="xem_print" string="Xem report html" type="object" />
-               <button name="xem_print_pdf" string="Xem report  pdf" type="object" />
+               <button name="xem_print" string="Xem Biên Bản html" type="object" groups="base.group_erp_manager" />
+               <button name="xem_print_pdf" string="Xem Biên Bản pdf" type="object" />
             </xpath>
             
             <!-- 
@@ -43,7 +43,7 @@
                <field name="department_id" />
                <field name="noi_ban_giao" />
                <field name="stt_bien_ban" />
-               <field name="ly_do" />
+               <field name="texttemplate_id" context="{'default_field_context':'tonkho.stock.picking.field.ly_do'}"/>
             </field>
             <field name="origin" position="attributes">
                <attribute name="invisible">1</attribute>
@@ -66,6 +66,7 @@
                <field name="location_dest_id" domain="['|',('usage','=','internal'),('cho_phep_khac_tram_chon','=', True),'|',('name','not ilike','Đang chạy'),('department_id','=', department_id)]" />
                <field name="ban_giao_or_nghiem_thu" />
                <field name="totrinh_id" />
+               <field name="ly_do" />
             </field>
             <xpath expr="//page[1]" position="attributes">
                <attribute name="attrs">{'invisible': False}</attribute>
@@ -83,13 +84,14 @@
              -->
             
             <xpath expr="//page[1]/field/tree/field[@name='product_id']" position="before">
-               <field name="stock_quant_id" domain="[('location_id.department_id','child_of',parent.department_id)]" context="{'kho_da_chon':parent.choosed_stock_quants_ids}"/>
+               <field name="stock_quant_id" domain="[('location_id','child_of',parent.location_id),('quantity','&gt;',0)]"   context="{'kho_da_chon':parent.choosed_stock_quants_ids}"/>
+         <!--domain="[('location_id.department_id','child_of',parent.department_id)]"  domain="[('location_id','child_of',parent.location_id)]"  -->
             </xpath>
             <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="replace"></xpath>
             
             <xpath expr="//page[1]/field/tree/field[@name='product_uom_id']" position="after">
                <field name="tracking" readonly="1"></field>
-               <field name="trang_thai"></field>
+               <field name="tinh_trang"></field>
                <field name="pn" attrs="{'invisible': [('tracking', '=', 'none')]}"  />
                <field name="lot_id" invisible="0" attrs="{'invisible': [('tracking', '=', 'none')],'required': [('tracking', '!=', 'none')]}" groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'default_product_id': product_id}" />
                <field name="ghi_chu"></field>
@@ -122,7 +124,8 @@
             
          	  <xpath expr="//page[2]/field/tree/field[@name='reserved_availability']" position="attributes">
               <!--  <attribute name="string">Đặt Trước</attribute> -->
-               
+                <attribute name="string">Đặt Trước</attribute>
+               <attribute name="groups">base.group_erp_manager</attribute>
             </xpath>
             
             

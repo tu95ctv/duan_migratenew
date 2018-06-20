@@ -3,6 +3,8 @@ from odoo import models, fields, api
 from odoo.exceptions import UserError
 from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
+from  odoo.addons.dai_tgg.mytools import name_compute
+# from odoo import _
 
 class Quant(models.Model):
     """ Quants are the smallest unit of stock physical instances """
@@ -19,8 +21,18 @@ class Quant(models.Model):
         ('none', 'No Tracking')], string=u"Có SN", related='product_id.tracking',store=True)
     department_id = fields.Many2one('hr.department',related='location_id.department_id',store=True,string=u"Phòng Ban")
     stock_location_id_selection = fields.Selection('get_stock_for_selection_field_',store=False)
-    trang_thai = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',related='lot_id.trang_thai',store=True,string=u'Trạng Thái')
-
+    tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',related='lot_id.tinh_trang',store=True,string=u'Tình Trạng')
+    def name_get(self):
+        res = []
+        for r in self:
+            adict=[
+                                                                 ('product_id',{'pr':None,'func':lambda r: r.name}),
+                                                                 ('lot_id',{'pr':None,'func':lambda r: r.name}),
+                                                                 ('quantity',{'pr':None,'func':lambda val:'%s'%val}),
+                                                               ]
+            name = name_compute(r,adict,join_char = u'|')
+            res.append((r.id,name))
+        return res
     def get_stock_for_selection_field_(self):
         locs = self.env['stock.location'].search([('is_kho_cha','=',True)])
         rs = list(map(lambda i:(i.name,i.name),locs))

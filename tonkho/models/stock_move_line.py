@@ -7,12 +7,12 @@ from odoo.addons import decimal_precision as dp
 # 'stock.move.line'
 class StockMoveLine(models.Model):
     _inherit = "stock.move.line"
-    pn = fields.Char(related='lot_id.pn', string=u'Part Number')
-    stock_quant_id = fields.Many2one('stock.quant')
+    pn = fields.Char(related='lot_id.pn', string=u'Part number')
+    stock_quant_id = fields.Many2one('stock.quant',string=u"Lấy vật tư có trong kho")
     tracking = fields.Selection(related='product_id.tracking',string=u'Có SN?', store=True,readonly=True)
-    ghi_chu = fields.Text(string=u'Ghi Chú')
+    ghi_chu = fields.Text(string=u'Ghi chú')
     inventory_id = fields.Many2one('stock.inventory', 'Inventory',related='move_id.inventory_id',readonly=True)
-    trang_thai = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot')
+    tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',string=u'Tình trạng')
     @api.onchange('product_id')
     def qty_done_(self):
         if self.product_id:

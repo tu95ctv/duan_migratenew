@@ -13,7 +13,7 @@ class StockProductionLot(models.Model):
     ghi_chu_ngay_xuat = fields.Text(string=u'Ghi Chú Ngày Xuất')
     pn_id = fields.Many2one('tonkho.pn')
     move_line_ids = fields.One2many('stock.move.line','lot_id')
-    trang_thai = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',compute='trang_thai_depend_move_line_ids_',store=True, string=u'Trạng Thái')
+    tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',compute='tinh_trang_depend_move_line_ids_',store=True, string=u'Tình Trạng')
     
     def action_view_stock_move_lines(self):
         self.ensure_one()
@@ -21,11 +21,11 @@ class StockProductionLot(models.Model):
         action['domain'] = [('lot_id', '=', self.id)]
         return action
     
-    @api.depends('move_line_ids.trang_thai')
-    def trang_thai_depend_move_line_ids_(self):
+    @api.depends('move_line_ids.tinh_trang')
+    def tinh_trang_depend_move_line_ids_(self):
         for r in self:
             if r.move_line_ids:
-                r.trang_thai = r.move_line_ids[-1].trang_thai
+                r.tinh_trang = r.move_line_ids[-1].tinh_trang
     
     @api.depends('move_line_ids.ghi_chu')
     def ghi_chu_(self):

@@ -17,10 +17,7 @@
         <field name="header_spacing">0</field>
         <field name="dpi">80</field>
     </record>
-   
-   
-   
-   
+
       <report string="In Biên Bản Bàn Giao" id="action_report_picking_dai_hcm" model="stock.picking" 
       report_type="qweb-pdf"
        name="tonkho.report_picking_dai_hcm"
@@ -31,7 +28,7 @@
          <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                <div class="article o_report_layout_standard">
-                  <div class="page" style="font-family:Times New Roman; font-size:22px">
+                  <div class="page" style="font-family:Times New Roman; font-size:22px;">
                      <t t-call="tonkho.bien_ban_description" />
                      <t t-call="tonkho.full_table" />
                      <t t-call="tonkho.reason" />
@@ -49,35 +46,23 @@
       
       <template id="tonkho.reason">
       	<t t-if="o.ly_do">
-             <p>Lý do:<span t-esc="o.ly_do" />
+             <p>Lý do: <span t-esc="o.ly_do" />.
              </p>
           </t>
       </template>
       
       <template id="tonkho.so_ban_in">
       <div>
-      <div>
-      <div>
-      <p></p><p></p><p></p>
-      <p>
-      <p>
-      <p>
-      <p>
-      <p>
          Biên bản này được in thành
          <span t-field="o.so_ban_in" />
-         bản. Bên nhận giữ
+         bản.
+         <!-- 
+         Bên nhận giữ
          <span t-field="o.ben_nhan_giu" />
          bản, bên giao nhận
          <span t-field="o.ben_giao_giu" />
          bản.
-         </p>
-         </p>
-         </p>
-         </p>
-         </p>
-         </div>
-         </div>
+          -->
          </div>
       </template>
       

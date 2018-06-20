@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
    <data>
-   
-   
-   
      <record id="view_stock_quant_tree_inherit" model="ir.ui.view">
          <field name="name">stock.quant.tree.inherit</field>
          <field name="model">stock.quant</field>
@@ -19,7 +16,7 @@
             <field name="lot_id" position="after">
             	<field name="categ_id"></field>
             	<field name="tracking"></field>
-            	<field name="trang_thai"></field>
+            	<field name="tinh_trang"></field>
          		<field name="location_id" ></field>
          		<field name="department_id" ></field>
             </field>
@@ -48,7 +45,7 @@
          <field name="arch" type="xml">
             <xpath expr="//filter[@name='locationgroup']" position="before">
           <filter string='Group by Nhóm' name="group_by_categ_id" domain="[]" context="{'group_by': 'categ_id'}"/>
-          <filter string='Group by Trạng Thái' name="group_by_trang_thai" domain="[]" context="{'group_by': 'trang_thai'}"/>
+          <filter string='Group by Trạng Thái' name="group_by_tinh_trang" domain="[]" context="{'group_by': 'tinh_trang'}"/>
           <filter string='Group by  Tracking' name="group_tracking" domain="[]" context="{'group_by': 'tracking'}"/>
           <filter string='Group by Đơn Vị' name="tracking" domain="[]" context="{'group_by': 'department_id'}"/>
           <field string="Tìm Số lượng trong kho có tên" name="stock_location_id_selection"   filter_domain="[('location_id','ilike',self)]"/>

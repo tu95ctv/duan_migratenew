@@ -13,7 +13,7 @@
                <field name="pn" />
             </field>
             <field name="name" position="after">
-               <field name="trang_thai"></field>
+               <field name="tinh_trang"></field>
                <field name="ghi_chu" />
                <field name="ghi_chu_ban_dau" />
                <field name="ghi_chu_ngay_nhap" />
@@ -35,7 +35,7 @@
                </field>
                <field name="ref" position="before">
                   <field name="pn" />
-               	  <field name="trang_thai"></field>
+               	  <field name="tinh_trang"></field>
                   <field name="ghi_chu" />
                </field>
             </data>
@@ -48,7 +48,7 @@
          <field name="arch" type="xml">
             <field name="ref" position="replace">
                <field name="pn" />
-               <field name="trang_thai"></field>
+               <field name="tinh_trang"></field>
                <field name="ghi_chu" />
             </field>
          </field>
@@ -60,16 +60,16 @@
         <field name="inherit_id" ref="stock.search_product_lot_filter"></field>
         <field name="arch" type="xml">
            		<xpath expr="//filter[@name='group_by_product']" position="after">
-           		<field name = "trang_thai"></field>
+           		<field name = "tinh_trang"></field>
            		<field name = "pn"></field>
-                <filter name="group_by_trang_thai" string="Group By Trạng Thái" domain="[]" context="{'group_by':'trang_thai'}"/>
+                <filter name="group_by_tinh_trang" string="Group By Trạng Thái" domain="[]" context="{'group_by':'tinh_trang'}"/>
                 <filter name="group_by_pn" string="Group By Part number" domain="[]" context="{'group_by':'pn'}"/>
                  </xpath>
         </field>
     </record>
     
     
-               <!--  <filter string='Group by Trạng Thái' name="group_by_trang_thai" domain="[]" context="{'group_by': 'trang_thai'}"/> -->
+               <!--  <filter string='Group by Trạng Thái' name="group_by_tinh_trang" domain="[]" context="{'group_by': 'tinh_trang'}"/> -->
       
    </data>
 </odoo>

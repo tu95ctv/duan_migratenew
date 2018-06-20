@@ -27,16 +27,14 @@ class StockPicking(models.Model):
         default=lambda self: self.env['hr.department'].browse(self.default_get([ 'department_id']).get('department_id')).default_location_id,
         readonly=True, required=True,
         states={'draft': [('readonly', False)]})
-    noi_ban_giao = fields.Many2one('res.partner',default= lambda self: self.env.user.department_id.partner_id)
-    department_id = fields.Many2one('hr.department',default=lambda self:self.env.user.department_id, readonly=True, string=u'Đơn Vị', required=True)
-    stt_bien_ban = fields.Integer(default=lambda self:self.env.user.department_id.sequence_id.number_next_actual,readonly=True, string=u'Số thứ tự biên bản')
-    source_member_ids = fields.Many2many('res.partner','source_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân Viên Giao')
-    dest_member_ids = fields.Many2many('res.partner','dest_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân Viên Nhận')
-    ban_giao_or_nghiem_thu = fields.Selection([(u'BBBG',u'Bàn Giao'),(u'TTr',u'Trình Vật Tư'),(u'BBNT',u'Nghiệm Thu'),(u'BBSD',u'Đưa Vào Sử Dụng'),(u'BBNK',u'Nhập kho vật tư lỗi')],default=u'BBBG',string=u'Bàn Giao Hay Nghiệm Thu')
-#     don_vi_nhan = fields.Char(compute='don_vi_nhan_',string=u'Đơn Vị Nhận')
-#     don_vi_giao = fields.Char(compute='don_vi_giao_',string=u'Đơn Vị Giao')
-    data_file = fields.Binary(string='File Import')
-    filename = fields.Char()
+    noi_ban_giao = fields.Many2one('res.partner',default= lambda self: self.env.user.department_id.partner_id, string=u'Nơi bàn giao')
+    department_id = fields.Many2one('hr.department',default=lambda self:self.env.user.department_id, readonly=True, string=u'Đơn vị', required=True)
+    stt_bien_ban = fields.Integer(default=lambda self:self.env.user.department_id.sequence_id.number_next_actual,readonly=True, string=u'STT biên bản')
+    source_member_ids = fields.Many2many('res.partner','source_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân viên giao')
+    dest_member_ids = fields.Many2many('res.partner','dest_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân viên nhận')
+    ban_giao_or_nghiem_thu = fields.Selection([(u'BBBG',u'Bàn Giao'),(u'TTr',u'Trình vật tư'),(u'BBNT',u'Nghiệm thu'),(u'BBSD',u'Đưa vào sử dụng'),(u'BBNK',u'Nhập kho vật tư lỗi')],default=u'BBBG',string=u'BG hay NT')
+#     data_file = fields.Binary(string='File Import')
+#     filename = fields.Char()
     name = fields.Char(
         'Reference',
         default=lambda self:self.default_name(),
@@ -48,20 +46,22 @@ class StockPicking(models.Model):
         'stock.picking.type', 'Operation Type',
         required=False,
         states={'done': [('readonly', True)], 'cancel': [('readonly', True)]},default= lambda self: self.env['stock.picking.type'].search(['|',('name','=',u'Dịch chuyển nội bộ'),('name','=','Internal Transfers')])[0].id)
-    ly_do = fields.Text(u'Lý Do')#Tình trạng vật tư: Vật tư đang sử dụng lỗi, đem SVTECH bảo hành,
-    so_ban_in = fields.Integer(u'Số Bản In',default=2)
-    ben_giao_giu = fields.Integer(u'Bên Giao Giữ', default=1)
-    ben_nhan_giu = fields.Integer(u'Bên Nhận Giữ',default=1)
+    ly_do = fields.Text(u'Lý do')#Tình trạng vật tư: Vật tư đang sử dụng lỗi, đem SVTECH bảo hành,
+    so_ban_in = fields.Integer(u'Số bản in',default=4)
+    ben_giao_giu = fields.Integer(u'Bên giao giữ', default=3)
+    ben_nhan_giu = fields.Integer(u'Bên nhận giữ',default=1)
     totrinh_id = fields.Many2one('dai_tgg.totrinh', string=u'Tờ trình')
     
-    title_ben_thu_3 = fields.Many2one('tonkho.title_cac_ben')
-    ben_thu_3_ids = fields.Many2many('res.partner','ben_thu_3_stock_picking_relate','picking_id','partner_id',string=u'Bên Thứ 3')
+    title_ben_thu_3 = fields.Many2one('tonkho.title_cac_ben',string=u'Title bên thứ 3')
+    ben_thu_3_ids = fields.Many2many('res.partner','ben_thu_3_stock_picking_relate','picking_id','partner_id',string=u'Bên thứ 3')
     
-    title_ben_thu_4 = fields.Many2one('tonkho.title_cac_ben')
-    ben_thu_4_ids = fields.Many2many('res.partner','ben_thu_3_stock_picking_relate','picking_id','partner_id',string=u'Bên Thứ 4')
+    title_ben_thu_4 = fields.Many2one('tonkho.title_cac_ben',string=u'Title bên thứ 3')
+    ben_thu_4_ids = fields.Many2many('res.partner','ben_thu_3_stock_picking_relate','picking_id','partner_id',string=u'Bên thứ 4')
+    texttemplate_id = fields.Many2one('tonkho.texttemplate',string=u"Mẫu lý do",domain=[('field_context','=','tonkho.stock.picking.field.ly_do')])
     
-    
-    
+    @api.onchange('texttemplate_id')
+    def onchage_for_ly_do(self):
+        self.ly_do = self.texttemplate_id.name
     # toi 07/06
 #     is_locked = fields.Boolean(default=False, help='When the picking is not done this allows changing the '
 #                                'initial demand. When the picking is done this allows '
@@ -120,6 +120,7 @@ class StockPicking(models.Model):
             default_location_id = self.env.user.department_id.default_location_id.id
             if self.picking_type_id.code in  [ 'internal']:
                 self.location_id = default_location_id
+                self.location_dest_id = default_location_id
 #                 self.location_dest_id = False
 #                 return {
 #                     'domain':{
@@ -266,12 +267,12 @@ class StockPicking(models.Model):
         
         
         
-    def ban_giao_or_nghiem_thu_show(self):
-        adict = {u'BBBG':u'Bàn Giao',u'BBNT':u'Nghiệm Thu'}
-        if self.ban_giao_or_nghiem_thu != False:
-            return adict[self.ban_giao_or_nghiem_thu]
-        else:
-            return False
+#     def ban_giao_or_nghiem_thu_show(self):
+#         adict = {u'BBBG':u'Bàn Giao',u'BBNT':u'Nghiệm Thu'}
+#         if self.ban_giao_or_nghiem_thu != False:
+#             return adict[self.ban_giao_or_nghiem_thu]
+#         else:
+#             return False
 #     def don_vi_nhan_(self):
 #         self.don_vi_nhan = self.location_dest_id.partner_id.name if self.location_dest_id.partner_id.name else self.location_dest_id.name
 #     def don_vi_giao_(self):
