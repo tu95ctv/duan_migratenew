@@ -267,12 +267,12 @@ class StockPicking(models.Model):
         
         
         
-#     def ban_giao_or_nghiem_thu_show(self):
-#         adict = {u'BBBG':u'Bàn Giao',u'BBNT':u'Nghiệm Thu'}
-#         if self.ban_giao_or_nghiem_thu != False:
-#             return adict[self.ban_giao_or_nghiem_thu]
-#         else:
-#             return False
+    def ban_giao_or_nghiem_thu_show(self):
+        adict = {u'BBBG':u'Bàn Giao',u'BBNT':u'Nghiệm Thu'}
+        if self.ban_giao_or_nghiem_thu != False:
+            return adict[self.ban_giao_or_nghiem_thu]
+        else:
+            return False
 #     def don_vi_nhan_(self):
 #         self.don_vi_nhan = self.location_dest_id.partner_id.name if self.location_dest_id.partner_id.name else self.location_dest_id.name
 #     def don_vi_giao_(self):

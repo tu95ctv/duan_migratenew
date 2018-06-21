@@ -90,6 +90,7 @@
             <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="replace"></xpath>
             
             <xpath expr="//page[1]/field/tree/field[@name='product_uom_id']" position="after">
+               <field name="id" readonly="1"></field>
                <field name="tracking" readonly="1"></field>
                <field name="tinh_trang"></field>
                <field name="pn" attrs="{'invisible': [('tracking', '=', 'none')]}"  />

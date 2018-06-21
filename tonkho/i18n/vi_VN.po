@@ -7148,3 +7148,9 @@ msgstr "Có SN?"
 #: model:ir.ui.view,arch_db:tonkho.quant_search_view
 msgid "Tracking"
 msgstr "Có SN?"
+
+#. module: tonkho
+#: model:ir.model.fields,field_description:tonkho.field_stock_move_line_stock_quant_id
+msgid "Stock Quant"
+msgstr "Lấy vật tư trong kho"
+

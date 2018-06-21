@@ -1,0 +1,110 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+    <!--  -->
+    <record model="ir.ui.view" id="team_form">
+      <field name="name">tkbd form</field>
+      <field name="model">tkbd.match</field>
+      <field name="arch" type="xml">
+        <form>
+        <group>
+        <group>
+          <field name="name"/>
+ 			 <field name="ti_le"/>
+           <field name="team_1"/>
+           <field name="score_1"/>
+           <field name="chu"/>
+           <field name="ti_le_float_1"/>
+        </group>
+        <group>
+        <field name="team_2"/>
+           <field name="score_2"/>
+           <field name="khach"/>
+           <field name="ti_le_float_2"/>
+         
+        </group>
+        </group>
+        </form>
+      </field>
+    </record>
+    
+    
+    <record model="ir.ui.view" id="team_list">
+      <field name="name">tkbd list</field>
+      <field name="model">tkbd.match</field>
+      <field name="arch" type="xml">
+        <tree>
+          	<field name="name"/>
+          	<field name="team_1"/>
+           <field name="score_1"/>
+           <field name="team_2"/>
+           <field name="score_2"/>
+        </tree>
+      </field>
+    </record>
+    
+    
+    <record model="ir.actions.act_window" id="tkbd.match_action">
+      <field name="name">match window</field>
+      <field name="res_model">tkbd.match</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+    
+    
+    <!-- -team -->
+    
+    <record model="ir.ui.view" id="tkbd.list">
+      <field name="name">tkbd list</field>
+      <field name="model">tkbd.team</field>
+      <field name="arch" type="xml">
+        <tree>
+          	<field name="name"/>
+    	
+        </tree>
+      </field>
+    </record>
+    
+
+    <!-- actions opening views on models -->
+    
+    <record model="ir.actions.act_window" id="tkbd.team_action">
+      <field name="name">tkbd window</field>
+      <field name="res_model">tkbd.team</field>
+      <field name="view_mode">tree,form</field>
+    </record>
+    
+
+    <!-- server action to the one above -->
+    <!--
+    <record model="ir.actions.server" id="tkbd.action_server">
+      <field name="name">tkbd server</field>
+      <field name="model_id" ref="model_tkbd_tkbd"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "tree,form",
+          "res_model": self._name,
+        }
+      </field>
+    </record>
+    -->
+
+    <!-- Top menu item -->
+    
+    <menuitem name="tkbd" id="tkbd.menu_root"/>
+    
+    <!-- menu categories -->
+    
+    <menuitem name="Menu 1" id="tkbd.menu_1" parent="tkbd.menu_root"/>
+  <!--
+    <menuitem name="Menu 2" id="tkbd.menu_2" parent="tkbd.menu_root"/>
+    -->
+    
+    <menuitem name="Team" id="tkbd.menu_1_list"  parent="tkbd.menu_1"
+              action="tkbd.team_action" sequence="2"/>
+    <menuitem name="Match" id="tkbd.menu_2_list"  parent="tkbd.menu_1"
+    action="tkbd.match_action"  sequence="1"/>
+
+  </data>
+</odoo>
