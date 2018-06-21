@@ -17,7 +17,7 @@
             </xpath>
           
             <xpath expr="//button[@name='action_toggle_is_locked']" position="attributes">
-               <attribute name="invisible">1</attribute>
+               <attribute name="invisible">0</attribute>
             </xpath>
             <xpath expr="//button[@name='button_scrap']" position="attributes">
                <attribute name="invisible">1</attribute>
@@ -71,6 +71,12 @@
             <xpath expr="//page[1]" position="attributes">
                <attribute name="attrs">{'invisible': False}</attribute>
             </xpath>
+          
+          
+            <xpath expr="//page[1]/field[@name='move_line_ids']" position="attributes">
+               <attribute name="attrs">{}</attribute>
+            </xpath>
+            
             
             <!-- 
             <xpath expr="//page[1]/field[@name='move_line_ids']" position="attributes">
@@ -82,7 +88,14 @@
                <attribute name="invisible">1</attribute>
             </xpath>
              -->
+             
+             <xpath expr="//page[1]/field/tree/field[@name='qty_done']" position="attributes">
+               <attribute name="attrs">{'readonly': [('state', 'in', ('done', 'cancel'))]}</attribute>
+            </xpath>
             
+            
+      <!--       <field name="qty_done" attrs="{'readonly': ['|', ('state', 'in', ('done', 'cancel')), ('is_locked', '=', True), ('in_entire_package', '=', True)]}" force_save="1"/> -->
+           
             <xpath expr="//page[1]/field/tree/field[@name='product_id']" position="before">
                <field name="stock_quant_id" domain="[('location_id','child_of',parent.location_id),('quantity','&gt;',0)]"   context="{'kho_da_chon':parent.choosed_stock_quants_ids}"/>
          <!--domain="[('location_id.department_id','child_of',parent.department_id)]"  domain="[('location_id','child_of',parent.location_id)]"  -->
