@@ -5591,7 +5591,7 @@ msgstr "Stock Picking"
 #: model:ir.model.fields,field_description:stock.field_product_product_stock_quant_ids
 #: model:ir.ui.view,arch_db:stock.stock_quant_view_graph
 msgid "Stock Quant"
-msgstr "Lấy Trong Kho"
+msgstr "Lấy vật tư trong kho"
 
 #. module: stock
 #: model:ir.model,name:stock.model_stock_quantity_history

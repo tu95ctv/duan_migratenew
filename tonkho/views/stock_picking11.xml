@@ -7,27 +7,46 @@
          <field name="priority">11</field>
          <field name="inherit_id" ref="stock.view_picking_form" />
          <field name="arch" type="xml">
-
+          	<!-- 
             <xpath expr="//button[@name='action_confirm']" position="attributes">
                <attribute name="context">{'default_picking_type_id':picking_type_id}</attribute>
             </xpath>
+             -->
+             
+              <xpath expr="//button[@name='action_confirm']" position="attributes">
+               <attribute name="groups">base.group_erp_manager</attribute>
+            </xpath>
             
+              <xpath expr="//button[@name='action_cancel']" position="attributes">
+               <attribute name="groups">base.group_erp_manager</attribute>
+            </xpath>
              <xpath expr="//button[@name='action_assign']" position="attributes">
                <attribute name="groups">base.group_erp_manager</attribute>
             </xpath>
           
             <xpath expr="//button[@name='action_toggle_is_locked']" position="attributes">
-               <attribute name="invisible">0</attribute>
+               <attribute name="invisible">1</attribute>
             </xpath>
+             <!--  <xpath expr="//button[@name='action_toggle_is_locked']" position="attributes">
+               <attribute name="attrs">{'invisible':True}</attribute>
+            </xpath> -->
             <xpath expr="//button[@name='button_scrap']" position="attributes">
                <attribute name="invisible">1</attribute>
             </xpath>
-             
-            
+             <xpath expr="//button[@name='do_unreserve']" position="attributes">
+               <attribute name="invisible">1</attribute>
+            </xpath>
+         <!--   <xpath expr="//button[@name='do_print_picking']" position="attributes">
+               <attribute name="groups">base.group_erp_manager</attribute>
+               <attribute name="attrs">{'invisible':True}</attribute>
+               <attribute name="invisible">1</attribute>
+               <attribute name="string">Buon qua</attribute>
+            </xpath> --> 
+            <xpath expr="//button[@name='do_print_picking']" position="replace"></xpath>
             <xpath expr="//button[@name='action_toggle_is_locked']" position="after">
              <!--  <button name="action_draft" string="Draft" type="object" />  -->
              <!--  <button name="ghom_stock_move_lines" string="Tạo Bản In" type="object" />  -->
-               <button name="xem_print" string="Xem Biên Bản html" type="object" groups="base.group_erp_manager" />
+               <button name="xem_print" string="Xem Biên Bản html" type="object"  />
                <button name="xem_print_pdf" string="Xem Biên Bản pdf" type="object" />
             </xpath>
             
@@ -39,6 +58,7 @@
              
             <field name="location_id" position="replace">
                <field name="id" />
+               <field name="cancel_mode" />
                <field name="location_id" domain="['|',('department_id','child_of', department_id),('cho_phep_khac_tram_chon','=', True)]" />
                <field name="department_id" />
                <field name="noi_ban_giao" />
@@ -103,7 +123,6 @@
             <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="replace"></xpath>
             
             <xpath expr="//page[1]/field/tree/field[@name='product_uom_id']" position="after">
-               <field name="id" readonly="1"></field>
                <field name="tracking" readonly="1"></field>
                <field name="tinh_trang"></field>
                <field name="pn" attrs="{'invisible': [('tracking', '=', 'none')]}"  />

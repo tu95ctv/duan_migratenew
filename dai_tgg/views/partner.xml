@@ -3,7 +3,7 @@
 <data>
 
 <record id="partner_dai_tgg_form_inherit" model="ir.ui.view">
-         <field name="name">dai_tgg.partner</field>
+         <field name="name">res.partner.form</field>
          <field name="priority" eval="2" />
          <field name="model">res.partner</field>
          <field name="inherit_id" ref="base.view_partner_form" />
@@ -136,13 +136,16 @@
       </record>
       
       
+      
+      <!--  -->
       <record model="ir.ui.view" id="view_res_partner_filter">
          <field name="name">res.partner.search.inherit</field>
          <field name="model">res.partner</field>
          <field name="inherit_id" ref="base.view_res_partner_filter" />
          <field name="arch" type="xml">
-         	    <field name="name" position="attributes">
+         	    <field name="name" position="attributes" >
          	   <attribute name="filter_domain">['|','|','|','|',('display_name','ilike',self),('ref','=',self),('email','ilike',self),('name_khong_dau','ilike',self),('name_viet_tat','ilike',self)]</attribute>
+         	   <attribute name="string">Name hoặc Mail hoặc Tên không dấu hoặc Tên Viết Tắt</attribute>
          	    </field>
          </field>
          </record>

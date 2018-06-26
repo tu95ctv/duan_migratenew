@@ -27,10 +27,10 @@ class Quant(models.Model):
         for r in self:
             adict=[
                                                                  ('product_id',{'pr':None,'func':lambda r: r.name}),
-                                                                 ('lot_id',{'pr':None,'func':lambda r: r.name}),
-                                                                 ('quantity',{'pr':None,'func':lambda val:'%s'%val}),
+                                                                 ('lot_id',{'pr':None,'func':lambda r: r.name,'skip_if_False':False}),
+                                                                 ('quantity',{'pr':None,'func':lambda val:'%s'%val,'skip_if_False':False}),
                                                                ]
-            name = name_compute(r,adict,join_char = u'|')
+            name = name_compute(r,adict,join_char = u' | ')
             res.append((r.id,name))
         return res
     def get_stock_for_selection_field_(self):

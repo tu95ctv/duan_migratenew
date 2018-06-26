@@ -5000,12 +5000,12 @@ msgstr "Retrieve the Inventory Quantities"
 #: model:ir.ui.view,arch_db:stock.view_picking_form
 #: model:ir.ui.view,arch_db:stock.view_stock_return_picking_form
 msgid "Return"
-msgstr "Trả hàng"
+msgstr "Trả vật tư"
 
 #. module: stock
 #: model:ir.model.fields,field_description:stock.field_stock_return_picking_location_id
 msgid "Return Location"
-msgstr "Return Location"
+msgstr "Kho trả về"
 
 #. module: stock
 #: model:ir.model,name:stock.model_stock_return_picking
@@ -5027,7 +5027,7 @@ msgstr "Returned Picking"
 #. module: stock
 #: model:ir.actions.act_window,name:stock.act_stock_return_picking
 msgid "Reverse Transfer"
-msgstr "Reverse Transfer"
+msgstr "Điều Chuyển Trả Về"
 
 #. module: stock
 #: model:ir.model.fields,field_description:stock.field_stock_location_parent_right
@@ -7154,3 +7154,7 @@ msgstr "Có SN?"
 msgid "Stock Quant"
 msgstr "Lấy vật tư trong kho"
 
+#. module: tonkho
+#: model:ir.ui.menu,name:tonkho.menu_action_location_form
+msgid "Các vị trí"
+msgstr "Các vị trí"

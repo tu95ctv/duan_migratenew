@@ -46,6 +46,7 @@
 #     'report/totrinh_report.xml',
 #         'views/pn.xml',
     'views/product_product.xml',
+    'views/setting.xml',
     
 
         

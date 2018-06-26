@@ -12,7 +12,8 @@ stock_picking11,\
 xoakho,\
 res_partner,\
 product_product,\
-text_template
+text_template,\
+setting
 
 # res_config_setting,\
 # part_number,\

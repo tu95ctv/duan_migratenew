@@ -13,12 +13,12 @@
             <div class="col-xs-6" style="text-align: center;">
                <div>TRUNG TÂM HẠ TẦNG MẠNG MIỀN NAM</div>
                <div >
-                  <b>ĐÀI VIỄN THÔNG HCM</b>
-                  	<hr style=" margin-top:-2px;margin-left: auto;
+                  <p><b>ĐÀI VIỄN THÔNG HCM</b></p>
+                  	<hr style=" margin-top:-8px;margin-left: auto;
     margin-right: auto;
-   ;width:70%;border-top: 1px solid black;"></hr>
+   ;width:50%;border-top: 1px solid black;"></hr>
                </div>
-               <div style="margin-top:-10px;">
+               <div style="margin-top:-17px;">
                   Số:
                   <span t-field="o.stt_bien_ban" />
                   /
@@ -29,13 +29,13 @@
                <p>
                   <b>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</b>
                </p>
-               <p style="margin:-10px;font-size:16px;">
-                  <b>Độc Lập - Tự Do - Hạnh Phúc</b>
+               <div style="margin:-10px;font-size:16px;">
+                  <p><b>Độc Lập - Tự Do - Hạnh Phúc</b></p>
                   <hr style=" margin-left: auto;
     margin-right: auto;
-   ;width:60%;border-top: 1px solid black;"></hr>
-               </p>
-               <div style="font-style:italic;margin-top:-15px">
+   ;width:40%;border-top: 1px solid black; margin-top:-2px; "></hr>
+               </div>
+               <div style="font-style:italic;margin-top:-13px">
                   <span>TP HCM, Ngày</span>
                   <span t-field="o.date" t-field-options="{&quot;format&quot;: &quot;dd&quot;}" />
                   Tháng

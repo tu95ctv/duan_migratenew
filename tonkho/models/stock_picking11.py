@@ -8,19 +8,12 @@ from odoo.tools.float_utils import float_compare
 def _select_nextval(cr, seq_name):
     cr.execute("SELECT nextval('%s')" % seq_name)
     return cr.fetchone()
-
-# class ToTrinh(models.Model):
-#     _name = 'totrinh'
-#     name = fields.Char(u'Về Việc',required=True)
-#     so_to_trinh = fields.Char()
-#     ngay_to_trinh = fields.Date()
 class ToTrinh(models.Model):
     _name = 'tonkho.title_cac_ben'
     name = fields.Char(u'Title',required=True)
-
-
 class StockPicking(models.Model):
     _inherit = "stock.picking"
+    cancel_mode = fields.Boolean(compute='action_cancel_show_')
     choosed_stock_quants_ids = fields.Many2many('stock.quant',compute='choosed_stock_quants_ids_',store=False)
     location_id = fields.Many2one(
         'stock.location', "Source Location",
@@ -59,6 +52,10 @@ class StockPicking(models.Model):
     ben_thu_4_ids = fields.Many2many('res.partner','ben_thu_3_stock_picking_relate','picking_id','partner_id',string=u'Bên thứ 4')
     texttemplate_id = fields.Many2one('tonkho.texttemplate',string=u"Mẫu lý do",domain=[('field_context','=','tonkho.stock.picking.field.ly_do')])
     
+    def action_cancel_show_(self):
+        for r in self:
+            r.cancel_mode=self.env['ir.config_parameter'].sudo().get_param('tonkho.cancel_mode')
+    
     @api.onchange('texttemplate_id')
     def onchage_for_ly_do(self):
         self.ly_do = self.texttemplate_id.name
@@ -85,19 +82,19 @@ class StockPicking(models.Model):
     @api.depends('state', 'move_lines')
     def _compute_show_mark_as_todo(self):
         for picking in self:
-            if picking.state == 'done':
+            if picking.state == 'done' or picking.state == 'confirmed'  :
                 picking.show_mark_as_todo = False
             else:
                 picking.show_mark_as_todo = True
-#             picking.show_mark_as_todo = True
-#             if not picking.move_lines:
-#                 picking.show_mark_as_todo = False
-#             if self._context.get('planned_picking') and picking.state == 'draft':
-#                 picking.show_mark_as_todo = True
-#             elif picking.state != 'draft' and picking.state != 'cancel' :# or not picking.id
-#                 picking.show_mark_as_todo = False
-#             else:
-#                 picking.show_mark_as_todo = True
+# #             picking.show_mark_as_todo = True
+# #             if not picking.move_lines:
+# #                 picking.show_mark_as_todo = False
+# #             if self._context.get('planned_picking') and picking.state == 'draft':
+# #                 picking.show_mark_as_todo = True
+# #             elif picking.state != 'draft' and picking.state != 'cancel' :# or not picking.id
+# #                 picking.show_mark_as_todo = False
+# #             else:
+# #                 picking.show_mark_as_todo = True
                 
 # Tự làm tự bỏ    
 #     def action_draft(self):
@@ -150,10 +147,6 @@ class StockPicking(models.Model):
     @api.model
     def default_get(self, fields):
         res = super(StockPicking, self).default_get(fields)
-#         internal_transfers = self.env['stock.picking.type'].search(['|',('name','=','Internal Transfers'),('name','=',u'Dịch chuyển nội bộ')])
-#         if internal_transfers:
-#             internal_transfer_id = internal_transfers[0].id
-#             res['picking_type_id'] = internal_transfer_id
         kho_dai_hcms = self.env['stock.location'].search([('name','=',u'Kho Đài HCM')])
         if kho_dai_hcms:
             kho_dai_hcm_id = kho_dai_hcms[0].id
@@ -162,20 +155,7 @@ class StockPicking(models.Model):
         
         return res
     
-#     @api.onchange('department_id','picking_type_id')
-#     def name_(self):
-#         if self.department_id and self.picking_type_id:
-# #             picking_type_id = self.picking_type_id
-#             department_id = self.department_id
-#             number_next = department_id.sequence_id.number_next_actual
-# #             name = department_id.name + '/' + picking_type_id.sequence_id.prefix.split('/')[1] + '/' + '%s'%number_next
-#             name = department_id.name +  '/' + '%s'%number_next
-#             self.name = name
 
-#     @api.multi
-#     def action_confirm(self):
-#         self.ghom_stock_move_lines()
-#         return super(StockPicking,self).action_confirm()
     
     @api.multi
     def action_confirm(self):
@@ -230,42 +210,31 @@ class StockPicking(models.Model):
                                                    })
                     ops.move_id = new_move.id
                     todo_moves |= new_move
-                    
-                    
     @api.model
     def create(self, vals):
         defaults = self.default_get([ 'department_id','picking_type_id'])
 #         picking_type_id = self.env['stock.picking.type'].browse(vals.get('picking_type_id', defaults.get('picking_type_id')))
         department_id = self.env['hr.department'].browse(vals.get('department_id', defaults.get('department_id')))
         number_next = _select_nextval(self._cr, 'ir_sequence_%03d' % department_id.sequence_id.id)[0]
-        
 #         name = department_id.name + '/' + picking_type_id.sequence_id.prefix.split('/')[1] + '/' + '%s'%number_next
         name = department_id.short_name +  '/' + '%s'%number_next
-        
         vals['stt_bien_ban'] = number_next #department_id.sequence_id.next_by_id()
         vals['name'] = name
         return super(StockPicking, self).create(vals)
-    
-    
-    
-    
     @api.multi
     def xem_print(self):
         return {
              'type' : 'ir.actions.act_url',
-             'url':'/report/html/tonkho.report_picking_dai_hcm/%s'%self.id,
+             'url':'/report/html/tonkho.bao_cao_dieu_chuyen/%s'%self.id,
              'target': 'new',
         }
-        
     @api.multi
     def xem_print_pdf(self):
         return {
             'type' : 'ir.actions.act_url',
-            'url':'/report/pdf/tonkho.report_picking_dai_hcm/%s'%self.id,
+            'url':'/report/pdf/tonkho.bao_cao_dieu_chuyen/%s'%self.id,
             'target': 'new',
         }
-        
-        
         
     def ban_giao_or_nghiem_thu_show(self):
         adict = {u'BBBG':u'Bàn Giao',u'BBNT':u'Nghiệm Thu'}
@@ -273,11 +242,12 @@ class StockPicking(models.Model):
             return adict[self.ban_giao_or_nghiem_thu]
         else:
             return False
-#     def don_vi_nhan_(self):
-#         self.don_vi_nhan = self.location_dest_id.partner_id.name if self.location_dest_id.partner_id.name else self.location_dest_id.name
-#     def don_vi_giao_(self):
-#         self.don_vi_giao = self.location_id.partner_id.name if self.location_id.partner_id.name else self.location_id.name
-    
-
+#     @api.multi
+#     def unlink(self):
+#         for r in self:
+#             mode_cancel = False
+#             if mode_cancel and r.state !='cancel':
+#                 raise UserError(u'Chỉ được xóa những biên bản có trạng thái Hủy')
+#         return super(StockPicking, self).unlink()
     
     

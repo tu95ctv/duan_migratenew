@@ -18,13 +18,13 @@
         <field name="dpi">80</field>
     </record>
 
-      <report string="In Biên Bản Bàn Giao" id="action_report_picking_dai_hcm" model="stock.picking" 
+      <report string="In Biên Bản Bàn Giao" id="action_bao_cao_dieu_chuyen" model="stock.picking" 
       report_type="qweb-pdf"
-       name="tonkho.report_picking_dai_hcm"
+       name="tonkho.bao_cao_dieu_chuyen"
         file="abc.abc" 
         paperformat="tonkho.paperformat_euro_lowmargin"
         />
-      <template id="tonkho.report_picking_dai_hcm">
+      <template id="tonkho.bao_cao_dieu_chuyen">
          <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                <div class="article o_report_layout_standard">
