@@ -13,7 +13,8 @@ xoakho,\
 res_partner,\
 product_product,\
 text_template,\
-setting
+setting,\
+stock_inventory
 
 # res_config_setting,\
 # part_number,\

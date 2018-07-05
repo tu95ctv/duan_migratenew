@@ -22,7 +22,7 @@ class ToTrinh(models.Model):
     ve_viec = fields.Char(u'Về Việc',required=True)
     so_to_trinh = fields.Char(string=u'Số')
     ngay_to_trinh = fields.Date(string=u'Ngày')
-    name = fields.Char(compute='complete_name_',store=True)
+    name = fields.Char(compute='complete_name_',store=True, string=u'Tên')
     
     
     

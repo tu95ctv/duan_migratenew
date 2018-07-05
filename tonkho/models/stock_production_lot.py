@@ -8,13 +8,15 @@ class StockProductionLot(models.Model):
     _inherit = "stock.production.lot"
     pn = fields.Char(string=u'Part Number')
     ghi_chu = fields.Text(string=u'Ghi chú',compute='ghi_chu_',store=True)
-    ghi_chu_ban_dau =  fields.Text(string=u'Ghi Chú Ban Đầu')
-    ghi_chu_ngay_nhap = fields.Text(string=u'Ghi Chú Ngày Nhập')
-    ghi_chu_ngay_xuat = fields.Text(string=u'Ghi Chú Ngày Xuất')
+    ghi_chu_ban_dau =  fields.Text(string=u'Ghi Chú ban đầu')
+    ghi_chu_ngay_nhap = fields.Text(string=u'Ghi chú ngày nhập')
+    ghi_chu_ngay_xuat = fields.Text(string=u'Ghi chú ngày xuất')
     pn_id = fields.Many2one('tonkho.pn')
     move_line_ids = fields.One2many('stock.move.line','lot_id')
-    tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',compute='tinh_trang_depend_move_line_ids_',store=True, string=u'Tình Trạng')
+    tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',compute='tinh_trang_depend_move_line_ids_',store=True, string=u'Tình trạng')
     
+    
+    # THÊM VÀO ĐỂ COI DỊCH CHUYỂN KHO, KHÔNG PHẢI KẾ THỪA
     def action_view_stock_move_lines(self):
         self.ensure_one()
         action = self.env.ref('stock.stock_move_line_action').read()[0]

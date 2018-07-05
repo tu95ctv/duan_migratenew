@@ -85,7 +85,7 @@
       
       <template id="ky_ten">
          <div class="row" style="margin-top:50px;">
-           <t t-set="alist" t-value="o.generate_something()"></t>
+           <t t-set="alist" t-value="o.generate_partner_bootstrap_ti_le()"></t>
            <t t-set="len_alist" t-value="int(12/len(alist))"/>
            
            <t t-foreach="alist" t-as="atuple">
@@ -109,12 +109,12 @@
            </t>
            
             <t t-call="tonkho.mot_ben_ky">
-           	 <t t-set="title" t-value="o.title_ben_thu_3"></t>
+           	 <t t-set="title" t-value="o.title_ben_thu_3.name"></t>
            	 <t t-set="name" t-value="o.ben_thu_3_ids[0].name if o.ben_thu_3_ids else ''"></t>
            </t>
            
            <t t-call="tonkho.mot_ben_ky">
-           	 <t t-set="title" t-value="o.title_ben_thu_4"></t>
+           	 <t t-set="title" t-value="o.title_ben_thu_4.name"></t>
            	 <t t-set="name" t-value="o.ben_thu_4_ids[0].name if o.ben_thu_4_ids else ''"></t>
            </t>
            
@@ -134,7 +134,7 @@
          <div class="row" style="margin-top:50px;">
             <div class="col-xs-3">
                <p class="text-center">
-                  <strong>ĐẠI DIỆN BÊN GIAO kaka</strong>
+                  <strong>ĐẠI DIỆN BÊN GIAO</strong>
                </p>
                <p class="text-center">(Ký, họ tên)</p>
             </div>

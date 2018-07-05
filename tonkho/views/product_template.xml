@@ -46,11 +46,11 @@
          <field name="model">product.template</field>
          <field name="inherit_id" ref="stock.product_template_form_view_procurement_button" />
          <field name="arch" type="xml">
-         	 
+         	 <!-- 
          	 <xpath expr="//field[@name='categ_id']" position="attributes">
                <attribute name="string">Internal Category</attribute>
             </xpath>
-            
+             -->
             <field name="sale_ok" position="attributes">
                <attribute name="invisible">1</attribute>
             </field>
@@ -86,6 +86,11 @@
             <xpath expr="//header" position="attributes">
                <attribute name="invisible">1</attribute>
             </xpath>
+            
+            <xpath expr="//button[5]" position="attributes">
+               <attribute name="groups">base.group_erp_manager</attribute>
+            </xpath>
+            
             
             <xpath expr="//button[7]" position="attributes">
                <attribute name="groups">base.group_erp_manager</attribute>
@@ -154,9 +159,8 @@
          <field name="inherit_id" ref="product.product_template_search_view" />
          <field name="arch" type="xml">
             <xpath expr="//filter[@name='activities_upcoming_all']" position="after">
-               <filter name="group_by_tracking" string="Group by Tracking " domain="[]" context="{'group_by':'tracking'}" />
-               <filter name="group_by_uom_id" string="Group by Đơn Vị " domain="[]" context="{'group_by':'uom_id'}" />
-               <field name="quant_ids"></field>
+               <filter name="group_by_tracking" string="Có SN hay Không" domain="[]" context="{'group_by':'tracking'}" />
+               <filter name="group_by_uom_id" string="Đơn Vị " domain="[]" context="{'group_by':'uom_id'}" />
                <filter string="Vật tư có tồn tại trong bất cứ kho" name="quant_ids" domain="[('quant_ids.quantity','&gt;=',1)]"/>
                <field string="Tìm vật tư có trong kho Này" name="stock_location_id_selection"   filter_domain="[('quant_ids.quantity','&gt;=',1),('quant_ids.location_id','ilike',self)]"/>
                <filter string="quant is not set" name="quant_ids" domain="[('quant_ids','=',False)]"/>

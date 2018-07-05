@@ -13,7 +13,7 @@ class ToTrinh(models.Model):
     name = fields.Char(u'Title',required=True)
 class StockPicking(models.Model):
     _inherit = "stock.picking"
-    cancel_mode = fields.Boolean(compute='action_cancel_show_')
+#     cancel_mode = fields.Boolean(compute='action_cancel_show_')
     choosed_stock_quants_ids = fields.Many2many('stock.quant',compute='choosed_stock_quants_ids_',store=False)
     location_id = fields.Many2one(
         'stock.location', "Source Location",
@@ -22,19 +22,26 @@ class StockPicking(models.Model):
         states={'draft': [('readonly', False)]})
     noi_ban_giao = fields.Many2one('res.partner',default= lambda self: self.env.user.department_id.partner_id, string=u'Nơi bàn giao')
     department_id = fields.Many2one('hr.department',default=lambda self:self.env.user.department_id, readonly=True, string=u'Đơn vị', required=True)
-    stt_bien_ban = fields.Integer(default=lambda self:self.env.user.department_id.sequence_id.number_next_actual,readonly=True, string=u'STT biên bản')
+#     stt_bien_ban = fields.Integer(default=lambda self:self.env.user.department_id.sequence_id.number_next_actual,readonly=True, string=u'STT điều chuyển')
     source_member_ids = fields.Many2many('res.partner','source_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân viên giao')
     dest_member_ids = fields.Many2many('res.partner','dest_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân viên nhận')
-    ban_giao_or_nghiem_thu = fields.Selection([(u'BBBG',u'Bàn Giao'),(u'TTr',u'Trình vật tư'),(u'BBNT',u'Nghiệm thu'),(u'BBSD',u'Đưa vào sử dụng'),(u'BBNK',u'Nhập kho vật tư lỗi')],default=u'BBBG',string=u'BG hay NT')
+    ban_giao_or_nghiem_thu = fields.Selection([(u'BBBG',u'Bàn giao'),(u'TRVT',u'Trình vật tư'),
+                                               (u'BBNT',u'Nghiệm thu'),(u'BBSD',u'Đưa vào sử dụng'),
+                                               (u'BBNK',u'Nhập kho vật tư lỗi'),
+                                               (u'HUY',u'Hủy biên bản'),
+                                               (u'TRA',u'Trả vật tư lại do nhằm'),
+                                               ],default=u'BBBG',string=u'BG hay NT')
 #     data_file = fields.Binary(string='File Import')
 #     filename = fields.Char()
+#     stt_trong_bien_ban_in = fields.Integer(default=lambda self:self.default_get([ 'stt_bien_ban']).get('stt_bien_ban'),string=u'STT trong biên bản')
+    stt_trong_bien_ban_in = fields.Integer(string=u'STT trong biên bản')
+    ma_bien_ban = fields.Char(string=u'Mã biên bản')#default=lambda self:self.default_get([ 'ban_giao_or_nghiem_thu']).get('ban_giao_or_nghiem_thu'),
     name = fields.Char(
         'Reference',
-        default=lambda self:self.default_name(),
+#         default=lambda self:self.default_name(),
         copy=False,  index=True,
 #         states={'done': [('readonly', True)], 'cancel': [('readonly', True)]}
         )
-    
     picking_type_id = fields.Many2one(
         'stock.picking.type', 'Operation Type',
         required=False,
@@ -44,18 +51,31 @@ class StockPicking(models.Model):
     ben_giao_giu = fields.Integer(u'Bên giao giữ', default=3)
     ben_nhan_giu = fields.Integer(u'Bên nhận giữ',default=1)
     totrinh_id = fields.Many2one('dai_tgg.totrinh', string=u'Tờ trình')
-    
-    title_ben_thu_3 = fields.Many2one('tonkho.title_cac_ben',string=u'Title bên thứ 3')
+    title_ben_thu_3 = fields.Many2one('tonkho.title_cac_ben',string=u'Tiêu đề bên thứ 3')
     ben_thu_3_ids = fields.Many2many('res.partner','ben_thu_3_stock_picking_relate','picking_id','partner_id',string=u'Bên thứ 3')
-    
-    title_ben_thu_4 = fields.Many2one('tonkho.title_cac_ben',string=u'Title bên thứ 3')
-    ben_thu_4_ids = fields.Many2many('res.partner','ben_thu_3_stock_picking_relate','picking_id','partner_id',string=u'Bên thứ 4')
+    title_ben_thu_4 = fields.Many2one('tonkho.title_cac_ben',string=u'Tiêu đề bên thứ 4')
+    ben_thu_4_ids = fields.Many2many('res.partner','ben_thu_4_stock_picking_relate','picking_id','partner_id',string=u'Bên thứ 4')
     texttemplate_id = fields.Many2one('tonkho.texttemplate',string=u"Mẫu lý do",domain=[('field_context','=','tonkho.stock.picking.field.ly_do')])
     
-    def action_cancel_show_(self):
-        for r in self:
-            r.cancel_mode=self.env['ir.config_parameter'].sudo().get_param('tonkho.cancel_mode')
-    
+    @api.onchange('ban_giao_or_nghiem_thu')
+    def ma_bien_ban_(self):
+        self.ma_bien_ban = self.ban_giao_or_nghiem_thu
+
+
+#     def action_cancel_show_(self):
+#         for r in self:
+#             r.cancel_mode=self.env['ir.config_parameter'].sudo().get_param('tonkho.cancel_mode')
+    @api.onchange('department_id','ban_giao_or_nghiem_thu')
+    def stt_trong_bien_ban_in_(self):
+        picking = self.env['stock.picking'].search([('department_id','=',self.department_id.id),
+                                                    ('ban_giao_or_nghiem_thu','=',self.ban_giao_or_nghiem_thu),
+                                                    ('stt_trong_bien_ban_in','!=', 0),
+                                                    ],limit=1,order='id desc')
+        if picking:
+            stt_trong_bien_ban_in = picking.stt_trong_bien_ban_in + 1
+            self.stt_trong_bien_ban_in=stt_trong_bien_ban_in
+        else:
+            self.stt_trong_bien_ban_in = 1
     @api.onchange('texttemplate_id')
     def onchage_for_ly_do(self):
         self.ly_do = self.texttemplate_id.name
@@ -63,14 +83,14 @@ class StockPicking(models.Model):
 #     is_locked = fields.Boolean(default=False, help='When the picking is not done this allows changing the '
 #                                'initial demand. When the picking is done this allows '
 #                                'changing the done quantities.')
-    def generate_something(self):
+    def generate_partner_bootstrap_ti_le(self):
         alist = []
         alist.append((u'Bên giao',self.source_member_ids[0].name if self.source_member_ids else ''))
         if self.ben_thu_3_ids:
-            alist.append((self.title_ben_thu_3,self.ben_thu_3_ids[0].name))
+            alist.append((self.title_ben_thu_3.name,self.ben_thu_3_ids[0].name))
         alist.append((u'Bên nhận',self.dest_member_ids[0].name if self.dest_member_ids else ''))
         if self.ben_thu_4_ids:
-            alist.append((self.title_ben_thu_4,self.ben_thu_4_ids[0].name))
+            alist.append((self.title_ben_thu_4.name, self.ben_thu_4_ids[0].name))
         return alist
    
     @api.depends('move_line_ids.stock_quant_id')
@@ -100,17 +120,26 @@ class StockPicking(models.Model):
 #     def action_draft(self):
 #         self.state = 'draft'
    
-    def default_name(self):
-        defaults = self.default_get([ 'department_id'])
-        int_department_id  = defaults.get('department_id')
-        int_department_id =  int_department_id or self.department_id.id
-        if int_department_id:
-            department_id = self.env['hr.department'].browse(int_department_id)
-            number_next = self.env.user.department_id.sequence_id.number_next_actual
-            name = department_id.short_name + '/' + '%s'%number_next
-            return name
-        else:
-            raise UserError(u'Bạn phải chọn department_id cho user')
+   
+# default_name củ  
+#     def default_name(self):
+#         defaults = self.default_get([ 'department_id'])
+#         int_department_id  = defaults.get('department_id')
+#         int_department_id =  int_department_id or self.department_id.id
+#         if int_department_id:
+#             department_id = self.env['hr.department'].browse(int_department_id)
+#             number_next = self.env.user.department_id.sequence_id.number_next_actual
+#             name = department_id.short_name + '/' + '%s'%number_next
+#             return name
+#         else:
+#             raise UserError(u'Bạn phải chọn department_id cho user')
+    @api.onchange('department_id','ban_giao_or_nghiem_thu','stt_trong_bien_ban_in')
+    def name_(self):
+        name = self.department_id.short_name + '/' + '%s'%self.ban_giao_or_nghiem_thu + '/%s'%self.stt_trong_bien_ban_in
+        self.name = name
+          
+        
+        
     @api.onchange('picking_type_id')
     def onchange_picking_type_New(self):
         if self.picking_type_id:
@@ -151,8 +180,6 @@ class StockPicking(models.Model):
         if kho_dai_hcms:
             kho_dai_hcm_id = kho_dai_hcms[0].id
             res['location_dest_id'] = kho_dai_hcm_id
-            
-        
         return res
     
 
@@ -181,8 +208,6 @@ class StockPicking(models.Model):
         else:
             return True
         
-        
-        
     @api.multi
     def ghom_stock_move_lines(self):
         """Changes picking state to done by processing the Stock Moves of the Picking
@@ -210,17 +235,31 @@ class StockPicking(models.Model):
                                                    })
                     ops.move_id = new_move.id
                     todo_moves |= new_move
-    @api.model
-    def create(self, vals):
-        defaults = self.default_get([ 'department_id','picking_type_id'])
-#         picking_type_id = self.env['stock.picking.type'].browse(vals.get('picking_type_id', defaults.get('picking_type_id')))
-        department_id = self.env['hr.department'].browse(vals.get('department_id', defaults.get('department_id')))
-        number_next = _select_nextval(self._cr, 'ir_sequence_%03d' % department_id.sequence_id.id)[0]
-#         name = department_id.name + '/' + picking_type_id.sequence_id.prefix.split('/')[1] + '/' + '%s'%number_next
-        name = department_id.short_name +  '/' + '%s'%number_next
-        vals['stt_bien_ban'] = number_next #department_id.sequence_id.next_by_id()
-        vals['name'] = name
-        return super(StockPicking, self).create(vals)
+
+#     Củ có number_next
+#     @api.model
+#     def create(self, vals):
+#         defaults = self.default_get([ 'department_id','picking_type_id'])
+#         department_id = self.env['hr.department'].browse(vals.get('department_id', defaults.get('department_id')))
+#         number_next = _select_nextval(self._cr, 'ir_sequence_%03d' % department_id.sequence_id.id)[0]
+#         name = department_id.short_name +  '/' + '%s'%number_next
+#         vals['stt_bien_ban'] = number_next #department_id.sequence_id.next_by_id()
+#         vals['name'] = name
+#         return super(StockPicking, self).create(vals)
+    
+#     @api.model
+#     def create(self, vals):
+#         defaults = self.default_get([ 'department_id','picking_type_id'])
+#         department_id = self.env['hr.department'].browse(vals.get('department_id', defaults.get('department_id')))
+#        
+#         number_next = _select_nextval(self._cr, 'ir_sequence_%03d' % department_id.sequence_id.id)[0]
+#         name = department_id.short_name +  '/' + '%s'%number_next
+#         vals['stt_bien_ban'] = number_next #department_id.sequence_id.next_by_id()
+#         vals['name'] = name
+#         return super(StockPicking, self).create(vals)
+    
+    
+    
     @api.multi
     def xem_print(self):
         return {

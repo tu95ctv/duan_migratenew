@@ -14,9 +14,10 @@
                     <field name="ve_viec" />
                     <field name="so_to_trinh" />
                		<field name="ngay_to_trinh" />
+               		<!-- 
                		<field name="name_khong_dau" />
                		<field name="name_viet_tat" />
-               		
+               		 -->
                   </group>
                </sheet>
             </form>

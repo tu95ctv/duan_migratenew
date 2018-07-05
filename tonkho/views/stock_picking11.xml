@@ -12,10 +12,17 @@
                <attribute name="context">{'default_picking_type_id':picking_type_id}</attribute>
             </xpath>
              -->
-             
+             <field name="name" position="attributes">
+             	<attribute name="force_save">1</attribute>
+             </field>
               <xpath expr="//button[@name='action_confirm']" position="attributes">
                <attribute name="groups">base.group_erp_manager</attribute>
             </xpath>
+            
+           <xpath expr="//button[5]" position="attributes">
+               <attribute name="invisible">True</attribute>
+            </xpath>
+            
             
               <xpath expr="//button[@name='action_cancel']" position="attributes">
                <attribute name="groups">base.group_erp_manager</attribute>
@@ -46,8 +53,8 @@
             <xpath expr="//button[@name='action_toggle_is_locked']" position="after">
              <!--  <button name="action_draft" string="Draft" type="object" />  -->
              <!--  <button name="ghom_stock_move_lines" string="Tạo Bản In" type="object" />  -->
-               <button name="xem_print" string="Xem Biên Bản html" type="object"  />
-               <button name="xem_print_pdf" string="Xem Biên Bản pdf" type="object" />
+               <button name="xem_print" string="Xem biên bản html" type="object"  />
+               <button name="xem_print_pdf" string="Xem biên bản pdf" type="object" />
             </xpath>
             
             <!-- 
@@ -58,11 +65,12 @@
              
             <field name="location_id" position="replace">
                <field name="id" />
-               <field name="cancel_mode" />
+              <!--  <field name="cancel_mode" /> -->
                <field name="location_id" domain="['|',('department_id','child_of', department_id),('cho_phep_khac_tram_chon','=', True)]" />
                <field name="department_id" />
                <field name="noi_ban_giao" />
-               <field name="stt_bien_ban" />
+             <!--   <field name="stt_bien_ban" /> -->
+             <field name="stt_trong_bien_ban_in" />
                <field name="texttemplate_id" context="{'default_field_context':'tonkho.stock.picking.field.ly_do'}"/>
             </field>
             <field name="origin" position="attributes">
@@ -85,9 +93,10 @@
             <field name="origin" position="before">
                <field name="location_dest_id" domain="['|',('usage','=','internal'),('cho_phep_khac_tram_chon','=', True),'|',('name','not ilike','Đang chạy'),('department_id','=', department_id)]" />
                <field name="ban_giao_or_nghiem_thu" />
+               <field name="ma_bien_ban" />
                <field name="totrinh_id" />
                <field name="ly_do" />
-            </field>
+           </field>
             <xpath expr="//page[1]" position="attributes">
                <attribute name="attrs">{'invisible': False}</attribute>
             </xpath>
@@ -103,12 +112,33 @@
                <attribute name="attrs">{}</attribute>
             </xpath>
              -->
-            <!-- 
+           
             <xpath expr="//page[1]/field/tree/field[@name='product_uom_qty']" position="attributes">
-               <attribute name="invisible">1</attribute>
+               <!-- <attribute name="invisible">1</attribute> -->
+               <attribute name="groups">base.group_erp_manager</attribute>
+            </xpath>
+             
+             
+             <xpath expr="//page[1]/field/tree/field[@name='product_id']" position="attributes">
+               <attribute name="attrs">{'readonly': [('state', 'in', ('done', 'cancel'))]}</attribute>
+            </xpath>
+            
+             <xpath expr="//page[1]/field/tree/field[@name='location_id']" position="attributes">
+               <attribute name="attrs">{'readonly': ['|',('in_entire_package', '=', True),('state', 'in', ('done', 'cancel'))]}</attribute>
+            </xpath>
+            
+             <xpath expr="//page[1]/field/tree/field[@name='location_dest_id']" position="attributes">
+               <attribute name="attrs">{'readonly': ['|',('in_entire_package', '=', True),('state', 'in', ('done', 'cancel'))]}</attribute>
+            </xpath>
+            
+            <!-- 
+             <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="attributes">
+               <attribute name="attrs">{'column_invisible': [('parent.show_lots_text', '=', True)], 'invisible': [('lots_visible', '=', False)], 'readonly': ['|',('in_entire_package', '=', True),('state', 'in', ('done', 'cancel'))]}</attribute>
             </xpath>
              -->
-             
+            
+            
+            
              <xpath expr="//page[1]/field/tree/field[@name='qty_done']" position="attributes">
                <attribute name="attrs">{'readonly': [('state', 'in', ('done', 'cancel'))]}</attribute>
             </xpath>
@@ -117,16 +147,21 @@
       <!--       <field name="qty_done" attrs="{'readonly': ['|', ('state', 'in', ('done', 'cancel')), ('is_locked', '=', True), ('in_entire_package', '=', True)]}" force_save="1"/> -->
            
             <xpath expr="//page[1]/field/tree/field[@name='product_id']" position="before">
-               <field name="stock_quant_id" domain="[('location_id','child_of',parent.location_id),('quantity','&gt;',0)]"   context="{'kho_da_chon':parent.choosed_stock_quants_ids}"/>
+               <field name="stock_quant_id" domain="[('location_id','child_of',parent.location_id),('quantity','&gt;',0)]"   
+               attrs="{'readonly': [('state', 'in', ('done', 'cancel'))]}"
+               context="{'kho_da_chon':parent.choosed_stock_quants_ids}"/>
          <!--domain="[('location_id.department_id','child_of',parent.department_id)]"  domain="[('location_id','child_of',parent.location_id)]"  -->
             </xpath>
             <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="replace"></xpath>
             
             <xpath expr="//page[1]/field/tree/field[@name='product_uom_id']" position="after">
                <field name="tracking" readonly="1"></field>
-               <field name="tinh_trang"></field>
-               <field name="pn" attrs="{'invisible': [('tracking', '=', 'none')]}"  />
-               <field name="lot_id" invisible="0" attrs="{'invisible': [('tracking', '=', 'none')],'required': [('tracking', '!=', 'none')]}" groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'default_product_id': product_id}" />
+               <field name="tinh_trang"  attrs="{'readonly': [('state', 'in', ('done', 'cancel'))]}"></field>
+               <field name="pn" attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}"  />
+               <field name="lot_id" invisible="0" 
+               
+               attrs="{'column_invisible': [('parent.show_lots_text', '=', True)], 'invisible': ['|',('lots_visible', '=', False),('tracking', '=', 'none')],'required': [('tracking', '!=', 'none')],'readonly': ['|',('in_entire_package', '=', True),('state', 'in', ('done', 'cancel'))] }"
+                groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'default_product_id': product_id}" />
                <field name="ghi_chu"></field>
             </xpath>
             <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="attributes">
@@ -135,7 +170,7 @@
             
             <xpath expr="//page[1]/field/tree/field[@name='product_uom_qty']" position="attributes">
              <!--   <attribute name="string">Đặt Trước</attribute> -->
-               <attribute name="groups">base.group_erp_manager</attribute>
+             <!--   <attribute name="groups">base.group_erp_manager</attribute> -->
             </xpath>
             
             
@@ -157,7 +192,7 @@
             
          	  <xpath expr="//page[2]/field/tree/field[@name='reserved_availability']" position="attributes">
               <!--  <attribute name="string">Đặt Trước</attribute> -->
-                <attribute name="string">Đặt Trước</attribute>
+               <!--  <attribute name="string">Đặt Trước</attribute> -->
                <attribute name="groups">base.group_erp_manager</attribute>
             </xpath>
             
@@ -227,6 +262,7 @@
                            <tree>
                               <field name="name" />
                               <field name="department_id" />
+                              <field name="job_id" string="Chức vụ" />
                               <field name="parent_id" />
                            </tree>
                         </field>
@@ -235,6 +271,7 @@
                            <tree>
                               <field name="name" />
                               <field name="department_id" />
+                              <field name="job_id" string="Chức vụ" />
                               <field name="parent_id" />
                            </tree>
                            </field>
@@ -245,6 +282,7 @@
                            <tree>
                               <field name="name" />
                               <field name="department_id" />
+                              <field name="job_id" string="Chức vụ" />
                               <field name="parent_id" />
                            </tree>
                         </field>
@@ -253,6 +291,7 @@
                            <tree>
                               <field name="name" />
                               <field name="department_id" />
+                              <field name="job_id" string="Chức vụ" />
                               <field name="parent_id" />
                            </tree>
                            </field>

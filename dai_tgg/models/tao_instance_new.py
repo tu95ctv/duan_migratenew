@@ -485,7 +485,7 @@ def importthuvien(odoo_or_self_of_wizard):
 #                          
                          ('job_id',{'key':False,'required':False,
                'fields':[
-                        ('name',{'xl_title':u'Chức vụ',  'key':True, 'required':True, 'func':lambda v,n: u'Nhân Viên' if v==False else v }),
+                        ('name',{'xl_title':u'Chức vụ',  'key':True, 'required':True, 'func':lambda v,n: u'Nhân viên' if v==False else v }),
                         ]
                }),  
                                 
@@ -553,7 +553,15 @@ def importthuvien(odoo_or_self_of_wizard):
                                                        ]
                                             }
                          ),
-                        ('sequence_id',{'fields':[('name',{'xl_title':None,'func':lambda v,n:n['vof_dict']['name']['val'] ,'key':True,'required':True}),
+                        ('sequence_id',{'fields':[
+                            ('name',{'xl_title':None,'func':lambda v,n:n['vof_dict']['name']['val'] ,'key':True,'required':True}),
+                            ('sequence_id_bbbg',{'model':'ir.sequence', 'for_excel_readonly':True,
+                                                            'fields':[('name',{'xl_title':None, 'func':lambda v,n:n['vof_dict']['name']['val']+',' +'BBBG','key':True})]
+                                                 }),
+                            ('sequence_id_ttr',{'model':'ir.sequence', 'for_excel_readonly':True,
+                                                            'fields':[('name',{'xl_title':None, 'func':lambda v,n:n['vof_dict']['name']['val']+',' +'TTR','key':True})]
+                                                 }),
+                            
                                                        ]
                                             }
                          ),

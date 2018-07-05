@@ -55,7 +55,7 @@
         
         
          <menuitem id="stock_move_line_menu"  action="stock.stock_move_line_action"
-        parent="stock.menu_stock_inventory_control" sequence="1"/>
+        parent="stock.menu_stock_inventory_control" sequence="1" name="Các dòng điều chuyển"/>
         
         </data>
    </odoo> 

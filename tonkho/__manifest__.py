@@ -1,22 +1,21 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "tonkho11FROM10",
+    'name': "Tồn Kho",
 
     'summary': """
-        Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
+        Quản lý vật tư, điều chuyển, in biên bản bàn giao""",
 
     'description': """
-        Long description of module's purpose
+        Quản lý vật tư 04/07/2018
     """,
 
-    'author': "My Company",
-    'website': "http://www.yourcompany.com",
+    'author': "Nguyễn Đức Tứ",
+    'website': "http://113.161.80.108:8069/",
 
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/master/odoo/addons/base/module/module_data.xml
     # for the full list
-    'category': 'Uncategorized',
+    'category': 'quản lý vật tư',
     'version': '0.1',
 
     # any module necessary for this one to work correctly
@@ -43,6 +42,7 @@
         'views/delete_menu.xml',
         'views/xoakho.xml',
         'views/warehouse.xml',
+        'views/mau_ly_do.xml',
 #     'report/totrinh_report.xml',
 #         'views/pn.xml',
     'views/product_product.xml',
