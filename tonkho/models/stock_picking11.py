@@ -30,7 +30,7 @@ class StockPicking(models.Model):
                                                (u'BBNK',u'Nhập kho vật tư lỗi'),
                                                (u'HUY',u'Hủy biên bản'),
                                                (u'TRA',u'Trả vật tư lại do nhằm'),
-                                               ],default=u'BBBG',string=u'BG hay NT')
+                                               ],default=u'BBBG', string=u'B/giao hay N/thu' )
 #     data_file = fields.Binary(string='File Import')
 #     filename = fields.Char()
 #     stt_trong_bien_ban_in = fields.Integer(default=lambda self:self.default_get([ 'stt_bien_ban']).get('stt_bien_ban'),string=u'STT trong biên bản')

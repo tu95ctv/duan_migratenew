@@ -49,7 +49,7 @@
          </div>
       </template>
       <template id="tonkho.bien_ban_ban_giao_vat_tu">
-         <p style="text-align: center;font-weight:bold;font-size:30px;margin: 30px 0px 30px 0px;">
+         <p style="text-align: center;font-weight:bold;font-size:30px;margin:50px 0px 40px 0px;">
             BIÊN BẢN
             <span t-esc="o.ban_giao_or_nghiem_thu_show().upper()" />
             VẬT TƯ
@@ -58,43 +58,33 @@
       <template id="totrinh">
          <div t-if="o.totrinh_id">
             Căn cứ vào tờ trình
-            <t t-esc="o.totrinh_id.get_names_for_report()" />
-            .
+            <t t-esc="o.totrinh_id.get_names_for_report()" />.
          </div>
       </template>
       <template id="tonkho.ngay_thang_dia_diem">
          <div>
             Hôm nay ngày:
-            <b t-field="o.date" t-field-options="{&quot;format&quot;: &quot;dd/MM/YYYY&quot;}" />
-            , Tại:
-            <b t-esc="o.noi_ban_giao.name" />
-            .
+            <b t-field="o.date" t-field-options="{&quot;format&quot;: &quot;dd/MM/YYYY&quot;}" />, Tại: <b t-esc="o.noi_ban_giao.name" />.
          </div>
       </template>
       <template id="tonkho.cac_ben">
          <div>
             Chúng tôi gồm:
-            <p>
-               <span>
+            <div>
                   Đại diện bên giao:
-                  <b t-esc="o.location_id.get_stock_location_name_for_report_()" />
-                  .
-               </span>
+                  <b t-esc="o.location_id.get_stock_location_name_for_report_()" />.
                <t t-call="tonkho.ben_giao_nhan_info">
                   <t t-set="member_ids" t-value="o.source_member_ids" />
                </t>
-            </p>
-            <p>
-               <span>
+            </div>
+            <div>
                   Đại diện bên nhận:
-                  <b t-esc="o.location_dest_id.get_stock_location_name_for_report_()" />
-                  .
-               </span>
+                  <b t-esc="o.location_dest_id.get_stock_location_name_for_report_()" />.
                <t t-call="tonkho.ben_giao_nhan_info">
                   <t t-set="member_ids" t-value="o.dest_member_ids" />
                </t>
-            </p>
-            <div style="margin-bottom:20px;">
+            </div>
+            <div style="margin-bottom:10px;">
                Chúng tôi đã tiến hành
                <span t-esc="o.ban_giao_or_nghiem_thu_show().lower()" />
                các vật tư bên dưới:

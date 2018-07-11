@@ -26,7 +26,7 @@ class PT(models.Model):
     tracking = fields.Selection([
         ('serial', 'By Unique Serial Number'),
 #         ('lot', 'By Lots'),
-        ('none', 'No Tracking')],default='none', required=True,string=u'Có SN?')
+        ('none', 'No Tracking')],default='none', required=True,string=u'Có SN hay không')
     def get_stock_for_selection_field_(self):
         locs = self.env['stock.location'].search([('is_kho_cha','=',True)])
         rs = list(map(lambda i:(i.name,i.name),locs))

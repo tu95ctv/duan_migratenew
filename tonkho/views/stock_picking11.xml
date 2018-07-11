@@ -103,7 +103,8 @@
           
           
             <xpath expr="//page[1]/field[@name='move_line_ids']" position="attributes">
-               <attribute name="attrs">{}</attribute>
+              <attribute name="attrs">{}</attribute> 
+              <!--  <attribute name="options">{'no_create': [('state','=','done')]}</attribute> -->
             </xpath>
             
             
@@ -120,23 +121,27 @@
              
              
              <xpath expr="//page[1]/field/tree/field[@name='product_id']" position="attributes">
-               <attribute name="attrs">{'readonly': [('state', 'in', ('done', 'cancel'))]}</attribute>
+               <attribute name="attrs">{'readonly': [('parent.state', 'in', ('cancel'))]}</attribute>
             </xpath>
             
+            <!-- 
              <xpath expr="//page[1]/field/tree/field[@name='location_id']" position="attributes">
                <attribute name="attrs">{'readonly': ['|',('in_entire_package', '=', True),('state', 'in', ('done', 'cancel'))]}</attribute>
             </xpath>
-            
+             -->
+              <xpath expr="//page[1]/field/tree/field[@name='location_id']" position="attributes">
+               <attribute name="attrs">{}</attribute>
+            </xpath>
              <xpath expr="//page[1]/field/tree/field[@name='location_dest_id']" position="attributes">
                <attribute name="attrs">{'readonly': ['|',('in_entire_package', '=', True),('state', 'in', ('done', 'cancel'))]}</attribute>
             </xpath>
             
-            <!-- 
+            
              <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="attributes">
                <attribute name="attrs">{'column_invisible': [('parent.show_lots_text', '=', True)], 'invisible': [('lots_visible', '=', False)], 'readonly': ['|',('in_entire_package', '=', True),('state', 'in', ('done', 'cancel'))]}</attribute>
             </xpath>
-             -->
-            
+             
+             
             
             
              <xpath expr="//page[1]/field/tree/field[@name='qty_done']" position="attributes">
@@ -148,39 +153,46 @@
            
             <xpath expr="//page[1]/field/tree/field[@name='product_id']" position="before">
                <field name="stock_quant_id" domain="[('location_id','child_of',parent.location_id),('quantity','&gt;',0)]"   
+               context="{'kho_da_chon':parent.choosed_stock_quants_ids}"
                attrs="{'readonly': [('state', 'in', ('done', 'cancel'))]}"
-               context="{'kho_da_chon':parent.choosed_stock_quants_ids}"/>
+               /><!-- attrs="{'readonly': [('state', 'in', ('done', 'cancel'))]}" -->
          <!--domain="[('location_id.department_id','child_of',parent.department_id)]"  domain="[('location_id','child_of',parent.location_id)]"  -->
             </xpath>
-            <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="replace"></xpath>
             
+            <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="replace"></xpath>
+            	<field name="product_uom_id" force_save="1" readonly="1"
+            	 groups="product.group_uom"/>
+            <!--
+            <xpath expr="//page[1]/field/tree/field[@name='product_uom_id']" position="attributes">
+               <attribute name="attrs">{}</attribute>
+            </xpath>
+            -->
             <xpath expr="//page[1]/field/tree/field[@name='product_uom_id']" position="after">
                <field name="tracking" readonly="1"></field>
-               <field name="tinh_trang"  attrs="{'readonly': [('state', 'in', ('done', 'cancel'))]}"></field>
-               <field name="pn" attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}"  />
+               <field name="pn"  attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}" 
+               /><!-- attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}"  -->
                <field name="lot_id" invisible="0" 
-               
-               attrs="{'column_invisible': [('parent.show_lots_text', '=', True)], 'invisible': ['|',('lots_visible', '=', False),('tracking', '=', 'none')],'required': [('tracking', '!=', 'none')],'readonly': ['|',('in_entire_package', '=', True),('state', 'in', ('done', 'cancel'))] }"
-                groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'default_product_id': product_id}" />
+               attrs="{'column_invisible': [('parent.show_lots_text', '=', True)],
+                'invisible': ['|',('lots_visible', '=', False),('tracking', '=', 'none')],
+                'readonly': ['|',('in_entire_package', '=', True),
+                ('state', 'in', ('done', 'cancel'))]}"
+                groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'default_product_id': product_id}" /><!-- ,'readonly': ['|',('in_entire_package', '=', True),('state', 'in', ('done', 'cancel'))] -->
+               <!--                 'required': [('tracking', '!=', 'none')] ,
+                -->
+               <field name="tinh_trang"  attrs="{'readonly': [('state', 'in', ('done','cancel'))]}"></field>
                <field name="ghi_chu"></field>
             </xpath>
             <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="attributes">
                <attribute name="string">Serial number</attribute>
             </xpath>
-            
             <xpath expr="//page[1]/field/tree/field[@name='product_uom_qty']" position="attributes">
              <!--   <attribute name="string">Đặt Trước</attribute> -->
              <!--   <attribute name="groups">base.group_erp_manager</attribute> -->
             </xpath>
-            
-            
           <xpath expr="//page[2]" position="attributes">
             <!--    <attribute name="invisible">1</attribute> -->
                <attribute name="groups">base.group_erp_manager</attribute>
             </xpath>
-            
-            
-            
             <!-- 
             <xpath expr="//page[2]" position="attributes">
                <attribute name="invisible">1</attribute>
@@ -255,7 +267,7 @@
             <!-- end toi ngay 07/06 -->
            
             <xpath expr="//page[3]" position="after">
-               <page string="Thông Tin Thêm">
+               <page string="Thông tin thêm">
                   <group>
                      <group>
                         <field name="source_member_ids">

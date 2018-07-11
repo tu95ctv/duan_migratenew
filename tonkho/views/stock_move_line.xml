@@ -49,6 +49,13 @@
             	<field name="reference" position="after">
             		<field name="picking_id"></field>
             		<field name="inventory_id"></field>
+            		<field name="tinh_trang"></field>
+            		<field name="ghi_chu"></field>
+            	</field>
+            	
+            	<field name="lot_id" position="after">
+            		<field name="tinh_trang"></field>
+            		<field name="ghi_chu"></field>
             	</field>
             </field>
         </record>

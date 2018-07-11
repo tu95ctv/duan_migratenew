@@ -19,7 +19,7 @@ class ToTrinh(models.Model):
     _inherit = ['khongdaumodel']
     _auto = True
 #     _rec_name = 'complete_name'
-    ve_viec = fields.Char(u'Về Việc',required=True)
+    ve_viec = fields.Char(u'Về việc',required=True)
     so_to_trinh = fields.Char(string=u'Số')
     ngay_to_trinh = fields.Date(string=u'Ngày')
     name = fields.Char(compute='complete_name_',store=True, string=u'Tên')

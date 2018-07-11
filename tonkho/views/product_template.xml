@@ -160,7 +160,7 @@
          <field name="arch" type="xml">
             <xpath expr="//filter[@name='activities_upcoming_all']" position="after">
                <filter name="group_by_tracking" string="Có SN hay Không" domain="[]" context="{'group_by':'tracking'}" />
-               <filter name="group_by_uom_id" string="Đơn Vị " domain="[]" context="{'group_by':'uom_id'}" />
+               <filter name="group_by_uom_id" string="Đơn vị tính" domain="[]" context="{'group_by':'uom_id'}" />
                <filter string="Vật tư có tồn tại trong bất cứ kho" name="quant_ids" domain="[('quant_ids.quantity','&gt;=',1)]"/>
                <field string="Tìm vật tư có trong kho Này" name="stock_location_id_selection"   filter_domain="[('quant_ids.quantity','&gt;=',1),('quant_ids.location_id','ilike',self)]"/>
                <filter string="quant is not set" name="quant_ids" domain="[('quant_ids','=',False)]"/>

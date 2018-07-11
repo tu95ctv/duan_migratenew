@@ -14,5 +14,5 @@ class InventoryLine(models.Model):
     pn = fields.Char(related = 'prod_lot_id.pn',store=True)
     stt = fields.Integer(string=u'STT')
 #     id_of_product_id =  fields.Integer(related='product_id.id')
-    tracking =  fields.Selection(related='product_id.tracking', store=True,string=u'Có SN?')
+    tracking =  fields.Selection(related='product_id.tracking', store=True,string=u'Có SN hay không')
     

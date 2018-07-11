@@ -14,11 +14,11 @@ class Quant(models.Model):
     tracking = fields.Selection([
         ('serial', 'By Unique Serial Number'),
 #         ('lot', 'By Lots'),
-        ('none', 'No Tracking')], string=u"Có SN?", related='product_id.tracking',store=True)
+        ('none', 'No Tracking')], string=u"Có SN hay không", related='product_id.tracking',store=True)
     department_id = fields.Many2one('hr.department',related='location_id.department_id',store=True,string=u"Phòng ban")
     stock_location_id_selection = fields.Selection('get_stock_for_selection_field_',store=False)
     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',related='lot_id.tinh_trang',store=True,string=u'Tình trạng')
-   
+    ghi_chu = fields.Text(string=u'Ghi chú',related='lot_id.ghi_chu')
     def get_stock_for_selection_field_(self):
         locs = self.env['stock.location'].search([('is_kho_cha','=',True)])
         rs = list(map(lambda i:(i.name,i.name),locs))

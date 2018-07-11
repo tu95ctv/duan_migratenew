@@ -46,8 +46,8 @@
       
       <template id="tonkho.reason">
       	<t t-if="o.ly_do">
-             <p>Lý do: <span t-esc="o.ly_do" />.
-             </p>
+             <div>Lý do: <span t-esc="o.ly_do" />.
+             </div>
           </t>
       </template>
       
