@@ -15,4 +15,4 @@ class InventoryLine(models.Model):
     stt = fields.Integer(string=u'STT')
 #     id_of_product_id =  fields.Integer(related='product_id.id')
     tracking =  fields.Selection(related='product_id.tracking', store=True,string=u'Có SN hay không')
-    
+    ghi_chu = fields.Text(string=u'Ghi chú')

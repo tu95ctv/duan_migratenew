@@ -16,30 +16,39 @@ class StockProductionLot(models.Model):
     move_line_ids = fields.One2many('stock.move.line','lot_id')
     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',compute='tinh_trang_depend_move_line_ids_',store=True, string=u'Tình trạng')
 #     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',store=True, string=u'Tình trạng')
-    lot_id = fields.Many2one('stock.production.lot', 'Lot')
+    
     # THÊM VÀO ĐỂ COI DỊCH CHUYỂN KHO, KHÔNG PHẢI KẾ THỪA
     def action_view_stock_move_lines(self):
         self.ensure_one()
         action = self.env.ref('stock.stock_move_line_action').read()[0]
         action['domain'] = [('lot_id', '=', self.id)]
         return action
-     
+
     @api.depends('move_line_ids.tinh_trang','move_line_ids.state')
     def tinh_trang_depend_move_line_ids_(self):
         for r in self:
-            move_line_ids = r.move_line_ids.filtered(lambda r: r.state=='done')
-            if move_line_ids:
-                r.tinh_trang =move_line_ids[-1].tinh_trang
+            if isinstance(r.id, int):
+                move_line_ids = self.env['stock.move.line'].search([('lot_id','=',r.id),('ghi_chu','!=',False),('state','=','done')],limit=1,order='id desc')
+                if move_line_ids:
+                    r.tinh_trang =move_line_ids[-1].tinh_trang
      
+#     @api.depends('move_line_ids.ghi_chu','move_line_ids.state')
+#     def ghi_chu_(self):
+#         for r in self:
+#             move_line_ids = r.move_line_ids.filtered(lambda r: r.state=='done')
+#             if move_line_ids:
+#                 r.ghi_chu =move_line_ids[-1].ghi_chu
+
     @api.depends('move_line_ids.ghi_chu','move_line_ids.state')
     def ghi_chu_(self):
         for r in self:
-            move_line_ids = r.move_line_ids.filtered(lambda r: r.state=='done')
-            print ('***move_line_ids',move_line_ids)
-            if move_line_ids:
-                r.ghi_chu =move_line_ids[-1].ghi_chu
-            else:
-                print ('chua con  move_line_ids có trang thai done nao ca')
+            if isinstance(r.id, int):
+#                 move_line_ids = r.move_line_ids.filtered(lambda r: r.state=='done')
+                move_line_ids = self.env['stock.move.line'].search([('lot_id','=',r.id),('ghi_chu','!=',False),('state','=','done')],limit=1,order='id desc')
+                if move_line_ids:
+                    r.ghi_chu =move_line_ids.ghi_chu
+                
+        
             
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):

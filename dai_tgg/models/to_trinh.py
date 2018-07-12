@@ -44,7 +44,7 @@ class ToTrinh(models.Model):
     
     
     def get_names_for_report(self):
-        name =  name_compute(self,join_char = u' ',junc_char=u'',
+        name =  name_compute(self,join_char = u', ',junc_char=u'',
             adict=[
                     ('so_to_trinh',{'pr':u'số'}),
                    ('ngay_to_trinh',{'pr':u'ngày','func':Convert_date_orm_to_str,'karg':{'format_date':'%d/%m/%Y'}}),

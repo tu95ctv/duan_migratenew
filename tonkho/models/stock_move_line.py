@@ -53,6 +53,41 @@ class StockMoveLine(models.Model):
     ghi_chu = fields.Text(string=u'Ghi chú vật tư')
     inventory_id = fields.Many2one('stock.inventory', 'Inventory',related='move_id.inventory_id',readonly=True)
     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',string=u'Tình trạng')
+    ref_picking_id_or_inventory_id = fields.Char(compute='ref_picking_id_or_inventory_id_', store=True,string=u'Phiếu tham chiếu')
+    
+    
+    
+    
+    @api.onchange('location_id')
+    def location_id_onchange(self):
+#         print ('self.env.context.get()',self.env.context.get('ban_giao_or_nghiem_thu'))
+        if self.env.context.get('ban_giao_or_nghiem_thu') =='TDTT':
+            self.location_dest_id = self.location_id
+#             return {
+#                     'readonly': {
+#                         'location_dest_id': "1"
+#                        
+#                     },
+#                     'attrs': {
+#                         'location_dest_id': {'readonly':[True]}
+#                     },
+#                     
+#                     
+#                     'value': {
+#                         'location_dest_id': self.location_id,
+#                         
+#                     }
+#                 }
+#         return {'location_dest_id':}
+    @api.onchange('lot_id')
+    def lot_id_onchange(self):
+        self.tinh_trang = self.lot_id.tinh_trang
+        
+    @api.depends('inventory_id','picking_id.name')
+    def ref_picking_id_or_inventory_id_(self):
+        for r in self:
+            ref = u'INV: ' + r.inventory_id.name if r.inventory_id else r.picking_id.name
+            r.ref_picking_id_or_inventory_id = ref
     @api.onchange('product_id')
     def qty_done_(self):
         if self.product_id:

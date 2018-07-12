@@ -27,6 +27,9 @@
         	<field name="partner_id" position="replace"></field>
         	<field name="scrap_location" position="replace"></field>
         	<field name="return_location" position="replace"></field>
+        	<field name="location_id"  position="attributes">
+        		<attribute name="options"></attribute><!-- {'no_create': False} -->
+        	</field>
         	<field name="company_id" position="before">
         		<field name="department_id"></field>
         		<field name="partner_id_of_stock_for_report"></field>

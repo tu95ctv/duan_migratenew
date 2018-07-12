@@ -26,14 +26,23 @@
 		          			<field name="state"></field>
 		          		</field>
 		          		<xpath expr="//field[@name='line_ids']/tree/field[@name='location_id']" position="after">
-		          			<field name="stt"></field>
+		          			<!-- <field name="stt"></field> -->
 		          			<!-- <field name="id_of_product_id"></field> -->
-		          			<field name="tracking"></field>
-		          			<field name="thiet_bi_id"></field>
-		          			<field name="brand_id"></field>
-		          			<field name="categ_id"></field>
-		          			<field name="pn"></field>
+		          			<field name="tracking" readonly="1"></field>
+		          			<field name="thiet_bi_id" readonly="1"></field>
+		          			<field name="brand_id" readonly="1"></field>
+		          			<field name="categ_id" readonly="1"></field>
+		          			<field name="pn" readonly="1"></field>
 		          		</xpath>
+		          		<xpath expr="//field[@name='line_ids']/tree/field[@name='prod_lot_id']" position="after">
+		          			<field name="ghi_chu"></field>
+		          		 </xpath>
+		          		 <xpath expr="//field[@name='line_ids']/tree/field[@name='prod_lot_id']" position="attributes">
+		          			<attribute name="attrs">{'invisible':[('tracking','=','none')]}</attribute>
+		          		 </xpath>
+		          		 <xpath expr="//field[@name='line_ids']/tree/field[@name='product_uom_id']" position="attributes">
+		          			<attribute name="readonly">1</attribute>
+		          		 </xpath>
 		          		<!-- 
 		          		<xpath expr="//field[@name='line_ids']/tree/field[@name='theoretical_qty']" position="attributes">
 		          			<attribute name="readonly">0</attribute>

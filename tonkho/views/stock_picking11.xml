@@ -104,31 +104,21 @@
           
             <xpath expr="//page[1]/field[@name='move_line_ids']" position="attributes">
               <attribute name="attrs">{}</attribute> 
-              <!--  <attribute name="options">{'no_create': [('state','=','done')]}</attribute> -->
+              
+             <attribute name="context">{'default_picking_id': id, 'default_location_id': location_id, 'default_location_dest_id': location_dest_id,'ban_giao_or_nghiem_thu':ban_giao_or_nghiem_thu}</attribute> 
             </xpath>
             
             
-            <!-- 
-            <xpath expr="//page[1]/field[@name='move_line_ids']" position="attributes">
-               <attribute name="attrs">{}</attribute>
-            </xpath>
-             -->
-           
+ 
             <xpath expr="//page[1]/field/tree/field[@name='product_uom_qty']" position="attributes">
-               <!-- <attribute name="invisible">1</attribute> -->
                <attribute name="groups">base.group_erp_manager</attribute>
             </xpath>
              
              
              <xpath expr="//page[1]/field/tree/field[@name='product_id']" position="attributes">
-               <attribute name="attrs">{'readonly': [('parent.state', 'in', ('cancel'))]}</attribute>
+               <attribute name="attrs">{'readonly': [('parent.state', 'in', ('cancel','done'))]}</attribute>
             </xpath>
-            
-            <!-- 
-             <xpath expr="//page[1]/field/tree/field[@name='location_id']" position="attributes">
-               <attribute name="attrs">{'readonly': ['|',('in_entire_package', '=', True),('state', 'in', ('done', 'cancel'))]}</attribute>
-            </xpath>
-             -->
+    
               <xpath expr="//page[1]/field/tree/field[@name='location_id']" position="attributes">
                <attribute name="attrs">{}</attribute>
             </xpath>
@@ -149,36 +139,28 @@
             </xpath>
             
             
-      <!--       <field name="qty_done" attrs="{'readonly': ['|', ('state', 'in', ('done', 'cancel')), ('is_locked', '=', True), ('in_entire_package', '=', True)]}" force_save="1"/> -->
            
             <xpath expr="//page[1]/field/tree/field[@name='product_id']" position="before">
                <field name="stock_quant_id" domain="[('location_id','child_of',parent.location_id),('quantity','&gt;',0)]"   
                context="{'kho_da_chon':parent.choosed_stock_quants_ids}"
                attrs="{'readonly': [('state', 'in', ('done', 'cancel'))]}"
-               /><!-- attrs="{'readonly': [('state', 'in', ('done', 'cancel'))]}" -->
-         <!--domain="[('location_id.department_id','child_of',parent.department_id)]"  domain="[('location_id','child_of',parent.location_id)]"  -->
+               />
             </xpath>
             
             <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="replace"></xpath>
             	<field name="product_uom_id" force_save="1" readonly="1"
             	 groups="product.group_uom"/>
-            <!--
-            <xpath expr="//page[1]/field/tree/field[@name='product_uom_id']" position="attributes">
-               <attribute name="attrs">{}</attribute>
-            </xpath>
-            -->
+   
             <xpath expr="//page[1]/field/tree/field[@name='product_uom_id']" position="after">
                <field name="tracking" readonly="1"></field>
-               <field name="pn"  attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}" 
-               /><!-- attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}"  -->
+        
                <field name="lot_id" invisible="0" 
                attrs="{'column_invisible': [('parent.show_lots_text', '=', True)],
                 'invisible': ['|',('lots_visible', '=', False),('tracking', '=', 'none')],
                 'readonly': ['|',('in_entire_package', '=', True),
                 ('state', 'in', ('done', 'cancel'))]}"
                 groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'default_product_id': product_id}" /><!-- ,'readonly': ['|',('in_entire_package', '=', True),('state', 'in', ('done', 'cancel'))] -->
-               <!--                 'required': [('tracking', '!=', 'none')] ,
-                -->
+               
                <field name="tinh_trang"  attrs="{'readonly': [('state', 'in', ('done','cancel'))]}"></field>
                <field name="ghi_chu"></field>
             </xpath>
@@ -186,45 +168,27 @@
                <attribute name="string">Serial number</attribute>
             </xpath>
             <xpath expr="//page[1]/field/tree/field[@name='product_uom_qty']" position="attributes">
-             <!--   <attribute name="string">Đặt Trước</attribute> -->
-             <!--   <attribute name="groups">base.group_erp_manager</attribute> -->
+           
             </xpath>
           <xpath expr="//page[2]" position="attributes">
-            <!--    <attribute name="invisible">1</attribute> -->
                <attribute name="groups">base.group_erp_manager</attribute>
             </xpath>
-            <!-- 
-            <xpath expr="//page[2]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-             -->
+          
             <xpath expr="//page[3]" position="attributes">
                <attribute name="invisible">1</attribute>
             </xpath>
             
          	  <xpath expr="//page[2]/field/tree/field[@name='reserved_availability']" position="attributes">
-              <!--  <attribute name="string">Đặt Trước</attribute> -->
-               <!--  <attribute name="string">Đặt Trước</attribute> -->
+             
                <attribute name="groups">base.group_erp_manager</attribute>
             </xpath>
             
             
-         	<!-- 
-            <xpath expr="//page[2]/field/tree/field[@name='quantity_done']" position="before">
-               <field name="product_uom" attrs="{'readonly': [('state', '!=', 'draft'), ('additional', '=', False)]}" options="{'no_open': True, 'no_create': True}" string="Unit of Measure" groups="product.group_uom" />
-            </xpath>
-            <xpath expr="//page[2]/field/tree/field[@name='reserved_availability']" position="attributes">
-               <attribute name="invisible">1</attribute>
-               <attribute name="string">Đặt Trước</attribute>
-            </xpath>
-            <xpath expr="//page[2]/field/tree/field[@name='product_uom_qty']" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-             -->
-             
              
             
-            
+            <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="after">
+                          <field name="pn"  attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}" ></field>
+            </xpath>
              <!-- toi ngay 07/06 -->
              
               <xpath expr="//page[1]/field/tree/field[@name='state']" position="attributes">

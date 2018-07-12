@@ -5,6 +5,7 @@
             <field name="model">stock.move.line</field>
             <field name="inherit_id" ref="stock.view_stock_move_line_operation_tree"></field>
             <field name="arch" type="xml">
+            
             <field name="location_id" position="attributes">
             	<attribute name="context">{'product_id_d4':parent.product_id,'d4_location_id':parent.location_id}</attribute>
             </field>
@@ -33,8 +34,11 @@
             <field name="model">stock.move.line</field>
             <field name="inherit_id" ref="stock.view_move_line_tree"></field>
             <field name="arch" type="xml">
+            	<field name="reference" position="replace">
+            		<field name="ref_picking_id_or_inventory_id"></field>
+            	</field>
             	<field name="product_id" position="after">
-            		<field name="lot_id"></field>
+            		<field name="lot_id" string="Serial number"></field>
             	</field>
             </field>
         </record>
@@ -52,7 +56,9 @@
             		<field name="tinh_trang"></field>
             		<field name="ghi_chu"></field>
             	</field>
-            	
+            	<field name="reference" position="replace">
+            		<field name="ref_picking_id_or_inventory_id"></field>
+            	</field>
             	<field name="lot_id" position="after">
             		<field name="tinh_trang"></field>
             		<field name="ghi_chu"></field>

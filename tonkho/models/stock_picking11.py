@@ -30,6 +30,8 @@ class StockPicking(models.Model):
                                                (u'BBNK',u'Nhập kho vật tư lỗi'),
                                                (u'HUY',u'Hủy biên bản'),
                                                (u'TRA',u'Trả vật tư lại do nhằm'),
+                                               (u'TDTT',u'Thay đổi tình trạng vật tư'),
+                                               (u'DCNB',u'Dịch chuyển nội bộ'),
                                                ],default=u'BBBG', string=u'B/giao hay N/thu' )
 #     data_file = fields.Binary(string='File Import')
 #     filename = fields.Char()

@@ -288,6 +288,12 @@ msgstr "SL"
 msgid "state"
 msgstr "Tiến trình"
 
+#. module: stock
+#: model:ir.ui.menu,name:stock.menu_stock_uom_form_action
+#: model:ir.ui.view,arch_db:stock.stock_inventory_line_tree2
+#: model:ir.ui.view,arch_db:stock.view_inventory_form
+msgid "UoM"
+msgstr "Đơn vị tính"
 
 
 #. module: stock
@@ -308,6 +314,12 @@ msgstr "Hoàn thành"
 #: selection:product.template,tracking:0
 msgid "By Unique Serial Number"
 msgstr "Có Serial Number"
+
+#. module: stock
+#: model:ir.ui.view,arch_db:stock.view_stock_quant_form
+msgid "Picking Moves"
+msgstr "Các dòng điều chuyển"
+
 
 #. module: base
 #: selection:res.partner,company_type:0
