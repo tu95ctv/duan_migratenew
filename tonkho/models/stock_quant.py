@@ -11,6 +11,8 @@ class Quant(models.Model):
     _inherit = "stock.quant"
     pn = fields.Char(related='lot_id.pn')
     categ_id = fields.Many2one('product.category', related='product_id.categ_id',store=True,string=u'Nhóm')
+    thiet_bi_id = fields.Many2one('tonkho.thietbi',related='product_id.thiet_bi_id', string = u'Thiết bị',store=True)
+    brand_id = fields.Many2one('tonkho.brand',related='product_id.brand_id',string=u'Hãng sản xuất',store=True)
     tracking = fields.Selection([
         ('serial', 'By Unique Serial Number'),
 #         ('lot', 'By Lots'),

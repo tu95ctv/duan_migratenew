@@ -30,11 +30,14 @@
                <xpath expr="//button[2]" position="after">
                   <button string="Các Dòng Điều Chuyển" type="object" name="action_view_stock_move_lines" class="oe_stat_button" icon="fa-arrows-v" groups="stock.group_stock_user" />
                </xpath>
+               <xpath expr="//button[1]" position="replace">
+               </xpath>
                <field name="ref" position="attributes">
                   <attribute name="invisible">1</attribute>
                </field>
                <field name="ref" position="before">
                   <field name="pn" />
+                  <field name="barcode_sn" />
                	  <field name="tinh_trang"></field>
                   <field name="ghi_chu" />
                </field>

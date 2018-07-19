@@ -21,6 +21,7 @@ class ImportThuVien(models.Model):
     _name = 'importthuvien' 
     type_choose = fields.Selection([
         (u'stock.inventory.line',u'stock.inventory.line'),
+        (u'stock.inventory.line.tkt.vtdc',u'stock.inventory.line.tkt.vtdc'),
         (u'Thư viện công việc',u'Thư viện công việc'),
                                     (u'User',u'User')
                                     #,(u'Công Ty',u'Công Ty')
@@ -45,14 +46,17 @@ class ImportThuVien(models.Model):
                                    (u'GTGT',u'GTGT'),(u'XFP, SFP các loại',u'XFP, SFP các loại')  ])
     file = fields.Binary()
     filename = fields.Char()
+    name_inventory_suffix = fields.Char()
     department_id = fields.Many2one('hr.department')
     update_number=fields.Integer()
     create_number=fields.Integer()
     skipupdate_number=fields.Integer()
     thong_bao_khac = fields.Char()
     trigger_model = fields.Selection([(u'kiemke',u'kiemke'),
-                                    (u'vattu',u'vattu'),(u'kknoc',u'kknoc'),
-                                    (u'cvi',u'cvi')
+                                    (u'vattu',u'vattu'),
+                                    (u'kknoc',u'kknoc'),
+                                    (u'cvi',u'cvi'),
+                                    (u'stock.production.lot',u'stock.production.lot')
                                     ])
     dong_test = fields.Integer(default=0)#0 la initify vô hạn
     log = fields.Text()

@@ -346,6 +346,7 @@ def importthuvien(odoo_or_self_of_wizard):
                                               'replace_string':[('Modunle','module'),('CARD','Card'),('module','Module')],
                                               'sheet_allow_this_field_not_has_exel_col':[u'XFP, SFP các loại']
                                               }),#'set_val':u'Cái',
+                                             
                                              ('category_id', {'func': lambda n,v:self.env['product.uom.categ'].search(['|',('name','=','Unit'),('name','=',u'Đơn Vị')])[0].id
                                                                         }
                                                  ),
@@ -424,6 +425,114 @@ def importthuvien(odoo_or_self_of_wizard):
                   }),
                          ]
                 },#End stock.inventory.line'
+                         
+               u'stock.inventory.line.tkt.vtdc': {
+                'title_rows':[0],
+                'title_rows_some_sheets':{u'XFP, SFP các loại':[2,3]},
+                'begin_data_row_offset_with_title_row' :1,
+                'sheet_names': [u'Tổng hợp']if not self.sheet_name else [self.sheet_name]  ,#[self.sheet_name],#,#[self.sheet_name],#[u'Chuyển Mạch (IMS, Di Động)'],#xl_workbook.sheet_names(),#[u'Truyền dẫn'],#[u'IP (VN2, VNP)'],[u'Chuyển Mạch (IMS, Di Động)']
+                'model':'stock.inventory.line',
+                'fields' : [
+                        ('stt',{'func':None,'xl_title':u'STT','key':True,'required':True,'skip_field_if_not_found_column_in_some_sheet':True}),
+                        ('location_id_goc', {'model':'stock.location','key':False, 'for_excel_readonly' :True,"required":True,
+                                             'fields':[
+                        ('name',{'set_val':'LTK Đang Chạy', 'key':True,'required': True})
+                        ]
+                                            }),  
+('prod_lot_id_excel_readonly',{'empty_val':[u'N/C',u'-','--'],'func':lambda val,needdata: int(val) if isinstance(val,float) else val,'xl_title':[u'Số serial (S/N)'],'for_excel_readonly' :True}),
+('barcode_for_first_read',{'empty_val':[u'NA'],'func':lambda val,needdata: str(int(val)) if isinstance(val,float) else val,'xl_title':[u'Barcode'],'for_excel_readonly' :True}),
+
+# ('product_qty', {'func':qty_,'replace_val':{u'XFP, SFP các loại':[(False,1)]},'xl_title':[u'Tồn kho cuối kỳ',u'Số lượng',u'Tồn kho cuối kỳ'],'key':False,'sheet_allow_this_field_not_has_exel_col':[u'XFP, SFP các loại']}),
+('product_qty', {'func':qty_,'key':False,'set_val':1}),
+('inventory_id', {'fields':[
+                        ('name',{'set_val':'LTK đang chạy ' + self.name_inventory_suffix if self.name_inventory_suffix else '', 'key':True,'required': True}),# coi lại
+                        ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id_goc']['val']})
+                        ,]
+    }),
+('product_id',{'key':True,'required':True,
+               'fields':[
+                        ('name',{'func':None,'xl_title':[u'Loại card'],'key':True,'required':True,'empty_val':[]}),
+                        ('type',{'set_val':'product'}),
+                        ('tracking',{'func':lambda val,needdata: 'serial' if (needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] or needdata['vof_dict']['barcode_for_first_read']['val']) !=False else 'none' }),
+#                         ('thiet_bi_id',{'fields':[('name',{'func':None,'xl_title':u'Thiết bị', 'key':True,'required': True}),]}),
+#                         ('brand_id',{'empty_val':[u'NA'],'fields':[('name',{'func':None,'xl_title':[u'Hãng sản xuất',u'Hãng / Model'], 'key':True,'required': True}),]}),
+#                         ('categ_id',{'fields':[('name',{'func':lambda val,needdata: needdata['sheet_name'], 'key':True,'required': True}),]}),
+                        ('uom_id',  { 'fields': [ #'func':uom_id_,'default':1,
+                                    ('name',{'set_val':u'Cái','key':True}),#'set_val':u'Cái',
+                                             ('category_id', {'func': lambda n,v:self.env['product.uom.categ'].search(['|',('name','=','Unit'),('name','=',u'Đơn Vị')])[0].id
+                                                                        }
+                                                 ),
+                                                       ]
+                                            }
+                         ),
+#                         ('ghi_chu_ngay_nhap',{'func':lambda val,needdata: val if not needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] else False,'xl_title':[u'Ngày nhập',u'Ngày nhận'],'skip_field_if_not_found_column_in_some_sheet':True}),
+#                         ('ghi_chu_ngay_xuat',{'func':lambda val,needdata: val if not needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] else False,'xl_title':u'Ngày xuất','skip_field_if_not_found_column_in_some_sheet':True}),
+#                         ('ghi_chu_ban_dau',{'func':lambda val,needdata: val if not needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] else False,'xl_title':u'Ghi chú','skip_field_if_not_found_column_in_some_sheet':True}),
+                        ]
+               }),  
+('location_id1',{'model':'stock.location', 'for_excel_readonly':True,
+                                       'fields':[
+                                                ('name',{'set_val':u'Phòng X','key':True}),
+                                                ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
+                                                ('department_id',{'key':False,'model':'hr.department', 'set_val':self.department_id.id,'required':True
+                                                                  #'fields':[('name',{'key':True,'set_val':'LTK'})]
+                                                                  })
+                                               
+                                                ]
+                                       }), 
+('location_id2',{'model':'stock.location', 'for_excel_readonly':True,
+                                       'fields':[
+                                                ('name',{'func':None,'xl_title':[u'Tên tủ (Cabinet / rack)'], 'key':True,'required': True}),
+                                                ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val']  , 'key':True}),
+#                                                 ('department_id',{'key':True,'model':'hr.department', 'fields':[('name',{'key':True,'set_val':'LTK'})]})
+                                               ('department_id',{'key':False,'model':'hr.department', 'set_val':self.department_id.id,'required':True,'raise_if_False':True,
+                                                                  #'fields':[('name',{'key':True,'set_val':'LTK'})]
+                                                                  })
+                                                
+                                                ]
+                                       }),                                           
+('location_id3',{'model':'stock.location', 'for_excel_readonly':True,
+                                       'fields':[
+                                                ('name',{'func':None,'xl_title':[u'Ngăn (shelf)'], 'key':True,'required': True,'func': lambda val,needdata: str(val) if val !=False else False}),
+                                                ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id2']['val'] or needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
+#                                                 ('department_id',{'key':True,'model':'hr.department', 'fields':[('name',{'key':True,'set_val':'LTK'})]})
+                                                ('department_id',{'key':False,'model':'hr.department', 'set_val':self.department_id.id,'required':True
+                                                                  #'fields':[('name',{'key':True,'set_val':'LTK'})]
+                                                                  })
+                                                
+                                                ]
+                                       }),         
+('location_id4',{'model':'stock.location', 'for_excel_readonly':True,
+                                       'fields':[
+                                                ('name',{'func':None,'xl_title':[u'Khe (Slot)'], 'key':True,'required': True,'skip_field_if_not_found_column_in_some_sheet':True}),
+                                                ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id3']['val'] or needdata['vof_dict']['location_id2']['val'] or needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
+#                                                 ('department_id',{'key':True,'model':'hr.department', 'fields':[('name',{'key':True,'set_val':'LTK'})]})
+                                               
+                                                ('department_id',{'key':False,'model':'hr.department', 'set_val':self.department_id.id,'required':True
+                                                                  #'fields':[('name',{'key':True,'set_val':'LTK'})]
+                                                                  })
+                                                ]
+                                       }),  
+                            
+                            
+                                                             
+('location_id', {'func':lambda v,needdata: needdata['vof_dict']['location_id4']['val'] or \
+    needdata['vof_dict']['location_id3']['val'] or \
+    needdata['vof_dict']['location_id2']['val'] or \
+    needdata['vof_dict']['location_id1']['val'] or \
+    needdata['vof_dict']['location_id_goc']['val']
+    , 'key':False}),
+# ('pn',{'xl_title':u'Part Number','for_excel_readonly' :True}),
+('prod_lot_id', {'key':True,
+                  'fields':[
+                    ('name',{'func':lambda val,needdata: needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] or (needdata['vof_dict']['barcode_for_first_read']['val'] and 'unknown') ,'key':True,'required':True}),
+                    ('barcode_sn',{'func':lambda v,n:n['vof_dict']['barcode_for_first_read']['val'] ,'key':True}),
+                    ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] ,'key':True}),
+                    ('pn',{'empty_val':[u'NA','-','--'],'xl_title':[u'Mã card (P/N)']}),
+                      ]
+                  }),
+                         ]
+                },#End stock.inventory.line'          
                          
                 u'Thư viện công việc': {
                 'inactive_include_search':True,

@@ -14,7 +14,8 @@ res_partner,\
 product_product,\
 text_template,\
 setting,\
-stock_inventory
+stock_inventory,\
+stock_picking_return
 
 # res_config_setting,\
 # part_number,\

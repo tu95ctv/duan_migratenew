@@ -66,6 +66,17 @@
             </field>
         </record>
         
+        <record id="view_move_form" model="ir.ui.view">
+            <field name="name">stock.move.form</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_picking_form"></field>
+            <field name="arch" type="xml">
+                <field name="move_dest_ids"  position="before">
+                	<field name="move_orig_ids"></field>
+                </field>
+            </field>
+        </record>
+        
         
          <menuitem id="stock_move_line_menu"  action="stock.stock_move_line_action"
         parent="stock.menu_stock_inventory_control" sequence="1" name="Các dòng điều chuyển"/>

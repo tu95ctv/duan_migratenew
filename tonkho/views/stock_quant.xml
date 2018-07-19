@@ -15,6 +15,8 @@
             </field>
             <field name="lot_id" position="after">
             	<field name="categ_id"></field>
+            	<field name="thiet_bi_id"></field>
+            	<field name="brand_id"></field>
             	<field name="tracking"></field>
             	<field name="tinh_trang"></field>
             	<field name="ghi_chu"></field>
@@ -24,11 +26,8 @@
             <field name="quantity" position="after">
             	<field name="write_date" string="Ngày sửa"/>
             </field>
-            
          </field>
      </record>
-     
-     
    <record id="stock_quant_action_product" model="ir.actions.act_window">
         <field name="name">Số lượng trong kho</field>
         <field name="type">ir.actions.act_window</field>
@@ -39,8 +38,6 @@
         <field name="view_type">form</field>
         </record>
     
-  
-  
        <record id="quant_search_view" model="ir.ui.view">
          <field name="name">stock.quant.search.inherit</field>
          <field name="model">stock.quant</field>

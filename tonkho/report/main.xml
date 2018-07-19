@@ -24,6 +24,16 @@
         file="abc.abc" 
         paperformat="tonkho.paperformat_euro_lowmargin"
         />
+        
+        <report string="In Biên Bản Bàn Giao theo move line" id="action_bao_cao_dieu_chuyen_theo_move_line" model="stock.picking" 
+      report_type="qweb-pdf"
+       name="tonkho.bao_cao_dieu_chuyen_theo_move_line"
+        file="abc.abc" 
+        paperformat="tonkho.paperformat_euro_lowmargin"
+        />
+        
+        
+        
       <template id="tonkho.bao_cao_dieu_chuyen">
          <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
@@ -39,6 +49,24 @@
             </t>
          </t>
       </template>
+      
+      
+       <template id="tonkho.bao_cao_dieu_chuyen_theo_move_line">
+         <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+               <div class="article o_report_layout_standard">
+                  <div class="page" style="font-family:Times New Roman; font-size:22px;">
+                     <t t-call="tonkho.bien_ban_description" />
+                     <t t-call="tonkho.table_theo_move_line" /> 
+                     <t t-call="tonkho.reason" />
+                     <t t-call="tonkho.so_ban_in" />
+                     <t t-call="tonkho.ky_ten" />
+                  </div>
+               </div>
+            </t>
+         </t>
+      </template>
+      
       
       
       

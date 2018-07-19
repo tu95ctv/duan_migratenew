@@ -6,6 +6,16 @@ from odoo.tools.float_utils import float_compare
 from odoo.osv import expression
 class StockProductionLot(models.Model):
     _inherit = "stock.production.lot"
+    _sql_constraints = [
+        ('name_ref_uniq', 'unique (name, product_id, barcode)', 'The combination of serial number and product must be unique !'),
+    ]
+    _rec_name = 'complete_name'
+    name = fields.Char(
+        'Lot/Serial Number', 
+#         default=lambda self: self.env['ir.sequence'].next_by_code('stock.lot.serial'),
+        default = False,
+        required=True, help="Unique Lot/Serial Number")
+     
     pn = fields.Char(string=u'Part Number')
 #     ghi_chu = fields.Text(string=u'Ghi chú',store=True)
     ghi_chu = fields.Text(string=u'Ghi chú',compute='ghi_chu_',store=True)
@@ -16,8 +26,20 @@ class StockProductionLot(models.Model):
     move_line_ids = fields.One2many('stock.move.line','lot_id')
     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',compute='tinh_trang_depend_move_line_ids_',store=True, string=u'Tình trạng')
 #     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',store=True, string=u'Tình trạng')
-    
     # THÊM VÀO ĐỂ COI DỊCH CHUYỂN KHO, KHÔNG PHẢI KẾ THỪA
+    barcode_sn = fields.Char()
+    complete_name = fields.Char(compute='complete_name_',store=True)
+    trig_field = fields.Boolean()
+    @api.depends('barcode_sn','name','trig_field')
+    def complete_name_(self):
+        for r in self:
+            if r.name =='unknown':
+                if r.barcode_sn:
+                    r.complete_name = u'bc: ' + r.barcode_sn
+                
+            else:
+                r.complete_name = r.name
+        
     def action_view_stock_move_lines(self):
         self.ensure_one()
         action = self.env.ref('stock.stock_move_line_action').read()[0]

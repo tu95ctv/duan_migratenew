@@ -54,9 +54,20 @@ class StockMoveLine(models.Model):
     inventory_id = fields.Many2one('stock.inventory', 'Inventory',related='move_id.inventory_id',readonly=True)
     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',string=u'Tình trạng')
     ref_picking_id_or_inventory_id = fields.Char(compute='ref_picking_id_or_inventory_id_', store=True,string=u'Phiếu tham chiếu')
+#     state = fields.Selection(related='move_id.state', store=True)
+
     
+    move_line_dest_ids = fields.Many2many(
+        'stock.move.line', 'stock_move_line_move_line_rel', 'move_line_orig_id', 'move_line_dest_id', 'Destination Move Lines',
+        copy=False,
+        help="Optional: next stock move when chaining them")
+    move_line_orig_ids = fields.Many2many(
+        'stock.move.line', 'stock_move_line_move_line_rel', 'move_line_dest_id', 'move_line_orig_id', 'Original Move Lines',
+        copy=False,
+        help="Optional: previous stock move when chaining them")
     
-    
+    origin_returned_move_id = fields.Many2one('stock.move.line', 'Origin return move', copy=False, help='Move that created the return move')
+    returned_move_ids = fields.One2many('stock.move.line', 'origin_returned_move_id', 'All returned moves', help='Optional: all returned moves created from this move')
     
     @api.onchange('location_id')
     def location_id_onchange(self):

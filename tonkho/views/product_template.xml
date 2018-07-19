@@ -10,47 +10,11 @@
             <field name="uom_po_id" position="replace" />
          </field>
       </record>
-      
-      
-   <!-- <record id="product_template_only_form_view_2" model="ir.ui.view">
-         <field name="name">product.template.product.form</field>
-         <field name="model">product.template</field>
-         <field name="inherit_id" ref="product.product_template_form_view" />
-         <field name="arch" type="xml">
-            <field name="uom_po_id" position="replace" />
-         </field>
-      </record>
-     -->
-   <!-- 
-      <record id="product_template_only_form_view" model="ir.ui.view">
-         <field name="name">product.template.product.form</field>
-         <field name="model">product.template</field>
-         <field name="inherit_id" ref="product.product_template_only_form_view" />
-         <field name="arch" type="xml">
-            <field name="type" position="after">
-               <field name="tracking" />
-               <field name="thiet_bi_id" />
-               <field name="brand_id" />
-               <field name="department_id" />
-            </field>
-            <xpath expr="//field[@name='uom_id']" position="attributes">
-               <attribute name="options">{'no_create': False}</attribute>
-            </xpath>
-         </field>
-      </record>
-      
-       -->
-      
       <record id="product_template_form_view_procurement_button_inherit" model="ir.ui.view">
          <field name="name">product.template.product.form</field>
          <field name="model">product.template</field>
          <field name="inherit_id" ref="stock.product_template_form_view_procurement_button" />
          <field name="arch" type="xml">
-         	 <!-- 
-         	 <xpath expr="//field[@name='categ_id']" position="attributes">
-               <attribute name="string">Internal Category</attribute>
-            </xpath>
-             -->
             <field name="sale_ok" position="attributes">
                <attribute name="invisible">1</attribute>
             </field>
@@ -80,18 +44,14 @@
             <field name="uom_id" position="after">
                <field name="thiet_bi_id" />
                <field name="brand_id" />
-              <!--  <field name="department_id" /> -->
                <field name="quant_ids"  domain="[('location_id.usage','=','internal')]" />
             </field>
             <xpath expr="//header" position="attributes">
                <attribute name="invisible">1</attribute>
             </xpath>
-            
             <xpath expr="//button[5]" position="attributes">
                <attribute name="groups">base.group_erp_manager</attribute>
             </xpath>
-            
-            
             <xpath expr="//button[7]" position="attributes">
                <attribute name="groups">base.group_erp_manager</attribute>
             </xpath>
@@ -99,43 +59,7 @@
             <xpath expr="//button[9]" position="attributes">
                <attribute name="groups">base.group_erp_manager</attribute>
             </xpath>
-            
-            
-            
-           <!-- 
-            <xpath expr="//button[1]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//button[2]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//button[3]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//button[4]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//button[5]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//button[6]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//button[7]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//button[8]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//button[9]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//button[@name='action_open_quants']" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
- 			-->
-
-
+           
             <xpath expr="//page[2]" position="attributes">
                <attribute name="invisible">1</attribute>
             </xpath>
@@ -164,8 +88,6 @@
                <filter string="Vật tư có tồn tại trong bất cứ kho" name="quant_ids" domain="[('quant_ids.quantity','&gt;=',1)]"/>
                <field string="Tìm vật tư có trong kho Này" name="stock_location_id_selection"   filter_domain="[('quant_ids.quantity','&gt;=',1),('quant_ids.location_id','ilike',self)]"/>
                <filter string="quant is not set" name="quant_ids" domain="[('quant_ids','=',False)]"/>
-           
-           
             </xpath>
          </field>
       </record>
@@ -185,7 +107,6 @@
                <field name="thiet_bi_id" />
                <field name="brand_id" />
                <field name="tracking" />
-              <!--  <field name="department_id" /> -->
                <field name="quant_ids" domain="[('location_id.usage','=','internal')]"/>
             </field>
             <field name="standard_price" position="replace">
@@ -194,19 +115,10 @@
                <field name="ghi_chu_ngay_xuat" />
                <field name="create_uid" />
             </field>
-            
-            
-         <!--      <field name="qty_available" position="replace" /> --> 
-            
-            <!-- 
-            <xpath expr="//field[@name='virtual_available']" position="attributes">
-            	<attribute name="context">{'location':'LTK'}</attribute>
-            </xpath>
-             -->
-       
-             
          </field>
       </record>
+      
+      
       <record id="stock.product_template_action_product" model="ir.actions.act_window">
          <field name="name">Products</field>
          <field name="type">ir.actions.act_window</field>

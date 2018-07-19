@@ -46,6 +46,7 @@
             <xpath expr="//header" position="attributes">
                <attribute name="invisible">1</attribute>
             </xpath>
+           <!-- 
             <xpath expr="//button[1]" position="attributes">
                <attribute name="invisible">1</attribute>
             </xpath>
@@ -55,6 +56,7 @@
             <xpath expr="//button[3]" position="attributes">
                <attribute name="invisible">1</attribute>
             </xpath>
+             -->
             <xpath expr="//button[4]" position="attributes">
                <attribute name="invisible">1</attribute>
             </xpath>

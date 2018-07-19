@@ -1,4 +1,3 @@
 # -*- coding: utf-8 -*-
 
-import re
-print re.sub(u'anh|ém', 'ta', u'anh va ém deu co loi',re.UNICODE)
+print next((x for x in [1,2,3] if x >5),False)

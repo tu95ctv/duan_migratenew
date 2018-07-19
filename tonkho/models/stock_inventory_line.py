@@ -16,3 +16,4 @@ class InventoryLine(models.Model):
 #     id_of_product_id =  fields.Integer(related='product_id.id')
     tracking =  fields.Selection(related='product_id.tracking', store=True,string=u'Có SN hay không')
     ghi_chu = fields.Text(string=u'Ghi chú')
+    barcode_sn = fields.Char(related = 'prod_lot_id.barcode_sn',store=True)

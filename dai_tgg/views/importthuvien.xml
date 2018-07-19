@@ -25,6 +25,7 @@
                      <group>
                         <field name="filename" />
                         <field name="file" filename="filename" />
+                        <field name="name_inventory_suffix"></field>
                         <field name="sheet_name"></field>
                         <field name="department_id"></field>
                         <field name="dong_test"></field>
