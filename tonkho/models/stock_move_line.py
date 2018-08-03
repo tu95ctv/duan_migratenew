@@ -48,6 +48,7 @@ class StockMoveLine(models.Model):
     _inherit = "stock.move.line"
 #     lot_id = fields.Many2one('stock.production.lot', 'Lot',required=True)
     pn = fields.Char(related='lot_id.pn', string=u'Part number',readonly=False,store=False)
+    pn_id = fields.Many2one('tonkho.pn',related = 'lot_id.pn_id')
     stock_quant_id = fields.Many2one('stock.quant', string=u"Lấy vật tư có trong kho")
     tracking = fields.Selection(related='product_id.tracking',string=u'Có SN hay không', store=False)
     ghi_chu = fields.Text(string=u'Ghi chú vật tư')

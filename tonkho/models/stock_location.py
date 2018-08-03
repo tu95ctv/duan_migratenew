@@ -4,24 +4,66 @@ from odoo.exceptions import UserError
 from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 from odoo.osv import expression
+from odoo.addons.tonkho.tonkho_tool import  KHO_SELECTION, KHO_SELECTION_DICT
 
 class StockLocation(models.Model):
     _inherit = 'stock.location'
+    _rec_name = 'complete_name'
     department_id =  fields.Many2one('hr.department',string=u'Thuộc phòng ban')
     partner_id_of_stock_for_report =  fields.Many2one('res.partner',string=u'Phòng ban cho báo cáo')
     cho_phep_am =  fields.Boolean(default=True,string=u'Cho phép số lượng âm')
     cho_phep_khac_tram_chon =  fields.Boolean(string=u'Cho phép khác trạm chọn')
     is_kho_cha =  fields.Boolean(string=u'Kho cha')
+    stock_type = fields.Selection(KHO_SELECTION
+                                )
+    
+    
+#     @api.one
+#     @api.depends('name', 'location_id.complete_name','stock_type')
+#     def _compute_complete_name(self):
+#         """ Forms complete name of location from parent location to child location. """
+#         if self.location_id.complete_name:
+#             self.complete_name = '%s/%s' % (self.location_id.complete_name, self.get_name_with_type())
+#         else:
+#             self.complete_name = self.get_name_with_type()
+            
+            
+    def get_name_with_type(self):
+        if self.name:
+            stock_type = KHO_SELECTION_DICT.get(self.stock_type)
+            if stock_type:
+                name = stock_type + ': '  + self.name 
+                return name
+        return self.name
+     
+    def name_get_1_record(self):
+        location = self
+        name = location.get_name_with_type()
+        while location.location_id and location.usage != 'view':
+            location = location.location_id
+            if not name:
+                raise UserError(_('You have to set a name for this location.'))
+            name = location.get_name_with_type() + "/" + name
+        return name
+#     
+    def name_get(self):
+        ret_list = []
+        show_ke = self._context.get('show_ke')
+        for location in self:
+            if  show_ke:
+                name = location.name_get_1_record()
+            else:
+                name = location.complete_name
+            ret_list.append((location.id, name))
+        return ret_list
+    
     
 #     @api.model
 #     def name_search(self, name, args=None, operator='ilike', limit=100):
 #         print ( 'self._context',self._context)
 #         return super(StockLocation,self).name_search( name, args=args, operator=operator, limit=limit)
-    
     def get_stock_location_name_for_report_(self):
-#         return self.department_id.get_department_name_for_report_() or self.partner_id_of_stock_for_report.name or self.name
         return self.partner_id_of_stock_for_report.name
-        
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
         limit = 100
@@ -49,16 +91,15 @@ class StockLocation(models.Model):
                 return recs.name_get()
         return super(StockLocation, self).name_search( name, args=args, operator=operator, limit=limit)
     
-    
-    def name_get(self):
-        ret_list = []
-        for location in self:
-            orig_location = location
-            name = location.name
-            while location.location_id and location.usage != 'view':
-                location = location.location_id
-#                 if not name:
-#                     raise UserError(_('You have to set a name for this location.'))
-                name = str(location.name) + "/" + str(name)
-            ret_list.append((orig_location.id, name))
-        return ret_list
+#     def name_get(self):
+#         ret_list = []
+#         for location in self:
+#             orig_location = location
+#             name = location.name
+#             while location.location_id and location.usage != 'view':
+#                 location = location.location_id
+# #                 if not name:
+# #                     raise UserError(_('You have to set a name for this location.'))
+#                 name = str(location.name) + "/" + str(name)
+#             ret_list.append((orig_location.id, name))
+#         return ret_list

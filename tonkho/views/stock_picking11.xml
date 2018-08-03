@@ -127,6 +127,10 @@
              <attribute name="context">{'default_picking_id': id, 'default_location_id': location_id, 'default_location_dest_id': location_dest_id,'ban_giao_or_nghiem_thu':ban_giao_or_nghiem_thu}</attribute> 
             </xpath>
             
+            <xpath expr="//page[1]/field/tree" position="attributes">
+               <attribute name="class">d4tree</attribute>
+            </xpath>
+            
             
  
             <xpath expr="//page[1]/field/tree/field[@name='product_uom_qty']" position="attributes">
@@ -211,6 +215,7 @@
             
             <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="after">
                           <field name="pn"  attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}" ></field>
+                          <field name="pn_id"  attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}"  context="{'default_product_id':product_id}"></field>
                         <!--  <field name="create_date"/>
                           <field name="write_date"/>
                            --> 

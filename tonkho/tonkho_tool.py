@@ -3,6 +3,18 @@ from odoo import models, fields, api,exceptions,tools,_
 from odoo.osv import expression
 import datetime
 
+KHO_SELECTION= [
+                                 ('tram',u'Trạm'),
+                                 ('phong_may',u'Phòng máy'),
+                                 ('tu',u'Tủ'),
+                                 ('shelf',u'Shelf'),
+                                 ('stt_trong_self',u'STT trong shelf'),
+                                 ('slot',u'Slot')
+                                 ]
+KHO_SELECTION_DICT =  dict(KHO_SELECTION)
+del KHO_SELECTION_DICT['tram']
+
+
 def get_or_create_object_sosanh(self, class_name, search_dict,
                                 write_dict ={},is_must_update=False, noti_dict=None,
                                 inactive_include_search = False):

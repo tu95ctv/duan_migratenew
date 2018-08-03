@@ -10,6 +10,8 @@
             <field name="ref" position="replace" />
             <field name="name" position="before">
                <field name="product_id" />
+               <field name="barcode_sn"/>
+               <field name="pn_id" />
                <field name="pn" />
             </field>
             <field name="name" position="after">
@@ -18,6 +20,7 @@
                <field name="ghi_chu_ban_dau" />
                <field name="ghi_chu_ngay_nhap" />
                <field name="ghi_chu_ngay_xuat" />
+               <field name="create_date"/>
             </field>
          </field>
       </record>
@@ -36,6 +39,7 @@
                   <attribute name="invisible">1</attribute>
                </field>
                <field name="ref" position="before">
+                  <field name="pn_id" />
                   <field name="pn" />
                   <field name="barcode_sn" />
                	  <field name="tinh_trang"></field>

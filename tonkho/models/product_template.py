@@ -7,6 +7,11 @@ import psycopg2
 # import itertools
 # from odoo.addons.product.models.product_template import  ProductTemplate
 
+class PN(models.Model):
+    _name = 'tonkho.pn'
+    name = fields.Char()
+    product_id = fields.Many2one('product.product')
+    sn_ids = fields.One2many('stock.production.lot','pn_id')
 class ThietBi(models.Model):
     _name = 'tonkho.thietbi'
     name = fields.Char()
@@ -29,6 +34,10 @@ class PT(models.Model):
         ('serial', 'By Unique Serial Number'),
 #         ('lot', 'By Lots'),
         ('none', 'No Tracking')],default='none', required=True,string=u'Có SN hay không')
+    
+    is_co_sn_khong_tinh_barcode = fields.Boolean()
+    pn_id = fields.Many2one('tonkho.pn')
+#     is_co_sn_thuan_pr = fields.Boolean(related='product_variant_id.is_co_sn_thuan_pr',store=True)
     def get_stock_for_selection_field_(self):
         locs = self.env['stock.location'].search([('is_kho_cha','=',True)])
         rs = list(map(lambda i:(i.name,i.name),locs))

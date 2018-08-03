@@ -5,8 +5,6 @@
          <field name="model">product.product</field>
          <field name="inherit_id" ref="stock.product_form_view_procurement_button" />
          <field name="arch" type="xml">
-         	
-         	
          	<field name="lst_price" position="replace" />
             <field name="sale_ok" position="attributes">
                <attribute name="invisible">1</attribute>
@@ -38,6 +36,7 @@
             </field>
             <field name="default_code" position="replace" />
             <field name="uom_id" position="after">
+               <field name="pn_id" />
                <field name="thiet_bi_id" />
                <field name="brand_id" />
               <!--  <field name="department_id" /> -->
@@ -45,6 +44,27 @@
             </field>
             <xpath expr="//header" position="attributes">
                <attribute name="invisible">1</attribute>
+            </xpath>
+            
+            <xpath expr="//button[4]" position="attributes">
+               <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//button[5]" position="attributes">
+               <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//button[6]" position="attributes">
+               <attribute name="invisible">1</attribute>
+            </xpath>
+            <!-- 
+            <xpath expr="//button[7]" position="attributes">
+               <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//button[8]" position="attributes">
+               <attribute name="invisible">1</attribute>
+            </xpath>
+             -->
+            <xpath expr="//button[8]" position="attributes">
+               <attribute name="groups">base.group_erp_manager</attribute>
             </xpath>
            <!-- 
             <xpath expr="//button[1]" position="attributes">
@@ -57,21 +77,7 @@
                <attribute name="invisible">1</attribute>
             </xpath>
              -->
-            <xpath expr="//button[4]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//button[5]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//button[6]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//button[7]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//button[8]" position="attributes">
-               <attribute name="invisible">1</attribute>
-            </xpath>
+            
             <!-- 
             <xpath expr="//button[9]" position="attributes">
                <attribute name="invisible">1</attribute>
@@ -104,13 +110,13 @@
          <field name="model">product.product</field>
          <field name="inherit_id" ref="product.product_product_tree_view" />
          <field name="arch" type="xml">
-            
             <field name="uom_id" position="replace" />
             <field name="default_code" position="replace" />
             <field name="barcode" position="replace" />
             <field name="lst_price" position="replace" />
-            
             <field name="name" position="after">
+               <field name="id" />
+               <field name="pn_id" />
                <field name="uom_id" />
                <field name="categ_id" />
                <field name="thiet_bi_id" />
@@ -128,11 +134,19 @@
             </field>
             
              -->
-         
-       
-             
          </field>
       </record>
       
+      <record model="ir.actions.act_window" id="product_product_action">
+         <field name="name">Vật tư</field>
+         <field name="res_model">product.product</field>
+         <field name="view_mode">tree,form</field>
+      </record>
+      
+      
+      <menuitem id="product_product_menu" parent="stock.menu_stock_inventory_control" action="product_product_action"  name="Vật tư" />
+            
+            
+            
 </data>
 </odoo>

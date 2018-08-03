@@ -13,7 +13,8 @@ class User(models.Model):
 class Department(models.Model):
     _inherit = 'hr.department'
     sequence_id = fields.Many2one('ir.sequence')
-    default_location_id =fields.Many2one('stock.location',string=u'Kho mặc định change ở python code')
+    default_location_id =fields.Many2one('stock.location',string=u'Kho mặc định')
+    default_location_running_id =fields.Many2one('stock.location',string=u'Kho mặc định đang chạy')
     
     @api.model
     def create(self, vals):

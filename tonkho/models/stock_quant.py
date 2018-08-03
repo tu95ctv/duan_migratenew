@@ -4,8 +4,87 @@ from odoo.exceptions import UserError
 from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 from  odoo.addons.dai_tgg.mytools import name_compute
+
+from odoo.addons.tonkho.controllers.controllers import  download_quants,download_product
+
 # from odoo import _
 
+import base64
+import contextlib
+import io
+
+
+class DownloadQuants(models.TransientModel):
+    _name = "tonkho.downloadquants"
+    name = fields.Char()
+    parent_location_id =  fields.Many2one('stock.location', default=lambda self:self.env.user.department_id.default_location_id.id)
+    parent_location_runing_id =  fields.Many2one('stock.location',default=lambda self:self.env.user.department_id.default_location_running_id.id)
+
+    test =  fields.Text()
+    data = fields.Binary('File', readonly=True)
+    
+    
+    @api.multi
+    def download_product(self):
+        this = self[0]
+        print ('self._context',self._context)
+        with contextlib.closing(io.BytesIO()) as buf:
+            workbook = download_product(this)
+            workbook.save(buf)
+            out = base64.encodestring(buf.getvalue())
+
+        filename = 'product'
+        name = "%s.%s" % (filename, '.xls')
+        this.write({ 'data': out, 'name': name})
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'tonkho.downloadquants',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'res_id': this.id,
+            'views': [(False, 'form')],
+            'target': 'new',
+        }
+        
+        
+        
+    @api.multi
+    def download_quants(self):
+#         print ('self._context',self._context)
+#         return {}
+#         Move = Quant = self.env['stock.quant'].read_group(domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True)
+        domain_quant = [('id','=',3)]
+        rs = self.env['stock.quant'].read_group(domain_quant, ['product_id', 'quantity'], ['product_id'], orderby='id')
+        print  ('rs',rs)
+        raise UserError(u'stop cho vui')
+        return {
+             'type' : 'ir.actions.act_url',
+             'url': '/web/binary/download_quants?model=tonkho.downloadquants&id=%s'%(self.id),
+             'target': 'new',
+        }
+    @api.multi
+    def act_getfile(self):
+        this = self[0]
+        print ('self._context',self._context)
+        with contextlib.closing(io.BytesIO()) as buf:
+            workbook = download_quants(this, context = self._context)
+            workbook.save(buf)
+            out = base64.encodestring(buf.getvalue())
+
+        filename = 'new'
+       
+        name = "%s.%s" % (filename, '.xls')
+        this.write({ 'data': out, 'name': name})
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'tonkho.downloadquants',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'res_id': this.id,
+            'views': [(False, 'form')],
+            'target': 'new',
+        }
+    
 class Quant(models.Model):
     """ Quants are the smallest unit of stock physical instances """
     _inherit = "stock.quant"

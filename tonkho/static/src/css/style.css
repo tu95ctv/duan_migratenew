@@ -1,7 +1,17 @@
-table, th, td {
+.d4tree table, .d4tree th, .d4tree td {
    border: 1px solid black;
 }
-
+div.alltot { font-weight: bold;}
 div.page {
 	font-family: "Times New Roman";
 }
+table.d4table td {
+	vertical-align: middle;
+	border: 1px solid black;
+}
+
+table.d4table  {
+	border: 1px solid red;
+}
+
+

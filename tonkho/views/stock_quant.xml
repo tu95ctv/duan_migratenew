@@ -20,7 +20,7 @@
             	<field name="tracking"></field>
             	<field name="tinh_trang"></field>
             	<field name="ghi_chu"></field>
-         		<field name="location_id" ></field>
+         		<field name="location_id" context="{'show_ke':True}"></field>
          		<!-- <field name="department_id" ></field> -->
             </field>
             <field name="quantity" position="after">
@@ -34,7 +34,7 @@
         <field name="res_model">stock.quant</field>
         <field name="view_mode">tree,form</field>
          <field name="domain"></field> 
-        <field name="context">{'search_default_internal_loc':1}</field>
+        <field name="context">{'search_default_internal_loc':1, 'show_ke':True}</field>
         <field name="view_type">form</field>
         </record>
     
@@ -53,6 +53,43 @@
             </xpath>
          </field>
      </record>
+     
+     <record id="downloadquants_form" model="ir.ui.view">
+         <field name="name">tonkho.downloadquants.form</field>
+         <field name="model">tonkho.downloadquants</field>
+         <field name="arch" type="xml">
+         	<form string="DL quants form">
+         	<header>
+     			<button name="download_quants"  string="Download" type="object" class="oe_highlight" groups="base.group_user"/>
+                 <button name="act_getfile" string="Export" type="object" class="btn-primary"/>
+     			<button name="download_product"  string="Download" type="object" class="oe_highlight" groups="base.group_user"/>
+         	</header>
+         	<sheet>
+         	<group>
+         	  	<field name="name"></field>
+         	  	<field name="parent_location_id"></field>
+         	  	<field name="parent_location_runing_id"></field>
+         	  	
+         	  	<!-- <field name="test"></field> -->
+         	  	<field name="data" readonly="1" filename="name"/>
+         	  	</group>
+         	</sheet>
+         	</form>
+         </field>
+         </record>
+         
+    
+    
+    <act_window
+            id="downloadquants"
+            name="DL Quants"
+            res_model="tonkho.downloadquants"
+            src_model="stock.quant"
+            view_mode="form"
+            multi="True"
+            target="new"
+            key2="client_action_multi"
+        />
      
      
    <menuitem id="menu_stock_quant_action_product"  action="stock_quant_action_product"

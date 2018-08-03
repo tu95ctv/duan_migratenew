@@ -10,11 +10,13 @@
         <field name="inherit_id" ref="stock.view_location_tree2"/>
         <field name="arch" type="xml">
 	           <field name="company_id" position="replace">
+	           		<field name="complete_name"></field>
 	           		<field name="department_id"></field>
         			<field name="partner_id_of_stock_for_report"></field>
 	           		<field name="location_id"></field>
         			<field name="cho_phep_khac_tram_chon"></field>
         		<field name="is_kho_cha"></field>
+        		<field name="stock_type"></field>
 	           </field>
         </field>
     </record>
@@ -29,16 +31,47 @@
         	<field name="return_location" position="replace"></field>
         	<field name="location_id"  position="attributes">
         		<attribute name="options"></attribute><!-- {'no_create': False} -->
+        	<!-- 	<attribute name="context">{'show_ke':False}</attribute> -->
         	</field>
         	<field name="company_id" position="before">
+	           		<field name="complete_name"></field>
         		<field name="department_id"></field>
         		<field name="partner_id_of_stock_for_report"></field>
         		<field name="cho_phep_am"></field>
         		<field name="cho_phep_khac_tram_chon"></field>
         		<field name="is_kho_cha"></field>
+        		<field name="stock_type"></field>
         	</field>
         </field>
         </record>
+        
+        <record id="view_location_search" model="ir.ui.view">
+        <field name="name">stock.location.search</field>
+        <field name="model">stock.location</field>
+        <field name="inherit_id" ref="stock.view_location_search"/>
+        <field name="arch" type="xml">
+                <field name="name" position="after">
+                	<field name="complete_name"/>
+                </field>
+               
+        </field>
+    </record>
+    
+    <record id="quant_search_view" model="ir.ui.view">
+        <field name="name">stock.quant.search</field>
+        <field name="model">stock.quant</field>
+        <field name="inherit_id" ref="stock.quant_search_view"/>
+        <field name="arch" type="xml">
+                <field name="location_id" position="after">
+                	<field name="location_id" filter_domain="[('location_id.complete_name','ilike',self)]"/>
+                </field>
+        </field>
+    </record>
+    
+   
+    
+    
+    
         <menuitem action="stock.action_location_form" id="menu_action_location_form" name="Các địa điểm"
          parent="stock.menu_stock_inventory_control"  sequence="12" groups="stock.group_stock_multi_locations"/>
 </data>

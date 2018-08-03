@@ -107,7 +107,12 @@
                <field name="thiet_bi_id" />
                <field name="brand_id" />
                <field name="tracking" />
+               
+               <field name="is_co_sn_khong_tinh_barcode" />
+           <!--     <field name="is_co_sn_thuan_pr" /> -->
+               
                <field name="quant_ids" domain="[('location_id.usage','=','internal')]"/>
+               <field name="create_date"></field>
             </field>
             <field name="standard_price" position="replace">
                <field name="ghi_chu_ban_dau" />

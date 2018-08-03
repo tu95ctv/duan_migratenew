@@ -22,6 +22,7 @@ class ImportThuVien(models.Model):
     type_choose = fields.Selection([
         (u'stock.inventory.line',u'stock.inventory.line'),
         (u'stock.inventory.line.tkt.vtdc',u'stock.inventory.line.tkt.vtdc'),
+        (u'Product',u'Product'),
         (u'Thư viện công việc',u'Thư viện công việc'),
                                     (u'User',u'User')
                                     #,(u'Công Ty',u'Công Ty')
@@ -61,7 +62,8 @@ class ImportThuVien(models.Model):
     dong_test = fields.Integer(default=0)#0 la initify vô hạn
     log = fields.Text()
     skip_field_cause_first_import = fields.Boolean(default=True)
-
+    begin_row = fields.Integer(default=0)
+    location_id = fields.Many2one('stock.location')
     def test_code(self):
         self.env['stock.inventory'].browse([13]).line_ids.unlink()
 

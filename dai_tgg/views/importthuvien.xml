@@ -29,6 +29,7 @@
                         <field name="sheet_name"></field>
                         <field name="department_id"></field>
                         <field name="dong_test"></field>
+                        <field name="begin_row"></field>
                         <field name="skip_field_cause_first_import"></field>
                      </group>
                      

@@ -6,18 +6,32 @@ class StockMove(models.Model):
     _inherit = "stock.move"
     ghi_chu = fields.Char()
     
-    def ghi_chu_theo_move_line_ids_(self):
-        rs= True if self.move_line_ids.filtered(lambda r:bool(r.ghi_chu)) else False
-#         print (self.product_id.name,rs, self.move_line_ids.mapped('ghi_chu'))
-        return rs
-    def colspan_(self,has_serial_number):
-        print ('has_serial_number***',has_serial_number)
-        has_serial_number = 3 if has_serial_number else 1 # co tinh trang
-        ghi_chu_move_lines_ids = self.ghi_chu_theo_move_line_ids_()
-        ghi_chu_move_lines_ids = 1 if ghi_chu_move_lines_ids else 0
-        val = ghi_chu_move_lines_ids + has_serial_number
-        print (self.product_id.name,'val********',val,has_serial_number,ghi_chu_move_lines_ids)
-        return val
+#     def choose_ghi_chu(self):
+#         if  len(self.move_line_ids)==1:
+#             
+#         notempty_ghi_chu_in_ml_ids = set(self.move_line_ids.filtered(lambda r: r.ghi_chu).mapped('ghi_chu'))
+#         if not notempty_ghi_chu_in_ml_ids:
+#             merge = True
+#             ghi_chu = self.ghi_chu
+#         else:
+#             merge = False
+#             ghi_chu = ml.ghi_chu or self.ghi_chu
+#             if len(notempty_ghi_chu_in_ml_ids) ==1:
+#                 merge = True
+                
+    
+#     def ghi_chu_theo_move_line_ids_(self):
+#         rs= True if self.move_line_ids.filtered(lambda r:bool(r.ghi_chu)) else False
+# #         print (self.product_id.name,rs, self.move_line_ids.mapped('ghi_chu'))
+#         return rs
+#     def colspan_(self,has_serial_number):
+#         print ('has_serial_number***',has_serial_number)
+#         has_serial_number = 3 if has_serial_number else 1 # co tinh trang
+#         ghi_chu_move_lines_ids = self.ghi_chu_theo_move_line_ids_()
+#         ghi_chu_move_lines_ids = 1 if ghi_chu_move_lines_ids else 0
+#         val = ghi_chu_move_lines_ids + has_serial_number
+#         print (self.product_id.name,'val********',val,has_serial_number,ghi_chu_move_lines_ids)
+#         return val
         
 #     def action_show_details(self):
 #         """ Returns an action that will open a form view (in a popup) allowing to work on all the

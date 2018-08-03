@@ -28,7 +28,9 @@
     'report/header.xml',
     'report/main.xml',
     'report/table.xml',
-    'report/table_theo_move_line.xml',
+    
+#     'report/table_theo_move_line.xml',
+    'report/table_theo_move_line_col_span.xml',
         'security/ir.model.access.csv',
 #         'views/stock_pack_operation.xml',
 #         'views/stock_picking.xml',
@@ -46,9 +48,11 @@
         'views/mau_ly_do.xml',
         'views/stock_picking_return.xml',
 #     'report/totrinh_report.xml',
-#         'views/pn.xml',
+        'views/pn.xml',
     'views/product_product.xml',
     'views/setting.xml',
+    'views/insert_style.xml',
+    'views/stock_inventory_line.xml',
     
 
         
