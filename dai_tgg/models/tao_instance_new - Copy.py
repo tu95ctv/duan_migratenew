@@ -208,7 +208,10 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
         needdata['vof_dict'] = vof_dict
     x2m_key = []
     remove_all_or_just_add_one_x2m = True
+    print (MODEL_DICT)
+    print (MODEL_DICT['fields'])
     for count, field_field_attr in enumerate(MODEL_DICT['fields']):
+        print ('1',count)
         field_name = field_field_attr[0]
         field_attr = field_field_attr[1]
         col_index = field_attr.get('col_index')
@@ -241,6 +244,8 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
 #             avof_dict = vof_dict.setdefault(field_name,{})
             avof_dict['fields'] = vof_dict_childrend
             avof_dict['get_or_create'] = get_or_create
+#             if field_attr.get('')
+        print ('2',count)
 
         avof_dict['before_func_val'] = xl_val
         func =  field_attr.get('func')
@@ -263,6 +268,7 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
             xl_val = field_attr.get('default')
         avof_dict['val'] = xl_val
         required = field_attr.get('required',False)
+        print ('3',count)
         
         if required and xl_val==False:
             if field_attr.get('raise_if_False'):
@@ -337,30 +343,22 @@ def importthuvien(odoo_or_self_of_wizard):
             lot_name = 'unknown ' + str(int(needdata['vof_dict']['stt']['val']))
         print ("lot_name",lot_name,product_id.name,product_id.tracking,lot_name ==False )
         return lot_name
+            
     def choose_inventory_id_name(v,n):
-#         if not self.sheet_name:
-#             return self.department_id.name
-#         else:
-#             return n['sheet_name']
-        return self.import_location_id.name + '-' +  ','.join(n['sheet_names'])
+        if not self.sheet_name:
+            return self.department_id.name
+        else:
+            return n['sheet_name']
     def last_function_sil_(n):
         if n['vof_dict']['product_id']['get_or_create']== False:# nếu product_id được tạo mới là sai
             raise UserError(u'Product %s  phải được tạo từ trước'%n['vof_dict']['product_id']['fields']['name']['val'])
-        last_function_1_(n)
-    
-    def last_function_1_(n):
-        if n['vof_dict']['inventory_id']['val'] and  not needdata.get('inventory_id'):
-            n['inventory_id'] = n['vof_dict']['inventory_id']['val']
-        
     def convert_float_location_(v,n,**karg):
         print ('karg',karg,'type(v)',type(v),isinstance,'v-',v)
         if isinstance(v, float):
             v= str(int(v))
         return v
-    def last_function_for_import_1_():
-        print ('***needdata',needdata)
-#         self.inventory_id = needdata['vof_dict']['inventory_id']['val']
-        self.inventory_id = needdata['inventory_id']
+    
+    
     for r in self:
 #             if not self.department_id:
 #                 raise UserError(u'Bạn phải chọn department trước')
@@ -373,119 +371,111 @@ def importthuvien(odoo_or_self_of_wizard):
                 'begin_data_row_offset_with_title_row' :1,
                 'sheet_names': [u'Truyền dẫn',u'IP (VN2, VNP)',u'GTGT',u'Chuyển Mạch (IMS, Di Động)',u'Vô tuyến']if not self.sheet_name else [self.sheet_name]  ,#[self.sheet_name],#,#[self.sheet_name],#[u'Chuyển Mạch (IMS, Di Động)'],#xl_workbook.sheet_names(),#[u'Truyền dẫn'],#[u'IP (VN2, VNP)'],[u'Chuyển Mạch (IMS, Di Động)']
                 'model':'stock.inventory.line',
-                'last_function_for_import':last_function_for_import_1_,
-                'last_function':last_function_1_,
                 'fields' : [
-                        ('stt',{'func':None,'xl_title':u'STT new','key':True, 'required':True,'skip_field_if_not_found_column_in_some_sheet':True}),
+                        ('stt',{'func':None,'xl_title':u'STT new','key':False,'required':True,'skip_field_if_not_found_column_in_some_sheet':True}),
                         ('location_id_goc', {'model':'stock.location','key':False, 'for_excel_readonly' :True,"required":True, 'set_val':self.department_id.default_location_id.id,'raise_if_False':True}),  
-                ('prod_lot_id_excel_readonly',{'empty_val':[u'N/C',],'func':lambda val,needdata: int(val) if isinstance(val,float) else val,'xl_title':[u'Seri Number'],'for_excel_readonly' :True}),
-                ('product_qty', {'func':qty_,'replace_val':{u'XFP, SFP các loại':[(False,1)]},'xl_title':[u'Tồn kho cuối kỳ',u'Số lượng',u'Tồn kho cuối kỳ'],'key':False,'sheet_allow_this_field_not_has_exel_col':[u'XFP, SFP các loại']}),
-                ('inventory_id', {'fields':[
-                                        ('name',{'func':choose_inventory_id_name, 'key':True,'required': True}),
-                                        ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id_goc']['val']})
-                                        ,]
-                    }),
-                ('product_id',{'key':True,'required':True,
-                               'fields':[
-                                        ('name',{'func':None,'xl_title':[u'TÊN VẬT TƯ',u'Module quang'],'key':True,'required':True,'empty_val':[u'TỔNG ĐÀI IMS',u'JUNIPER ERX 1400; T1600 ; T4000']}),
-                                        ('type',{'set_val':'product'}),
-                                        ('tracking',{'func':lambda val,needdata: 'serial' if needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] !=False else False, 'bypass_this_field_if_value_equal_False':True}),
-                                        ('thiet_bi_id',{'fields':[('name',{'func':None,'xl_title':u'Thiết bị', 'key':True,'required': True}),]}),
-                                        ('brand_id',{'empty_val':[u'NA'],'fields':[('name',{'func':None,'xl_title':[u'Hãng sản xuất',u'Hãng / Model'], 'key':True,'required': True}),]}),
-                                        ('categ_id',{'fields':[('name',{'func':lambda val,needdata: needdata['sheet_name'], 'key':True,'required': True}),]}),
-                                        ('uom_id',  {'bypass_this_field_if_value_equal_False':True, 'fields': [ #'func':uom_id_,'default':1,
-                                                    ('name',{'func':lambda v,n: u'Cái' if n['sheet_name']== u'XFP, SFP các loại' else v ,
-                                                             'xl_title':u'Đơn vị tính' ,'key':True,'required':True,
-                                                              'replace_string':[('Modunle','module'),('CARD','Card'),('module','Module')],
-                                                              'sheet_allow_this_field_not_has_exel_col':[u'XFP, SFP các loại']
-                                                              }),#'set_val':u'Cái',
-                                                             ('category_id', {'func': lambda n,v:self.env['product.uom.categ'].search(['|',('name','=','Unit'),('name','=',u'Đơn Vị')])[0].id
-                                                                                        }
-                                                                 ),
-                                      
-                                                                       ]
-                                                            }
-                                         ),
-                                         # Vật tư dự phòng LTK
-                                        ('ghi_chu_ngay_nhap',{'func':lambda val,needdata: val if not needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] else False,'xl_title':[u'Ngày nhập',u'Ngày nhận'],'skip_field_if_not_found_column_in_some_sheet':True}),
-                                        ('ghi_chu_ngay_xuat',{'func':lambda val,needdata: val if not needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] else False,'xl_title':u'Ngày xuất','skip_field_if_not_found_column_in_some_sheet':True}),
-                                        ('ghi_chu_ban_dau',{'func':lambda val,needdata: val if not needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] else False,'xl_title':u'Ghi chú','skip_field_if_not_found_column_in_some_sheet':True}),
-                                        ('du_phong_tao',{'set_val':True}),
-                                        ('tram_ltk_tao',{'set_val':True}),
-                                        
-                                        ]
-                               }),  
-                ('location_id1',{'model':'stock.location', 'for_excel_readonly':True,
-                                                       'fields':[
-                                                                ('name',{'func':None,'xl_title':u'Phòng', 'key':True,'required': True,'sheet_allow_this_field_not_has_exel_col':[u'XFP, SFP các loại']}),
-                                                                ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
-                                                                ('department_id',{'key':False,'model':'hr.department', 'set_val':self.department_id.id,'required':True
-                                                                                  #'fields':[('name',{'key':True,'set_val':'LTK'})]
-                                                                                  })
-                                                               
-                                                                ]
-                                                       }), 
-                ('location_id2',{'model':'stock.location', 'for_excel_readonly':True,
-                                                       'fields':[
-                                                                ('name',{'func':None,'xl_title':[u'Tủ/Kệ',u'Tủ'], 'key':True,'required': True}),
-                                                                ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val']  , 'key':True}),
-                #                                                 ('department_id',{'key':True,'model':'hr.department', 'fields':[('name',{'key':True,'set_val':'LTK'})]})
-                                                               ('department_id',{'key':False,'model':'hr.department', 'set_val':self.department_id.id,'required':True,'raise_if_False':True,
-                                                                                  #'fields':[('name',{'key':True,'set_val':'LTK'})]
-                                                                                  })
-                                                                
-                                                                ]
-                                                       }),                                           
-                ('location_id3',{'model':'stock.location', 'for_excel_readonly':True,
-                                                       'fields':[
-                                                                ('name',{'func':None,'xl_title':[u'Ngăn',u'Ngăn/Kệ'], 'key':True,'required': True}),
-                                                                ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id2']['val'] or needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
-                #                                                 ('department_id',{'key':True,'model':'hr.department', 'fields':[('name',{'key':True,'set_val':'LTK'})]})
-                                                                ('department_id',{'key':False,'model':'hr.department', 'set_val':self.department_id.id,'required':True
-                                                                                  #'fields':[('name',{'key':True,'set_val':'LTK'})]
-                                                                                  })
-                                                                
-                                                                ]
-                                                       }),         
-                ('location_id4',{'model':'stock.location', 'for_excel_readonly':True,
-                                                       'fields':[
-                                                                ('name',{'func':None,'xl_title':[u'Hộp'], 'key':True,'required': True,'skip_field_if_not_found_column_in_some_sheet':True}),
-                                                                ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id3']['val'] or needdata['vof_dict']['location_id2']['val'] or needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
-                                                                ('department_id',{'key':False,'model':'hr.department', 'set_val':self.department_id.id,'required':True
-                                                                                  })
-                                                                ]
-                                                       }),  
-                                            
-                                            
-                                                                             
-                ('location_id', {'func':lambda v,needdata: needdata['vof_dict']['location_id4']['val'] or \
-                    needdata['vof_dict']['location_id3']['val'] or \
-                    needdata['vof_dict']['location_id2']['val'] or \
-                    needdata['vof_dict']['location_id1']['val'] or \
-                    needdata['vof_dict']['location_id_goc']['val']
-                    , 'key':True}),
-                ('prod_lot_id', {'key':True,
-                                  'fields':[
-                                    ('name',{'func':lambda val,needdata: needdata['vof_dict']['prod_lot_id_excel_readonly']['val'],'key':True,'required':True}),
-                                    ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'],'key': True }),
-                                    ('pn',{'xl_title':[u'Part Number',u'Partnumber']}),
-                                    ('pn_id',{'model':'tonkho.pn',
-                                                                  'fields':[
-                                                                            ('name',{'empty_val':[u'NA','-','--'],'xl_title':[u'Part Number',u'Partnumber'],'key':True, 'required':True}),
-                                                                            ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True  }),
-                                                                            ('import_location_id',{'set_val': self.import_location_id.id}),
-                                                                            ('du_phong_tao',{'set_val':True}),
-                                                                            ('tram_ltk_tao',{'set_val':True}),
-                                                                            ]
-                                                                  }),
-                                    ('ghi_chu_ngay_xuat',{'func':lambda v,n: n['vof_dict']['product_id']['fields']['ghi_chu_ngay_xuat']['before_func_val']}),
-                                   #copy
-                                    ('ghi_chu_ngay_nhap',{'func':lambda v,n: n['vof_dict']['product_id']['fields']['ghi_chu_ngay_nhap']['before_func_val']}),
-                                    ('ghi_chu_ban_dau',{'func':lambda v,n: n['vof_dict']['product_id']['fields']['ghi_chu_ban_dau']['before_func_val']}),
-                                      ]
-                                  }),
-                                         ]
+('prod_lot_id_excel_readonly',{'empty_val':[u'N/C',],'func':lambda val,needdata: int(val) if isinstance(val,float) else val,'xl_title':[u'Seri Number'],'for_excel_readonly' :True}),
+('product_qty', {'func':qty_,'replace_val':{u'XFP, SFP các loại':[(False,1)]},'xl_title':[u'Tồn kho cuối kỳ',u'Số lượng',u'Tồn kho cuối kỳ'],'key':False,'sheet_allow_this_field_not_has_exel_col':[u'XFP, SFP các loại']}),
+('inventory_id', {'fields':[
+                        ('name',{'func':choose_inventory_id_name, 'key':True,'required': True}),
+#                         ('name',{'set_val':self.department_id.name, 'key':True,'required': True}),
+                        ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id_goc']['val']})
+                        ,]
+    }),
+('product_id',{'key':True,'required':True,
+               'fields':[
+                        ('name',{'func':None,'xl_title':[u'TÊN VẬT TƯ',u'Module quang'],'key':True,'required':True,'empty_val':[u'TỔNG ĐÀI IMS',u'JUNIPER ERX 1400; T1600 ; T4000']}),
+                        ('type',{'set_val':'product'}),
+                        ('tracking',{'func':lambda val,needdata: 'serial' if needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] !=False else 'none' }),
+                        ('thiet_bi_id',{'fields':[('name',{'func':None,'xl_title':u'Thiết bị', 'key':True,'required': True}),]}),
+                        ('brand_id',{'empty_val':[u'NA'],'fields':[('name',{'func':None,'xl_title':[u'Hãng sản xuất',u'Hãng / Model'], 'key':True,'required': True}),]}),
+                        ('categ_id',{'fields':[('name',{'func':lambda val,needdata: needdata['sheet_name'], 'key':True,'required': True}),]}),
+                        ('uom_id',  {'bypass_this_field_if_value_equal_False':True, 'fields': [ #'func':uom_id_,'default':1,
+                                    ('name',{'func':lambda v,n: u'Cái' if n['sheet_name']== u'XFP, SFP các loại' else v ,
+                                             'xl_title':u'Đơn vị tính' ,'key':True,'required':True,
+                                              'replace_string':[('Modunle','module'),('CARD','Card'),('module','Module')],
+                                              'sheet_allow_this_field_not_has_exel_col':[u'XFP, SFP các loại']
+                                              }),#'set_val':u'Cái',
+                                             
+                                             ('category_id', {'func': lambda n,v:self.env['product.uom.categ'].search(['|',('name','=','Unit'),('name','=',u'Đơn Vị')])[0].id
+                                                                        }
+                                                 ),
+                                                       ]
+                                            }
+                         ),
+                        ('ghi_chu_ngay_nhap',{'func':lambda val,needdata: val if not needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] else False,'xl_title':[u'Ngày nhập',u'Ngày nhận'],'skip_field_if_not_found_column_in_some_sheet':True}),
+                        ('ghi_chu_ngay_xuat',{'func':lambda val,needdata: val if not needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] else False,'xl_title':u'Ngày xuất','skip_field_if_not_found_column_in_some_sheet':True}),
+                        ('ghi_chu_ban_dau',{'func':lambda val,needdata: val if not needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] else False,'xl_title':u'Ghi chú','skip_field_if_not_found_column_in_some_sheet':True}),
+                        ]
+               }),  
+('location_id1',{'model':'stock.location', 'for_excel_readonly':True,
+                                       'fields':[
+                                                ('name',{'func':None,'xl_title':u'Phòng', 'key':True,'required': True,'sheet_allow_this_field_not_has_exel_col':[u'XFP, SFP các loại']}),
+                                                ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
+                                                ('department_id',{'key':False,'model':'hr.department', 'set_val':self.department_id.id,'required':True
+                                                                  #'fields':[('name',{'key':True,'set_val':'LTK'})]
+                                                                  })
+                                               
+                                                ]
+                                       }), 
+('location_id2',{'model':'stock.location', 'for_excel_readonly':True,
+                                       'fields':[
+                                                ('name',{'func':None,'xl_title':[u'Tủ/Kệ',u'Tủ'], 'key':True,'required': True}),
+                                                ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val']  , 'key':True}),
+#                                                 ('department_id',{'key':True,'model':'hr.department', 'fields':[('name',{'key':True,'set_val':'LTK'})]})
+                                               ('department_id',{'key':False,'model':'hr.department', 'set_val':self.department_id.id,'required':True,'raise_if_False':True,
+                                                                  #'fields':[('name',{'key':True,'set_val':'LTK'})]
+                                                                  })
+                                                
+                                                ]
+                                       }),                                           
+('location_id3',{'model':'stock.location', 'for_excel_readonly':True,
+                                       'fields':[
+                                                ('name',{'func':None,'xl_title':[u'Ngăn',u'Ngăn/Kệ'], 'key':True,'required': True}),
+                                                ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id2']['val'] or needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
+#                                                 ('department_id',{'key':True,'model':'hr.department', 'fields':[('name',{'key':True,'set_val':'LTK'})]})
+                                                ('department_id',{'key':False,'model':'hr.department', 'set_val':self.department_id.id,'required':True
+                                                                  #'fields':[('name',{'key':True,'set_val':'LTK'})]
+                                                                  })
+                                                
+                                                ]
+                                       }),         
+('location_id4',{'model':'stock.location', 'for_excel_readonly':True,
+                                       'fields':[
+                                                ('name',{'func':None,'xl_title':[u'Hộp'], 'key':True,'required': True,'skip_field_if_not_found_column_in_some_sheet':True}),
+                                                ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id3']['val'] or needdata['vof_dict']['location_id2']['val'] or needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
+#                                                 ('department_id',{'key':True,'model':'hr.department', 'fields':[('name',{'key':True,'set_val':'LTK'})]})
+                                               
+                                                ('department_id',{'key':False,'model':'hr.department', 'set_val':self.department_id.id,'required':True
+                                                                  #'fields':[('name',{'key':True,'set_val':'LTK'})]
+                                                                  })
+                                                ]
+                                       }),  
+                            
+                            
+                                                             
+('location_id', {'func':lambda v,needdata: needdata['vof_dict']['location_id4']['val'] or \
+    needdata['vof_dict']['location_id3']['val'] or \
+    needdata['vof_dict']['location_id2']['val'] or \
+    needdata['vof_dict']['location_id1']['val'] or \
+    needdata['vof_dict']['location_id_goc']['val']
+    , 'key':False}),
+# ('pn',{'xl_title':u'Part Number','for_excel_readonly' :True}),
+('prod_lot_id', {'key':True,
+                  'fields':[
+                    ('name',{'func':lambda val,needdata: needdata['vof_dict']['prod_lot_id_excel_readonly']['val'],'key':True,'required':True}),
+                    ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] }),
+                    ('pn',{'xl_title':[u'Part Number',u'Partnumber']}),
+
+                    ('ghi_chu_ngay_xuat',{'func':lambda v,n: n['vof_dict']['product_id']['fields']['ghi_chu_ngay_xuat']['before_func_val']}),
+                   #copy
+                    ('ghi_chu_ngay_nhap',{'func':lambda v,n: n['vof_dict']['product_id']['fields']['ghi_chu_ngay_nhap']['before_func_val']}),
+                    ('ghi_chu_ban_dau',{'func':lambda v,n: n['vof_dict']['product_id']['fields']['ghi_chu_ban_dau']['before_func_val']}),
+                      ]
+                  }),
+                         ]
                 },#End stock.inventory.line'
+                
                 u'Product': {
                 'title_rows' : [0], 
                 'begin_data_row_offset_with_title_row' :1,
@@ -494,26 +484,26 @@ def importthuvien(odoo_or_self_of_wizard):
                 'for_excel_readonly' :True,
                 'fields' : [
                         ('stt',{'func':None,'xl_title':u'STT','key':True,'required':True,'skip_field_if_not_found_column_in_some_sheet':True,'for_excel_readonly' :True}),
-                        ('prod_lot_id_excel_readonly',{'empty_val':[u'N/C',u'-','--','NA',u'N/A'],'func':lambda val,needdata: int(val) if isinstance(val,float) else val,'xl_title':[u'Số serial (S/N)'],'for_excel_readonly' :True}),
+                       ('prod_lot_id_excel_readonly',{'empty_val':[u'N/C',u'-','--','NA',u'N/A'],'func':lambda val,needdata: int(val) if isinstance(val,float) else val,'xl_title':[u'Số serial (S/N)'],'for_excel_readonly' :True}),
                         ('barcode_for_first_read',{'empty_val':[u'NA',u"'",u"`"],'func':lambda val,needdata: str(int(val)) if isinstance(val,float) else val,'xl_title':[u'Barcode'],'for_excel_readonly' :True}),
-                        ('product_id',{ 'for_excel_readonly' :True,'model':'product.product',
+                     ('product_id',{ 'for_excel_readonly' :True,'model':'product.product',
                          'fields':[   
                         ('name',{'func':None,'xl_title':[u'Loại card'],'key':True,'required':True,'empty_val':[]}),
                         ('type',{'set_val':'product'}),
-                        
-                          ('dang_chay_tao',{'set_val':True}),
-                        ('tram_ltk_tao',{'set_val':True}),
                         
                         ('tracking',{'func':lambda val,needdata: 'serial' if (needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] or needdata['vof_dict']['barcode_for_first_read']['val']) !=False else False,'bypass_this_field_if_value_equal_False':True}),
                         ('is_co_sn_khong_tinh_barcode',{'func':lambda val,needdata: True if (needdata['vof_dict']['prod_lot_id_excel_readonly']['val']) !=False else False,'bypass_this_field_if_value_equal_False':True}),
                         ('thiet_bi_id',{'model':'tonkho.thietbi', 'fields':[('name',{'func':None,'xl_title':u'Tên hệ thống thiết bị', 'key':True,'required': True}),]}),
                         ('categ_id',{'model':'product.category','fields':[('name',{'func':lambda val,needdata: needdata['sheet_name'], 'key':True,'required': True}),]}),
+                        
+                        
+                        
+                        
                         ('uom_id',  {'model':'product.uom', 'fields': [ #'func':uom_id_,'default':1,
                                     ('name',{'set_val':u'Cái','key':True}),#'set_val':u'Cái',
                                              ('category_id', {'func': lambda n,v:self.env['product.uom.categ'].search(['|',('name','=','Unit'),('name','=',u'Đơn Vị')])[0].id
                                                                         }
                                                  ),
-                      
                                                        ]
                                             }
                          ),
@@ -530,10 +520,6 @@ def importthuvien(odoo_or_self_of_wizard):
                                                   'fields':[
                                                             ('name',{'empty_val':[u'NA','-','--'],'xl_title':[u'Mã card (P/N)'],'key':True, 'required':True}),
                                                             ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True  }),
-                                                            ('import_location_id',{'set_val':self.import_location_id.id}),
-                                                            ('dang_chay_tao',{'set_val':True}),
-                                                            ('tram_ltk_tao',{'set_val':True}),
-                                                            
                                                             ]
                                                   }),
                     ('ghi_chu_ngay_nhap',{'xl_title':[u'Năm sử dụng']}),
@@ -547,12 +533,12 @@ def importthuvien(odoo_or_self_of_wizard):
                                
                u'stock.inventory.line.tkt.vtdc': {
                 'title_rows':[0],
+                'title_rows_some_sheets':{u'XFP, SFP các loại':[2,3]},
                 'begin_data_row_offset_with_title_row' :1,
                 'sheet_names': [u'Tổng hợp']if not self.sheet_name else [self.sheet_name]  ,#[self.sheet_name],#,#[self.sheet_name],#[u'Chuyển Mạch (IMS, Di Động)'],#xl_workbook.sheet_names(),#[u'Truyền dẫn'],#[u'IP (VN2, VNP)'],[u'Chuyển Mạch (IMS, Di Động)']
                 'model':'stock.inventory.line',
                 'last_function':last_function_sil_,
-                'last_function_for_import':last_function_for_import_1_,
-#                 'last_function':last_function_1_,                
+                
                 'fields' : [
                     ('stt',{'func':None,'xl_title':u'STT','key':True,'required':True,'skip_field_if_not_found_column_in_some_sheet':True}),
                     ('location_id_goc', {'model':'stock.location','key':False, 'for_excel_readonly' :True,"required":True,
@@ -569,9 +555,8 @@ def importthuvien(odoo_or_self_of_wizard):
                     
                     ('inventory_id', {'fields':[
                                             ('name',{
-#                                                 'set_val':u'LTK đang chạy ' + (self.sheet_name if self.sheet_name else '')
-                                                'func':choose_inventory_id_name,
-                                                'key':True,'required': True}),# coi lại
+                                                'set_val':u'LTK đang chạy ' + (self.sheet_name if self.sheet_name else '')
+                                                , 'key':True,'required': True}),# coi lại
                                             ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id_goc']['val']})
                                             ,]
                         }),
@@ -580,24 +565,21 @@ def importthuvien(odoo_or_self_of_wizard):
                                    'fields':[
                                             ('name',{'func':None,'xl_title':[u'Loại card'],'key':True,'required':True,'empty_val':[]}),
                                             ('type',{'set_val':'product'}),
+                                           
+                                            
                                             ('tracking',{'func':lambda val,needdata: 'serial' if (needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] or needdata['vof_dict']['barcode_for_first_read']['val']) !=False else False ,
                                                          'bypass_this_field_if_value_equal_False':True,
+                                                         
                                                          }),
                                             ('is_co_sn_khong_tinh_barcode',{'func':lambda val,needdata: True if (needdata['vof_dict']['prod_lot_id_excel_readonly']['val']) !=False else False,'bypass_this_field_if_value_equal_False':True}),
                                             ('thiet_bi_id',{'fields':[('name',{'func':None,'xl_title':u'Tên hệ thống thiết bị', 'key':True,'required': True}),]}),
                                             ('categ_id',{'fields':[('name',{'func':lambda val,needdata: needdata['sheet_name'], 'key':True,'required': True}),]}),
                                             ('brand_id',{'empty_val':[u'NA'],'fields':[('name',{'func':None,'xl_title':[u'Hãng sản xuất'], 'key':True,'required': True}),]}),
-                                            ('dang_chay_tao',{'set_val':True}),
-                                            ('tram_ltk_tao',{'set_val':True}),
-                                            
-                                           
-                                            
                                             ('uom_id',  { 'fields': [ #'func':uom_id_,'default':1,
                                                         ('name',{'set_val':u'Cái','key':True}),#'set_val':u'Cái',
                                                                  ('category_id', {'func': lambda n,v:self.env['product.uom.categ'].search(['|',('name','=','Unit'),('name','=',u'Đơn Vị')])[0].id
                                                                                             }
                                                                      ),
-                                           
                                                                            ]
                                                                 }
                                              ),
@@ -674,11 +656,8 @@ def importthuvien(odoo_or_self_of_wizard):
                                         ('pn',{'empty_val':[u'NA','-','--'],'xl_title':[u'Mã card (P/N)']}),
                                         ('pn_id',{
                                                   'fields':[
-                                                             ('name',{'empty_val':[u'NA','-','--'],'xl_title':[u'Mã card (P/N)'],'key':True, 'required':True}),
+                                                            ('name',{'empty_val':[u'NA','-','--'],'xl_title':[u'Mã card (P/N)'],'key':True, 'required':True}),
                                                             ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True  }),
-                                                            ('import_location_id',{'set_val':self.import_location_id.id}),
-                                                            ('dang_chay_tao',{'set_val':True}),
-                                                            ('tram_ltk_tao',{'set_val':True}),
                                                             ]
                                                   }),
                                         ('ghi_chu_ngay_nhap',{'xl_title':[u'Năm sử dụng']}),
@@ -809,6 +788,9 @@ def importthuvien(odoo_or_self_of_wizard):
                                             }
                          ),
                             
+                       
+                            
+                            
                         ('cong_ty_type',{'fields':[('name',{'xl_title':u'cong_ty_type','key':True,'required':True}),
                                                        ]
                                             }
@@ -821,6 +803,7 @@ def importthuvien(odoo_or_self_of_wizard):
                             ('sequence_id_ttr',{'model':'ir.sequence', 'for_excel_readonly':True,
                                                             'fields':[('name',{'xl_title':None, 'func':lambda v,n:n['vof_dict']['name']['val']+',' +'TTR','key':True})]
                                                  }),
+                            
                                                        ]
                                             }
                          ),
@@ -956,12 +939,11 @@ def importthuvien(odoo_or_self_of_wizard):
             noti_dict = {}
             CHOOSED_MODEL_DICT = ALL_MODELS_DICT[r.type_choose]
             recursive_add_model_name_to_field_attr(self,CHOOSED_MODEL_DICT)
-            needdata = {}
-            needdata['sheet_names'] = CHOOSED_MODEL_DICT['sheet_names']
             for sheet_name in CHOOSED_MODEL_DICT['sheet_names']:
                 MODEL_DICT = deepcopy(CHOOSED_MODEL_DICT)
+                needdata = {}
                 needdata['sheet_name'] = sheet_name
-#                 needdata['self'] = self
+                needdata['self'] = self
                 sheet = xl_workbook.sheet_by_name(sheet_name)
                 row_title_index =None
                 title_rows = MODEL_DICT.get('title_rows_some_sheets',{}).get(sheet_name)
@@ -978,11 +960,21 @@ def importthuvien(odoo_or_self_of_wizard):
                 merge_tuple_list =  sheet.merged_cells
                 if row_title_index == None:
                     raise UserError(u'row_title_index == None, không có xl_title nào match với excel')
-                
                 off_set_row = CHOOSED_MODEL_DICT.get('begin_data_row_offset_with_title_row',1)
+                print ('row_title_index',row_title_index,'off_set_row',off_set_row)
                 
-                min_row = row_title_index + off_set_row
+                min_row = row_title_index + CHOOSED_MODEL_DICT.get('begin_data_row_offset_with_title_row',1)
+                
+#                 if self.begin_row:
+#                     first_row = min_row + self.begin_row
+# #                     if self.begin_row < min_row:
+# #                         first_row = min_row
+# #                     else:
+# #                         first_row = self.begin_row
+#                 else:
                 first_row = min_row + self.begin_row
+                
+    
                 if not self.dong_test:
                     last_row = sheet.nrows
                 else:
@@ -994,11 +986,6 @@ def importthuvien(odoo_or_self_of_wizard):
                 for c,row in enumerate(range(first_row, last_row)):
                     print ('row',row)
                     create_instance( self, MODEL_DICT, sheet, row, merge_tuple_list, needdata, noti_dict, main_call_create_instance=CHOOSED_MODEL_DICT['model'])
-            if c:
-                r.imported_number_of_row = c + 1
-            last_function_for_import  = CHOOSED_MODEL_DICT.get('last_function_for_import')
-            if last_function_for_import:
-                last_function_for_import()
             r.log= noti_dict
             
 

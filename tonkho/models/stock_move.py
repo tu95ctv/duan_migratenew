@@ -5,6 +5,10 @@ from odoo.exceptions import UserError
 class StockMove(models.Model):
     _inherit = "stock.move"
     ghi_chu = fields.Char()
+    stt = fields.Integer()
+#     def _action_done(self):
+#         print ('***_action_done')
+#         return super(StockMove, self.with_context(stt=self.stt))._action_done()
     
 #     def choose_ghi_chu(self):
 #         if  len(self.move_line_ids)==1:

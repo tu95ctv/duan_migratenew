@@ -19,29 +19,45 @@
                    -->
                   <button name="trigger" string="trigger" type="object" class="btn-primary" />
                   <button name="test_code" string="test_code" type="object" class="btn-primary" />
+                  <button name="check_stt_inventory_line" string="check_stt_inventory_line" type="object" class="btn-primary" />
+                  <button name="check_line_khong_co_quant_va_khong_co_qty" string="check_line_khong_co_quant_va_khong_co_qty" type="object" class="btn-primary" />
                </header>
                <sheet>
                   <group>
-                     <group>
-                        <field name="filename" />
+                     <group string="Nhập">
                         <field name="file" filename="filename" />
-                        <field name="name_inventory_suffix"></field>
                         <field name="sheet_name"></field>
-                        <field name="department_id"></field>
+                        <field name="type_choose" />
                         <field name="dong_test"></field>
                         <field name="begin_row"></field>
-                        <field name="skip_field_cause_first_import"></field>
                      </group>
-                     
-                     <group>
-                        <field name="type_choose" />
+                     <group string = "Default">
+                         <field name="filename" />
+                        <field name="department_id"></field>
+                     </group>
+                     <group string="Onchange Display">
+                        	<field name="import_location_id"></field>
+                     </group>
+                     <group string="Thông Báo">
                         <field name="log" />
+                        <field name="imported_number_of_row"></field>
+                        <field name="inventory_id"></field>
+                     </group>
+                     <group string="Chưa Xài">
+                        <field name="name_inventory_suffix"></field>
+                     	   <field name="running_or_prepare"></field>
+                        	<field name="skip_field_cause_first_import"></field>
+                     </group>
+                     <group string="Test">
+                     
                         <field name="create_number" />
                         <field name="update_number" />
                         <field name="skipupdate_number" />
-                        <field name="write_date" />
-                        <field name="thong_bao_khac" />
                         <field name="trigger_model" />
+                        <field name="thong_bao_khac" />
+                        <field name="test_result_1"></field>
+                        <field name="test_result_2"></field>
+                        <field name="test_result_3"></field>
                      </group>
                   </group>
                </sheet>

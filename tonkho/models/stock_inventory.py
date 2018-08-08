@@ -21,3 +21,5 @@ class Inventory(models.Model):
     
     
     
+    
+    

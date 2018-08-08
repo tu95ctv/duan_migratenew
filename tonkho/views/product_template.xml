@@ -77,20 +77,7 @@
  
       
       
-      <record id="product_template_search_view" model="ir.ui.view">
-         <field name="name">product.template.product.search.inherit</field>
-         <field name="model">product.template</field>
-         <field name="inherit_id" ref="product.product_template_search_view" />
-         <field name="arch" type="xml">
-            <xpath expr="//filter[@name='activities_upcoming_all']" position="after">
-               <filter name="group_by_tracking" string="Có SN hay Không" domain="[]" context="{'group_by':'tracking'}" />
-               <filter name="group_by_uom_id" string="Đơn vị tính" domain="[]" context="{'group_by':'uom_id'}" />
-               <filter string="Vật tư có tồn tại trong bất cứ kho" name="quant_ids" domain="[('quant_ids.quantity','&gt;=',1)]"/>
-               <field string="Tìm vật tư có trong kho Này" name="stock_location_id_selection"   filter_domain="[('quant_ids.quantity','&gt;=',1),('quant_ids.location_id','ilike',self)]"/>
-               <filter string="quant is not set" name="quant_ids" domain="[('quant_ids','=',False)]"/>
-            </xpath>
-         </field>
-      </record>
+      
       <record id="view_stock_product_template_tree" model="ir.ui.view">
          <field name="name">product.template.stock.tree.inherit</field>
          <field name="model">product.template</field>
@@ -119,10 +106,27 @@
                <field name="ghi_chu_ngay_nhap" />
                <field name="ghi_chu_ngay_xuat" />
                <field name="create_uid" />
+                <field name="tram_ltk_tao"></field>
+                <field name="dang_chay_tao"></field>
+               <field name="du_phong_tao"></field>
+               
             </field>
          </field>
       </record>
-      
+      <record id="product_template_search_view" model="ir.ui.view">
+         <field name="name">product.template.product.search.inherit</field>
+         <field name="model">product.template</field>
+         <field name="inherit_id" ref="product.product_template_search_view" />
+         <field name="arch" type="xml">
+            <xpath expr="//filter[@name='activities_upcoming_all']" position="after">
+               <filter name="group_by_tracking" string="Có SN hay Không" domain="[]" context="{'group_by':'tracking'}" />
+               <filter name="group_by_uom_id" string="Đơn vị tính" domain="[]" context="{'group_by':'uom_id'}" />
+               <filter string="Vật tư có tồn tại trong bất cứ kho" name="quant_ids" domain="[('quant_ids.quantity','&gt;=',1)]"/>
+               <field string="Tìm vật tư có trong kho Này" name="stock_location_id_selection"   filter_domain="[('quant_ids.quantity','&gt;=',1),('quant_ids.location_id','ilike',self)]"/>
+               <filter string="quant is not set" name="quant_ids" domain="[('quant_ids','=',False)]"/>
+            </xpath>
+         </field>
+      </record>
       
       <record id="stock.product_template_action_product" model="ir.actions.act_window">
          <field name="name">Products</field>

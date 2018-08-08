@@ -9,9 +9,17 @@ import psycopg2
 
 class PN(models.Model):
     _name = 'tonkho.pn'
+    _sql_constraints = [
+        ('name_ref_uniq', 'unique (name, product_id)', 'The combination of pn and product must be unique !'),
+    ]
     name = fields.Char()
     product_id = fields.Many2one('product.product')
     sn_ids = fields.One2many('stock.production.lot','pn_id')
+    running_or_prepare = fields.Selection([('running',u'Đang chạy'),('prepare',u'Dự phòng')])
+    import_location_id = fields.Many2one('stock.location')
+    tram_ltk_tao = fields.Boolean()
+    dang_chay_tao = fields.Boolean()
+    du_phong_tao = fields.Boolean()
 class ThietBi(models.Model):
     _name = 'tonkho.thietbi'
     name = fields.Char()
@@ -37,6 +45,9 @@ class PT(models.Model):
     
     is_co_sn_khong_tinh_barcode = fields.Boolean()
     pn_id = fields.Many2one('tonkho.pn')
+    tram_ltk_tao = fields.Boolean()
+    dang_chay_tao = fields.Boolean()
+    du_phong_tao = fields.Boolean()
 #     is_co_sn_thuan_pr = fields.Boolean(related='product_variant_id.is_co_sn_thuan_pr',store=True)
     def get_stock_for_selection_field_(self):
         locs = self.env['stock.location'].search([('is_kho_cha','=',True)])

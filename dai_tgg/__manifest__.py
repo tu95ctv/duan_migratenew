@@ -15,7 +15,7 @@
     'category': 'Uncategorized',
     'version': '0.1',
     # any module necessary for this one to work correctly
-    'depends': ['base','base_import','hr'],
+    'depends': ['base','base_import','hr','stock'],
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',

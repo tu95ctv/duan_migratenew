@@ -21,10 +21,12 @@
             	<field name="tinh_trang"></field>
             	<field name="ghi_chu"></field>
          		<field name="location_id" context="{'show_ke':True}"></field>
+         		<field name="inventory_line_id"/>
          		<!-- <field name="department_id" ></field> -->
             </field>
             <field name="quantity" position="after">
             	<field name="write_date" string="Ngày sửa"/>
+            	<field name="stt"/>
             </field>
          </field>
      </record>

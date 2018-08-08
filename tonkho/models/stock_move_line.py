@@ -69,6 +69,11 @@ class StockMoveLine(models.Model):
     
     origin_returned_move_id = fields.Many2one('stock.move.line', 'Origin return move', copy=False, help='Move that created the return move')
     returned_move_ids = fields.One2many('stock.move.line', 'origin_returned_move_id', 'All returned moves', help='Optional: all returned moves created from this move')
+    stt = fields.Integer()
+    inventory_line_id = fields.Many2one('stock.inventory.line')
+    def _action_done(self):
+        print ('***_action_done')
+        return super(StockMoveLine, self.with_context(update_inventory={'stt':self.stt, 'inventory_line_id':self.inventory_line_id.id}))._action_done()
     
     @api.onchange('location_id')
     def location_id_onchange(self):

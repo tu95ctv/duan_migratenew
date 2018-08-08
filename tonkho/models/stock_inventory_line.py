@@ -4,8 +4,6 @@ from odoo.exceptions import UserError
 from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 
-
-
 class InventoryLine(models.Model):
     _inherit = "stock.inventory.line"
     categ_id = fields.Many2one('product.category', related='product_id.categ_id',store=True,string=u'Nhóm')
@@ -19,6 +17,15 @@ class InventoryLine(models.Model):
     tracking =  fields.Selection(related='product_id.tracking', store=True,string=u'Có SN hay không')
     ghi_chu = fields.Text(string=u'Ghi chú')
     barcode_sn = fields.Char(related = 'prod_lot_id.barcode_sn',store=True)
+    quant_ids =  fields.One2many('stock.quant','inventory_line_id')
+    
+    def _get_move_values(self,*arg,**karg):
+        rs = super(InventoryLine, self)._get_move_values(*arg,**karg)
+#         rs['stt'] = self.stt
+        rs['move_line_ids'][0][2]['stt'] = self.stt#self._context['stt']
+        rs['move_line_ids'][0][2]['inventory_line_id'] = self.id
+        return rs
+        
     
     @api.model
     def search(self, args, offset=0, limit=None, order=None, count=False):
@@ -26,8 +33,6 @@ class InventoryLine(models.Model):
         if context.get('context_in_create'):
             return False
         return super(InventoryLine, self).search(args, offset, limit, order, count=count)
-        
-        
     @api.model
     def create(self, values):
 #         values.pop('product_name', False)

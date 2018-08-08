@@ -6,9 +6,9 @@ from odoo.tools.float_utils import float_compare
 from odoo.osv import expression
 class StockProductionLot(models.Model):
     _inherit = "stock.production.lot"
-    _sql_constraints = [
-        ('name_ref_uniq', 'unique (name, product_id, barcode_sn)', 'The combination of serial number and product must be unique !'),
-    ]
+#     _sql_constraints = [
+#         ('name_ref_uniq', 'unique (name, product_id)', 'The combination of serial number and product must be unique !'),
+#     ]
     _rec_name = 'complete_name'
     name = fields.Char(
         'Lot/Serial Number', 

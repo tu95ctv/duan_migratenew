@@ -19,11 +19,12 @@ class DownloadQuants(models.TransientModel):
     name = fields.Char()
     parent_location_id =  fields.Many2one('stock.location', default=lambda self:self.env.user.department_id.default_location_id.id)
     parent_location_runing_id =  fields.Many2one('stock.location',default=lambda self:self.env.user.department_id.default_location_running_id.id)
-
     test =  fields.Text()
     data = fields.Binary('File', readonly=True)
-    
-    
+   
+        
+        
+        
     @api.multi
     def download_product(self):
         this = self[0]
@@ -100,6 +101,21 @@ class Quant(models.Model):
     stock_location_id_selection = fields.Selection('get_stock_for_selection_field_',store=False)
     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',related='lot_id.tinh_trang',store=True,string=u'Tình trạng')
     ghi_chu = fields.Text(string=u'Ghi chú',related='lot_id.ghi_chu')
+    stt = fields.Integer()
+    inventory_line_id = fields.Many2one('stock.inventory.line')
+    
+    
+#     @api.model
+#     def _update_available_quantity(self, *arg,**karg):
+#         return super(Quant, self.with_context(dua_so_stt_vao=1))._update_available_quantity( *arg,**karg)
+
+    @api.model
+    def create(self, values):
+        if 'update_inventory' in self._context:
+            values.update(self._context['update_inventory'])
+        res = super(Quant, self).create(values)
+        return res
+     
     def get_stock_for_selection_field_(self):
         locs = self.env['stock.location'].search([('is_kho_cha','=',True)])
         rs = list(map(lambda i:(i.name,i.name),locs))
