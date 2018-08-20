@@ -15,7 +15,8 @@ import sys
 VERSION_INFO   = sys.version_info[0]
 def get_or_create_object_has_x2m (self, class_name, search_dict,
                                 write_dict ={},is_must_update=False, noti_dict=None,
-                                inactive_include_search = False, x2m_key=[],remove_all_or_just_add_one_x2m = True, is_return_get_or_create = False):
+                                inactive_include_search = False, x2m_key=[],remove_all_or_just_add_one_x2m = True,
+                                 is_return_get_or_create = False,not_update_if_exist_list=[],g_o_c_para_dict={}):
     
     if x2m_key:
         first_values = search_dict[x2m_key[0]]
@@ -24,7 +25,10 @@ def get_or_create_object_has_x2m (self, class_name, search_dict,
             search_dict[x2m_key[0]] = key_first_value
             object, get_or_create = get_or_create_object_sosanh(self, class_name, search_dict,
                                     write_dict =write_dict, is_must_update=is_must_update, noti_dict=noti_dict,
-                                    inactive_include_search = inactive_include_search,is_return_get_or_create=True)
+                                    inactive_include_search = inactive_include_search,is_return_get_or_create=True,
+                                    not_update_if_exist_list=not_update_if_exist_list,
+                                    g_o_c_para_dict = g_o_c_para_dict
+                                    )
             result.append(object.id)
         if remove_all_or_just_add_one_x2m == True:
             six_or_zero = 6
@@ -35,7 +39,11 @@ def get_or_create_object_has_x2m (self, class_name, search_dict,
     else:
         obj, get_or_create =  get_or_create_object_sosanh(self, class_name, search_dict,
                                     write_dict =write_dict, is_must_update=is_must_update, noti_dict=noti_dict,
-                                    inactive_include_search = inactive_include_search, is_return_get_or_create=True)
+                                    inactive_include_search = inactive_include_search, is_return_get_or_create=True,
+                                    not_update_if_exist_list=not_update_if_exist_list,
+                                    g_o_c_para_dict = g_o_c_para_dict
+                                    
+                                    )
         obj_id = obj.id
     if is_return_get_or_create:
         return obj_id, get_or_create
@@ -47,7 +55,8 @@ def get_or_create_object_has_x2m (self, class_name, search_dict,
 
 def get_or_create_object_sosanh(self, class_name, search_dict,
                                 write_dict ={},is_must_update=False, noti_dict=None,
-                                inactive_include_search = False,is_return_get_or_create = False):
+                                inactive_include_search = False,is_return_get_or_create = False,
+                                not_update_if_exist_list=[],g_o_c_para_dict={}):
     
     
     if noti_dict !=None:
@@ -60,7 +69,8 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
         domain_not_active = []
     domain = []
     for i in search_dict:
-        tuple_in = (i,'=',search_dict[i])
+        operator_search = g_o_c_para_dict.get(i,{}).get('operator_search','=')
+        tuple_in = (i,operator_search,search_dict[i])
         domain.append(tuple_in)
     domain = expression.AND([domain_not_active, domain])
     searched_object  = self.env[class_name].search(domain)
@@ -72,6 +82,8 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
             this_model_noti_dict['create'] = this_model_noti_dict.get('create', 0) + 1
         return_obj =  created_object
     else:
+        for i in not_update_if_exist_list:
+            del write_dict[i]
         if not is_must_update:
             is_write = False
             for f_name in write_dict:
@@ -212,10 +224,17 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
         needdata['vof_dict'] = vof_dict
     x2m_key = []
     remove_all_or_just_add_one_x2m = True
+    not_update_if_exist_list = []
+    g_o_c_para_dict = {}
     for count, field_field_attr in enumerate(MODEL_DICT['fields']):
-        
         field_name = field_field_attr[0]
         field_attr = field_field_attr[1]
+        if field_attr.get('not_update_if_exist'):
+            not_update_if_exist_list.append(field_name)
+        get_or_create_para = field_attr.get('get_or_create_para',{})
+        if get_or_create_para:
+            g_o_c_para_dict[field_name] = get_or_create_para
+            
         col_index = field_attr.get('col_index')
         xl_val = False
         field_type_of_this_model = MODEL_DICT.get('field_type')
@@ -228,7 +247,6 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
             if not allow_not_match:
                 raise UserError(u'có khai báo xl_title nhưng không match với file excel, field: %s, xl_title: %s, dòng: %s ' %(field_name,field_attr.get('xl_title'),row))
         avof_dict = vof_dict.setdefault(field_name,{})
-        
         if field_attr.get('set_val') != None:
             xl_val = field_attr.get('set_val')
         elif field_attr.get('skip_field_cause_first_import'):
@@ -297,13 +315,12 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
     get_or_create = False
 #     print ('key_search_dict',key_search_dict)
 #     print ('update_dict',update_dict)
-    print ('create_instance',2)
     if key_search_dict:
         obj_val, get_or_create = get_or_create_object_has_x2m(self, model_name, key_search_dict, update_dict,
                                 is_must_update=True, noti_dict = noti_dict,
                                 inactive_include_search  = inactive_include_search, x2m_key = x2m_key,
                                 remove_all_or_just_add_one_x2m=remove_all_or_just_add_one_x2m,
-                                is_return_get_or_create = True
+                                is_return_get_or_create = True,not_update_if_exist_list=not_update_if_exist_list,g_o_c_para_dict=g_o_c_para_dict
                                 )
 #         print ('***get_or_create',get_or_create)
     else:
@@ -426,6 +443,7 @@ def importthuvien(odoo_or_self_of_wizard):
                                         ('categ_id',{'fields':[('name',{'func':lambda val,needdata: needdata['sheet_name'], 'key':True,'required': True}),]}),
                                         ('uom_id',  {'bypass_this_field_if_value_equal_False':True, 'fields': [ #'func':uom_id_,'default':1,
                                                     ('name',{'func':lambda v,n: u'Cái' if n['sheet_name']== u'XFP, SFP các loại' else v ,
+                                                             'get_or_create_para':{'operator_search':'=ilike'},
                                                              'xl_title':u'Đơn vị tính' ,'key':True,'required':True,
                                                               'replace_string':[('Modunle','module'),('CARD','Card'),('module','Module')],
                                                               'sheet_allow_this_field_not_has_exel_col':[u'XFP, SFP các loại']
@@ -544,14 +562,20 @@ def importthuvien(odoo_or_self_of_wizard):
                                         ('name',{'func':None,'xl_title':[u'TÊN VẬT TƯ',u'Module quang'],'key':True,'required':True,'empty_val':[u'TỔNG ĐÀI IMS',u'JUNIPER ERX 1400; T1600 ; T4000']}),
                                         ('type',{'set_val':'product'}),
                                         ('tracking',{'func':lambda val,needdata: 'serial' if needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] !=False else False, 'bypass_this_field_if_value_equal_False':True}),
+                                        ('thiet_bi_id',{'not_update_if_exist':True,'fields':[('name',{'func':None,'xl_title':u'Thiết bị', 'key':True,'required': True}),]}),
                                         ('thiet_bi_id_tti',{'fields':[('name',{'func':None,'xl_title':u'Thiết bị', 'key':True,'required': True}),]}),
                                         ('brand_id_tti',{'empty_val':[u'NA'],'fields':[('name',{'func':None,'xl_title':[u'Hãng sản xuất',u'Hãng / Model'], 'key':True,'required': True}),]}),
                                         ('categ_id',{'fields':[('name',{'func':categ_id_tti_convert_to_ltk_,'karg':{'tram':'TTI'},#lambda val,needdata: needdata['sheet_name'],
                                                                          'key':True,'required': True}),]}),
                                         ('uom_id',  {'bypass_this_field_if_value_equal_False':True, 'fields': [ #'func':uom_id_,'default':1,
-                                                    ('name',{'func':lambda v,n: u'Cái' if n['sheet_name']== u'XFP, SFP các loại' else v ,
+                                                    ('name',{
+                                                             'get_or_create_para':{'operator_search':'=ilike'},
+                                                             'func':lambda v,n: u'Cái' if n['sheet_name']== u'XFP, SFP các loại' else v ,
                                                              'xl_title':u'Đơn vị tính' ,'key':True,'required':True,
-                                                              'replace_string':[('Modunle','module'),('CARD','Card'),('module','Module')],
+                                                              'replace_string':[('Modunle','module'),('CARD','Card'),('module','Module'),
+                                                                                (u'bộ',u'Bộ'),
+# (u'cái',u'Cái'),(u'sợi',u'Sợi'),(u'jack nối',u'Jack nối')
+                                                                                ],
                                                               'sheet_allow_this_field_not_has_exel_col':[u'XFP, SFP các loại']
                                                               }),#'set_val':u'Cái',
                                                              ('category_id', {'func': lambda n,v:self.env['product.uom.categ'].search(['|',('name','=','Unit'),('name','=',u'Đơn Vị')])[0].id
