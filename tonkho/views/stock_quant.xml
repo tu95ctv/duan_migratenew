@@ -11,7 +11,7 @@
          	<field name="location_id" position="replace"></field>
             <field name="lot_id" position="before">
             	<field name="product_uom_id"></field>
-            	<field name="pn"></field>
+            	<field name="pn_id"></field>
             </field>
             <field name="lot_id" position="after">
             	<field name="categ_id"></field>
@@ -62,9 +62,10 @@
          <field name="arch" type="xml">
          	<form string="DL quants form">
          	<header>
-     			<button name="download_quants"  string="Download" type="object" class="oe_highlight" groups="base.group_user"/>
-                 <button name="act_getfile" string="Export" type="object" class="btn-primary"/>
-     			<button name="download_product"  string="Download" type="object" class="oe_highlight" groups="base.group_user"/>
+     			<button name="download_quants_by_new_window"  string="Download Quants (new window)" type="object" class="oe_highlight" groups="base.group_user"/>
+                 <button name="download_quants_by_file_field" string="Download Quants" type="object" class="btn-primary"/>
+     			<button name="download_product"  string="Download Product" type="object" class="oe_highlight" groups="base.group_user"/>
+                 <button name="download_quants_moi_cage_moi_sheet" string="Download Quants Moi Cage moi sheet" type="object" class="btn-primary"/>
          	</header>
          	<sheet>
          	<group>
@@ -72,7 +73,7 @@
          	  	<field name="parent_location_id"></field>
          	  	<field name="parent_location_runing_id"></field>
          	  	
-         	  	<!-- <field name="test"></field> -->
+         	   <field name="test"></field> 
          	  	<field name="data" readonly="1" filename="name"/>
          	  	</group>
          	</sheet>

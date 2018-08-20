@@ -1,3 +1,16 @@
 # -*- coding: utf-8 -*-
 
-print next((x for x in [1,2,3] if x >5),False)
+a = 1
+def f1():
+    
+    
+    def f2():
+        global a
+        a=2
+        print a
+        
+        
+    f2()
+    print a
+    
+f1()

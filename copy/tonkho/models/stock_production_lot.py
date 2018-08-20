@@ -12,7 +12,7 @@ class StockProductionLot(models.Model):
     ghi_chu_ban_dau =  fields.Text(string=u'Ghi Chú ban đầu')
     ghi_chu_ngay_nhap = fields.Text(string=u'Ghi chú ngày nhập')
     ghi_chu_ngay_xuat = fields.Text(string=u'Ghi chú ngày xuất')
-    pn_id = fields.Many2one('tonkho.pn')
+    pn_id = fields.Many2one('tonkho.pn',string='Part number')
     move_line_ids = fields.One2many('stock.move.line','lot_id')
     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',compute='tinh_trang_depend_move_line_ids_',store=True, string=u'Tình trạng')
 #     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',store=True, string=u'Tình trạng')

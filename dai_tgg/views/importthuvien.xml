@@ -26,14 +26,14 @@
                   <group>
                      <group string="Nhập">
                         <field name="file" filename="filename" />
-                        <field name="sheet_name"></field>
+                        <field name="sheet_name" required="0"></field>
                         <field name="type_choose" />
                         <field name="dong_test"></field>
                         <field name="begin_row"></field>
                      </group>
                      <group string = "Default">
                          <field name="filename" />
-                        <field name="department_id"></field>
+                        <field name="department_id" required="0"></field>
                      </group>
                      <group string="Onchange Display">
                         	<field name="import_location_id"></field>

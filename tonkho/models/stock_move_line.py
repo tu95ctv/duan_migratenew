@@ -4,46 +4,7 @@ from odoo.tools.float_utils import float_is_zero,_float_check_precision,float_ro
 from odoo.exceptions import UserError
 from odoo.addons import decimal_precision as dp
 
-# def float_compare(value1, value2, precision_digits=None, precision_rounding=None):
-#     """Compare ``value1`` and ``value2`` after rounding them according to the
-#        given precision. A value is considered lower/greater than another value
-#        if their rounded value is different. This is not the same as having a
-#        non-zero difference!
-#        Precision must be given by ``precision_digits`` or ``precision_rounding``,
-#        not both!
-# 
-#        Example: 1.432 and 1.431 are equal at 2 digits precision,
-#        so this method would return 0
-#        However 0.006 and 0.002 are considered different (this method returns 1)
-#        because they respectively round to 0.01 and 0.0, even though
-#        0.006-0.002 = 0.004 which would be considered zero at 2 digits precision.
-# 
-#        Warning: ``float_is_zero(value1-value2)`` is not equivalent to 
-#        ``float_compare(value1,value2) == 0``, as the former will round after
-#        computing the difference, while the latter will round before, giving
-#        different results for e.g. 0.006 and 0.002 at 2 digits precision. 
-# 
-#        :param int precision_digits: number of fractional digits to round to.
-#        :param float precision_rounding: decimal number representing the minimum
-#            non-zero value at the desired precision (for example, 0.01 for a 
-#            2-digit precision).
-#        :param float value1: first value to compare
-#        :param float value2: second value to compare
-#        :return: (resp.) -1, 0 or 1, if ``value1`` is (resp.) lower than,
-#            equal to, or greater than ``value2``, at the given precision.
-#     """
-#     print ('precision_rounding',precision_rounding)
-#     rounding_factor = _float_check_precision(precision_digits=precision_digits,
-#                                              precision_rounding=precision_rounding)
-#     print ('rounding_factor',rounding_factor)
-#     print ("value1,value2",value1,value2)
-#     value1 = float_round(value1, precision_rounding=rounding_factor)
-#     value2 = float_round(value2, precision_rounding=rounding_factor)
-#     delta = value1 - value2
-#     print ("value1,value2,delta,float_is_zero(delta, precision_rounding=rounding_factor)",value1,value2,delta,float_is_zero(delta, precision_rounding=rounding_factor))
-#     if float_is_zero(delta, precision_rounding=rounding_factor): return 0
-#     return -1 if delta < 0.0 else 1
-# 'stock.move.line'
+
 class StockMoveLine(models.Model):
     _inherit = "stock.move.line"
 #     lot_id = fields.Many2one('stock.production.lot', 'Lot',required=True)
@@ -53,7 +14,7 @@ class StockMoveLine(models.Model):
     tracking = fields.Selection(related='product_id.tracking',string=u'Có SN hay không', store=False)
     ghi_chu = fields.Text(string=u'Ghi chú vật tư')
     inventory_id = fields.Many2one('stock.inventory', 'Inventory',related='move_id.inventory_id',readonly=True)
-    tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',string=u'Tình trạng')
+    tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')], default='tot', string=u'Tình trạng',required=True)
     ref_picking_id_or_inventory_id = fields.Char(compute='ref_picking_id_or_inventory_id_', store=True,string=u'Phiếu tham chiếu')
 #     state = fields.Selection(related='move_id.state', store=True)
 
@@ -66,14 +27,16 @@ class StockMoveLine(models.Model):
         'stock.move.line', 'stock_move_line_move_line_rel', 'move_line_dest_id', 'move_line_orig_id', 'Original Move Lines',
         copy=False,
         help="Optional: previous stock move when chaining them")
-    
     origin_returned_move_id = fields.Many2one('stock.move.line', 'Origin return move', copy=False, help='Move that created the return move')
     returned_move_ids = fields.One2many('stock.move.line', 'origin_returned_move_id', 'All returned moves', help='Optional: all returned moves created from this move')
     stt = fields.Integer()
     inventory_line_id = fields.Many2one('stock.inventory.line')
+    
     def _action_done(self):
-        print ('***_action_done')
-        return super(StockMoveLine, self.with_context(update_inventory={'stt':self.stt, 'inventory_line_id':self.inventory_line_id.id}))._action_done()
+        print ('888',self._context,'action_done_from_stock_inventory' in self._context)
+        if 'action_done_from_stock_inventory' in self._context:
+            self =  self.with_context(update_inventory={'stt':self.stt, 'inventory_line_id':self.inventory_line_id.id})
+        return super(StockMoveLine,self )._action_done()
     
     @api.onchange('location_id')
     def location_id_onchange(self):
@@ -98,7 +61,8 @@ class StockMoveLine(models.Model):
 #         return {'location_dest_id':}
     @api.onchange('lot_id')
     def lot_id_onchange(self):
-        self.tinh_trang = self.lot_id.tinh_trang
+        if self.lot_id:
+            self.tinh_trang = self.lot_id.tinh_trang
         
     @api.depends('inventory_id','picking_id.name')
     def ref_picking_id_or_inventory_id_(self):

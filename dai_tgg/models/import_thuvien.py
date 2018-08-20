@@ -21,6 +21,8 @@ class ImportThuVien(models.Model):
     _name = 'importthuvien' 
     type_choose = fields.Selection([
         (u'stock.inventory.line',u'stock.inventory.line'),
+        (u'stock.inventory.line.dp_tti',u'stock.inventory.line.dp_tti'),
+        
         (u'stock.inventory.line.tkt.vtdc',u'stock.inventory.line.tkt.vtdc'),
         (u'Product',u'Product'),
         (u'Thư viện công việc',u'Thư viện công việc'),
@@ -44,7 +46,7 @@ class ImportThuVien(models.Model):
                                     ],required = True)
     sheet_name = fields.Selection([(u'Vô tuyến',u'Vô tuyến'),(u'Chuyển Mạch (IMS, Di Động)',u'Chuyển Mạch (IMS, Di Động)'),
                                    (u'Truyền dẫn',u'Truyền dẫn'),(u'IP (VN2, VNP)',u'IP (VN2, VNP)'),
-                                   (u'GTGT',u'GTGT'),(u'XFP, SFP các loại',u'XFP, SFP các loại')  ])
+                                   (u'GTGT',u'GTGT'),(u'XFP, SFP các loại',u'XFP, SFP các loại')  ],rejquired=True)
     file = fields.Binary()
     filename = fields.Char()
     name_inventory_suffix = fields.Char()
@@ -68,7 +70,7 @@ class ImportThuVien(models.Model):
     import_location_id = fields.Many2one('stock.location')
     imported_number_of_row = fields.Integer()
     inventory_id = fields.Many2one('stock.inventory')
-    test_result_1 = fields.Text()
+    test_result_1 = fields.Text(required=True)
     test_result_2 = fields.Text()
     test_result_3 = fields.Text()
     line_not_has_quant =  fields.Text()

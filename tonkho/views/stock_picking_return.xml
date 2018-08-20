@@ -18,11 +18,18 @@
         				<attribute name="readonly">context.get('huy_bien_ban')</attribute>
         			</field>
                     
+                    
                     <field name="parent_location_id" position="attributes">
                     	<attribute name="invisible">0</attribute>
                     </field>
-                    <field name="parent_location_id" position="attributes">
-                    	<attribute name="original_location_id">0</attribute>
+                    <!--  
+                      <field name="original_location_id" position="attributes">
+                    	<attribute name="invisible">0</attribute>
+                    </field>
+                    -->
+                     <field name="parent_location_id" position="after">
+                    	<!-- <field name="is_chuyen_tiep"></field> -->
+                    	<field name="loai_tra_hay_chuyen_tiep"></field>
                     </field>
 		</field>
 	</record>

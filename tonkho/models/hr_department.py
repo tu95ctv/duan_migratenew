@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 from odoo.addons.tonkho.tonkho_tool import get_or_create_object_sosanh

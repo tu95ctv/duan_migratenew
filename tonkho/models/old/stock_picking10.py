@@ -47,7 +47,7 @@ class StockPicking(models.Model):
     
     
     def ban_giao_or_nghiem_thu_show(self):
-        adict = {u'ban_giao':u'Bàn Giao',u'nghiem_thu':u'Nghiệm Thu'}
+        adict = {u'ban_giao':u'Bàn Giao',u'nghiem_thu':u'Nghiệm Thu Hoàn Thành'}
         if self.ban_giao_or_nghiem_thu != False:
             return adict[self.ban_giao_or_nghiem_thu]
         else:

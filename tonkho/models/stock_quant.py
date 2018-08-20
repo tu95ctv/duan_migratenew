@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 from  odoo.addons.dai_tgg.mytools import name_compute
 
-from odoo.addons.tonkho.controllers.controllers import  download_quants,download_product
+from odoo.addons.tonkho.controllers.controllers import  download_quants,download_product,download_quants_moi_cage_moi_sheet
 
 # from odoo import _
 
@@ -21,21 +21,33 @@ class DownloadQuants(models.TransientModel):
     parent_location_runing_id =  fields.Many2one('stock.location',default=lambda self:self.env.user.department_id.default_location_running_id.id)
     test =  fields.Text()
     data = fields.Binary('File', readonly=True)
+    is_moi_sheet_moi_loai = fields.Boolean()
+    
    
         
+   
         
+    
         
     @api.multi
-    def download_product(self):
+    def download_quants_by_new_window(self):
+        domain_quant = [('id','=',3)]
+        rs = self.env['stock.quant'].read_group(domain_quant, ['product_id', 'quantity'], ['product_id'], orderby='id')
+        return {
+             'type' : 'ir.actions.act_url',
+             'url': '/web/binary/download_quants?model=tonkho.downloadquants&id=%s'%(self.id),
+             'target': 'new',
+        }
+    @api.multi   
+    def download_quants_moi_cage_moi_sheet(self):
         this = self[0]
-        print ('self._context',self._context)
         with contextlib.closing(io.BytesIO()) as buf:
-            workbook = download_product(this)
+            workbook = download_quants_moi_cage_moi_sheet(this)
             workbook.save(buf)
             out = base64.encodestring(buf.getvalue())
-
-        filename = 'product'
-        name = "%s.%s" % (filename, '.xls')
+        
+        filename = 'quants-%s'%self.parent_location_id.name
+        name = "%s%s" % (filename, '.xls')
         this.write({ 'data': out, 'name': name})
         return {
             'type': 'ir.actions.act_window',
@@ -47,34 +59,16 @@ class DownloadQuants(models.TransientModel):
             'target': 'new',
         }
         
-        
-        
     @api.multi
-    def download_quants(self):
-#         print ('self._context',self._context)
-#         return {}
-#         Move = Quant = self.env['stock.quant'].read_group(domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True)
-        domain_quant = [('id','=',3)]
-        rs = self.env['stock.quant'].read_group(domain_quant, ['product_id', 'quantity'], ['product_id'], orderby='id')
-        print  ('rs',rs)
-        raise UserError(u'stop cho vui')
-        return {
-             'type' : 'ir.actions.act_url',
-             'url': '/web/binary/download_quants?model=tonkho.downloadquants&id=%s'%(self.id),
-             'target': 'new',
-        }
-    @api.multi
-    def act_getfile(self):
+    def download_quants_by_file_field(self):#tham khảo  từ act_getfile
         this = self[0]
-        print ('self._context',self._context)
         with contextlib.closing(io.BytesIO()) as buf:
-            workbook = download_quants(this, context = self._context)
+            workbook = download_quants(this)
             workbook.save(buf)
             out = base64.encodestring(buf.getvalue())
-
-        filename = 'new'
-       
-        name = "%s.%s" % (filename, '.xls')
+        
+        filename = 'quants-%s'%self.parent_location_id.name
+        name = "%s%s" % (filename, '.xls')
         this.write({ 'data': out, 'name': name})
         return {
             'type': 'ir.actions.act_window',
@@ -86,10 +80,32 @@ class DownloadQuants(models.TransientModel):
             'target': 'new',
         }
     
+    
+    @api.multi
+    def download_product(self):
+        this = self[0]
+        with contextlib.closing(io.BytesIO()) as buf:
+            workbook = download_product(this)
+            workbook.save(buf)
+            out = base64.encodestring(buf.getvalue())
+        filename = 'product-%s-%s'%(self.parent_location_id.name,self.parent_location_runing_id.name)
+        name = "%s.%s" % (filename, '.xls')
+        this.write({ 'data': out, 'name': name})
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'tonkho.downloadquants',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'res_id': this.id,
+            'views': [(False, 'form')],
+            'target': 'new',
+        }
+        
 class Quant(models.Model):
     """ Quants are the smallest unit of stock physical instances """
     _inherit = "stock.quant"
     pn = fields.Char(related='lot_id.pn')
+    pn_id = fields.Many2one('tonkho.pn',related='lot_id.pn_id')
     categ_id = fields.Many2one('product.category', related='product_id.categ_id',store=True,string=u'Nhóm')
     thiet_bi_id = fields.Many2one('tonkho.thietbi',related='product_id.thiet_bi_id', string = u'Thiết bị',store=True)
     brand_id = fields.Many2one('tonkho.brand',related='product_id.brand_id',string=u'Hãng sản xuất',store=True)
@@ -108,6 +124,7 @@ class Quant(models.Model):
 #     @api.model
 #     def _update_available_quantity(self, *arg,**karg):
 #         return super(Quant, self.with_context(dua_so_stt_vao=1))._update_available_quantity( *arg,**karg)
+    
 
     @api.model
     def create(self, values):
@@ -177,3 +194,9 @@ class Quant(models.Model):
             choosed_list = context.get('kho_da_chon') [0][2]
             args +=[('id','not in',choosed_list)]
         return super(Quant, self).search(args, offset, limit, order, count=count)
+    
+    @api.constrains('quantity')
+    def check_quantity(self):
+        for quant in self:
+            if float_compare(quant.quantity, 1, precision_rounding=quant.product_uom_id.rounding) > 0 and quant.lot_id and quant.product_id.tracking == 'serial':
+                raise ValidationError(_('A serial number should only be linked to a single product. %s,%s,%s'%(quant.quantity,quant.product_id.name,quant.lot_id.name)))

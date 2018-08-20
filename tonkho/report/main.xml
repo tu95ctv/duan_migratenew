@@ -18,22 +18,23 @@
         <field name="dpi">80</field>
     </record>
 
+<!-- 
       <report string="In Biên Bản Bàn Giao" id="action_bao_cao_dieu_chuyen" model="stock.picking" 
       report_type="qweb-pdf"
        name="tonkho.bao_cao_dieu_chuyen"
         file="abc.abc" 
         paperformat="tonkho.paperformat_euro_lowmargin"
         />
-        
-        <report string="In Biên Bản Bàn Giao theo move line" id="action_bao_cao_dieu_chuyen_theo_move_line" model="stock.picking" 
+         -->
+        <report string="In Biên Bản Bàn Giao theo move line" id="action_bcdc" model="stock.picking" 
       report_type="qweb-pdf"
-       name="tonkho.bao_cao_dieu_chuyen_theo_move_line"
+       name="tonkho.bcdc"
         file="abc.abc" 
         paperformat="tonkho.paperformat_euro_lowmargin"
         />
         
         
-        
+        <!-- 
       <template id="tonkho.bao_cao_dieu_chuyen">
          <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
@@ -49,9 +50,9 @@
             </t>
          </t>
       </template>
+       -->
       
-      
-       <template id="tonkho.bao_cao_dieu_chuyen_theo_move_line">
+       <template id="tonkho.bcdc">
          <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                <div class="article o_report_layout_standard">
@@ -74,7 +75,7 @@
       
       <template id="tonkho.reason">
       	<t t-if="o.ly_do">
-             <div>Lý do: <span t-esc="o.ly_do" />.
+             <div>Lý do: <span t-field="o.ly_do" />.
              </div>
           </t>
       </template>
@@ -127,7 +128,7 @@
       
       
       
-      
+      <!-- 
       
       <template id="ky_ten_old1">
          <div class="row" style="margin-top:50px;">
@@ -178,7 +179,7 @@
             </div>
          </div>
       </template>
-      
+       -->
    </data>
 </odoo>
 

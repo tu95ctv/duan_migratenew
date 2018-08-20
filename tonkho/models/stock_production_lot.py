@@ -6,9 +6,9 @@ from odoo.tools.float_utils import float_compare
 from odoo.osv import expression
 class StockProductionLot(models.Model):
     _inherit = "stock.production.lot"
-#     _sql_constraints = [
-#         ('name_ref_uniq', 'unique (name, product_id)', 'The combination of serial number and product must be unique !'),
-#     ]
+    _sql_constraints = [
+        ('name_ref_uniq', 'unique (name, product_id,barcode_sn)', 'The combination of serial number and product must be unique !'),
+    ]
     _rec_name = 'complete_name'
     name = fields.Char(
         'Lot/Serial Number', 
@@ -19,7 +19,7 @@ class StockProductionLot(models.Model):
     pn = fields.Char(string=u'Part Number')
     pn_id = fields.Many2one('tonkho.pn')
 #     ghi_chu = fields.Text(string=u'Ghi chú',store=True)
-    ghi_chu = fields.Text(string=u'Ghi chú',compute='ghi_chu_',store=True)
+    ghi_chu = fields.Text(string=u'Ghi chú từ dòng điều chuyển',compute='ghi_chu_',store=True)
     ghi_chu_ban_dau =  fields.Text(string=u'Ghi Chú ban đầu')
     ghi_chu_ngay_nhap = fields.Text(string=u'Ghi chú ngày nhập')
     ghi_chu_ngay_xuat = fields.Text(string=u'Ghi chú ngày xuất')
@@ -49,17 +49,9 @@ class StockProductionLot(models.Model):
     def tinh_trang_depend_move_line_ids_(self):
         for r in self:
             if isinstance(r.id, int):
-                move_line_ids = self.env['stock.move.line'].search([('lot_id','=',r.id),('ghi_chu','!=',False),('state','=','done')],limit=1,order='id desc')
+                move_line_ids = self.env['stock.move.line'].search([('lot_id','=',r.id),('state','=','done')],limit=1,order='id desc')
                 if move_line_ids:
                     r.tinh_trang =move_line_ids[-1].tinh_trang
-     
-#     @api.depends('move_line_ids.ghi_chu','move_line_ids.state')
-#     def ghi_chu_(self):
-#         for r in self:
-#             move_line_ids = r.move_line_ids.filtered(lambda r: r.state=='done')
-#             if move_line_ids:
-#                 r.ghi_chu =move_line_ids[-1].ghi_chu
-
     @api.depends('move_line_ids.ghi_chu','move_line_ids.state')
     def ghi_chu_(self):
         for r in self:
@@ -69,18 +61,22 @@ class StockProductionLot(models.Model):
                 if move_line_ids:
                     r.ghi_chu =move_line_ids.ghi_chu
                 
-        
-            
+    @api.multi
+    def name_get(self):
+        return [(r.id, r.get_names()) for r in self]   
+    def get_names(self): 
+        if 'use barcode' in self.name:
+            return self.barcode_sn
+        else:
+            return self.name
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
         location_id = self._context.get('d4_location_id')
-        print ('location_id',location_id)
         if location_id:
             location_id_object = self.env['stock.location'].browse([location_id])
             if location_id_object.usage == 'internal':
                 def filter_lots(r):
                     quants = self.env['stock.quant'].search([('location_id','=',location_id),('lot_id','=',r.id),('quantity','>',0)])
-                    print ('location_id',location_id,'r.id',r.id,'quants',quants,'len(quants)',len(quants))
                     if len(quants) >0 :
                         return True
                     else:

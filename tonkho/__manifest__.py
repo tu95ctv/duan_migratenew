@@ -27,10 +27,8 @@
         'security/security.xml',
     'report/header.xml',
     'report/main.xml',
+#     'report/table_old.xml',
     'report/table.xml',
-    
-#     'report/table_theo_move_line.xml',
-    'report/table_theo_move_line_col_span.xml',
         'security/ir.model.access.csv',
 #         'views/stock_pack_operation.xml',
 #         'views/stock_picking.xml',

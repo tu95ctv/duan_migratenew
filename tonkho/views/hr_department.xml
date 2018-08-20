@@ -10,6 +10,7 @@
             <xpath expr="//field[@name='name']" position="after">
                <field name="sequence_id" />
                <field name="default_location_id" />
+               <field name="default_location_running_id" />
             </xpath>
          </field>
       </record>
@@ -23,6 +24,7 @@
             <xpath expr="//field[@name='company_id']" position="replace">
                <field name="sequence_id" />
                <field name="default_location_id" />
+               <field name="default_location_running_id" />
             </xpath>
          </field>
       </record>

@@ -48,6 +48,10 @@ class PT(models.Model):
     tram_ltk_tao = fields.Boolean()
     dang_chay_tao = fields.Boolean()
     du_phong_tao = fields.Boolean()
+    tram_tti_tao = fields.Boolean()
+    thiet_bi_id_tti = fields.Many2one('tonkho.thietbi', string = u'Thiết bị TTI')
+    brand_id_tti = fields.Many2one('tonkho.brand',string=u'Hãng sản xuất TTI')
+    
 #     is_co_sn_thuan_pr = fields.Boolean(related='product_variant_id.is_co_sn_thuan_pr',store=True)
     def get_stock_for_selection_field_(self):
         locs = self.env['stock.location'].search([('is_kho_cha','=',True)])

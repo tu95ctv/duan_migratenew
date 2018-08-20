@@ -3,6 +3,7 @@ from odoo import models, fields, api
 from odoo.exceptions import UserError
 from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
+from odoo.tools import float_utils
 
 class InventoryLine(models.Model):
     _inherit = "stock.inventory.line"
@@ -18,7 +19,20 @@ class InventoryLine(models.Model):
     ghi_chu = fields.Text(string=u'Ghi chú')
     barcode_sn = fields.Char(related = 'prod_lot_id.barcode_sn',store=True)
     quant_ids =  fields.One2many('stock.quant','inventory_line_id')
-    
+#     def _generate_moves(self):
+#         print ('generate_moves')
+#         moves = self.env['stock.move']
+#         for line in self:
+# #             if float_utils.float_compare(line.theoretical_qty, line.product_qty, precision_rounding=line.product_id.uom_id.rounding) == 0:
+# #                 continue
+#             diff = line.theoretical_qty - line.product_qty
+#             if diff < 0:  # found more than expected
+#                 vals = line._get_move_values(abs(diff), line.product_id.property_stock_inventory.id, line.location_id.id, False)
+#             else:
+#                 vals = line._get_move_values(abs(diff), line.location_id.id, line.product_id.property_stock_inventory.id, True)
+#             print ('vals',vals)
+#             moves |= self.env['stock.move'].create(vals)
+#         return moves
     def _get_move_values(self,*arg,**karg):
         rs = super(InventoryLine, self)._get_move_values(*arg,**karg)
 #         rs['stt'] = self.stt

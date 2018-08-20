@@ -54,7 +54,8 @@
          <field name="inherit_id" ref="stock.view_production_lot_form_simple" />
          <field name="arch" type="xml">
             <field name="ref" position="replace">
-               <field name="pn" />
+           <!--     <field name="pn" /> -->
+               <field name="pn_id" />
                <field name="tinh_trang"></field>
                <field name="ghi_chu" />
             </field>

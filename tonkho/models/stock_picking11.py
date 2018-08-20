@@ -30,7 +30,9 @@ class StockPicking(models.Model):
                                                (u'BBNT',u'Nghiệm thu'),(u'BBSD',u'Đưa vào sử dụng'),
                                                (u'BBNK',u'Nhập kho vật tư lỗi'),
                                                (u'HUY',u'Hủy biên bản'),
-                                               (u'TRA',u'Trả vật tư lại do nhằm'),
+                                               (u'TRA_DO_HUY',u'Trả do hủy'),
+                                               (u'TRA_DO_MUON',u'Trả do hủy'),
+                                               (u'CHUYEN_TIEP',u'Chuyển tiếp'),
                                                (u'TDTT',u'Thay đổi tình trạng vật tư'),
                                                (u'DCNB',u'Dịch chuyển nội bộ'),
                                                ],default=u'BBBG', string=u'B/giao hay N/thu',copy=False)
@@ -61,42 +63,49 @@ class StockPicking(models.Model):
     title_ben_thu_4 = fields.Many2one('tonkho.title_cac_ben',string=u'Tiêu đề bên thứ 4',copy=False)
     ben_thu_4_ids = fields.Many2many('res.partner','ben_thu_4_stock_picking_relate','picking_id','partner_id',string=u'Bên thứ 4',copy=False)
     texttemplate_id = fields.Many2one('tonkho.texttemplate',string=u"Mẫu lý do",domain=[('field_context','=','tonkho.stock.picking.field.ly_do')],copy=False)
-    
     show_validate_ben_giao = fields.Boolean(compute='show_validate_ben_giao_')
 #     is_diff_department = fields.Boolean(compute='is_diff_department_')
-    is_same_department = fields.Boolean(compute='is_same_department_')
+    is_same_department = fields.Boolean(compute='is_same_department_')# location_id = location_dest_id
     is_validate_mode = fields.Boolean(compute='is_validate_mode_')
-    ten_truoc_huy = fields.Char(readonly=True)
-    
-    lot_id = fields.Many2one('stock.production.lot')
-#     start_date = fields.Date()
-#     duration = fields.Float(digits=(6, 2), help="Duration in days")
-#     end_date = fields.Date(string="End Date", store=True,
-#         compute='_get_end_date', inverse='_set_end_date')
+    ten_truoc_huy = fields.Char(string=u'Tên trước  hủy',copy=False)
+#     lot_id = fields.Many2one('stock.production.lot')
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('waiting', 'Waiting Another Operation'),
+        ('confirmed', 'Waiting'),
+        ('assigned', 'Ready'),
+        ('done_ben_giao', u'Xác nhận bên giao'),
+        ('done', 'Done'),
+        ('cancel', 'Cancelled'),
+    ], string='Status', compute='_compute_state',
+        copy=False, index=True, readonly=True, store=True, track_visibility='onchange',
+        help=" * Draft: not confirmed yet and will not be scheduled until confirmed.\n"
+             " * Waiting Another Operation: waiting for another move to proceed before it becomes automatically available (e.g. in Make-To-Order flows).\n"
+             " * Waiting: if it is not ready to be sent because the required products could not be reserved.\n"
+             " * Ready: products are reserved and ready to be sent. If the shipping policy is 'As soon as possible' this happens as soon as anything is reserved.\n"
+             " * Done: has been processed, can't be modified or cancelled anymore.\n"
+             " * Cancelled: has been cancelled, can't be confirmed anymore.")
+    origin_pick_id = fields.Many2one('stock.picking',string=u'Điều chuyển nguồn')
+#     origin = fields.Char(
+#         'Source Document', index=True,
+#         states={'done': [('readonly', True)], 'cancel': [('readonly', True)]},
+#         help="Reference of the document", compute='origin_',store=True)
 #     
-#     @api.depends('start_date', 'duration')
-#     def _get_end_date(self):
+    loai_tra_hay_chuyen_tiep = fields.Selection([('tra_do_huy',u'Trả do hủy'),('tra_do_muon',u'Trả do mượn'),('chuyen_tiep',u'Chuyển tiếp')],string=u'Loại trả hay chuyển tiếp')
+
+
+
+#     @api.depends('origin_pick_id.name','origin_pick_id.ten_truoc_huy')
+#     def origin_(self):
 #         for r in self:
-#             if not (r.start_date and r.duration):
-#                 r.end_date = r.start_date
-#                 continue
-# 
-#             # Add duration to start_date, but: Monday + 5 days = Saturday, so
-#             # subtract one second to get on Friday instead
-#             start = fields.Datetime.from_string(r.start_date)
-#             duration = timedelta(days=r.duration, seconds=-1)
-#             r.end_date = start + duration
-# 
-#     def _set_end_date(self):
-#         for r in self:
-#             if not (r.start_date and r.end_date):
-#                 continue
-# 
-#             # Compute the difference between dates, but: Friday - Monday = 4 days,
-#             # so add one day to get 5 days instead
-#             start_date = fields.Datetime.from_string(r.start_date)
-#             end_date = fields.Datetime.from_string(r.end_date)
-#             r.duration = (end_date - start_date).days + 10
+#             if r.origin_pick_id:
+#                 if r.origin_pick_id.ten_truoc_huy:
+#                     first = u'Trả do hủy của '
+#                 else:
+#                     first = u'Trả của '
+#                 origin = first + r.origin_pick_id.name
+#                 r.origin = origin
+                
     @api.multi
     def is_validate_mode_(self):
         for r in self:
@@ -112,14 +121,11 @@ class StockPicking(models.Model):
                 is_same_department =  is_same_department or  (not r.location_dest_id.department_id and r.location_dest_id.cho_phep_khac_tram_chon)
             r.is_same_department = is_same_department
             
-            
-            
 #     @api.multi
 #     def is_diff_department_(self):
 #         for r in self:
 #             is_diff_department = r.location_id.department_id != r.location_dest_id.department_id
 #             r.is_diff_department = is_diff_department
-    
     @api.depends('location_id','location_dest_id')
     def show_validate_ben_giao_(self):
         for r in self:
@@ -131,7 +137,6 @@ class StockPicking(models.Model):
                     r.show_validate_ben_giao = False
             else:
                 r.show_validate_ben_giao = False
-
 
     @api.multi
     @api.depends('state', 'is_locked','location_id','location_dest_id')
@@ -170,68 +175,8 @@ class StockPicking(models.Model):
     @api.multi
     def validate_cua_ben_giao(self):
         self.state = 'done_ben_giao'
-    state = fields.Selection([
-        ('draft', 'Draft'),
-        ('waiting', 'Waiting Another Operation'),
-        ('confirmed', 'Waiting'),
-        ('assigned', 'Ready'),
-        ('done_ben_giao', u'Xác nhận bên giao'),
-        ('done', 'Done'),
-        ('cancel', 'Cancelled'),
-    ], string='Status', compute='_compute_state',
-        copy=False, index=True, readonly=True, store=True, track_visibility='onchange',
-        help=" * Draft: not confirmed yet and will not be scheduled until confirmed.\n"
-             " * Waiting Another Operation: waiting for another move to proceed before it becomes automatically available (e.g. in Make-To-Order flows).\n"
-             " * Waiting: if it is not ready to be sent because the required products could not be reserved.\n"
-             " * Ready: products are reserved and ready to be sent. If the shipping policy is 'As soon as possible' this happens as soon as anything is reserved.\n"
-             " * Done: has been processed, can't be modified or cancelled anymore.\n"
-             " * Cancelled: has been cancelled, can't be confirmed anymore.")
-        
-    origin_pick_id = fields.Many2one('stock.picking')
-    origin = fields.Char(
-        'Source Document', index=True,
-        states={'done': [('readonly', True)], 'cancel': [('readonly', True)]},
-        help="Reference of the document", compute='origin_',store=True)
-#     @api.multi
-#     @api.depends('state', 'is_locked')
-#     def _compute_show_validate(self):
-#         for picking in self:
-#             if self._context.get('planned_picking') and picking.state == 'draft':
-#                 picking.show_validate = False
-#             elif picking.state not in ('draft', 'confirmed', 'assigned') or not picking.is_locked:
-#                 picking.show_validate = False
-#             else:
-#                 picking.show_validate = True
-                
-                
-    @api.depends('origin_pick_id.name','origin_pick_id.ten_truoc_huy')
-    def origin_(self):
-        for r in self:
-            if r.origin_pick_id:
-                #
-                if r.origin_pick_id.ten_truoc_huy:
-                    first = u'Trả do hủy của '
-                else:
-                    first = u'Trả của '
-                origin = first + r.origin_pick_id.name
-                r.origin = origin
-        
-    
-#     @api.multi
-#     def copy(self, default=None):
-# #         self.ensure_one()
-# #         print ('**self.env.context',self.env.context)
-# #         raise ValueError('on copy')
-#         if default is None:
-#             default = {}
-# #         if 'name' not in default:
-# #             default['name'] = _("%s (copy)") % self.name
-#         if 'change_default_picking_copy' in self.env.context:
-#             default['ban_giao_or_nghiem_thu'] = u'TRA'
-#             
-#         return super(StockPicking, self).copy(default=default)
-    
-    @api.onchange('ban_giao_or_nghiem_thu')
+   
+
     @api.depends('ban_giao_or_nghiem_thu')
     def ma_bien_ban_(self):
         self.ma_bien_ban = self.ban_giao_or_nghiem_thu
@@ -241,6 +186,7 @@ class StockPicking(models.Model):
 #         for r in self:
 #             r.cancel_mode=self.env['ir.config_parameter'].sudo().get_param('tonkho.cancel_mode')
 #     @api.onchange('department_id','ban_giao_or_nghiem_thu')
+   
     @api.depends('department_id','ban_giao_or_nghiem_thu')
     def stt_trong_bien_ban_in_(self):
         domain = [('department_id','=',self.department_id.id),
@@ -250,7 +196,6 @@ class StockPicking(models.Model):
         if isinstance(self.id, int):
             domain.append(('id','!=',self.id))
         picking = self.env['stock.picking'].search(domain,limit=1,order='stt_trong_bien_ban_in desc')
-        print ('**picking',picking,'picking.stt_trong_bien_ban_in',picking.stt_trong_bien_ban_in)
         if picking:
             stt_trong_bien_ban_in = picking.stt_trong_bien_ban_in + 1
             self.stt_trong_bien_ban_in=stt_trong_bien_ban_in
@@ -278,11 +223,11 @@ class StockPicking(models.Model):
         for r in self:
             r.choosed_stock_quants_ids =  r.move_line_ids.mapped('stock_quant_id')
         
-    @api.multi
-    @api.depends('state', 'move_lines')
-    def _compute_show_mark_as_todo(self):
-        for picking in self:
-            picking.show_mark_as_todo = True
+#     @api.multi
+#     @api.depends('state', 'move_lines')
+#     def _compute_show_mark_as_todo(self):
+#         for picking in self:
+#             picking.show_mark_as_todo = True
 #             if picking.state == 'done' or picking.state == 'confirmed'  :
 #                 picking.show_mark_as_todo = False
 #             else:
@@ -491,14 +436,14 @@ class StockPicking(models.Model):
     def xem_print_theo_move_line(self):
         return {
              'type' : 'ir.actions.act_url',
-             'url':'/report/html/tonkho.bao_cao_dieu_chuyen_theo_move_line/%s'%self.id,
+             'url':'/report/html/tonkho.bcdc/%s'%self.id,
              'target': 'new',
         }
     @api.multi
     def xem_print_pdf(self):
         return {
             'type' : 'ir.actions.act_url',
-            'url':'/report/pdf/tonkho.bao_cao_dieu_chuyen/%s'%self.id,
+            'url':'/report/pdf/tonkho.bcdc/%s'%self.id,
             'target': 'new',
         }
         

@@ -92,7 +92,9 @@
                <field name="uom_id" />
                <field name="categ_id" />
                <field name="thiet_bi_id" />
+               <field name="thiet_bi_id_tti" />
                <field name="brand_id" />
+               <field name="brand_id_tti" />
                <field name="tracking" />
                
                <field name="is_co_sn_khong_tinh_barcode" />
@@ -107,6 +109,7 @@
                <field name="ghi_chu_ngay_xuat" />
                <field name="create_uid" />
                 <field name="tram_ltk_tao"></field>
+                <field name="tram_tti_tao"></field>
                 <field name="dang_chay_tao"></field>
                <field name="du_phong_tao"></field>
                
@@ -124,6 +127,7 @@
                <filter string="Vật tư có tồn tại trong bất cứ kho" name="quant_ids" domain="[('quant_ids.quantity','&gt;=',1)]"/>
                <field string="Tìm vật tư có trong kho Này" name="stock_location_id_selection"   filter_domain="[('quant_ids.quantity','&gt;=',1),('quant_ids.location_id','ilike',self)]"/>
                <filter string="quant is not set" name="quant_ids" domain="[('quant_ids','=',False)]"/>
+               <filter string="tram_ltk_tao va tram_tti_tao" name="tram_ltk_tao" domain="[('tram_ltk_tao','=',True),('tram_tti_tao','=',True)]"/>
             </xpath>
          </field>
       </record>
