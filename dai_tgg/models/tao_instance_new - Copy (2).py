@@ -13,18 +13,10 @@ _logger = logging.getLogger(__name__)
 from odoo.osv import expression
 import sys
 VERSION_INFO   = sys.version_info[0]
-from collections import  OrderedDict
-
 def get_or_create_object_has_x2m (self, class_name, search_dict,
-                                write_dict ={},
-                                is_must_update=False, 
-                                noti_dict=None,
+                                write_dict ={},is_must_update=False, noti_dict=None,
                                 inactive_include_search = False, x2m_key=[],remove_all_or_just_add_one_x2m = True,
-                                is_return_get_or_create = False,
-#                                  not_update_field_if_instance_exist_list=[],
-#                                  dict_get_or_create_para_all_field={},
-                                 model_dict = {}
-                                 ):
+                                 is_return_get_or_create = False,not_update_if_exist_list=[],g_o_c_para_dict={}):
     
     if x2m_key:
         first_values = search_dict[x2m_key[0]]
@@ -34,9 +26,8 @@ def get_or_create_object_has_x2m (self, class_name, search_dict,
             object, get_or_create = get_or_create_object_sosanh(self, class_name, search_dict,
                                     write_dict =write_dict, is_must_update=is_must_update, noti_dict=noti_dict,
                                     inactive_include_search = inactive_include_search,is_return_get_or_create=True,
-#                                     not_update_field_if_instance_exist_list=not_update_field_if_instance_exist_list,
-#                                     dict_get_or_create_para_all_field = dict_get_or_create_para_all_field,
-                                    model_dict = model_dict
+                                    not_update_if_exist_list=not_update_if_exist_list,
+                                    g_o_c_para_dict = g_o_c_para_dict
                                     )
             result.append(object.id)
         if remove_all_or_just_add_one_x2m == True:
@@ -49,10 +40,8 @@ def get_or_create_object_has_x2m (self, class_name, search_dict,
         obj, get_or_create =  get_or_create_object_sosanh(self, class_name, search_dict,
                                     write_dict =write_dict, is_must_update=is_must_update, noti_dict=noti_dict,
                                     inactive_include_search = inactive_include_search, is_return_get_or_create=True,
-#                                     not_update_field_if_instance_exist_list=not_update_field_if_instance_exist_list,
-#                                     dict_get_or_create_para_all_field = dict_get_or_create_para_all_field,
-                                    model_dict = model_dict
-
+                                    not_update_if_exist_list=not_update_if_exist_list,
+                                    g_o_c_para_dict = g_o_c_para_dict
                                     
                                     )
         obj_id = obj.id
@@ -66,11 +55,8 @@ def get_or_create_object_has_x2m (self, class_name, search_dict,
 
 def get_or_create_object_sosanh(self, class_name, search_dict,
                                 write_dict ={},is_must_update=False, noti_dict=None,
-                                inactive_include_search = False,
-                                is_return_get_or_create = False,
-#                                 dict_get_or_create_para_all_field={},
-                                model_dict = {}                                    
-                                ):
+                                inactive_include_search = False,is_return_get_or_create = False,
+                                not_update_if_exist_list=[],g_o_c_para_dict={}):
     
     
     if noti_dict !=None:
@@ -83,7 +69,7 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
         domain_not_active = []
     domain = []
     for i in search_dict:
-        operator_search = model_dict['fields'][i].get('get_or_create_para',{}).get('operator_search','=')
+        operator_search = g_o_c_para_dict.get(i,{}).get('operator_search','=')
         tuple_in = (i,operator_search,search_dict[i])
         domain.append(tuple_in)
     domain = expression.AND([domain_not_active, domain])
@@ -96,12 +82,8 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
             this_model_noti_dict['create'] = this_model_noti_dict.get('create', 0) + 1
         return_obj =  created_object
     else:
-        new_write_dict ={}
-        for f_name in write_dict:
-            not_update_field_if_instance_exist = model_dict['fields'][f_name].get('get_or_create_para',{}).get('not_update_field_if_instance_exist',False)
-            if not not_update_field_if_instance_exist:
-                new_write_dict[f_name] = write_dict[f_name]
-        write_dict = new_write_dict
+        for i in not_update_if_exist_list:
+            del write_dict[i]
         if not is_must_update:
             is_write = False
             for f_name in write_dict:
@@ -186,23 +168,11 @@ def read_excel_cho_field(sheet, row, col_index,merge_tuple_list):
     return val
             
 ### Xong khai bao
-
-def f_ordered_a_model_dict(model_dict):
-    fields = model_dict['fields']
-    for fname,attr in fields:
-        childrend_model_dict=  attr
-        childrend_fields = childrend_model_dict.get('fields')
-        if childrend_fields:
-            new_ordered_dict = f_ordered_a_model_dict(childrend_model_dict)
-    model_dict['fields']=OrderedDict(fields)
-            
-
-
 def recursive_add_model_name_to_field_attr(self,MODEL_DICT):
     print ('in recursive_add_model_name_to_field_attr...')
     model_name = MODEL_DICT['model']
     fields= self.env[model_name]._fields
-    for field_tuple in MODEL_DICT.get('fields',{}).items():
+    for field_tuple in MODEL_DICT.get('fields',[]):
         f_name = field_tuple[0]
         field_attr = field_tuple[1]
         if not field_attr.get('for_excel_readonly') and f_name not in fields:
@@ -222,7 +192,7 @@ def loop_through_fields_in_model_dict_to_add_col_index_match_xl_title(MODEL_DICT
 #         raise UserError(u'kakaka Ngăn')
     is_map_xl_title = False
 #     is_map_xl_title_foreinkey = False
-    for field,field_attr in MODEL_DICT.get('fields',{}).items():
+    for field,field_attr in MODEL_DICT.get('fields',[]):
         is_real_xl_match_with_xl_excel = False
         if field_attr.get('set_val',None) != None:
             continue
@@ -245,6 +215,7 @@ def loop_through_fields_in_model_dict_to_add_col_index_match_xl_title(MODEL_DICT
     return is_map_xl_title #or is_map_xl_title_foreinkey
 
 def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, noti_dict, main_call_create_instance = None):
+#     print ('in create_instance...')
     key_search_dict = {}
     update_dict = {}
     vof_dict = {} # value of fields of one instance
@@ -253,7 +224,17 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
         needdata['vof_dict'] = vof_dict
     x2m_key = []
     remove_all_or_just_add_one_x2m = True
-    for field_name,field_attr  in MODEL_DICT['fields'].items():
+    not_update_if_exist_list = []
+    g_o_c_para_dict = {}
+    for count, field_field_attr in enumerate(MODEL_DICT['fields']):
+        field_name = field_field_attr[0]
+        field_attr = field_field_attr[1]
+        if field_attr.get('not_update_if_exist'):
+            not_update_if_exist_list.append(field_name)
+        get_or_create_para = field_attr.get('get_or_create_para',{})
+        if get_or_create_para:
+            g_o_c_para_dict[field_name] = get_or_create_para
+            
         col_index = field_attr.get('col_index')
         xl_val = False
         field_type_of_this_model = MODEL_DICT.get('field_type')
@@ -272,14 +253,15 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
             continue
         elif col_index !=None: # đọc file exc
             xl_val = read_excel_cho_field(sheet, row, col_index, merge_tuple_list)
+#             avof_dict = vof_dict.setdefault(field_name,{})
             avof_dict['excel_val'] = xl_val
             xl_val = empty_string_to_False(xl_val)
             if xl_val   != False and field_type_of_this_model != None and '2many' in field_type_of_this_model and field_attr.get('x2m_list'):
                 xl_val = xl_val.split(',')
                 xl_val = map(lambda i: i.strip(),xl_val)
-        
         elif field_attr.get('fields') :#and field_attr.get('field_type')=='many2one':
             xl_val, vof_dict_childrend, get_or_create  = create_instance (self, field_attr, sheet, row, merge_tuple_list, needdata, noti_dict)
+#             avof_dict = vof_dict.setdefault(field_name,{})
             avof_dict['fields'] = vof_dict_childrend
             avof_dict['get_or_create'] = get_or_create
 
@@ -303,14 +285,13 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
         if xl_val == False and  field_attr.get('default'):
             xl_val = field_attr.get('default')
         avof_dict['val'] = xl_val
-       
         required = field_attr.get('required',False)
+        
         if required and xl_val==False:
             if field_attr.get('raise_if_False'):
                 raise UserError('raise_if_False field: %s'%field_name)
+            print ("skip because required- field %s"%(field_name))
             return False , vof_dict,False
-        
-        
         elif field_attr.get('bypass_this_field_if_value_equal_False') and xl_val==False:
             continue
         elif not field_attr.get('for_excel_readonly'):
@@ -336,14 +317,12 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
 #     print ('update_dict',update_dict)
     if key_search_dict:
         obj_val, get_or_create = get_or_create_object_has_x2m(self, model_name, key_search_dict, update_dict,
-                                is_must_update = False, 
-                                noti_dict = noti_dict,
-                                inactive_include_search  = inactive_include_search, 
-                                x2m_key = x2m_key,
+                                is_must_update=True, noti_dict = noti_dict,
+                                inactive_include_search  = inactive_include_search, x2m_key = x2m_key,
                                 remove_all_or_just_add_one_x2m=remove_all_or_just_add_one_x2m,
-                                is_return_get_or_create = True,
-                                model_dict=MODEL_DICT
+                                is_return_get_or_create = True,not_update_if_exist_list=not_update_if_exist_list,g_o_c_para_dict=g_o_c_para_dict
                                 )
+#         print ('***get_or_create',get_or_create)
     else:
         obj_val = False
     return obj_val, vof_dict, get_or_create
@@ -353,6 +332,15 @@ def convert_integer(val,needdata):
     except:
         return 0
     
+# def chon_location_id(val,needdata):
+#     location_id = \
+#     needdata['vof_dict']['location_id4']['val'] or \
+#     needdata['vof_dict']['location_id3']['val'] or \
+#     needdata['vof_dict']['location_id2']['val'] or \
+#     needdata['vof_dict']['location_id1']['val'] or \
+#     needdata['vof_dict']['location_id_goc']['val']
+#     return location_id
+
 
 
 def qty_(val,n):
@@ -419,6 +407,8 @@ def importthuvien(odoo_or_self_of_wizard):
             return tram_dict.get(v,v)
         else:
             return v
+         
+        
     for r in self:
 #             if not self.department_id:
 #                 raise UserError(u'Bạn phải chọn department trước')
@@ -434,8 +424,10 @@ def importthuvien(odoo_or_self_of_wizard):
                 'last_function_for_import':last_function_for_import_1_,
                 'last_function':last_function_1_,
                 'fields' : [
-                ('stt',{'func':None,'xl_title':u'STT new','key':True, 'required':True,'skip_field_if_not_found_column_in_some_sheet':True}),
-                ('location_id_goc', {'model':'stock.location','key':False, 'for_excel_readonly' :True,"required":True, 'set_val':self.department_id.default_location_id.id,'raise_if_False':True}),  
+                        ('stt',{'func':None,'xl_title':u'STT new','key':True, 'required':True,'skip_field_if_not_found_column_in_some_sheet':True}),
+                     
+                        
+                        ('location_id_goc', {'model':'stock.location','key':False, 'for_excel_readonly' :True,"required":True, 'set_val':self.department_id.default_location_id.id,'raise_if_False':True}),  
                 ('prod_lot_id_excel_readonly',{'empty_val':[u'N/C',],'func':lambda val,needdata: int(val) if isinstance(val,float) else val,'xl_title':[u'Seri Number'],'for_excel_readonly' :True}),
                 ('product_qty', {'func':qty_,'replace_val':{u'XFP, SFP các loại':[(False,1)]},'xl_title':[u'Tồn kho cuối kỳ',u'Số lượng',u'Tồn kho cuối kỳ'],'key':False,'sheet_allow_this_field_not_has_exel_col':[u'XFP, SFP các loại']}),
                 ('inventory_id', {'fields':[
@@ -443,6 +435,9 @@ def importthuvien(odoo_or_self_of_wizard):
                                         ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id_goc']['val']})
                                         ,]
                     }),
+                
+                
+                
                 ('product_id',{'key':True,'required':True,
                                'fields':[
                                         ('name',{'func':None,'xl_title':[u'TÊN VẬT TƯ',u'Module quang'],'key':True,'required':True,'empty_val':[u'TỔNG ĐÀI IMS',u'JUNIPER ERX 1400; T1600 ; T4000']}),
@@ -549,8 +544,6 @@ def importthuvien(odoo_or_self_of_wizard):
                  
                  u'stock.inventory.line.tong.hop.ltk.dp.tti.dp': {
                 'key_allow':True,
-                
-                
                 'title_rows':{'key_ltk':[4,5],'key_tti':[3,4]},
                 'title_rows_some_sheets':{u'XFP, SFP các loại':[2,3]},
                 'begin_data_row_offset_with_title_row' :1,
@@ -709,14 +702,8 @@ def importthuvien(odoo_or_self_of_wizard):
                                         ('name',{'func':None,'xl_title':[u'TÊN VẬT TƯ',u'Module quang'],'key':True,'required':True,'empty_val':[u'TỔNG ĐÀI IMS',u'JUNIPER ERX 1400; T1600 ; T4000']}),
                                         ('type',{'set_val':'product'}),
                                         ('tracking',{'func':lambda val,needdata: 'serial' if needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] !=False else False, 'bypass_this_field_if_value_equal_False':True}),
-                                        ('thiet_bi_id',{
-                                            'get_or_create_para':{'not_update_field_if_instance_exist':True}
-                                            ,'fields':[('name',{'func':None,'xl_title':u'Thiết bị', 'key':True,'required': True}),]
-                                            }),
+                                        ('thiet_bi_id',{'not_update_if_exist':True,'fields':[('name',{'func':None,'xl_title':u'Thiết bị', 'key':True,'required': True}),]}),
                                         ('thiet_bi_id_tti',{'fields':[('name',{'func':None,'xl_title':u'Thiết bị', 'key':True,'required': True}),]}),
-                                        
-                                        
-                                        
                                         ('brand_id_tti',{'empty_val':[u'NA'],'fields':[('name',{'func':None,'xl_title':[u'Hãng sản xuất',u'Hãng / Model'], 'key':True,'required': True}),]}),
                                         ('categ_id',{'fields':[('name',{'func':categ_id_tti_convert_to_ltk_,'karg':{'tram':'TTI'},#lambda val,needdata: needdata['sheet_name'],
                                                                          'key':True,'required': True}),]}),
@@ -1264,8 +1251,6 @@ def importthuvien(odoo_or_self_of_wizard):
                 }#end tag ALL_MODELS_DICT
             noti_dict = {}
             CHOOSED_MODEL_DICT = ALL_MODELS_DICT[r.type_choose]
-         
-            f_ordered_a_model_dict( CHOOSED_MODEL_DICT)
             recursive_add_model_name_to_field_attr(self,CHOOSED_MODEL_DICT)
             needdata = {}
             needdata['sheet_names'] = CHOOSED_MODEL_DICT['sheet_names']
