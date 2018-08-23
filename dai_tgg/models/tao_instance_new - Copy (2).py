@@ -292,7 +292,8 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
                 raise UserError('raise_if_False field: %s'%field_name)
             print ("skip because required- field %s"%(field_name))
             return False , vof_dict,False
-        elif field_attr.get('bypass_this_field_if_value_equal_False') and xl_val==False:
+        
+        elif field_attr.get('bypass_this_field_if_value_equal_False',True) and xl_val==False:
             continue
         elif not field_attr.get('for_excel_readonly'):
             key_or_not = field_attr.get('key')

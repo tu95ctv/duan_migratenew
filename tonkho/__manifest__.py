@@ -51,7 +51,7 @@
     'views/setting.xml',
     'views/insert_style.xml',
     'views/stock_inventory_line.xml',
-    
+    'views/uom.xml',
 
         
         

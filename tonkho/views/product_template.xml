@@ -93,6 +93,7 @@
                <field name="categ_id" />
                <field name="thiet_bi_id" />
                <field name="thiet_bi_id_tti" />
+               <field name="thiet_bi_id_ltk" />
                <field name="brand_id" />
                <field name="brand_id_tti" />
                <field name="tracking" />

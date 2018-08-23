@@ -50,6 +50,8 @@ class PT(models.Model):
     du_phong_tao = fields.Boolean()
     tram_tti_tao = fields.Boolean()
     thiet_bi_id_tti = fields.Many2one('tonkho.thietbi', string = u'Thiết bị TTI')
+    thiet_bi_id_ltk = fields.Many2one('tonkho.thietbi', string = u'Thiết bị LTK')
+
     brand_id_tti = fields.Many2one('tonkho.brand',string=u'Hãng sản xuất TTI')
     
 #     is_co_sn_thuan_pr = fields.Boolean(related='product_variant_id.is_co_sn_thuan_pr',store=True)

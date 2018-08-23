@@ -22,7 +22,7 @@ class ImportThuVien(models.Model):
     type_choose = fields.Selection([
         (u'stock.inventory.line',u'stock.inventory.line'),
         (u'stock.inventory.line.dp_tti',u'stock.inventory.line.dp_tti'),
-        
+        (u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',u'stock.inventory.line.tong.hop.ltk.dp.tti.dp'),
         (u'stock.inventory.line.tkt.vtdc',u'stock.inventory.line.tkt.vtdc'),
         (u'Product',u'Product'),
         (u'Thư viện công việc',u'Thư viện công việc'),
@@ -44,9 +44,13 @@ class ImportThuVien(models.Model):
                                     ,(u'iventory hw8800',u'iventory hw8800')
                                     ,(u'iventory7500',u'iventory7500')
                                     ],required = True)
-    sheet_name = fields.Selection([(u'Vô tuyến',u'Vô tuyến'),(u'Chuyển Mạch (IMS, Di Động)',u'Chuyển Mạch (IMS, Di Động)'),
+    sheet_name = fields.Selection([
+                                    (u'Vô tuyến',u'Vô tuyến'),
+                                  (u'TRUYỀN DẪN',u'TRUYỀN DẪN'),
+                                   (u'Chuyển Mạch (IMS, Di Động)',u'Chuyển Mạch (IMS, Di Động)'),
                                    (u'Truyền dẫn',u'Truyền dẫn'),(u'IP (VN2, VNP)',u'IP (VN2, VNP)'),
                                    (u'GTGT',u'GTGT'),(u'XFP, SFP các loại',u'XFP, SFP các loại')  ],rejquired=True)
+    key_tram =  fields.Selection([('key_ltk','key_ltk'),('key_tti','key_tti')])
     file = fields.Binary()
     filename = fields.Char()
     name_inventory_suffix = fields.Char()
