@@ -4,6 +4,9 @@ import re
 from odoo.addons.dai_tgg.models.tao_instance_new import importthuvien
 # from odoo.addons.dai_tgg.models.tao_instance import import_strect
 
+from odoo.addons.dai_tgg.models.model_dict import ALL_MODELS_DICT
+
+ALL_MODELS_DICT = ALL_MODELS_DICT
 M = {'LTK':['LTK'],'PTR':['pas'],'TTI':['TTI'],'BDG':['BDG'],'VTU':['VTU']}
 def convert_sheetname_to_tram(sheet_name):
     if sheet_name ==False:
@@ -50,7 +53,10 @@ class ImportThuVien(models.Model):
                                    (u'Chuyển Mạch (IMS, Di Động)',u'Chuyển Mạch (IMS, Di Động)'),
                                    (u'Truyền dẫn',u'Truyền dẫn'),(u'IP (VN2, VNP)',u'IP (VN2, VNP)'),
                                    (u'GTGT',u'GTGT'),(u'XFP, SFP các loại',u'XFP, SFP các loại')  ],rejquired=True)
-    key_tram =  fields.Selection([('key_ltk','key_ltk'),('key_tti','key_tti')])
+    key_tram =  fields.Selection([('key_ltk','key_ltk'),
+                                  ('key_tti','key_tti'),
+                                  ('key_ltk_dc','key_ltk_dc'),
+                                  ])
     file = fields.Binary()
     filename = fields.Char()
     name_inventory_suffix = fields.Char()
@@ -119,66 +125,9 @@ class ImportThuVien(models.Model):
         else:
             raise UserWarning(u'Bạn phải chọn trigger model')
     def importthuvien(self):
-        importthuvien(self)
+        
+        importthuvien(self,ALL_MODELS_DICT)
         return True
     def import_strect(self):
         pass
-#         import_strect(self)
         return True
-#     def get_tram_from_sheet_name(self):
-#         M = {'LTK':['LTK'],'PTR':['PTR'],'TTI':['TTI'],'BDG':['BDG','VTU']}
-#         count = 0
-#         map_count = 0
-#         for r in self.env['kknoc'].search([]):
-#             count +=1
-#             r.tram =convert_sheetname_to_tram(r.sheet_name)
-#             if r.tram:
-#                 map_count +=1
-#         self.thong_bao_khac = 'so tram ltk, ptr %s'%map_count
-#     def map_kiemke_voi_noc(self):
-#         so_luong_mapping = 0
-#         count = 0
-#         for r in self.env['kiemke'].search([]):
-#             ##print count
-#             if r.sn:
-#                 mapping = self.env['kknoc'].search([('sn','=',r.sn)],limit=1)
-#                 if mapping:
-#                     so_luong_mapping +=1
-#                     r.map_kknoc_id = mapping.id
-#             else:
-#                 r.map_kknoc_id = False
-#             count +=1
-#         self.thong_bao_khac = u'Có %s kk mapping kknoc' %( so_luong_mapping)
-#         return True       
-#     def map_noc_voi_ltk(self):
-#         so_luong_mapping = 0
-#         count = 0
-#         for r in self.env['kknoc'].search([]):
-#             ##print count
-#             if r.sn:
-#                 mapping = self.env['vattu'].search([('sn','=',r.sn)],limit=1)
-#                 if mapping:
-#                     so_luong_mapping +=1
-#                     ##print 'co %s mapping'%(so_luong_mapping)
-#                     r.map_ltk_id = mapping.id
-#             else:
-#                 r.map_ltk_id = False
-#             count +=1
-#         self.thong_bao_khac = u'Có %s noc mapping ltk' %( so_luong_mapping)
-#         return True   
-#     def map_noc_voi_kiemke(self):
-#         so_luong_mapping = 0
-#         count = 0
-#         for r in self.env['kknoc'].search([]):
-#             ##print count
-#             if r.sn:
-#                 mapping = self.env['kiemke'].search([('sn','=',r.sn)],limit=1)
-#                 if mapping:
-#                     so_luong_mapping +=1
-#                     ##print 'co %s mapping noc với kiểm kê'%(so_luong_mapping)
-#                     r.map_kiemke_id = mapping
-#             else:
-#                 r.map_kiemke_id = False
-#             count +=1
-#         self.thong_bao_khac = u'Có %s noc mapping Kiểm kê' %( so_luong_mapping)
-#         return True   
