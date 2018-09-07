@@ -4,7 +4,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 from  odoo.addons.dai_tgg.mytools import name_compute
-
+import datetime
 from odoo.addons.tonkho.controllers.controllers import  download_quants,download_product,download_quants_moi_cage_moi_sheet
 
 # from odoo import _
@@ -22,11 +22,27 @@ class DownloadQuants(models.TransientModel):
     test =  fields.Text()
     data = fields.Binary('File', readonly=True)
     is_moi_sheet_moi_loai = fields.Boolean()
-    
+    def ngay_bat_dau_filter_(self):
+        print ('self.context',self._context)
+        dm  = self._context.get('active_domain',None)
+        if dm:
+            for x,y,z in dm:
+                if x == 'create_date' and y == '<':
+                    return z
+        return datetime.datetime.now()
+    ngay_bat_dau_filter = fields.Date(string=u'Ngày Bắt Đầu',default=ngay_bat_dau_filter_)
+    ngay_ket_thuc_filter = fields.Date(string=u'Ngày Kết Thúc')
    
         
    
-        
+    @api.multi
+    def test1(self):
+        sql_multi_2 = '''select * from stock_quant'''
+        self.env.cr.execute(sql_multi_2)
+        result_2 = self.env.cr.dictfetchall()
+        self.test = result_2
+        print ('self._context',self._context)
+        raise UserError('akakak')
     
         
     @api.multi

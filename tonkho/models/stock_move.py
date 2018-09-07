@@ -6,6 +6,7 @@ class StockMove(models.Model):
     _inherit = "stock.move"
     ghi_chu = fields.Char()
     stt = fields.Integer()
+    sn_text = fields.Text()
 #     def _action_done(self):
 #         print ('***_action_done')
 #         return super(StockMove, self.with_context(stt=self.stt))._action_done()

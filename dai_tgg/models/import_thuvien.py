@@ -4,9 +4,9 @@ import re
 from odoo.addons.dai_tgg.models.tao_instance_new import importthuvien
 # from odoo.addons.dai_tgg.models.tao_instance import import_strect
 
-from odoo.addons.dai_tgg.models.model_dict import ALL_MODELS_DICT
+# from odoo.addons.dai_tgg.models.model_dict import gen_model_dict
 
-ALL_MODELS_DICT = ALL_MODELS_DICT
+# ALL_MODELS_DICT = ALL_MODELS_DICT
 M = {'LTK':['LTK'],'PTR':['pas'],'TTI':['TTI'],'BDG':['BDG'],'VTU':['VTU']}
 def convert_sheetname_to_tram(sheet_name):
     if sheet_name ==False:
@@ -55,6 +55,7 @@ class ImportThuVien(models.Model):
                                    (u'GTGT',u'GTGT'),(u'XFP, SFP các loại',u'XFP, SFP các loại')  ],rejquired=True)
     key_tram =  fields.Selection([('key_ltk','key_ltk'),
                                   ('key_tti','key_tti'),
+                                  ('key_tti_dc','key_tti_dc'),
                                   ('key_ltk_dc','key_ltk_dc'),
                                   ])
     file = fields.Binary()
@@ -116,7 +117,15 @@ class ImportThuVien(models.Model):
         self.test_result_2 =len(rs2)
         self.test_result_3= rs3
     def test_code(self):
-        self.env['stock.inventory'].browse([13]).line_ids.unlink()
+#         sql_multi_2 = '''select date_trunc('day',create_date) from stock_quant'''
+        
+        sql_multi_2 = "select create_date at time zone 'UTC' at time zone 'ICT'  from stock_quant where cast(create_date at time zone 'UTC' at time zone 'ICT' as date) = date '2018-08-31 '"
+        self.env.cr.execute(sql_multi_2)
+        result_2 = self.env.cr.dictfetchall()
+        self.test_result_1 = result_2
+        print ('self._context',self._context)
+
+#         self.env['stock.inventory'].browse([13]).line_ids.unlink()
     def trigger(self):
         if self.trigger_model:
             count = 0
@@ -126,7 +135,7 @@ class ImportThuVien(models.Model):
             raise UserWarning(u'Bạn phải chọn trigger model')
     def importthuvien(self):
         
-        importthuvien(self,ALL_MODELS_DICT)
+        importthuvien(self)
         return True
     def import_strect(self):
         pass

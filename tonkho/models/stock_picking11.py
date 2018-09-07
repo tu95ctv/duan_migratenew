@@ -5,6 +5,13 @@ from odoo.exceptions import UserError
 from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 from datetime import timedelta
+from odoo.addons.dai_tgg.models.tao_instance_new import importthuvien
+from odoo.addons.dai_tgg.models.model_dict import gen_model_dict
+from odoo.addons.tonkho.controllers.controllers import  download_sml,download_ml
+
+import base64
+import contextlib
+import io
 
 def _select_nextval(cr, seq_name):
     cr.execute("SELECT nextval('%s')" % seq_name)
@@ -36,8 +43,8 @@ class StockPicking(models.Model):
                                                (u'TDTT',u'Thay đổi tình trạng vật tư'),
                                                (u'DCNB',u'Dịch chuyển nội bộ'),
                                                ],default=u'BBBG', string=u'B/giao hay N/thu',copy=False)
-#     data_file = fields.Binary(string='File Import')
-#     filename = fields.Char()
+    file = fields.Binary(string='File Import')
+    filename = fields.Char()
 #     stt_trong_bien_ban_in = fields.Integer(default=lambda self:self.default_get([ 'stt_bien_ban']).get('stt_bien_ban'),string=u'STT trong biên bản')
     stt_trong_bien_ban_in = fields.Integer(string=u'STT trong biên bản',compute='stt_trong_bien_ban_in_',store=True,copy=False)
 #     stt_trong_bien_ban_in = fields.Integer(string=u'STT trong biên bản',copy=False)
@@ -68,6 +75,7 @@ class StockPicking(models.Model):
     is_same_department = fields.Boolean(compute='is_same_department_')# location_id = location_dest_id
     is_validate_mode = fields.Boolean(compute='is_validate_mode_')
     ten_truoc_huy = fields.Char(string=u'Tên trước  hủy',copy=False)
+    is_not_ghom_tot = fields.Boolean()
 #     lot_id = fields.Many2one('stock.production.lot')
     state = fields.Selection([
         ('draft', 'Draft'),
@@ -92,20 +100,38 @@ class StockPicking(models.Model):
 #         help="Reference of the document", compute='origin_',store=True)
 #     
     loai_tra_hay_chuyen_tiep = fields.Selection([('tra_do_huy',u'Trả do hủy'),('tra_do_muon',u'Trả do mượn'),('chuyen_tiep',u'Chuyển tiếp')],string=u'Loại trả hay chuyển tiếp')
+    
+    lanh_dao_id = fields.Many2one('res.partner')
+    is_chia_2_dong =  fields.Boolean()
+    file_dl = fields.Binary('File', readonly=True)
+    file_dl_name = fields.Char()
 
+    @api.multi
+    def dl_file(self):#tham khảo  từ act_getfile
+        this = self[0]
+        
+        with contextlib.closing(io.BytesIO()) as buf:
+            workbook = download_ml(this)
+            workbook.save(buf)
+            out = base64.encodestring(buf.getvalue())
+        
+        filename = 'quants-%s'%this.id
+        name = "%s%s" % (filename, '.xls')
+        this.write({ 'file_dl': out, 'file_dl_name': name})
+#         return {
+#             'type': 'ir.actions.act_window',
+#             'res_model': 'tonkho.downloadquants',
+#             'view_mode': 'form',
+#             'view_type': 'form',
+#             'res_id': this.id,
+#             'views': [(False, 'form')],
+#             'target': 'new',
+#         }
+    @api.multi
+    def import_file(self):
+        md = gen_model_dict()
+        importthuvien(self,import_for_stock_tranfer = md, key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',key_tram='sml')
 
-
-#     @api.depends('origin_pick_id.name','origin_pick_id.ten_truoc_huy')
-#     def origin_(self):
-#         for r in self:
-#             if r.origin_pick_id:
-#                 if r.origin_pick_id.ten_truoc_huy:
-#                     first = u'Trả do hủy của '
-#                 else:
-#                     first = u'Trả của '
-#                 origin = first + r.origin_pick_id.name
-#                 r.origin = origin
-                
     @api.multi
     def is_validate_mode_(self):
         for r in self:
@@ -203,20 +229,50 @@ class StockPicking(models.Model):
             self.stt_trong_bien_ban_in = 1
     @api.onchange('texttemplate_id')
     def onchage_for_ly_do(self):
-        self.ly_do = self.texttemplate_id.name
+        if self.texttemplate_id:
+            self.ly_do = self.texttemplate_id.name
     # toi 07/06
 #     is_locked = fields.Boolean(default=False, help='When the picking is not done this allows changing the '
 #                                'initial demand. When the picking is done this allows '
 #                                'changing the done quantities.')
-    def generate_partner_bootstrap_ti_le(self):
-        alist = []
-        alist.append((u'Bên giao',self.source_member_ids[0].name if self.source_member_ids else ''))
+    def generate_partner_bootstrap_ti_le_old(self):
+        is_chia_2_dong = True
+        row_3_dong = []
+        
+        alist_1row = []
+        alist_1row.append((u'Bên giao',self.source_member_ids[0].name if self.source_member_ids else ''))
         if self.ben_thu_3_ids:
-            alist.append((self.title_ben_thu_3.name,self.ben_thu_3_ids[0].name))
-        alist.append((u'Bên nhận',self.dest_member_ids[0].name if self.dest_member_ids else ''))
+            alist_1row.append((self.title_ben_thu_3.name,self.ben_thu_3_ids[0].name))
+        alist_1row.append((u'Bên nhận',self.dest_member_ids[0].name if self.dest_member_ids else ''))
         if self.ben_thu_4_ids:
-            alist.append((self.title_ben_thu_4.name, self.ben_thu_4_ids[0].name))
-        return alist
+            alist_1row.append((self.title_ben_thu_4.name, self.ben_thu_4_ids[0].name))
+        return alist_1row
+    def generate_partner_bootstrap_ti_le(self):
+        is_chia_2_dong = self.is_chia_2_dong
+        row_3_dong = []
+        
+        alist_1st_row = []
+        alist_2nd_row_new = []
+        alist_3rd_row = []
+        if is_chia_2_dong:
+            alist_2row = alist_2nd_row_new
+        else:
+            alist_2row =  alist_1st_row
+#         alist_1st_row.append((u'Bên giao',self.source_member_ids[0].name if self.source_member_ids else ''))
+        alist_1st_row.append((u'Bên giao',self.source_member_ids.mapped('name') if self.source_member_ids else ''))
+        if self.title_ben_thu_3:
+            alist_2row.append((self.title_ben_thu_3.name,[self.ben_thu_3_ids[0].name]))
+        alist_1st_row.append((u'Bên nhận',self.dest_member_ids.mapped('name') if self.dest_member_ids else ''))
+        if self.title_ben_thu_4:
+            alist_2row.append((self.title_ben_thu_4.name, [self.ben_thu_4_ids[0].name]))
+        if self.lanh_dao_id:
+            alist_3rd_row.append((u'Ý kiến lãnh đạo', [self.lanh_dao_id.name]))
+        row_3_dong.append(alist_1st_row)
+        if is_chia_2_dong and alist_2nd_row_new:
+            row_3_dong.append(alist_2nd_row_new)
+        if self.lanh_dao_id:
+            row_3_dong.append(alist_3rd_row)
+        return row_3_dong
    
     @api.depends('move_line_ids.stock_quant_id')
     def choosed_stock_quants_ids_(self):
@@ -300,15 +356,7 @@ class StockPicking(models.Model):
 #                        }
 #                     }
                  
-    @api.model
-    def default_get(self, fields):
-        res = super(StockPicking, self).default_get(fields)
-        kho_dai_hcms = self.env['stock.location'].search([('name','=',u'Kho Đài HCM')])
-        if kho_dai_hcms:
-            kho_dai_hcm_id = kho_dai_hcms[0].id
-            res['location_dest_id'] = kho_dai_hcm_id
-        return res
-    
+   
 #     @api.multi
 #     def action_confirm(self):
 #         # call `_action_confirm` on every draft move

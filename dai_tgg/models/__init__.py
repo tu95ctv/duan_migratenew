@@ -10,4 +10,4 @@
 # from . import tao_instance
 from . import tao_instance_new
 from . import cvisuco, cvi, ctr, conf, tvcv, users, department, dlcv, to_trinh, file
-from . import import_thuvien
+from . import import_thuvien, model_dict

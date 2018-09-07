@@ -57,6 +57,8 @@
         </field>
     </record>
     
+    
+    <!-- 
     <record id="quant_search_view" model="ir.ui.view">
         <field name="name">stock.quant.search</field>
         <field name="model">stock.quant</field>
@@ -67,8 +69,7 @@
                 </field>
         </field>
     </record>
-    
-   
+    -->
     
     
     

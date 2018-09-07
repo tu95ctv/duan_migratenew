@@ -18,9 +18,9 @@ def lot_name_(val,needdata):
 def last_record_function_ltk_vtdc_(n):
     if n['vof_dict']['product_id']['get_or_create']== False:# nếu product_id được tạo mới là sai
         raise UserError(u'Product %s  phải được tạo từ trước'%n['vof_dict']['product_id']['fields']['name']['val'])
-    last_record_function_get_inventory_id_(n)
+    last_record_function_all_(n)
 
-def last_record_function_get_inventory_id_(n):
+def last_record_function_all_(n):
     print ("n['vof_dict']['inventory_id']['val']",n['vof_dict']['inventory_id']['val'])
     if n['vof_dict']['inventory_id']['val'] and  not n.get('inventory_id'):
         n['inventory_id'] = n['vof_dict']['inventory_id']['val']
@@ -38,7 +38,7 @@ def convert_float_to_ghi_chu_ngay_xuat(val):
         except ValueError:# year is out of range
             pass
     return val 
-def last_import_function_get_self_inventory_id_(n,self):
+def last_import_function_all_(n,self):
     self.inventory_id = n['inventory_id']
 def name_of_uom_id_(v,n):
     v = u'Cái' if n['sheet_name']== u'XFP, SFP các loại' else v
@@ -85,8 +85,8 @@ ALL_MODELS_DICT = {
                     'key_tti':lambda self: [u'CHUYỂN MẠCH',u'IP',u'TRUYỀN DẪN',u'GTGT',u'VÔ TUYẾN']if not self.sheet_name else [self.sheet_name],
                                }  ,#[self.sheet_name],#,#[self.sheet_name],#[u'Chuyển Mạch (IMS, Di Động)'],#xl_workbook.sheet_names(),#[u'Truyền dẫn'],#[u'IP (VN2, VNP)'],[u'Chuyển Mạch (IMS, Di Động)']
                 'model':'stock.inventory.line',
-                'last_function_for_import':last_import_function_get_self_inventory_id_,
-                'last_function':last_record_function_get_inventory_id_,
+                'last_import_function':last_import_function_all_,
+                'last_record_function':last_record_function_all_,
                 'fields' : [
                         ('stt',{'func':None, 'xl_title': {'key_ltk':u'STT new',
                                                                     'key_tti':u'STT'
@@ -272,8 +272,8 @@ ALL_MODELS_DICT = {
                 'begin_data_row_offset_with_title_row' :1,
                 'sheet_names': lambda self:[u'Truyền dẫn',u'IP (VN2, VNP)',u'GTGT',u'Chuyển Mạch (IMS, Di Động)',u'Vô tuyến']if not self.sheet_name else [self.sheet_name]  ,#[self.sheet_name],#,#[self.sheet_name],#[u'Chuyển Mạch (IMS, Di Động)'],#xl_workbook.sheet_names(),#[u'Truyền dẫn'],#[u'IP (VN2, VNP)'],[u'Chuyển Mạch (IMS, Di Động)']
                 'model':'stock.inventory.line',
-                'last_function_for_import':last_import_function_get_self_inventory_id_,
-                'last_function':last_record_function_get_inventory_id_,
+                'last_import_function':last_import_function_all_,
+                'last_record_function':last_record_function_all_,
                 'fields' : [
                 ('stt',{'func':None,'xl_title':u'STT new','key':True, 'required':True,'skip_field_if_not_found_column_in_some_sheet':True}),
                 ('location_id_goc', {'model':'stock.location','key':False, 'for_excel_readonly' :True,"required":True, 
@@ -398,8 +398,8 @@ ALL_MODELS_DICT = {
                 'begin_data_row_offset_with_title_row' :1,
                 'sheet_names': [u'CHUYỂN MẠCH',u'IP',u'TRUYỀN DẪN',u'GTGT',u'VÔ TUYẾN']if not self.sheet_name else [self.sheet_name]  ,#[self.sheet_name],#,#[self.sheet_name],#[u'Chuyển Mạch (IMS, Di Động)'],#xl_workbook.sheet_names(),#[u'Truyền dẫn'],#[u'IP (VN2, VNP)'],[u'Chuyển Mạch (IMS, Di Động)']
                 'model':'stock.inventory.line',
-                'last_function_for_import':last_import_function_get_self_inventory_id_,# last function in all
-                'last_function':last_record_function_get_inventory_id_,# last function in  row
+                'last_import_function':last_import_function_all_,# last function in all
+                'last_record_function':last_record_function_all_,# last function in  row
                 'fields' : [
                         ('stt',{'func':None,'xl_title':u'STT','key':True, 'required':True}),
                         ('location_id_goc', {'model':'stock.location','key':False, 'for_excel_readonly' :True,"required":True, 'set_val':self.department_id.default_location_id.id,'raise_if_False':True}),  
@@ -592,9 +592,9 @@ ALL_MODELS_DICT = {
                 'begin_data_row_offset_with_title_row' :1,
                 'sheet_names': [u'Tổng hợp']if not self.sheet_name else [self.sheet_name]  ,#[self.sheet_name],#,#[self.sheet_name],#[u'Chuyển Mạch (IMS, Di Động)'],#xl_workbook.sheet_names(),#[u'Truyền dẫn'],#[u'IP (VN2, VNP)'],[u'Chuyển Mạch (IMS, Di Động)']
                 'model':'stock.inventory.line',
-                'last_function':last_record_function_ltk_vtdc_,
-                'last_function_for_import':last_import_function_get_self_inventory_id_,
-#                 'last_function':last_record_function_get_inventory_id_,                
+                'last_record_function':last_record_function_ltk_vtdc_,
+                'last_import_function':last_import_function_all_,
+#                 'last_record_function':last_record_function_all_,                
                 'fields' : [
                     ('stt',{'func':None,'xl_title':u'STT','key':True,'required':True,'skip_field_if_not_found_column_in_some_sheet':True}),
                     ('location_id_goc', {'model':'stock.location','key':False, 'for_excel_readonly' :True,"required":True,
@@ -603,7 +603,8 @@ ALL_MODELS_DICT = {
                                                      ('stock_type',{'set_val':'tram'}),
                                                     ]
                                                                         }),  
-                    ('prod_lot_id_excel_readonly',{'empty_val':[u'N/C',u'-',u'--',u'NA',u'N/A',u'chưa đọc được SN'],'func':lambda val,needdata: int(val) if isinstance(val,float) else val,'xl_title':[u'Số serial (S/N)'],'for_excel_readonly' :True}),
+                    ('prod_lot_id_excel_readonly',{'empty_val':[u'N/C',u'-',u'--',u'NA',u'N/A',u'chưa đọc được SN'],'func':lambda val,needdata: int(val) if isinstance(val,float) else val,
+                                                   'xl_title':[u'Số serial (S/N)'],'for_excel_readonly' :True}),
                     ('barcode_for_first_read',{'empty_val':[u'NA',u"`"],'func':lambda val,needdata: str(int(val)) if isinstance(val,float) else val,'xl_title':[u'Barcode'],'for_excel_readonly' :True}),
                      
                     ('product_qty', {'key':False,'set_val':1}),#'func':qty_,

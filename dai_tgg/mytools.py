@@ -5,6 +5,26 @@ from odoo import models, fields, api,exceptions,tools,_
 import re
 from unidecode import unidecode
 import sys
+import datetime
+
+def lot_name_(val,needdata,self):
+    p_id = needdata['vof_dict']['product_id']['val']
+    product_id = self.env['product.product'].browse(p_id)
+    UBC  = 'use barcode '
+    lot_name = needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] or (needdata['vof_dict']['barcode_for_first_read']['val'] and  (UBC +' ' + needdata['vof_dict']['barcode_for_first_read']['val']))
+    if lot_name== UBC:
+        lot_name= lot_name + str(int(needdata['vof_dict']['stt']['val']))
+    elif  (lot_name ==False and  product_id.tracking=='serial'):
+        lot_name = 'unknown ' + product_id.name + '  ' + str(int(needdata['vof_dict']['stt']['val']) )
+    return lot_name
+def convert_float_to_ghi_chu_ngay_xuat(val):
+    if isinstance(val, float):
+        seconds = (val - 25569) * 86400.0
+        try:
+            val= datetime.datetime.utcfromtimestamp(seconds).strftime('%d/%m/%Y')
+        except ValueError:# year is out of range
+            pass
+    return val 
 VERSION_INFO   = sys.version_info[0]
 if VERSION_INFO ==2:
     unicode =  unicode

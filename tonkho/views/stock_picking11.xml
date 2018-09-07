@@ -10,8 +10,8 @@
                 <xpath expr="//button[5]" position="before"></xpath>
                 <xpath expr="//button[5]" position="after">
                     <button name="validate_cua_ben_giao" attrs="{'invisible': [('show_validate_ben_giao', '=', False)]}" string="Xác nhận ben giao" groups="stock.group_stock_user" type="object" class="oe_highlight" />
-                    <button name="%(stock.act_stock_return_picking)d" string="Hủy biên bản" context="{'default_loai_tra_hay_chuyen_tiep':'tra_do_huy'}" attrs="{'invisible': ['|', ('state', '!=', 'done'), ('is_locked', '=', False)]}" type="action" groups="base.group_user" />
-                    <button name="%(stock.act_stock_return_picking)d" string="Chuyển tiếp" context="{'default_loai_tra_hay_chuyen_tiep':'chuyen_tiep'}" attrs="{'invisible': ['|', ('state', '!=', 'done'), ('is_locked', '=', False)]}" type="action" groups="base.group_user" />
+                    <button name="%(stock.act_stock_return_picking)d" string="Hủy biên bản" context="{'default_loai_tra_hay_chuyen_tiep':'tra_do_huy'}" attrs="{'invisible': ['|', ('state', '!=', 'done'), ('is_locked', '=', False)]}" type="action" groups="base.group_user"  class="btn-danger"/>
+                    <button name="%(stock.act_stock_return_picking)d" string="Chuyển tiếp" context="{'default_loai_tra_hay_chuyen_tiep':'chuyen_tiep'}" attrs="{'invisible': ['|', ('state', '!=', 'done'), ('is_locked', '=', False)]}" type="action" groups="base.group_user"  class="btn-primary"/>
                 </xpath>
                 <xpath expr="//button[@name='action_confirm']" position="attributes">
                     <attribute name="groups">base.group_erp_manager</attribute>
@@ -37,9 +37,12 @@
                 <xpath expr="//button[@name='do_print_picking']" position="replace"></xpath>
                 <xpath expr="//button[@name='action_toggle_is_locked']" position="after">
                     <button name="ghom_stock_move_lines" string="Tạo Bản In" type="object"  />
-                    <button name="xem_print_theo_move_line" string="Xem biên bản html" type="object" />
+                    <button name="xem_print_theo_move_line" string="Xem biên bản html" type="object"  class="btn-primary"/>
                  <!--  <button name="xem_print" string="Xem biên bản html old" type="object" invsible="1" /> -->  
                     <button name="xem_print_pdf" string="Xem biên bản pdf" type="object" />
+                    <button name="parse_sn_text" string="parse_sn_text" type="object" />
+          			<button name="import_file" string="import_file" type="object" />
+          			<button name="dl_file" string="dl_file" type="object"   class="btn-primary"/>
                 </xpath>
                 <field name="location_id" position="replace">
                     <field name="id" />
@@ -71,6 +74,11 @@
                     <field name="ma_bien_ban" readonly="0" />
                     <field name="totrinh_id" />
                     <field name="ly_do" />
+                    <field name="is_not_ghom_tot" />
+                    <field name="file" filename="filename" />
+                    <field name="filename" />
+                    <field name="file_dl"  readonly="1" filename="file_dl_name"/>
+                    <field name="file_dl_name" />
                 </field>
                 <xpath expr="//page[1]" position="attributes">
                     <attribute name="attrs">{'invisible': False}</attribute>
@@ -136,6 +144,7 @@
                     <field name="pn_id" attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}" context="{'default_product_id':product_id}"
                     domain="[('product_id','=',product_id)]"
                     ></field>
+                    <field name="id"></field>
                 </xpath>
                 <!-- toi ngay 07/06 -->
                 <xpath expr="//page[1]/field/tree/field[@name='state']" position="attributes">
@@ -154,6 +163,7 @@
                 </xpath>
                 <xpath expr="//page[2]/field/tree/field[@name='product_uom']" position="after">
                     <field name="ghi_chu"></field>
+                    <field name="sn_text"></field>
                 </xpath>
                 <!-- Initial Demand -->
                 <xpath expr="//page[2]/field/tree/field[@name='product_uom_qty']" position="attributes">
@@ -206,6 +216,10 @@
                             <group>
                                 <field name="so_ban_in" />
                             </group>
+                        </group>
+                        <group>
+                        	<field name="lanh_dao_id"/>
+                        	<field name="is_chia_2_dong"/>
                         </group>
                     </page>
                     <page string="Thông tin trả vật tư">

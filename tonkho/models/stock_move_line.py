@@ -61,7 +61,7 @@ class StockMoveLine(models.Model):
 #         return {'location_dest_id':}
     @api.onchange('lot_id')
     def lot_id_onchange(self):
-        if self.lot_id:
+        if self.lot_id.tinh_trang:
             self.tinh_trang = self.lot_id.tinh_trang
         
     @api.depends('inventory_id','picking_id.name')

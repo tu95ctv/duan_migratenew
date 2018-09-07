@@ -38,6 +38,7 @@
          <field name="domain"></field> 
         <field name="context">{'search_default_internal_loc':1, 'show_ke':True}</field>
         <field name="view_type">form</field>
+     <!--   <field name="search_view_id" ref="tonkho.quant_search_view"/> --> 
         </record>
     
        <record id="quant_search_view" model="ir.ui.view">
@@ -51,6 +52,10 @@
           <filter string='Có SN hay không' name="group_tracking" domain="[]" context="{'group_by': 'tracking'}"/>
       <!--   <filter string='Đơn Vị/Phòng Ban' name="group_department_id" domain="[]" context="{'group_by': 'department_id'}"/> -->  
           <field string="Tìm Số lượng trong kho có tên" name="stock_location_id_selection"   filter_domain="[('location_id','ilike',self)]"/>
+          <filter name="this month" string="kho thang nay" domain="[('create_date','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01 17:00:00')), ('create_date','&gt;=',time.strftime('%Y-%m-01 00:00:00'))]" help="Chọn tháng này" />
+           <filter name="late" string="Late kho" domain="[('create_date','&lt;', time.strftime('%%Y-%%m-%%d %%H:%%M:%%S'))]" help="Pickings that are late on scheduled time"/>
+                <filter name="late 2" string="Late kho 2" domain="[('create_date','&lt;', (time() +relativedelta(months=1) ).strftime('%%Y-%%m-%%d %%H:%%M:%%S'))]" help="Pickings that are late on scheduled time"/>
+     
       <!--   <field string="Tìm Số lượng trong đơn vị có tên" name="department_id_selection"   filter_domain="[('department_id','ilike',self)]"/> -->  
             </xpath>
          </field>
@@ -66,13 +71,14 @@
                  <button name="download_quants_by_file_field" string="Download Quants" type="object" class="btn-primary"/>
      			<button name="download_product"  string="Download Product" type="object" class="oe_highlight" groups="base.group_user"/>
                  <button name="download_quants_moi_cage_moi_sheet" string="Download Quants Moi Cage moi sheet" type="object" class="btn-primary"/>
+                 <button name="test1" string="Test" type="object" class="btn-primary"/>
          	</header>
          	<sheet>
          	<group>
          	  	<field name="name"></field>
          	  	<field name="parent_location_id"></field>
          	  	<field name="parent_location_runing_id"></field>
-         	  	
+         	  	<field name="ngay_bat_dau_filter"></field>
          	   <field name="test"></field> 
          	  	<field name="data" readonly="1" filename="name"/>
          	  	</group>

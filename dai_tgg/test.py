@@ -2,5 +2,9 @@
 from collections import defaultdict, Counter, OrderedDict
 from copy import deepcopy
 
-
-anh=3
+# a = {}
+# a.update({'a':1})
+# print a
+a = u'anh Anh'
+print a.replace('anh','em')
+print a
