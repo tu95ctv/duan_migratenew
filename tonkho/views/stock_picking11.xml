@@ -42,7 +42,9 @@
                     <button name="xem_print_pdf" string="Xem biên bản pdf" type="object" />
                     <button name="parse_sn_text" string="parse_sn_text" type="object" />
           			<button name="import_file" string="import_file" type="object" />
-          			<button name="dl_file" string="dl_file" type="object"   class="btn-primary"/>
+          			<button name="download_sml" string="download_sml" type="object"   class="btn-primary"/>
+          			<button name="check_file" string="check_file" type="object"   class="btn-primary"/>
+          			<button name="download_xl_bbbg" string="download_xl_bbbg" type="object"   class="btn-primary"/>
                 </xpath>
                 <field name="location_id" position="replace">
                     <field name="id" />
@@ -79,6 +81,7 @@
                     <field name="filename" />
                     <field name="file_dl"  readonly="1" filename="file_dl_name"/>
                     <field name="file_dl_name" />
+                    <field name="log"/>
                 </field>
                 <xpath expr="//page[1]" position="attributes">
                     <attribute name="attrs">{'invisible': False}</attribute>

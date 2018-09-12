@@ -16,18 +16,17 @@ VERSION_INFO   = sys.version_info[0]
 from collections import  OrderedDict
 from odoo.addons.dai_tgg.models.model_dict import gen_model_dict
 # from odoo.addons.dai_tgg.models.model_dict import ALL_MODELS_DICT
-from xlutils.copy import copy
+
 def get_or_create_object_has_x2m (self, class_name, search_dict,
                                 write_dict ={},
                                 is_must_update=False, 
                                 noti_dict=None,
                                 inactive_include_search = False, x2m_field=False,remove_all_or_just_add_one_x2m = True,
-                                is_return_get_or_create = True,
+                                is_return_get_or_create = False,
 #                                  not_update_field_if_instance_exist_list=[],
 #                                  dict_get_or_create_para_all_field={},
                                  model_dict = {},
-                                 key_tram =  None,
-                                 not_create = False
+                                 key_tram =  None
                                  ):
     
     if x2m_field:
@@ -41,16 +40,15 @@ def get_or_create_object_has_x2m (self, class_name, search_dict,
 #                                     not_update_field_if_instance_exist_list=not_update_field_if_instance_exist_list,
 #                                     dict_get_or_create_para_all_field = dict_get_or_create_para_all_field,
                                     model_dict = model_dict,
-                                    key_tram = key_tram,
-                                    not_create = not_create
+                                    key_tram = key_tram
                                     )
             result.append(object.id)
         if remove_all_or_just_add_one_x2m == True:
             six_or_zero = 6
-#             obj_id =  [(six_or_zero,False,result)]
+            obj_id =  [(six_or_zero,False,result)]
         else:
             six_or_zero = 4
-        obj_id =  [(six_or_zero,result[0],False)]
+            obj_id =  [(4,result[0],False)]
     else:
         obj, get_or_create =  get_or_create_object_sosanh(self, class_name, search_dict,
                                     write_dict =write_dict, is_must_update=is_must_update, noti_dict=noti_dict,
@@ -58,13 +56,11 @@ def get_or_create_object_has_x2m (self, class_name, search_dict,
 #                                     not_update_field_if_instance_exist_list=not_update_field_if_instance_exist_list,
 #                                     dict_get_or_create_para_all_field = dict_get_or_create_para_all_field,
                                     model_dict = model_dict,
-                                    key_tram = key_tram,
-                                    not_create = not_create
+                                    key_tram = key_tram
+
+                                    
                                     )
-        if obj != False:
-            obj_id = obj.id
-        else:
-            obj_id = False
+        obj_id = obj.id
     if is_return_get_or_create:
         return obj_id, get_or_create
     else:
@@ -79,8 +75,7 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
                                 is_return_get_or_create = False,
 #                                 dict_get_or_create_para_all_field={},
                                 model_dict = {},
-                                key_tram = None,
-                                not_create = False                              
+                                key_tram = None                               
                                 ):
     
     search_dict_new = {}
@@ -114,13 +109,9 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
             field_attr = model_dict['fields'][f_name]
             f_name = get_key_allow(field_attr, 'transfer_name', key_tram) or f_name
             search_dict_new[f_name]=val
-        if not not_create:
-            created_object = self.env[class_name].create(search_dict_new)
-            if this_model_noti_dict !=None:
-                this_model_noti_dict['create'] = this_model_noti_dict.get('create', 0) + 1
-        else:
-            created_object = False
-        
+        created_object = self.env[class_name].create(search_dict_new)
+        if this_model_noti_dict !=None:
+            this_model_noti_dict['create'] = this_model_noti_dict.get('create', 0) + 1
         return_obj =  created_object
     else:
         for f_name,val in write_dict.items():
@@ -150,10 +141,9 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
         else:
             is_write = True
         if is_write:
-            if not not_create:
-                searched_object.write(write_dict_new)
-                if this_model_noti_dict !=None:
-                    this_model_noti_dict['update'] = this_model_noti_dict.get('update',0) + 1
+            searched_object.write(write_dict_new)
+            if this_model_noti_dict !=None:
+                this_model_noti_dict['update'] = this_model_noti_dict.get('update',0) + 1
         else:#'not update'
             if this_model_noti_dict !=None:
                 this_model_noti_dict['skipupdate'] = this_model_noti_dict.get('skipupdate',0) + 1
@@ -283,16 +273,10 @@ def lOOP_THROUGH_FIELDS_IN_MODEL_DICT_TO_ADD_COL_INDEX_MATCH_XL_TITLE(MODEL_DICT
     return is_map_xl_title #or is_map_xl_title_foreinkey
 
 def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, noti_dict, main_call_create_instance_model = False,
-                    key_tram=None, 
-                    not_create = False,
-                    workbook_copy = False,
-                    sheet_of_copy_wb = False,
-                     ):
+                     key_tram=None):
     key_search_dict = {}
     update_dict = {}
     vof_dict = {} # value of fields of one instance
-    
-        
     model_name = get_key_allow(MODEL_DICT, 'model', key_tram)
     if model_name ==None:
         skip_this_field = get_key_allow(MODEL_DICT, 'skip_this_field', key_tram,False)
@@ -344,22 +328,9 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
                 val = map(lambda i: i.strip(),val)
         
         elif field_attr.get('fields') :
-            val, vof_dict_childrend, get_or_create  = create_instance (self, field_attr, sheet, row, merge_tuple_list, needdata, noti_dict,key_tram=key_tram, 
-                                                                       not_create = not_create,
-                                                                       workbook_copy = workbook_copy,
-                                                                       sheet_of_copy_wb = sheet_of_copy_wb
-                                                                       )
+            val, vof_dict_childrend, get_or_create  = create_instance (self, field_attr, sheet, row, merge_tuple_list, needdata, noti_dict,key_tram=key_tram)
             avof_dict['fields'] = vof_dict_childrend
             avof_dict['get_or_create'] = get_or_create
-            offset_write_xl = get_key_allow(field_attr, 'offset_write_xl', key_tram,None)
-            
-            
-            if not_create:
-                offset_write_xl =  offset_write_xl  
-            else:
-                offset_write_xl =  None
-            if offset_write_xl !=None:
-                sheet_of_copy_wb.write(row,sheet.ncols + offset_write_xl ,str(get_or_create))
 
         avof_dict['before_func_val'] = val
         
@@ -392,25 +363,15 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
         if val == False and  field_attr.get('default'):
             val = field_attr.get('default')
         avof_dict['val'] = val
-#         if not_create:
-#             required = False
-#         else:
-#             required = field_attr.get('required',False)
-                                      
-#         required = field_attr.get('required',False)    
-        if not_create:     
-#         required =get_key_allow(field_attr, 'required',key_tram, False)
-            required  = get_key_allow(field_attr, 'required',key_tram + '_not_create', False)     
-        else:
-            required =get_key_allow(field_attr, 'required',key_tram, False)       
-        bypass_this_field_if_value_equal_False = get_key_allow(field_attr, 'bypass_this_field_if_value_equal_False', key_tram, False)
+       
+        required = field_attr.get('required',False)
+        bypass_this_field_if_value_equal_False = get_key_allow(field_attr, 'bypass_this_field_if_value_equal_False', key_tram, True)
         if required and val==False:
             if field_attr.get('raise_if_False'):
                 raise UserError('raise_if_False field: %s'%field_name)
             if main_call_create_instance_model:
                 print ('skip because required, field %s'%field_name)
-            get_or_create = False
-            return val ,vof_dict, get_or_create
+            return False , vof_dict,False
         elif bypass_this_field_if_value_equal_False and val==False:
             continue
         elif not field_attr.get('for_excel_readonly'):
@@ -441,8 +402,7 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
                                 remove_all_or_just_add_one_x2m=remove_all_or_just_add_one_x2m,
                                 is_return_get_or_create = True,
                                 model_dict=MODEL_DICT,
-                                key_tram = key_tram,
-                                not_create = not_create
+                                key_tram = key_tram
                                 )
         if main_call_create_instance_model:
             print ('get_or_create',get_or_create)
@@ -472,8 +432,7 @@ def define_col_index(title_rows,sheet,COPY_MODEL_DICT,key_tram):
     print ('**titles',titles)
     return row_title_index
     
-def importthuvien(odoo_or_self_of_wizard,import_for_stock_tranfer = False,key=False,key_tram=False,
-                  not_create = False):
+def importthuvien(odoo_or_self_of_wizard,import_for_stock_tranfer = False,key=False,key_tram=False):
     if not import_for_stock_tranfer:
         ALL_MODELS_DICT = gen_model_dict()
     else:
@@ -499,30 +458,13 @@ def importthuvien(odoo_or_self_of_wizard,import_for_stock_tranfer = False,key=Fa
     if callable(sheet_names):
         sheet_names = sheet_names(self)
     needdata['sheet_names'] = sheet_names
-    
-    ### moi them
-    not_create = get_key_allow(CHOOSED_MODEL_DICT, 'not_create', key_tram) or not_create
-    if not_create:
-        workbook_copy = copy(xl_workbook)
-    else:
-        workbook_copy = None
-    ### end moi them  
-        
     for sheet_name in sheet_names:
         COPY_MODEL_DICT = deepcopy(CHOOSED_MODEL_DICT)
         needdata['sheet_name'] = sheet_name
         sheet = xl_workbook.sheet_by_name(sheet_name)
         
-        # moi them:
-        if not_create:
-#             sheet_of_copy_wb = workbook_copy.sheet_by_name(sheet_name)#AttributeError: 'PatchedWorkbook' object has no attribute 'sheet_by_name'
-            sheet_of_copy_wb = workbook_copy.get_sheet(0)
-        else:
-            sheet_of_copy_wb = False
         title_rows = CHOOSED_MODEL_DICT.get('title_rows_some_sheets',{}).get(sheet_name)
         title_rows = title_rows or get_key_allow(CHOOSED_MODEL_DICT, 'title_rows', key_tram)  # MODEL_DICT['title_rows']
-        
-#         ncols = sheet.ncols
         row_title_index = define_col_index(title_rows,sheet,COPY_MODEL_DICT,key_tram)
         
         merge_tuple_list =  sheet.merged_cells
@@ -543,20 +485,13 @@ def importthuvien(odoo_or_self_of_wizard,import_for_stock_tranfer = False,key=Fa
         for c,row in enumerate(range(first_row, last_row)):
             print ('sheet_name',sheet_name,'row',row)
             create_instance( self, COPY_MODEL_DICT, sheet, row, merge_tuple_list, needdata, noti_dict,
-                              main_call_create_instance_model=True,
-                              key_tram=key_tram,
-                              not_create = not_create,
-                              workbook_copy = workbook_copy,
-                              sheet_of_copy_wb = sheet_of_copy_wb,
-                               )
+                              main_call_create_instance_model=True,key_tram=key_tram)
     if c:
         self.imported_number_of_row = c + 1
     last_import_function  = get_key_allow(CHOOSED_MODEL_DICT,'last_import_function',key_tram)
     if last_import_function:
         last_import_function(needdata,self)
     self.log= noti_dict
-    return workbook_copy
-    
             
 
             

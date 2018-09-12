@@ -76,7 +76,6 @@ def qty_(val,n):
 all_key_tram = 'all_key_tram'
 key_ltk_dc = 'key_ltk_dc'
 key_tti_dc = 'key_tti_dc'
-write_xl = 'write_xl'
 sml = 'sml'
 key = 'key',
 required = 'required'
@@ -86,9 +85,6 @@ def gen_model_dict():
     ALL_MODELS_DICT = {
      u'stock.inventory.line.tong.hop.ltk.dp.tti.dp': { #tong hop
                     'key_allow':True,
-                    'not_create':{
-                                        all_key_tram: False
-                                  },
                     'title_rows':{
                         'key_ltk':[4,5],
                         'key_tti':[3,4],
@@ -117,15 +113,8 @@ def gen_model_dict():
                             ('stt',{'func':None, 'xl_title': {'key_ltk':u'STT new',
                                                                         'key_tti':u'STT',
                                                                         'key_ltk_dc':u'STT',
-                                                                         key_tti_dc: [u'Stt',u'Stt '],
-                                                                         sml:u'STT'
-                                                                         },
-                                                                         
-                                                              
-                                    'key':True, 'required':True,'skip_field_if_not_found_column_in_some_sheet':True ,
-#                                                                 'skip_this_field':{sml:True}
-                        }
-                             ),
+                                                                         key_tti_dc: [u'Stt',u'Stt ']
+                                                              },'key':True, 'required':True,'skip_field_if_not_found_column_in_some_sheet':True, 'skip_this_field':{sml:True}}),
                          
                             
                             ('location_id_goc', {'model':'stock.location','key':False, 'for_excel_readonly' :True,"required":True, 
@@ -172,11 +161,9 @@ def gen_model_dict():
                                             ,], 'skip_this_field':{sml:True}
                         }),
                     
-                    ('product_id',{'offset_write_xl':{sml:1}, 'key':True,'required':{all_key_tram:True, sml+ '_not_create':False},
+                    ('product_id',{'key':True,'required':True,
                                    'fields':[
-                                            ('name',{
-                                                     'get_or_create_para':{'all_key_tram':{'operator_search':'=ilike'}},
-                                                     'func':None,
+                                            ('name',{'func':None,
                                                      'xl_title':{'key_ltk':[u'TÊN VẬT TƯ',u'Module quang'],
                                                                     'key_ltk_dc':[u'Loại card'],
                                                                     'key_tti':[u'TÊN VẬT TƯ'],
@@ -372,26 +359,26 @@ lắp
                    
                     ('product_uom_id',{'skip_this_field':{sml:False,all_key_tram:True},'func':lambda v,n,self:n['vof_dict']['product_id']['fields']['uom_id']['val'] }),
 
-                    ('prod_lot_id', {'offset_write_xl':{sml:2},'transfer_name':{sml:'lot_id'},'key':True,
+                    ('prod_lot_id', {'transfer_name':{sml:'lot_id'},'key':True,
                                       'fields':[
-                                                    ('name',{'func':lambda val,needdata: needdata['vof_dict']['prod_lot_id_excel_readonly']['val'],'key':True,'required':True}),
-                #                                     ('pn',{'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)']}),
-                                                    ('pn_id',{'offset_write_xl':{sml:3},'model':'tonkho.pn',
-                                                                  'fields':[
-                                                                            ('name',{'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)'],'key':True, 'required':True}),
-                                                                            ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True  }),
-                                                                            ('import_location_id',{'skip_this_field':{sml:True},'set_val':lambda self: self.import_location_id.id}),
-                                                                            ('du_phong_tao',{'skip_this_field':{sml:True},'set_val':lambda self: 'dc' not in self.key_tram}),
-                                                                            ('tram_ltk_tao',{'skip_this_field':{sml:True},'set_val':lambda self: (self.key_tram and 'ltk' in self.key_tram)}),
-                #                                                                             ('tram_tti_tao',{'set_val': (r.key_tram and 'tti' in r.key_tram)}),
-                                                                            ]
-                                                                  }),
-                                                    ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'],'key': True, 'required':True }),
-                                                    ('tinh_trang',{'set_val':u'tot'}),
-                                                    ('ghi_chu_ngay_xuat',{'func':lambda v,n: convert_float_to_ghi_chu_ngay_xuat(n['vof_dict']['product_id']['fields']['ghi_chu_ngay_xuat']['before_func_val'])}),
-                                                   #copy
-                                                    ('ghi_chu_ngay_nhap',{'func':lambda v,n: convert_float_to_ghi_chu_ngay_xuat(n['vof_dict']['product_id']['fields']['ghi_chu_ngay_nhap']['before_func_val'])}),
-                                                    ('ghi_chu_ban_dau',{'func':lambda v,n: convert_float_to_ghi_chu_ngay_xuat(n['vof_dict']['product_id']['fields']['ghi_chu_ban_dau']['before_func_val'])}),
+                                        ('name',{'func':lambda val,needdata: needdata['vof_dict']['prod_lot_id_excel_readonly']['val'],'key':True,'required':True}),
+                                        ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'],'key': True }),
+    #                                     ('pn',{'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)']}),
+                                        ('pn_id',{'model':'tonkho.pn',
+                                                                      'fields':[
+                                                                                ('name',{'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)'],'key':True, 'required':True}),
+                                                                                ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True  }),
+                                                                                ('import_location_id',{'skip_this_field':{sml:True},'set_val':lambda self: self.import_location_id.id}),
+                                                                                ('du_phong_tao',{'skip_this_field':{sml:True},'set_val':lambda self: 'dc' not in self.key_tram}),
+                                                                                ('tram_ltk_tao',{'skip_this_field':{sml:True},'set_val':lambda self: (self.key_tram and 'ltk' in self.key_tram)}),
+    #                                                                             ('tram_tti_tao',{'set_val': (r.key_tram and 'tti' in r.key_tram)}),
+                                                                                ]
+                                                                      }),
+                                        ('tinh_trang',{'set_val':u'tot'}),
+                                        ('ghi_chu_ngay_xuat',{'func':lambda v,n: convert_float_to_ghi_chu_ngay_xuat(n['vof_dict']['product_id']['fields']['ghi_chu_ngay_xuat']['before_func_val'])}),
+                                       #copy
+                                        ('ghi_chu_ngay_nhap',{'func':lambda v,n: convert_float_to_ghi_chu_ngay_xuat(n['vof_dict']['product_id']['fields']['ghi_chu_ngay_nhap']['before_func_val'])}),
+                                        ('ghi_chu_ban_dau',{'func':lambda v,n: convert_float_to_ghi_chu_ngay_xuat(n['vof_dict']['product_id']['fields']['ghi_chu_ban_dau']['before_func_val'])}),
                                           ]
                                       }),
                                              ]

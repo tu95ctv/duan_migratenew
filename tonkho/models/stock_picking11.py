@@ -8,10 +8,22 @@ from datetime import timedelta
 from odoo.addons.dai_tgg.models.tao_instance_new import importthuvien
 from odoo.addons.dai_tgg.models.model_dict import gen_model_dict
 from odoo.addons.tonkho.controllers.controllers import  download_sml,download_ml
+from odoo.addons.tonkho.models.xl_tool import update_content
+
 
 import base64
 import contextlib
 import io
+
+from xlutils.copy import copy### phai install moi 
+# from xlrd import *
+import xlrd
+import inspect
+import os
+
+
+
+
 
 def _select_nextval(cr, seq_name):
     cr.execute("SELECT nextval('%s')" % seq_name)
@@ -105,28 +117,55 @@ class StockPicking(models.Model):
     is_chia_2_dong =  fields.Boolean()
     file_dl = fields.Binary('File', readonly=True)
     file_dl_name = fields.Char()
-
+    log = fields.Text()
+    
+    
     @api.multi
-    def dl_file(self):#tham khảo  từ act_getfile
-        this = self[0]
+    def download_xl_bbbg(self):
+#         directory_path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+#         directory_path = os.path.split(os.path.abspath(directory_path))[0]
+#         directory_path =  os.path.join(directory_path, u'file_import',u'Mẫu BBBG 2018.xls')
+#         print ('dr p',directory_path)
+#         rdbook= xlrd.open_workbook(directory_path, formatting_info=True )#formatting_info=True
+       
+        workbook = update_content (self)
+        with contextlib.closing(io.BytesIO()) as buf:
+            workbook.save(buf)
+            out = base64.encodestring(buf.getvalue())
+             
+        filename = 'workbook_bbbg-%s'%self.id
+        name = "%s%s" % (filename, '.xls')
+        self.write({ 'file_dl': out, 'file_dl_name': name})
         
+    @api.multi
+    def download_sml(self):#tham khảo  từ act_getfile
+        this = self[0]
         with contextlib.closing(io.BytesIO()) as buf:
             workbook = download_ml(this)
             workbook.save(buf)
             out = base64.encodestring(buf.getvalue())
-        
-        filename = 'quants-%s'%this.id
+        filename = 'sml-%s'%this.id
         name = "%s%s" % (filename, '.xls')
         this.write({ 'file_dl': out, 'file_dl_name': name})
-#         return {
-#             'type': 'ir.actions.act_window',
-#             'res_model': 'tonkho.downloadquants',
-#             'view_mode': 'form',
-#             'view_type': 'form',
-#             'res_id': this.id,
-#             'views': [(False, 'form')],
-#             'target': 'new',
-#         }
+
+    @api.multi
+    def check_file(self):
+        md = gen_model_dict()
+        workbook_copy = importthuvien(self,import_for_stock_tranfer = md,key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',key_tram='sml',not_create=True)
+
+#         recordlist = base64.decodestring(self.file)
+#         xl_workbook = xlrd.open_workbook(file_contents = recordlist)
+#         workbook = copy(xl_workbook)
+#         workbook.get_sheet(0).write(0,0,"foo")
+#         w.save('book2.xls')
+        with contextlib.closing(io.BytesIO()) as buf:
+            workbook_copy.save(buf)
+            out = base64.encodestring(buf.getvalue())
+             
+        filename = 'workbook_copy-%s'%self.id
+        name = "%s%s" % (filename, '.xls')
+        self.write({ 'file_dl': out, 'file_dl_name': name})
+        
     @api.multi
     def import_file(self):
         md = gen_model_dict()
