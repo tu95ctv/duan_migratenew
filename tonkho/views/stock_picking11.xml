@@ -40,9 +40,8 @@
                     <button name="xem_print_theo_move_line" string="Xem biên bản html" type="object"  class="btn-primary"/>
                  <!--  <button name="xem_print" string="Xem biên bản html old" type="object" invsible="1" /> -->  
                     <button name="xem_print_pdf" string="Xem biên bản pdf" type="object" />
-                    <button name="parse_sn_text" string="parse_sn_text" type="object" />
           			<button name="import_file" string="import_file" type="object" />
-          			<button name="download_sml" string="download_sml" type="object"   class="btn-primary"/>
+          			<!-- <button name="download_sml" string="download_sml" type="object"   class="btn-primary"/> -->
           			<button name="check_file" string="check_file" type="object"   class="btn-primary"/>
           			<button name="download_xl_bbbg" string="download_xl_bbbg" type="object"   class="btn-primary"/>
                 </xpath>
@@ -76,7 +75,9 @@
                     <field name="ma_bien_ban" readonly="0" />
                     <field name="totrinh_id" />
                     <field name="ly_do" />
-                    <field name="is_not_ghom_tot" />
+                    <field name="title_row_for_import" />
+                    <field name="is_ghom_tot" />
+                    <field name="is_set_tt_col" />
                     <field name="file" filename="filename" />
                     <field name="filename" />
                     <field name="file_dl"  readonly="1" filename="file_dl_name"/>
@@ -221,6 +222,7 @@
                             </group>
                         </group>
                         <group>
+                        	<field name="is_not_show_y_kien_ld"/>
                         	<field name="lanh_dao_id"/>
                         	<field name="is_chia_2_dong"/>
                         </group>

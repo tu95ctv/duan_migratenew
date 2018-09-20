@@ -13,6 +13,7 @@ class ReturnPicking(models.TransientModel):
     _inherit = 'stock.return.picking'
 #     is_chuyen_tiep = fields.Boolean()
     loai_tra_hay_chuyen_tiep = fields.Selection([('tra_do_huy',u'Trả do hủy'),('tra_do_muon',u'Trả do mượn'),('chuyen_tiep',u'Chuyển tiếp')],string=u'Loại trả vật tư')
+    
     @api.onchange('loai_tra_hay_chuyen_tiep')
     def loai_tra_hay_chuyen_tiep_(self):
         if  self.loai_tra_hay_chuyen_tiep =='chuyen_tiep': # return
@@ -52,8 +53,6 @@ class ReturnPicking(models.TransientModel):
                 res.update({'move_dest_exists': move_dest_exists})
 
         return res
-    
-
     def _create_returns(self):
         # TODO sle: the unreserve of the next moves could be less brutal
         for return_move in self.product_return_moves.mapped('move_id'):
@@ -89,7 +88,7 @@ class ReturnPicking(models.TransientModel):
             # TODO sle: float_is_zero?
             if return_line.quantity:
                 returned_lines += 1
-                vals = self._prepare_move_default_values_ml_from_return_line(return_line, new_picking)
+                vals = self._prepare_move_default_values_ml_from_return_line(return_line, new_picking,loai_tra_hay_chuyen_tiep )
                 ml = return_line.ml_id.copy(vals)
                 vals = {}
  
@@ -110,16 +109,23 @@ class ReturnPicking(models.TransientModel):
             if loai_tra_hay_chuyen_tiep == 'tra_do_huy':
                 if not picking.ten_truoc_huy:
                     picking.ten_truoc_huy = picking.name
-#                 picking.ban_giao_or_nghiem_thu = u'HUY'
+                    picking.ban_giao_or_nghiem_thu = 'HUY'
         return new_picking.id, picking_type_id
-    def _prepare_move_default_values_ml_from_return_line(self,return_line,new_picking):
+    
+    
+    def _prepare_move_default_values_ml_from_return_line(self,return_line,new_picking, loai_tra_hay_chuyen_tiep):
+        if loai_tra_hay_chuyen_tiep =='chuyen_tiep':
+            location_dest_id = new_picking.location_dest_id.id
+        else:
+            location_dest_id = return_line.ml_id.location_id.id
+        
         vals = {
             'qty_done':return_line.quantity,
             'move_id':False,
             'picking_id': new_picking.id,
             'state': 'draft',
             'location_id': return_line.ml_id.location_dest_id.id,
-            'location_dest_id': return_line.ml_id.location_id.id,
+            'location_dest_id': location_dest_id,
             'origin_returned_move_id': return_line.ml_id.id,
         }
         return vals

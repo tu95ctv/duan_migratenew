@@ -81,7 +81,7 @@ class ImportThuVien(models.Model):
     import_location_id = fields.Many2one('stock.location')
     imported_number_of_row = fields.Integer()
     inventory_id = fields.Many2one('stock.inventory')
-    test_result_1 = fields.Text(required=True)
+    test_result_1 = fields.Text()
     test_result_2 = fields.Text()
     test_result_3 = fields.Text()
     line_not_has_quant =  fields.Text()

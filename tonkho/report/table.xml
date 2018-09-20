@@ -4,7 +4,7 @@
             <table class="table table-bordered d4table" t-if="o.move_line_ids">
                 <t t-set="has_serial_number" t-value="o.move_line_ids.filtered(lambda ml: ml.lot_id or ml.lot_name)" groups="stock.group_production_lot" />
               <!--  <t t-set="all_tot" t-value="not o.move_line_ids.filtered(lambda ml: ml.tinh_trang =='hong')" /> --> 
-           		<t t-set="all_tot" t-value="set(o.move_line_ids.mapped('tinh_trang')) ==set(['tot']) and not o.is_not_ghom_tot" /> 
+           		<t t-set="all_tot" t-value="set(o.move_line_ids.mapped('tinh_trang')) ==set(['tot']) and o.is_ghom_tot" /> 
                 <thead>
                     <tr>
                         <th style="width:5%;text-align: center;">

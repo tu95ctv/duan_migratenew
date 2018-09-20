@@ -71,8 +71,13 @@ def qty_(val,n):
         val = int(val)
         val=  1 if  (n['vof_dict']['prod_lot_id_excel_readonly']['val'] and val > 1) else val
     return val
-
-
+def stt_(v,n):
+    try:
+        v = int(v)
+        return v
+    except :
+        return False
+    
 all_key_tram = 'all_key_tram'
 key_ltk_dc = 'key_ltk_dc'
 key_tti_dc = 'key_tti_dc'
@@ -82,7 +87,7 @@ key = 'key',
 required = 'required'
 from odoo.addons.dai_tgg.models.model_dict_product import gen_product_model_dict
 from odoo.addons.dai_tgg.models.model_dict_user_department import gen_user_department_model_dict
-def gen_model_dict():                
+def gen_model_dict(sml_title_row = False):                
     ALL_MODELS_DICT = {
      u'stock.inventory.line.tong.hop.ltk.dp.tti.dp': { #tong hop
                     'key_allow':True,
@@ -94,7 +99,7 @@ def gen_model_dict():
                         'key_tti':[3,4],
                         key_ltk_dc:[0],
                         key_tti_dc:[0,1],
-                        sml:[0]
+                        sml:sml_title_row or [0]
                         
                         },
                     'title_rows_some_sheets':{'key_ltk':{u'XFP, SFP các loại':[2,3]}},
@@ -105,7 +110,7 @@ def gen_model_dict():
                         'key_tti':lambda self: [u'CHUYỂN MẠCH',u'IP',u'TRUYỀN DẪN',u'GTGT',u'VÔ TUYẾN']if not self.sheet_name else [self.sheet_name],
                         'key_ltk_dc':lambda self:[u'Tổng hợp']if not self.sheet_name else [self.sheet_name],
                         key_tti_dc:lambda self:[u'TTI-TS co'],
-                        sml:[u'Sheet1']
+                        sml:[u'First']
                                    
                                    }  ,#[self.sheet_name],#,#[self.sheet_name],#[u'Chuyển Mạch (IMS, Di Động)'],#xl_workbook.sheet_names(),#[u'Truyền dẫn'],#[u'IP (VN2, VNP)'],[u'Chuyển Mạch (IMS, Di Động)']
                     'model':{all_key_tram: 'stock.inventory.line',sml:'stock.move.line'},## viet lai ben tao_instance_new
@@ -114,7 +119,7 @@ def gen_model_dict():
                     'last_record_function':{all_key_tram:last_record_function_all_,
                                                     key_ltk_dc:last_record_function_ltk_vtdc_,sml:None},
                     'fields' : [
-                            ('stt',{'func':None, 'xl_title': {'key_ltk':u'STT new',
+                            ('stt',{'func':stt_, 'xl_title': {'key_ltk':u'STT new',
                                                                         'key_tti':u'STT',
                                                                         'key_ltk_dc':u'STT',
                                                                          key_tti_dc: [u'Stt',u'Stt '],
@@ -256,7 +261,7 @@ thiết bị'''
                                                                             key_ltk_dc:u'Cái',
                                                                             key_tti_dc:u'Cái'
                                                                             },'func':name_of_uom_id_,'get_or_create_para':{'all_key_tram':{'operator_search':'=ilike'},},
-                                                                      'xl_title':u'Đơn vị tính' ,'key':True,'required':True,
+                                                                      'xl_title':[u'Đơn vị tính',u'ĐVT'] ,'key':True,'required':True,
                                                                       'replace_string':{'key_ltk':[('Modunle','module'),('CARD','Card'),('module','Module')],
                                                                                                 'key_tti':[('CARD','Card'),('module','Module'),(u'bộ',u'Bộ')]
                                                                                     },
@@ -372,13 +377,13 @@ lắp
                    
                     ('product_uom_id',{'skip_this_field':{sml:False,all_key_tram:True},'func':lambda v,n,self:n['vof_dict']['product_id']['fields']['uom_id']['val'] }),
 
-                    ('prod_lot_id', {'offset_write_xl':{sml:2},'transfer_name':{sml:'lot_id'},'key':True,
+                    ('prod_lot_id', {'offset_write_xl':{sml:3},'transfer_name':{sml:'lot_id'},'key':True,
                                       'fields':[
                                                     ('name',{'func':lambda val,needdata: needdata['vof_dict']['prod_lot_id_excel_readonly']['val'],'key':True,'required':True}),
                 #                                     ('pn',{'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)']}),
-                                                    ('pn_id',{'offset_write_xl':{sml:3},'model':'tonkho.pn',
+                                                    ('pn_id',{'offset_write_xl':{sml:2},'model':'tonkho.pn',
                                                                   'fields':[
-                                                                            ('name',{'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)'],'key':True, 'required':True}),
+                                                                            ('name',{'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)',u'Mã vật tư'],'key':True, 'required':True}),
                                                                             ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True  }),
                                                                             ('import_location_id',{'skip_this_field':{sml:True},'set_val':lambda self: self.import_location_id.id}),
                                                                             ('du_phong_tao',{'skip_this_field':{sml:True},'set_val':lambda self: 'dc' not in self.key_tram}),
