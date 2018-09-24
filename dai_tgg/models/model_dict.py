@@ -94,6 +94,7 @@ def gen_model_dict(sml_title_row = False):
                     'not_create':{
                                         all_key_tram: False
                                   },
+                    'largest_map_row_choosing':{sml:True,all_key_tram:False},                      
                     'title_rows':{
                         'key_ltk':[4,5],
                         'key_tti':[3,4],
@@ -177,7 +178,7 @@ def gen_model_dict(sml_title_row = False):
                                             ,], 'skip_this_field':{sml:True}
                         }),
                     
-                    ('product_id',{'offset_write_xl':{sml:1}, 'key':True,'required':{all_key_tram:True, sml+ '_not_create':False},
+                    ('product_id',{'string':u'Tên Vật tư','offset_write_xl':{sml:1}, 'key':True,'required':{all_key_tram:True, sml+ '_not_create':False},
                                    'fields':[
                                             ('name',{
                                                      'get_or_create_para':{'all_key_tram':{'operator_search':'=ilike'}},
@@ -377,13 +378,15 @@ lắp
                    
                     ('product_uom_id',{'skip_this_field':{sml:False,all_key_tram:True},'func':lambda v,n,self:n['vof_dict']['product_id']['fields']['uom_id']['val'] }),
 
-                    ('prod_lot_id', {'offset_write_xl':{sml:3},'transfer_name':{sml:'lot_id'},'key':True,
+                    ('prod_lot_id', {'offset_write_xl':{sml:3},'transfer_name':{sml:'lot_id'},'key':True,'string':u'Serial number',
                                       'fields':[
-                                                    ('name',{'func':lambda val,needdata: needdata['vof_dict']['prod_lot_id_excel_readonly']['val'],'key':True,'required':True}),
+                                                    ('name',{'required':{all_key_tram:True,  sml+ '_not_create':False},'func':lambda val,needdata: needdata['vof_dict']['prod_lot_id_excel_readonly']['val'],'key':True}),
                 #                                     ('pn',{'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)']}),
-                                                    ('pn_id',{'offset_write_xl':{sml:2},'model':'tonkho.pn',
+                                                    ('pn_id',{'offset_write_xl':{sml:2},'model':'tonkho.pn','string':u'Mã vật tư',
                                                                   'fields':[
-                                                                            ('name',{'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)',u'Mã vật tư'],'key':True, 'required':True}),
+                                                                            ('name',{'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)',u'Mã vật tư'],'key':True,
+                                                                                   #  'required':{all_key_tram:True,  sml+ '_not_create':False}
+                                                                                     }),
                                                                             ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True  }),
                                                                             ('import_location_id',{'skip_this_field':{sml:True},'set_val':lambda self: self.import_location_id.id}),
                                                                             ('du_phong_tao',{'skip_this_field':{sml:True},'set_val':lambda self: 'dc' not in self.key_tram}),

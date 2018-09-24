@@ -5,8 +5,9 @@ from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 from  odoo.addons.dai_tgg.mytools import name_compute
 import datetime
-from odoo.addons.tonkho.controllers.controllers import  download_quants,download_product,download_quants_moi_cage_moi_sheet
-
+# from odoo.addons.tonkho.controllers.controllers import  download_quants,download_product,download_quants_moi_cage_moi_sheet
+from odoo.addons.tonkho.models.dl_models.dl_model_quants import  download_quants, download_quants_moi_cage_moi_sheet
+from odoo.addons.tonkho.models.dl_models.dl_model_product import  download_product
 # from odoo import _
 
 import base64
@@ -62,7 +63,7 @@ class DownloadQuants(models.TransientModel):
             workbook.save(buf)
             out = base64.encodestring(buf.getvalue())
         
-        filename = 'quants-%s'%self.parent_location_id.name
+        filename = 'quants_seperate_cate-%s'%self.parent_location_id.name
         name = "%s%s" % (filename, '.xls')
         this.write({ 'data': out, 'name': name})
         return {

@@ -5,10 +5,18 @@ import os
 import inspect
 from xlutils.filter import process,XLRDReader,XLWTWriter
 import xlrd, xlwt
-from odoo.addons.tonkho.controllers.controllers import  download_ml_for_bb
 from odoo.addons.dai_tgg.mytools import  convert_odoo_datetime_to_vn_str
 from collections import  OrderedDict
-from odoo.addons.tonkho.controllers.controllers import  get_width
+
+# from odoo.addons.tonkho.controllers.controllers import  download_ml_for_bb
+# from odoo.addons.tonkho.controllers.controllers import  get_width
+
+from odoo.addons.tonkho.models.dl_model_ml import  download_ml_for_bb
+from odoo.addons.tonkho.models.dl_model import  get_width
+
+
+
+
 def generate_easyxf (font='Times New Roman', bold = False,underline=False, height=12, vert = False,horiz = False):
     fonts = []
     fonts.append('name %s'%font)
@@ -118,7 +126,7 @@ def xac_nhan_lanh_dao_(ws,f_name,fixups,needdata,row,dlcv_obj):
     else:
         return u'XÁC NHẬN CỦA LĐ ĐÀI'
     
-def update_content(dlcv_obj):
+def write_xl_bb(dlcv_obj):
     all_tot = set(dlcv_obj.move_line_ids.mapped('tinh_trang')) ==set(['tot']) and   dlcv_obj.is_ghom_tot
     IS_SET_TT_COL = dlcv_obj.is_set_tt_col
     IS_SET_TT_COL_COMBINE = IS_SET_TT_COL and not all_tot
@@ -138,9 +146,9 @@ def update_content(dlcv_obj):
     cols = []
 #     set_cols_width = ['sl', 'pr', 'pn', 'sl', 'dvt', 'sn', 'tt','gc']
     if  IS_SET_TT_COL_COMBINE :
-        set_cols_width = [4,   21,    16, 4, 5, 16, 6,16]
+        set_cols_width = [4,21,16,6,5,16,6,16]
     else:
-        set_cols_width = [4,   21,    16, 4, 5, 16, 22,0]
+        set_cols_width = [4,21,16,6,5,16,22,0]
         
     set_cols_width = map(get_width,set_cols_width)
     for col in range(1,readsheet.ncols):
@@ -161,9 +169,9 @@ def update_content(dlcv_obj):
                     ('bbg',{'range':[3,3,0,7],'val':u'BIÊN BẢN BÀN GIAO VẬT TƯ', 'style':bbbg_normal_style,'height':1119,'off_set':1}),
                     ('to_trinh',{'range':[5,5,0,7],'val':None, 'val_func': to_trinh_ ,'height':600}),
                     ('hom_nay',{'range':[6,0],'val':None, 'val_func': hom_nay_ }),
-                    ('ddbg',{'range':[8,0],'val':u'Đại diện bên giao:'}),
+                    ('ddbg',{'range':[8,0],'val':u'Đại diện bên giao (%s)'%(dlcv_obj.location_id.partner_id_of_stock_for_report.name)}),
                     ('ong_ba',{'range':['auto', 0],'val':None, 'func':ong_ba_}),
-                    ('ddbn',{'range': ['auto', 0],'val':u'Đại diện bên Nhận:','offset':2}),
+                    ('ddbn',{'range': ['auto', 0],'val':u'Đại diện bên nhận (%s)'%(dlcv_obj.location_dest_id.partner_id_of_stock_for_report.name),'offset':2}),
                     ('ong_ba2',{'range':['auto', 0], 'val':None,  'func':ong_ba_,'kargs':{'source_member_ids':'dest_member_ids'}}),
                     ('bg',{'range': ['auto', 0],'val':u'Chúng tôi đã tiến hành bàn giao vật tư bên dưới'}),
                     ('table',{'range':['auto', 0],'val':None,'func':table_ ,'offset':2 ,'kargs': {'IS_SET_TT_COL':IS_SET_TT_COL,'all_tot':all_tot}}),
@@ -229,7 +237,10 @@ def update_content(dlcv_obj):
         if height != None:
             ws.row(row).height_mismatch = True
             ws.row(row).height = height
-    return wb
+            
+    filename = 'workbook_bbbg-%s'%dlcv_obj.id
+    name = "%s%s" % (filename, '.xls')
+    return wb,name
 #     wb.save(u'C:/D4/test_folder/Mẫu BBBG 2018hehe.xls')
     
     

@@ -75,6 +75,7 @@
                     <field name="ma_bien_ban" readonly="0" />
                     <field name="totrinh_id" />
                     <field name="ly_do" />
+                    <field name="is_dl_right_now" />
                     <field name="title_row_for_import" />
                     <field name="is_ghom_tot" />
                     <field name="is_set_tt_col" />

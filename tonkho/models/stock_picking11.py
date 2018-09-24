@@ -8,8 +8,8 @@ from datetime import timedelta
 from odoo.addons.dai_tgg.models.tao_instance_new import importthuvien
 from odoo.addons.dai_tgg.models.model_dict import gen_model_dict
 # from odoo.addons.tonkho.controllers.controllers import download_ml
-from odoo.addons.tonkho.models.xl_tool import update_content
-
+from odoo.addons.tonkho.models.xl_tranfer_bb import write_xl_bb
+from odoo.addons.tonkho.models.check_file import check_imported_file_sml
 
 import base64
 import contextlib
@@ -121,46 +121,46 @@ class StockPicking(models.Model):
     is_set_tt_col =  fields.Boolean()
     is_not_show_y_kien_ld =  fields.Boolean()
     title_row_for_import = fields.Integer()
+    is_dl_right_now = fields.Boolean(default=True)
     
     @api.multi
     def download_xl_bbbg(self):
-#         directory_path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-#         directory_path = os.path.split(os.path.abspath(directory_path))[0]
-#         directory_path =  os.path.join(directory_path, u'file_import',u'Mẫu BBBG 2018.xls')
-#         print ('dr p',directory_path)
-#         rdbook= xlrd.open_workbook(directory_path, formatting_info=True )#formatting_info=True
-       
-        workbook = update_content (self)
+        if self.is_dl_right_now:
+            return {
+             'type' : 'ir.actions.act_url',
+             'url': '/web/binary/download_xl_bbbg?model=stock.picking&id=%s'%(self.id),
+             'target': 'new',
+             }
+        
+        dlcv_obj = self
+        workbook,name = write_xl_bb (dlcv_obj)
+        
+#         filename = 'workbook_bbbg-%s'%dlcv_obj.id
+#         name = "%s%s" % (filename, '.xls')
+#         
+        
         with contextlib.closing(io.BytesIO()) as buf:
             workbook.save(buf)
             out = base64.encodestring(buf.getvalue())
-             
-        filename = 'workbook_bbbg-%s'%self.id
-        name = "%s%s" % (filename, '.xls')
         self.write({ 'file_dl': out, 'file_dl_name': name})
         
-#     @api.multi
-#     def download_sml(self):#tham khảo  từ act_getfile
-#         this = self[0]
-#         with contextlib.closing(io.BytesIO()) as buf:
-#             workbook = download_ml(this)
-#             workbook.save(buf)
-#             out = base64.encodestring(buf.getvalue())
-#         filename = 'sml-%s'%this.id
-#         name = "%s%s" % (filename, '.xls')
-#         this.write({ 'file_dl': out, 'file_dl_name': name})
+
 
     @api.multi
     def check_file(self):
-        title_row_for_import = [self.title_row_for_import or 0]
-        md = gen_model_dict(title_row_for_import)
-        workbook_copy = importthuvien(self,import_for_stock_tranfer = md,key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',key_tram='sml',not_create=True)
+        if self.is_dl_right_now:
+            return {
+             'type' : 'ir.actions.act_url',
+             'url': '/web/binary/download_checked_import_sml_file?model=stock.picking&id=%s'%(self.id),
+             'target': 'new',
+             }
+        dlcv_obj = self
+        workbook,name = check_imported_file_sml(dlcv_obj)
         with contextlib.closing(io.BytesIO()) as buf:
-            workbook_copy.save(buf)
+            workbook.save(buf)
             out = base64.encodestring(buf.getvalue())
-        filename = 'check_file_of_%s-%s'%(self.filename,self.id)
-        name = "%s%s" % (filename, '.xls')
         self.write({ 'file_dl': out, 'file_dl_name': name})
+        
     @api.multi
     def import_file(self):
         title_row_for_import = [self.title_row_for_import or 0]

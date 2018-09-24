@@ -19,7 +19,7 @@ from odoo.addons.dai_tgg.models.model_dict import gen_model_dict
 # from odoo.addons.dai_tgg.models.model_dict import ALL_MODELS_DICT
 from xlutils.copy import copy
 # from odoo.addons.tonkho.controllers.controllers import  get_width
-
+import operator
 
 
 def get_width(num_characters):
@@ -223,14 +223,14 @@ def write_get_or_create_title(model_dict,sheet,sheet_of_copy_wb,title_row,key_tr
     fields = model_dict['fields']
 #     print ('fields',fields)
     for fname,attr in fields.items():
-        childrend_model_dict =  attr
-        childrend_fields = childrend_model_dict.get('fields')
-        if childrend_fields:
-            write_get_or_create_title(childrend_model_dict,sheet,sheet_of_copy_wb,title_row,key_tram)
+#         childrend_model_dict =  attr
+#         childrend_fields = attr.get('fields')
+        if attr.get('fields'):
+            write_get_or_create_title(attr,sheet,sheet_of_copy_wb,title_row,key_tram)
         offset_write_xl = get_key_allow(attr, 'offset_write_xl', key_tram,None)
         if offset_write_xl !=None:
-            col = sheet.ncols + offset_write_xl 
-            title = fname + ' get_or_create'
+            col =  sheet.ncols + offset_write_xl 
+            title = attr.get('string',fname)  + u' Có sẵn hay tạo'
             sheet_of_copy_wb.col(col).width =  get_width(len(title))
             sheet_of_copy_wb.write(title_row, col,title ,header_bold_style)
     
@@ -247,24 +247,17 @@ def f_ordered_a_model_dict(model_dict):
             new_ordered_dict = f_ordered_a_model_dict(childrend_model_dict)
     model_dict['fields']=OrderedDict(fields)
 def rECURSIVE_ADD_MODEL_NAME_TO_FIELD_ATTR(self,MODEL_DICT,key_tram=False):
-    print ('in rECURSIVE_ADD_MODEL_NAME_TO_FIELD_ATTR...')
-#     model_name = MODEL_DICT['model']
+#     print ('in rECURSIVE_ADD_MODEL_NAME_TO_FIELD_ATTR...')
     model_name = get_key_allow(MODEL_DICT, 'model', key_tram)
     fields= self.env[model_name]._fields
-    for field_tuple in MODEL_DICT.get('fields',{}).items():
-        f_name = field_tuple[0]
-        field_attr = field_tuple[1]
+    for f_name,field_attr in MODEL_DICT.get('fields',{}).items():
+#         f_name = field_tuple[0]
+#         field_attr = field_tuple[1]
         f_name = get_key_allow(field_attr, 'transfer_name', key_tram) or  f_name
         skip_this_field = get_key_allow(field_attr, 'skip_this_field', key_tram,False)
         if  (not field_attr.get('for_excel_readonly') and not skip_this_field) and (f_name not in fields )  :
             raise UserError(u'field %s không có trong  danh sách fields của model %s'%(f_name,model_name))
-#         if field_attr.get('xl_title'):
-#                 field_attr[ 'xl_title_unidecode'] = unidecode(field_attr[u'xl_title'])
-#         if f_name =='thiet_bi_id_ltk':
-#             raise UserError ("not field_attr.get('for_excel_readonly') and  not skip_this_field %s -skip_this_field:%s - field_attr.get('for_excel_readonly') %s " % (not field_attr.get('for_excel_readonly') and  not skip_this_field,skip_this_field,field_attr.get('for_excel_readonly') ))
         if not field_attr.get('for_excel_readonly') and  not skip_this_field:# and not skip_this_field
-#             if f_name =='thiet_bi_id_ltk':
-#                 print ('kakak')
             field = fields[f_name]
             field_attr['field_type'] = field.type
             if field.comodel_name:
@@ -281,11 +274,7 @@ def get_key_allow(field_attr, attr, key_tram,default_if_not_attr=None):
 
 
 def lOOP_THROUGH_FIELDS_IN_MODEL_DICT_TO_ADD_COL_INDEX_MATCH_XL_TITLE(MODEL_DICT, read_excel_value_may_be_title, col,key_tram):
-    #print 'read_excel_value_may_be_title',read_excel_value_may_be_title
-#     if read_excel_value_may_be_title ==u'Ngăn':
-#         raise UserError(u'aka Ngăn')
     is_map_xl_title = False
-#     is_map_xl_title_foreinkey = False
     for field,field_attr in MODEL_DICT.get('fields',{}).items():
         is_real_xl_match_with_xl_excel = False
         xl_title = get_key_allow(field_attr,'xl_title',key_tram,None)
@@ -301,8 +290,6 @@ def lOOP_THROUGH_FIELDS_IN_MODEL_DICT_TO_ADD_COL_INDEX_MATCH_XL_TITLE(MODEL_DICT
             else:
                 xl_title_s = [xl_title]
             for xl_title in xl_title_s:
-#                 is_map = xl_title == read_excel_value_may_be_title
-#                 is_map = re.search(u'^'+xl_title+u'$',read_excel_value_may_be_title)
                 is_map = re.search(xl_title,read_excel_value_may_be_title,re.IGNORECASE)
                 if is_map:
                     field_attr['col_index'] = col
@@ -334,19 +321,15 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
             continue
         col_index = get_key_allow(field_attr, 'col_index', key_tram, None)
         val = False
-        
         xl_title = get_key_allow(field_attr, 'xl_title', key_tram)#moi them , moi bo field_attr.get('xl_title')
-       
+        a_field_vof_dict = vof_dict.setdefault(field_name,{})
         ###  deal set_val ########
         set_val = get_key_allow( field_attr,'set_val',key_tram)
         if callable(set_val):
                 set_val = set_val(self)
         ###  !deal set_val ########
         
-        
-        
         ## check match bw xl_title vs real xl
-        
         if set_val ==None:
             if col_index == None and xl_title:
                 is_match =  False
@@ -357,10 +340,10 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
                 skip_field_if_not_found_column_in_some_sheet = get_key_allow(field_attr,'skip_field_if_not_found_column_in_some_sheet',key_tram)
                 allow_not_match =  skip_field_if_not_found_column_in_some_sheet or (sheet_allow_this_field_not_has_exel_col and needdata['sheet_name'] in sheet_allow_this_field_not_has_exel_col)
                 if not allow_not_match:
-                    raise UserError(u'có khai báo xl_title nhưng không match với file excel, field: %s, xl_title: %s, dòng: %s ' %(field_name,field_attr.get('xl_title'),row))
+                    raise UserError(u'có khai báo xl_title nhưng không match với file excel, field: %s, xl_title: %s, dòng: %s ' %(field_name,xl_title,row))
         ##!!! check match bw xl_title vs real xl
         
-        a_field_vof_dict = vof_dict.setdefault(field_name,{})
+        
         
         ### deal skip_field_cause_first_import####
         skip_field_cause_first_import = get_key_allow(field_attr, 'skip_field_cause_first_import', key_tram)
@@ -392,11 +375,16 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
             
             if not_create:
                 offset_write_xl = get_key_allow(field_attr, 'offset_write_xl', key_tram,None)
-            else:
-                offset_write_xl =  None
-            if offset_write_xl !=None:
-                get_or_create_display = u'Đã Có' if get_or_create else u'Chưa'
-                sheet_of_copy_wb.write(row,sheet.ncols + offset_write_xl , get_or_create_display,not_horiz_center_border_style)
+                if offset_write_xl !=None:
+                    if get_or_create:
+                        get_or_create_display = u'Đã Có' 
+                    else:
+                        if vof_dict_childrend['name']['val'] !=False:
+                            get_or_create_display = u'Chưa'
+                        else:
+                            get_or_create_display = u''
+                            
+                    sheet_of_copy_wb.write(row,sheet.ncols + offset_write_xl , get_or_create_display,not_horiz_center_border_style)
         
         
         a_field_vof_dict['before_func_val'] = val
@@ -436,22 +424,31 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
         #### !!!deal  replace val#####
                     
                     
-                    
+        
+        ### deal defautl ###
         if val == False and  field_attr.get('default'):
             val = field_attr.get('default')
         a_field_vof_dict['val'] = val
-       
+        ### !!!!deal defautl ###
+        
+        
+        #### deal REQUIRED ####
         if not_create:     
             required  = get_key_allow(field_attr, 'required',key_tram + '_not_create', False)     
         else:
             required =get_key_allow(field_attr, 'required',key_tram, False)       
-       
+        #### !!! deal required #####    
+        
+        
         bypass_this_field_if_value_equal_False = get_key_allow(field_attr, 'bypass_this_field_if_value_equal_False', key_tram, False)
+        
+        
+        
         if required and val==False:
             if field_attr.get('raise_if_False'):
                 raise UserError('raise_if_False field: %s'%field_name)
-            if main_call_create_instance_model:
-                print ('skip because required, field %s'%field_name)
+#             if main_call_create_instance_model:
+            print ('skip because required, field %s'%field_name)
             get_or_create = False
             return val ,vof_dict, get_or_create
         elif bypass_this_field_if_value_equal_False and val==False:
@@ -474,6 +471,7 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
     last_record_function = get_key_allow(MODEL_DICT, 'last_record_function', key_tram)
     if last_record_function:
         last_record_function(needdata)
+   
     get_or_create = False
     if key_search_dict:
         obj_val, get_or_create = get_or_create_object_has_x2m(self, model_name, key_search_dict, update_dict,
@@ -494,26 +492,29 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
         if main_call_create_instance_model: 
             print ('no get or create because no key_search_dict ')
     return obj_val, vof_dict, get_or_create
+
+
+
 def define_col_index(title_rows,sheet,COPY_MODEL_DICT,key_tram):
     read_excel_value_may_be_titles = []
     titles = []
     row_title_index =None
+    number_map_dict = {}
     for row in title_rows:
         for col in range(0,sheet.ncols):
-            
             if VERSION_INFO ==2:
                 read_excel_value_may_be_title = unicode(sheet.cell_value(row,col))
             else:
                 read_excel_value_may_be_title = str(sheet.cell_value(row,col))
             is_map_xl_title = lOOP_THROUGH_FIELDS_IN_MODEL_DICT_TO_ADD_COL_INDEX_MATCH_XL_TITLE( COPY_MODEL_DICT, read_excel_value_may_be_title, col,key_tram)
             read_excel_value_may_be_titles.append(read_excel_value_may_be_title)
-            
             if is_map_xl_title:
                 row_title_index = row
+                this_row_number_map = number_map_dict.setdefault(row,0)
+                number_map_dict[row] +=1
                 titles.append(read_excel_value_may_be_title)
-    print ( 'read_excel_value_may_be_titles*******',read_excel_value_may_be_titles)
-    print ('**titles',titles)
-    return row_title_index
+    largest_map_row = max(number_map_dict.items(), key=operator.itemgetter(1))[0]
+    return row_title_index,largest_map_row
     
 def importthuvien(odoo_or_self_of_wizard,import_for_stock_tranfer = False,key=False,key_tram=False,
                   not_create = False):
@@ -562,9 +563,18 @@ def importthuvien(odoo_or_self_of_wizard,import_for_stock_tranfer = False,key=Fa
         else:
             sheet_of_copy_wb = False
         title_rows = CHOOSED_MODEL_DICT.get('title_rows_some_sheets',{}).get(sheet_name)
-        title_rows = title_rows or get_key_allow(CHOOSED_MODEL_DICT, 'title_rows', key_tram)  # MODEL_DICT['title_rows']
+        largest_map_row_choosing = get_key_allow(CHOOSED_MODEL_DICT, 'largest_map_row_choosing', key_tram)
+        if largest_map_row_choosing:
+            title_rows = range(0,sheet.nrows)
+        else:
+            title_rows = title_rows or get_key_allow(CHOOSED_MODEL_DICT, 'title_rows', key_tram)  # MODEL_DICT['title_rows']
+        print ('title_rows',title_rows)
 #         ncols = sheet.ncols
-        row_title_index = define_col_index(title_rows,sheet,COPY_MODEL_DICT,key_tram)
+        row_title_index,largest_map_row = define_col_index(title_rows,sheet,COPY_MODEL_DICT,key_tram)
+        
+        if largest_map_row_choosing:
+            row_title_index = largest_map_row
+        print ('largest_map_row',largest_map_row,'row_title_index',row_title_index)
         merge_tuple_list =  sheet.merged_cells
         print ('merge_tuple_list',merge_tuple_list)
         if row_title_index == None:
