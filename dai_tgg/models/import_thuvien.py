@@ -7,45 +7,33 @@ from odoo.addons.dai_tgg.models.tao_instance_new import importthuvien
 # from odoo.addons.dai_tgg.models.model_dict import gen_model_dict
 
 # ALL_MODELS_DICT = ALL_MODELS_DICT
-M = {'LTK':['LTK'],'PTR':['pas'],'TTI':['TTI'],'BDG':['BDG'],'VTU':['VTU']}
-def convert_sheetname_to_tram(sheet_name):
-    if sheet_name ==False:
-        return False
-    else:
-        for tram,key_tram_list in M.items():
-            for key_tram in key_tram_list:
-                rs = re.search(key_tram,sheet_name)
-                if rs:
-                    find_tram = tram
-                    return find_tram
-        return sheet_name  
+
 
 class ImportThuVien(models.Model):
     _name = 'importthuvien' 
     type_choose = fields.Selection([
-        (u'stock.inventory.line',u'stock.inventory.line'),
-        (u'stock.inventory.line.dp_tti',u'stock.inventory.line.dp_tti'),
-        (u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',u'stock.inventory.line.tong.hop.ltk.dp.tti.dp'),
-        (u'stock.inventory.line.tkt.vtdc',u'stock.inventory.line.tkt.vtdc'),
+#         (u'stock.inventory.line',u'stock.inventory.line'),
+#         (u'stock.inventory.line.dp_tti',u'stock.inventory.line.dp_tti'),
+        (u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',u'stock.inventory.line.tong.hop'),
+#         (u'stock.inventory.line.tkt.vtdc',u'stock.inventory.line.tkt.vtdc'),
         (u'Product',u'Product'),
         (u'Thư viện công việc',u'Thư viện công việc'),
-                                    (u'User',u'User')
-                                    #,(u'Công Ty',u'Công Ty')
-                                    ,(u'Department',u'Department')
-                                    ,(u'Partner',u'Partner')
-                                    ,(u'location partner',u'location partner')
-                                    ,(u'Stock Location',u'Stock Location')
-                                    ,(u'stock production lot',u'stock production lot')
-                                    ,(u'Kiểm Kê',u'Kiểm Kê'),(u'Vật Tư LTK',u'Vật Tư LTK')
-                                    ,(u'x',u'x'),(u'640',u'640G 1850 ')
-                                    ,(u'INVENTORY_240G',u'INVENTORY_240G')
-                                    ,(u'INVENTORY_RING_NAM_CIENA',u'INVENTORY_RING_NAM_CIENA')
-                                    ,(u'Inventory-120G',u'Inventory-120G')
-                                    ,(u'Inventory-330G',u'Inventory-330G')
-                                    ,(u'INVENTORY-FW4570',u'INVENTORY-FW4570')
-                                    ,(u'INVETORY 1670',u'INVETORY 1670')
-                                    ,(u'iventory hw8800',u'iventory hw8800')
-                                    ,(u'iventory7500',u'iventory7500')
+        (u'User',u'User')
+        ,(u'Department',u'Department')
+        ,(u'Partner',u'Partner')
+        ,(u'location partner',u'location partner')
+#         ,(u'Stock Location',u'Stock Location')
+#         ,(u'stock production lot',u'stock production lot')
+#         ,(u'Kiểm Kê',u'Kiểm Kê'),(u'Vật Tư LTK',u'Vật Tư LTK')
+#         ,(u'x',u'x'),(u'640',u'640G 1850 ')
+#         ,(u'INVENTORY_240G',u'INVENTORY_240G')
+#         ,(u'INVENTORY_RING_NAM_CIENA',u'INVENTORY_RING_NAM_CIENA')
+#         ,(u'Inventory-120G',u'Inventory-120G')
+#         ,(u'Inventory-330G',u'Inventory-330G')
+#         ,(u'INVENTORY-FW4570',u'INVENTORY-FW4570')
+#         ,(u'INVETORY 1670',u'INVETORY 1670')
+#         ,(u'iventory hw8800',u'iventory hw8800')
+#         ,(u'iventory7500',u'iventory7500')
                                     ],required = True)
     sheet_name = fields.Selection([
                                     (u'Vô tuyến',u'Vô tuyến'),
@@ -85,6 +73,7 @@ class ImportThuVien(models.Model):
     test_result_2 = fields.Text()
     test_result_3 = fields.Text()
     line_not_has_quant =  fields.Text()
+    
     @api.onchange('type_choose')
     def import_location_id_(self):
 #         adict = {'stock.inventory.line':'prepare','stock.inventory.line.tkt.vtdc':'running'}
@@ -92,6 +81,8 @@ class ImportThuVien(models.Model):
             self.import_location_id = self.env['stock.location'].search([('name','=',u'LTK Dự Phòng')]).id
         elif self.type_choose == u'stock.inventory.line.tkt.vtdc':
             self.import_location_id = self.env['stock.location'].search([('name','=',u'LTK Đang Chạy')]).id
+    
+    
     def check_stt_inventory_line_old(self):
         rs = self.env['stock.inventory.line'].search([('inventory_id','=',self.inventory_id.id)], order='stt asc')
         rs2 = self.env['stock.inventory.line'].search([('inventory_id','=',self.inventory_id.id)], order='stt desc',limit=1)

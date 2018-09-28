@@ -38,12 +38,8 @@
                 <xpath expr="//button[@name='action_toggle_is_locked']" position="after">
                     <button name="ghom_stock_move_lines" string="Tạo Bản In" type="object"  />
                     <button name="xem_print_theo_move_line" string="Xem biên bản html" type="object"  class="btn-primary"/>
-                 <!--  <button name="xem_print" string="Xem biên bản html old" type="object" invsible="1" /> -->  
                     <button name="xem_print_pdf" string="Xem biên bản pdf" type="object" />
-          			<button name="import_file" string="import_file" type="object" />
-          			<!-- <button name="download_sml" string="download_sml" type="object"   class="btn-primary"/> -->
-          			<button name="check_file" string="check_file" type="object"   class="btn-primary"/>
-          			<button name="download_xl_bbbg" string="download_xl_bbbg" type="object"   class="btn-primary"/>
+          			<button name="download_xl_bbbg" string="Download BBBG Excel " type="object"   class="btn-primary"/>
                 </xpath>
                 <field name="location_id" position="replace">
                     <field name="id" />
@@ -75,15 +71,7 @@
                     <field name="ma_bien_ban" readonly="0" />
                     <field name="totrinh_id" />
                     <field name="ly_do" />
-                    <field name="is_dl_right_now" />
-                    <field name="title_row_for_import" />
-                    <field name="is_ghom_tot" />
-                    <field name="is_set_tt_col" />
-                    <field name="file" filename="filename" />
-                    <field name="filename" />
-                    <field name="file_dl"  readonly="1" filename="file_dl_name"/>
-                    <field name="file_dl_name" />
-                    <field name="log"/>
+       
                 </field>
                 <xpath expr="//page[1]" position="attributes">
                     <attribute name="attrs">{'invisible': False}</attribute>
@@ -228,6 +216,28 @@
                         	<field name="is_chia_2_dong"/>
                         </group>
                     </page>
+                    
+                    <page string="Thông tin về Download File">
+                       <header>
+                         <button name="import_file" string="import_file" type="object" />
+          				 <button name="check_file" string="check_file" type="object"   class="btn-primary"/>
+                         </header>
+                        <group>
+                           <group>
+                           <field name="is_dl_right_now" />
+		                  <!--   <field name="title_row_for_import" /> -->
+		                    <field name="is_ghom_tot" />
+		                    <field name="is_set_tt_col" />
+		                    <field name="file" filename="filename" />
+		                    <field name="filename"  invisible ="1"/>
+		                    <field name="file_dl"  readonly="1" filename="file_dl_name"/>
+		                    <field name="file_dl_name"  invisible="1"/>
+		                    <field name="log" groups="base.group_erp_manager" />
+		                    </group>
+                        </group>
+                    </page>
+                    
+                    
                     <page string="Thông tin trả vật tư">
                         <group>
                             <field name="origin_pick_id"></field>
@@ -235,6 +245,8 @@
                             <field name="ten_truoc_huy" />
                         </group>
                     </page>
+                    
+                    
                 </xpath>
             </field>
         </record>

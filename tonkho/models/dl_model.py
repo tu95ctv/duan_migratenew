@@ -13,10 +13,13 @@ horiz_center_normal_border_style = xlwt.easyxf("font:  name Times New Roman, hei
 normal_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align:  vert centre ; borders: left thin,right thin, top thin, bottom thin")
 not_horiz_center_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align: wrap on , vert centre; borders: left thin,right thin, top thin, bottom thin")
 header_bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 240 ; align:  vert centre, horiz center ;  pattern: pattern solid, fore_colour gray25;borders: left thin, right thin, top thin, bottom thin")
-def download_model(dlcv_obj, Export_Para=None,workbook=None,append_domain=None,sheet_name=None):
+def download_model(dlcv_obj,
+                    Export_Para=None,
+                    workbook=None,
+                    append_domain=None,
+                    sheet_name=None):
 #     global dlcv_obj_global
 #     dlcv_obj_global = dlcv_obj
-    
     exported_model= Export_Para['exported_model']
     FIELDNAME_FIELDATTR= Export_Para['FIELDNAME_FIELDATTR']
     FIELDNAME_FIELDATTR = recursive_OrderedDict(FIELDNAME_FIELDATTR)
@@ -71,9 +74,9 @@ def add_1_row_squant(worksheet,r ,FIELDNAME_FIELDATTR, row_index, offset_column=
         kargs = FIELDATTR.get('kargs',{})
         if func:
             val = func(val,needdata, **kargs)
-        print (f_name, val)
+#         print (f_name, val)
         if val == False:
-            print ('FALSE',f_name,val)
+#             print ('FALSE',f_name,val)
             val = u''
         one_field_val['val']=val 
         max_len_field_val =  FIELDATTR.setdefault('max_len_field_val',0)

@@ -31,5 +31,10 @@ Export_Para_product = {
 }
     
     
-def download_product(dlcv_obj):
-    return download_model(dlcv_obj,Export_Para=Export_Para_product)
+def download_product(dlcv_obj,append_domain = []):
+    filename = 'product-%s-%s'%(dlcv_obj.parent_location_id.name, dlcv_obj.parent_location_runing_id.name)
+    name = "%s.%s" % (filename, '.xls')
+    wb =  download_model(dlcv_obj,
+                         Export_Para=Export_Para_product,
+                         append_domain=append_domain)
+    return wb,name

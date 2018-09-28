@@ -23,8 +23,17 @@ import os
 
 
 
-
-
+BG_lst = [(u'BBBG',u'Bàn giao'),(u'TRVT',u'Trình vật tư'),
+                                               (u'BBNT',u'Nghiệm thu'),(u'BBSD',u'Đưa vào sử dụng'),
+                                               (u'BBNK',u'Nhập kho vật tư lỗi'),
+                                               (u'HUY',u'Hủy biên bản'),
+                                               (u'TRA_DO_HUY',u'Trả do hủy'),
+                                               (u'TRA_DO_MUON',u'Trả do hủy'),
+                                               (u'CHUYEN_TIEP',u'Chuyển tiếp'),
+                                               (u'TDTT',u'Thay đổi tình trạng vật tư'),
+                                               (u'DCNB',u'Dịch chuyển nội bộ'),
+                                               ]
+BG_dict = dict(BG_lst)
 def _select_nextval(cr, seq_name):
     cr.execute("SELECT nextval('%s')" % seq_name)
     return cr.fetchone()
@@ -45,16 +54,7 @@ class StockPicking(models.Model):
 #     stt_bien_ban = fields.Integer(default=lambda self:self.env.user.department_id.sequence_id.number_next_actual,readonly=True, string=u'STT điều chuyển')
     source_member_ids = fields.Many2many('res.partner','source_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân viên giao',copy=False)
     dest_member_ids = fields.Many2many('res.partner','dest_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân viên nhận',copy=False)
-    ban_giao_or_nghiem_thu = fields.Selection([(u'BBBG',u'Bàn giao'),(u'TRVT',u'Trình vật tư'),
-                                               (u'BBNT',u'Nghiệm thu'),(u'BBSD',u'Đưa vào sử dụng'),
-                                               (u'BBNK',u'Nhập kho vật tư lỗi'),
-                                               (u'HUY',u'Hủy biên bản'),
-                                               (u'TRA_DO_HUY',u'Trả do hủy'),
-                                               (u'TRA_DO_MUON',u'Trả do hủy'),
-                                               (u'CHUYEN_TIEP',u'Chuyển tiếp'),
-                                               (u'TDTT',u'Thay đổi tình trạng vật tư'),
-                                               (u'DCNB',u'Dịch chuyển nội bộ'),
-                                               ],default=u'BBBG', string=u'B/giao hay N/thu',copy=False)
+    ban_giao_or_nghiem_thu = fields.Selection(BG_lst,default=u'BBBG', string=u'B/giao hay N/thu',copy=False)
     file = fields.Binary(string='File Import')
     filename = fields.Char()
 #     stt_trong_bien_ban_in = fields.Integer(default=lambda self:self.default_get([ 'stt_bien_ban']).get('stt_bien_ban'),string=u'STT trong biên bản')
@@ -87,7 +87,6 @@ class StockPicking(models.Model):
     is_same_department = fields.Boolean(compute='is_same_department_')# location_id = location_dest_id
     is_validate_mode = fields.Boolean(compute='is_validate_mode_')
     ten_truoc_huy = fields.Char(string=u'Tên trước  hủy',copy=False)
-    is_ghom_tot = fields.Boolean()
 #     lot_id = fields.Many2one('stock.production.lot')
     state = fields.Selection([
         ('draft', 'Draft'),
@@ -113,15 +112,17 @@ class StockPicking(models.Model):
 #     
     loai_tra_hay_chuyen_tiep = fields.Selection([('tra_do_huy',u'Trả do hủy'),('tra_do_muon',u'Trả do mượn'),('chuyen_tiep',u'Chuyển tiếp')],string=u'Loại trả hay chuyển tiếp')
     
-    lanh_dao_id = fields.Many2one('res.partner')
-    is_chia_2_dong =  fields.Boolean()
+    lanh_dao_id = fields.Many2one('res.partner',string=u'Lãnh Đạo')
+    is_chia_2_dong =  fields.Boolean(string=u'Có chia hai dòng không?')
+
+    is_ghom_tot = fields.Boolean(string=u'Nếu tình trạng vật tư tốt hết thì ko cần ghi trong cột')
     file_dl = fields.Binary('File', readonly=True)
     file_dl_name = fields.Char()
     log = fields.Text()
-    is_set_tt_col =  fields.Boolean()
-    is_not_show_y_kien_ld =  fields.Boolean()
+    is_set_tt_col =  fields.Boolean(string=u'Có cột tình trạng trong biên bản?')
+    is_not_show_y_kien_ld =  fields.Boolean(string=u'Không thêm dòng ý kiến lãnh đạo')
     title_row_for_import = fields.Integer()
-    is_dl_right_now = fields.Boolean(default=True)
+    is_dl_right_now = fields.Boolean(default=True,string=u'Download ngay không cần lưu file')
     
     @api.multi
     def download_xl_bbbg(self):
@@ -353,7 +354,9 @@ class StockPicking(models.Model):
 #     @api.onchange('department_id','ban_giao_or_nghiem_thu','stt_trong_bien_ban_in')
     @api.depends('department_id','ban_giao_or_nghiem_thu','stt_trong_bien_ban_in')
     def name_(self):
-        name = self.department_id.short_name + '/' + '%s'%self.ban_giao_or_nghiem_thu + '/%s'%self.stt_trong_bien_ban_in
+        
+        ### sua lai 
+        name = self.department_id.short_name + '/' + '%s'%BG_dict[self.ban_giao_or_nghiem_thu] + '/%s'%self.stt_trong_bien_ban_in
         self.name = name
           
         

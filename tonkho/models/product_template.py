@@ -16,7 +16,7 @@ class PN(models.Model):
     product_id = fields.Many2one('product.product')
     sn_ids = fields.One2many('stock.production.lot','pn_id')
     running_or_prepare = fields.Selection([('running',u'Đang chạy'),('prepare',u'Dự phòng')])
-    import_location_id = fields.Many2one('stock.location')
+#     import_location_id = fields.Many2one('stock.location')
     tram_ltk_tao = fields.Boolean()
     dang_chay_tao = fields.Boolean()
     du_phong_tao = fields.Boolean()

@@ -1,10 +1,4 @@
-'''
-Created on Aug 23, 2018
 
-@author: Asus
-'''
-def f2():
-    f1()
-    
-def f1():
-    pass
+
+
+print reduce (lambda x,y:x*y,[1.0,2,3,4],2)

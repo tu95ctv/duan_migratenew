@@ -53,7 +53,7 @@ def gen_product_model_dict():
                                                      'fields':[
                                                                ('name',{'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Mã card (P/N)'],'key':True, 'required':True}),
                                                                ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True  }),
-#                                                                ('import_location_id',{'set_val':lambda self:self.import_location_id.id}),
+                                                               ('import_location_id',{'set_val':lambda self:self.import_location_id.id}),
                                                                ('dang_chay_tao',{'set_val':True}),
                                                                ('tram_ltk_tao',{'set_val':True}),
                                                                   

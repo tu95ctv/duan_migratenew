@@ -186,6 +186,9 @@ def gen_user_department_model_dict():
                }),  
                       ]
                 },#End users'
+                       
+                       
+        
                    }
     return user_model_dict
     

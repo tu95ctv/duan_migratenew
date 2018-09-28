@@ -65,24 +65,51 @@
          <field name="name">tonkho.downloadquants.form</field>
          <field name="model">tonkho.downloadquants</field>
          <field name="arch" type="xml">
-         	<form string="DL quants form">
+         	<form string="Download all model">
+         	
+         	<!-- 
          	<header>
-     			<button name="download_quants_by_new_window"  string="Download Quants (new window)" type="object" class="oe_highlight" groups="base.group_user"/>
-                 <button name="download_quants_by_file_field" string="Download Quants" type="object" class="btn-primary"/>
-     			<button name="download_product"  string="Download Product" type="object" class="oe_highlight" groups="base.group_user"/>
-                 <button name="download_quants_moi_cage_moi_sheet" string="Download Quants Moi Cage moi sheet" type="object" class="btn-primary"/>
+     			<button name="download_quants_by_new_window"  
+     			attrs = "{'invisible':[('quant_or_product','!=','quant')]}"
+     			string="Download Quants (new window)" type="object" class="oe_highlight" groups="base.group_user"/>
+     			<button name="download_product" 
+     			attrs = "{'invisible':[('quant_or_product','!=','product')]}"
+     			 string="Download Product" type="object" class="oe_highlight" groups="base.group_user"/>
                  <button name="test1" string="Test" type="object" class="btn-primary"/>
          	</header>
+         	 -->
+         	
          	<sheet>
          	<group>
-         	  	<field name="name"></field>
-         	  	<field name="parent_location_id"></field>
-         	  	<field name="parent_location_runing_id"></field>
-         	  	<field name="ngay_bat_dau_filter"></field>
+         	  	 <field name="name" invisible="1"></field>
+         	  	<field name="parent_location_id" attrs = "{'invisible':[('model_name','!=','product.product'),('model_name','!=','product.template')]}"></field>
+         	  	<field name="parent_location_runing_id" attrs = "{'invisible':[('model_name','!=','product.product'),('model_name','!=','product.template')]}"></field>
+         	  <!-- <field name="ngay_bat_dau_filter"></field>
+         	  	<field name="ngay_ket_thuc_filter"></field> -->	
+         	  	<field name="is_moi_sheet_moi_loai" attrs = "{'invisible':[('model_name','!=','stock.quant')]}"/>
+         	  	<field name="is_dl_right_now"/>
          	   <field name="test"></field> 
-         	  	<field name="data" readonly="1" filename="name"/>
+         	   <field name="data" readonly="1" filename="name" attrs="{'invisible':[('name','=',False)]}"/>
+         	   <field name="domain_text"></field> 
+         	   <field name="model_name" readonly="1"></field> 
          	  	</group>
          	</sheet>
+         	<footer>
+         		<button name="download_all_model"  
+     			string="Download" type="object" class="oe_highlight" groups="base.group_user"/><!-- 	attrs = "{'invisible':[('quant_or_product','!=','quant')]}" -->
+     			
+     			
+     			<button name="download_all_model"  
+     			string="Download Ngay" type="object" class="oe_highlight" groups="base.group_user" context = "{'download_right_now':True}"/>
+     			
+     			
+     			
+     			<!-- 
+     			<button name="download_product" 
+     			attrs = "{'invisible':[('quant_or_product','!=','product')]}"
+     			 string="Download Product" type="object" class="oe_highlight" groups="base.group_user"/>
+     			  -->
+         	</footer>
          	</form>
          </field>
          </record>
@@ -91,7 +118,7 @@
     
     <act_window
             id="downloadquants"
-            name="DL Quants"
+            name="Download số lượng trong kho"
             res_model="tonkho.downloadquants"
             src_model="stock.quant"
             view_mode="form"
@@ -99,6 +126,36 @@
             target="new"
             key2="client_action_multi"
         />
+        
+        
+        
+    <act_window
+            id="download_product"
+            name="Download vật tư"
+            res_model="tonkho.downloadquants"
+            src_model="product.product"
+            view_mode="form"
+            multi="True"
+            target="new"
+            key2="client_action_multi"
+        />
+        
+        
+        
+         <act_window
+            id="download_template"
+            name="Download Template"
+            res_model="tonkho.downloadquants"
+            src_model="product.template"
+            view_mode="form"
+            multi="True"
+            target="new"
+            key2="client_action_multi"
+        />
+        
+        
+        
+        <!--  cái này không liên quan cái dưới -->
      
      
    <menuitem id="menu_stock_quant_action_product"  action="stock_quant_action_product"

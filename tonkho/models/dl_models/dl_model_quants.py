@@ -2,6 +2,7 @@
 from odoo.addons.tonkho.models.dl_model import  download_model
 from openerp.http import request
 import xlwt
+from odoo.exceptions import UserError
 
 def get_width(num_characters):
     return int((1+num_characters) * 256)
@@ -48,14 +49,68 @@ Export_Para_quants = {
     'search_para':{'order': 'stt asc'},#desc
     }
     
-def download_quants(dlcv_obj,workbook=None,append_domain=None,sheet_name=None):
-    return download_model(dlcv_obj,Export_Para=Export_Para_quants,append_domain=append_domain,workbook=workbook,sheet_name=sheet_name)
+def download_quants(dlcv_obj,append_domain = []):
+    if not dlcv_obj.is_moi_sheet_moi_loai:
+#         return download_quants_chung_sheet(dlcv_obj)
+        filename = 'quants-%s'%dlcv_obj.parent_location_id.name
+        name = "%s%s" % (filename, '.xls')
+        workbook =  download_model(dlcv_obj,
+                             Export_Para=Export_Para_quants,
+                             append_domain=append_domain
+                            )
+    else:
+        filename = 'quants_moi_cate_moi_sheet%s'%dlcv_obj.parent_location_id.name
+        name = "%s%s" % (filename, '.xls')
+        Quant = request.env['stock.quant']#.search([])
+        cates = Quant.search(append_domain).mapped('categ_id')
+        workbook = xlwt.Workbook()
+        for cate in cates:
+            if append_domain:
+                domain =[('categ_id','=',cate.id)]
+                domain.extend(append_domain)
+            download_model(dlcv_obj,
+                         Export_Para=Export_Para_quants,
+                         append_domain=domain,
+                         workbook=workbook,
+                         sheet_name=cate.name)
+    
+    return workbook,name
+        
+    
 
-def download_quants_moi_cage_moi_sheet(dlcv_obj):
-    Quant = request.env['stock.quant']#.search([])
-    cates = Quant.search([]).mapped('categ_id')
-    workbook = xlwt.Workbook()
-    for cate in cates:
-        download_quants(dlcv_obj,workbook=workbook,append_domain=[('categ_id','=',cate.id)],sheet_name=cate.name)
-    return workbook
+
+# def download_quants_chung_sheet(dlcv_obj,workbook=None,
+#                                 append_domain=None,
+#                                 sheet_name=None):
+#     filename = 'quants-%s'%dlcv_obj.parent_location_id.name
+#     name = "%s%s" % (filename, '.xls')
+#     wb =  download_model(dlcv_obj,
+#                          Export_Para=Export_Para_quants,
+#                          append_domain=append_domain,
+#                          workbook=workbook,
+#                          sheet_name=sheet_name)
+#     return wb,name
+# # def download_quants_moi_cage_moi_sheet(dlcv_obj):
+# #     filename = 'quants_moi_cate_moi_sheet%s'%dlcv_obj.parent_location_id.name
+# #     name = "%s%s" % (filename, '.xls')
+# #     Quant = request.env['stock.quant']#.search([])
+# #     cates = Quant.search([]).mapped('categ_id')
+# #     workbook = xlwt.Workbook()
+# #     for cate in cates:
+# #         download_quants_chung_sheet(dlcv_obj,workbook=workbook,append_domain=[('categ_id','=',cate.id)],sheet_name=cate.name)
+# #     return workbook,name
+# def download_quants_moi_cage_moi_sheet(dlcv_obj):
+#     filename = 'quants_moi_cate_moi_sheet%s'%dlcv_obj.parent_location_id.name
+#     name = "%s%s" % (filename, '.xls')
+#     Quant = request.env['stock.quant']#.search([])
+#     cates = Quant.search([]).mapped('categ_id')
+#     workbook = xlwt.Workbook()
+#     for cate in cates:
+# #         download_quants_chung_sheet(dlcv_obj,workbook=workbook,append_domain=[('categ_id','=',cate.id)],sheet_name=cate.name)
+#         download_model(dlcv_obj,
+#                          Export_Para=Export_Para_quants,
+#                          append_domain=[('categ_id','=',cate.id)],
+#                          workbook=workbook,
+#                          sheet_name=cate.name)
+#     return workbook,name
 
