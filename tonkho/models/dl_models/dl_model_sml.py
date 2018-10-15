@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 #######################ML################################
-from odoo.addons.tonkho.models.dl_model import  download_model,get_width
+from odoo.addons.tonkho.models.dl_models.dl_model import  download_model,get_width
 
 
 def stt_(v,needdata): 
     v = needdata['a_instance_dict']['stt_not_model']['val']  +1   
     return v  
-def gen_domain_sml(dlcv_obj):
+def gen_domain_sml(dl_obj):
     domain = []
-    domain.append(('picking_id','=',dlcv_obj.id))
+    domain.append(('picking_id','=',dl_obj.id))
     return domain
     
 FIELDNAME_FIELDATTR_SML = [
@@ -39,5 +39,5 @@ Export_Para_sml = {
     'gen_domain':gen_domain_sml,
     'search_para':{'order': 'stt asc'},#desc
     }
-def download_sml(dlcv_obj,workbook=None,append_domain=None,sheet_name=None):
-    return download_model(dlcv_obj,Export_Para=Export_Para_sml,append_domain=append_domain,workbook=workbook,sheet_name=sheet_name)
+def download_sml(dl_obj,workbook=None,append_domain=None,sheet_name=None):
+    return download_model(dl_obj,Export_Para=Export_Para_sml,append_domain=append_domain,workbook=workbook,sheet_name=sheet_name)

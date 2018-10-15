@@ -12,7 +12,7 @@ class InventoryLine(models.Model):
     brand_id = fields.Many2one('tonkho.brand', related='product_id.brand_id',store=True)
 #     pn = fields.Char(related = 'prod_lot_id.pn',store=True)
     pn_id = fields.Many2one('tonkho.pn',related = 'prod_lot_id.pn_id',store=True)
-    pn = fields.Char(related = 'prod_lot_id.pn',store=True)
+#     pn = fields.Char(related = 'prod_lot_id.pn',store=True)
     stt = fields.Integer(string=u'STT')
 #     id_of_product_id =  fields.Integer(related='product_id.id')
     tracking =  fields.Selection(related='product_id.tracking', store=True,string=u'Có SN hay không')

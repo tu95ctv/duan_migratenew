@@ -2193,8 +2193,8 @@ msgstr "From Supplier"
 
 #. module: stock
 #: model:ir.model.fields,field_description:stock.field_stock_location_complete_name
-msgid "Full Location Name"
-msgstr "Full Location Name"
+msgid "Full Location Name kaka"
+msgstr "Tên kho đầy đủ"
 
 #. module: stock
 #: model:ir.ui.view,arch_db:stock.view_picking_internal_search

@@ -51,7 +51,6 @@ class ReturnPicking(models.TransientModel):
                 res.update({'product_return_moves': product_return_moves})
             if 'move_dest_exists' in fields:
                 res.update({'move_dest_exists': move_dest_exists})
-
         return res
     def _create_returns(self):
         # TODO sle: the unreserve of the next moves could be less brutal
@@ -59,13 +58,19 @@ class ReturnPicking(models.TransientModel):
             return_move.move_dest_ids.filtered(lambda m: m.state not in ('done', 'cancel'))._do_unreserve()
         picking = self.env['stock.picking'].browse(self.env.context.get('active_id'))
         picking_type_id = self.picking_id.picking_type_id.return_picking_type_id.id or self.picking_id.picking_type_id.id
+        
         loai_tra_hay_chuyen_tiep = self._context.get('default_loai_tra_hay_chuyen_tiep','tra_do_muon')
         if loai_tra_hay_chuyen_tiep == 'tra_do_huy':
             ban_giao_or_nghiem_thu = u'TRA_DO_HUY'
-        elif loai_tra_hay_chuyen_tiep == 'chuyen_tiep':
-            ban_giao_or_nghiem_thu = u'CHUYEN_TIEP'
         else:
-            ban_giao_or_nghiem_thu = u'TRA_DO_MUON'
+            
+            if self.env['ir.config_parameter'].sudo().get_param('tonkho.is_bg_or_nt_tra_do_muon'):
+                if loai_tra_hay_chuyen_tiep == 'chuyen_tiep':
+                    ban_giao_or_nghiem_thu = u'CHUYEN_TIEP'
+                else:
+                    ban_giao_or_nghiem_thu = u'TRA_DO_MUON'
+            else:
+                ban_giao_or_nghiem_thu = u'BBBG'
         
         new_picking = self.picking_id.copy({
             'move_lines': [],
@@ -110,6 +115,11 @@ class ReturnPicking(models.TransientModel):
                 if not picking.ten_truoc_huy:
                     picking.ten_truoc_huy = picking.name
                     picking.ban_giao_or_nghiem_thu = 'HUY'
+                    
+        print ('ban_giao_or_nghiem_thu***',ban_giao_or_nghiem_thu)
+        if ban_giao_or_nghiem_thu == u'TRA_DO_HUY':
+            print ('**button_validate')
+            new_picking.button_validate()
         return new_picking.id, picking_type_id
     
     

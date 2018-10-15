@@ -48,9 +48,9 @@ class StockLocation(models.Model):
 #     
     def name_get(self):
         ret_list = []
-        show_ke = self._context.get('show_ke')
+        show_loc_type = self._context.get('show_loc_type')
         for location in self:
-            if  show_ke:
+            if  show_loc_type:
                 name = location.name_get_1_record()
             else:
                 name = location.complete_name
@@ -68,25 +68,19 @@ class StockLocation(models.Model):
     def name_search(self, name, args=None, operator='ilike', limit=100):
         limit = 100
         location_id = self._context.get('d4_location_id')
-        print ('location_id',location_id)
         product_id = self._context.get('product_id_d4')
         if location_id:
             location_id_object = self.env['stock.location'].browse([location_id])
             if location_id_object.usage == 'internal':
                 def filter_lots(r):
-                    print ('product_id',product_id, type(product_id),'r.id',r.id)
-#                     return True
                     quants = self.env['stock.quant'].search([('location_id','=',r.id),('product_id','=',int(product_id)),('quantity','>',0)])
-                    print ('location_id',location_id,'r.id',r.id,'quants',quants,'len(quants)',len(quants))
                     if len(quants) >0 :
                         return True
                     else:
                         return False
                 if args ==None:
                     args = []
-#                 domain = expression.AND([[('name',operator,name)],args])
                 recs = self.search(['|', ('barcode', operator, name), ('complete_name', operator, name)] + args, limit=limit)
-#                 locations = self.env["stock.location"].search(domain, limit=limit)
                 recs = recs.filtered(filter_lots )
                 return recs.name_get()
         return super(StockLocation, self).name_search( name, args=args, operator=operator, limit=limit)

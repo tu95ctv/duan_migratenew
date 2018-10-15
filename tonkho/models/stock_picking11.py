@@ -5,10 +5,10 @@ from odoo.exceptions import UserError
 from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 from datetime import timedelta
-from odoo.addons.dai_tgg.models.tao_instance_new import importthuvien
-from odoo.addons.dai_tgg.models.model_dict import gen_model_dict
+from odoo.addons.dai_tgg.models.model_dict_folder.tao_instance_new import importthuvien
+from odoo.addons.dai_tgg.models.model_dict_folder.model_dict import gen_model_dict
 # from odoo.addons.tonkho.controllers.controllers import download_ml
-from odoo.addons.tonkho.models.xl_tranfer_bb import write_xl_bb
+from odoo.addons.tonkho.models.dl_models.xl_tranfer_bb import write_xl_bb
 from odoo.addons.tonkho.models.check_file import check_imported_file_sml
 
 import base64
@@ -21,14 +21,14 @@ import xlrd
 import inspect
 import os
 
-
+from lxml import etree
 
 BG_lst = [(u'BBBG',u'Bàn giao'),(u'TRVT',u'Trình vật tư'),
                                                (u'BBNT',u'Nghiệm thu'),(u'BBSD',u'Đưa vào sử dụng'),
                                                (u'BBNK',u'Nhập kho vật tư lỗi'),
                                                (u'HUY',u'Hủy biên bản'),
                                                (u'TRA_DO_HUY',u'Trả do hủy'),
-                                               (u'TRA_DO_MUON',u'Trả do hủy'),
+                                               (u'TRA_DO_MUON',u'Trả do mượn'),
                                                (u'CHUYEN_TIEP',u'Chuyển tiếp'),
                                                (u'TDTT',u'Thay đổi tình trạng vật tư'),
                                                (u'DCNB',u'Dịch chuyển nội bộ'),
@@ -43,6 +43,10 @@ class ToTrinh(models.Model):
 class StockPicking(models.Model):
     _inherit = "stock.picking"
 #     cancel_mode = fields.Boolean(compute='action_cancel_show_')
+    _sql_constraints = [
+        ('name_uniq', 'unique(name, company_id)', 'Reference must be unique per company!'),
+        ('name_ma_bb', 'unique(stt_trong_bien_ban_in,department_id,ban_giao_or_nghiem_thu)', u'Mã BBBG và số TT trong bản phải là duy nhất trên mỗi phòng ban!'),
+    ]
     choosed_stock_quants_ids = fields.Many2many('stock.quant',compute='choosed_stock_quants_ids_',store=False)
     location_id = fields.Many2one(
         'stock.location', "Source Location",
@@ -59,8 +63,36 @@ class StockPicking(models.Model):
     filename = fields.Char()
 #     stt_trong_bien_ban_in = fields.Integer(default=lambda self:self.default_get([ 'stt_bien_ban']).get('stt_bien_ban'),string=u'STT trong biên bản')
     stt_trong_bien_ban_in = fields.Integer(string=u'STT trong biên bản',compute='stt_trong_bien_ban_in_',store=True,copy=False)
+    
+    @api.depends('department_id','ban_giao_or_nghiem_thu')
+    def stt_trong_bien_ban_in_(self):
+        domain = [('department_id','=',self.department_id.id),
+                                                    ('ban_giao_or_nghiem_thu','=',self.ban_giao_or_nghiem_thu),
+                                                    ('stt_trong_bien_ban_in','!=', 0),
+                                                    ]
+        if isinstance(self.id, int):
+            domain.append(('id','!=',self.id))
+        picking = self.env['stock.picking'].search(domain, limit=1, order='stt_trong_bien_ban_in desc')
+        print ('domain',domain)
+        print ('picking',picking)
+        if picking:
+#             self.env.cr.execute('select stt_trong_bien_ban_in from stock_picking where id =%s'%picking.id)
+#             ad =  self.env.cr.dictfetchall()
+#             print ('ad',ad)
+#             stt_trong_bien_ban_in = ad[0]['stt_trong_bien_ban_in'] + 1
+            stt_trong_bien_ban_in = picking.stt_trong_bien_ban_in + 1
+#             print ('stt_trong_bien_ban_in',stt_trong_bien_ban_in)
+            self.stt_trong_bien_ban_in = stt_trong_bien_ban_in
+        else:
+            self.stt_trong_bien_ban_in = 1
+            
+            
 #     stt_trong_bien_ban_in = fields.Integer(string=u'STT trong biên bản',copy=False)
     ma_bien_ban = fields.Char(string=u'Mã biên bản',compute='ma_bien_ban_',store=True,copy=False)#default=lambda self:self.default_get([ 'ban_giao_or_nghiem_thu']).get('ban_giao_or_nghiem_thu'),
+    @api.depends('ban_giao_or_nghiem_thu')
+    def ma_bien_ban_(self):
+        self.ma_bien_ban = self.ban_giao_or_nghiem_thu
+        
     name = fields.Char(
         compute='name_',store=True,
         string='Reference',
@@ -124,6 +156,18 @@ class StockPicking(models.Model):
     title_row_for_import = fields.Integer()
     is_dl_right_now = fields.Boolean(default=True,string=u'Download ngay không cần lưu file')
     
+    
+    is_quyen_chuyen_tiep =  fields.Boolean(compute='is_quyen_chuyen_tiep_')
+    is_quyen_huy_bb =  fields.Boolean(compute='is_quyen_huy_bb_')
+    
+    @api.one
+    def is_quyen_huy_bb_(self):
+        self.is_quyen_huy_bb = self.user_has_groups('base.group_erp_manager') or (self.env.user == self.create_uid)
+        
+    @api.one
+    def is_quyen_chuyen_tiep_(self):
+        self.is_quyen_chuyen_tiep = self.user_has_groups('base.group_erp_manager') or (self.env.user.department_id == self.location_dest_id.department_id)
+    #### Button ###########
     @api.multi
     def download_xl_bbbg(self):
         if self.is_dl_right_now:
@@ -133,12 +177,8 @@ class StockPicking(models.Model):
              'target': 'new',
              }
         
-        dlcv_obj = self
-        workbook,name = write_xl_bb (dlcv_obj)
-        
-#         filename = 'workbook_bbbg-%s'%dlcv_obj.id
-#         name = "%s%s" % (filename, '.xls')
-#         
+        dl_obj = self
+        workbook,name = write_xl_bb (dl_obj)
         
         with contextlib.closing(io.BytesIO()) as buf:
             workbook.save(buf)
@@ -155,8 +195,8 @@ class StockPicking(models.Model):
              'url': '/web/binary/download_checked_import_sml_file?model=stock.picking&id=%s'%(self.id),
              'target': 'new',
              }
-        dlcv_obj = self
-        workbook,name = check_imported_file_sml(dlcv_obj)
+        dl_obj = self
+        workbook,name = check_imported_file_sml(dl_obj)
         with contextlib.closing(io.BytesIO()) as buf:
             workbook.save(buf)
             out = base64.encodestring(buf.getvalue())
@@ -169,12 +209,19 @@ class StockPicking(models.Model):
         importthuvien(self,import_for_stock_tranfer = md, key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',key_tram='sml')
 
     @api.multi
+    def validate_cua_ben_giao(self):
+        self.state = 'done_ben_giao'
+        
+    ####  ! End button #####
+
+    @api.multi
     def is_validate_mode_(self):
         for r in self:
             r.is_validate_mode = self.env['ir.config_parameter'].sudo().get_param('tonkho.is_validate_mode')
         
+  
+    
     @api.depends('location_id','location_dest_id')
-#     @api.multi
     def is_same_department_(self):
         for r in self:
             is_same_department = r.location_id.department_id == r.location_dest_id.department_id
@@ -182,12 +229,7 @@ class StockPicking(models.Model):
                 is_same_department = not r.location_id.department_id and r.location_id.cho_phep_khac_tram_chon
                 is_same_department =  is_same_department or  (not r.location_dest_id.department_id and r.location_dest_id.cho_phep_khac_tram_chon)
             r.is_same_department = is_same_department
-            
-#     @api.multi
-#     def is_diff_department_(self):
-#         for r in self:
-#             is_diff_department = r.location_id.department_id != r.location_dest_id.department_id
-#             r.is_diff_department = is_diff_department
+
     @api.depends('location_id','location_dest_id')
     def show_validate_ben_giao_(self):
         for r in self:
@@ -200,6 +242,8 @@ class StockPicking(models.Model):
             else:
                 r.show_validate_ben_giao = False
 
+    
+    #  compute show_validate theo is_validate_mode
     @api.multi
     @api.depends('state', 'is_locked','location_id','location_dest_id')
     def _compute_show_validate(self):
@@ -229,48 +273,19 @@ class StockPicking(models.Model):
                     show_validate = False
                 else:
                     show_validate = True
-#             show_validate = True ################warning nhớ xóa đi sau khi test report
             picking.show_validate = show_validate
 
                 
                 
-    @api.multi
-    def validate_cua_ben_giao(self):
-        self.state = 'done_ben_giao'
+  
+    
    
-
-    @api.depends('ban_giao_or_nghiem_thu')
-    def ma_bien_ban_(self):
-        self.ma_bien_ban = self.ban_giao_or_nghiem_thu
-
-
-#     def action_cancel_show_(self):
-#         for r in self:
-#             r.cancel_mode=self.env['ir.config_parameter'].sudo().get_param('tonkho.cancel_mode')
-#     @api.onchange('department_id','ban_giao_or_nghiem_thu')
-   
-    @api.depends('department_id','ban_giao_or_nghiem_thu')
-    def stt_trong_bien_ban_in_(self):
-        domain = [('department_id','=',self.department_id.id),
-                                                    ('ban_giao_or_nghiem_thu','=',self.ban_giao_or_nghiem_thu),
-                                                    ('stt_trong_bien_ban_in','!=', 0),
-                                                    ]
-        if isinstance(self.id, int):
-            domain.append(('id','!=',self.id))
-        picking = self.env['stock.picking'].search(domain,limit=1,order='stt_trong_bien_ban_in desc')
-        if picking:
-            stt_trong_bien_ban_in = picking.stt_trong_bien_ban_in + 1
-            self.stt_trong_bien_ban_in=stt_trong_bien_ban_in
-        else:
-            self.stt_trong_bien_ban_in = 1
+    
     @api.onchange('texttemplate_id')
     def onchage_for_ly_do(self):
         if self.texttemplate_id:
             self.ly_do = self.texttemplate_id.name
-    # toi 07/06
-#     is_locked = fields.Boolean(default=False, help='When the picking is not done this allows changing the '
-#                                'initial demand. When the picking is done this allows '
-#                                'changing the done quantities.')
+   
     def generate_partner_bootstrap_ti_le_old(self):
         is_chia_2_dong = True
         row_3_dong = []
@@ -294,7 +309,6 @@ class StockPicking(models.Model):
             alist_2row = alist_2nd_row_new
         else:
             alist_2row =  alist_1st_row
-#         alist_1st_row.append((u'Bên giao',self.source_member_ids[0].name if self.source_member_ids else ''))
         alist_1st_row.append((u'Bên giao',self.source_member_ids.mapped('name') if self.source_member_ids else ''))
         if self.title_ben_thu_3:
             alist_2row.append((self.title_ben_thu_3.name,[self.ben_thu_3_ids[0].name]))
@@ -315,43 +329,7 @@ class StockPicking(models.Model):
         for r in self:
             r.choosed_stock_quants_ids =  r.move_line_ids.mapped('stock_quant_id')
         
-#     @api.multi
-#     @api.depends('state', 'move_lines')
-#     def _compute_show_mark_as_todo(self):
-#         for picking in self:
-#             picking.show_mark_as_todo = True
-#             if picking.state == 'done' or picking.state == 'confirmed'  :
-#                 picking.show_mark_as_todo = False
-#             else:
-#                 picking.show_mark_as_todo = True
-# #             picking.show_mark_as_todo = True
-# #             if not picking.move_lines:
-# #                 picking.show_mark_as_todo = False
-# #             if self._context.get('planned_picking') and picking.state == 'draft':
-# #                 picking.show_mark_as_todo = True
-# #             elif picking.state != 'draft' and picking.state != 'cancel' :# or not picking.id
-# #                 picking.show_mark_as_todo = False
-# #             else:
-# #                 picking.show_mark_as_todo = True
-                
-# Tự làm tự bỏ    
-#     def action_draft(self):
-#         self.state = 'draft'
-   
-   
-# default_name củ  
-#     def default_name(self):
-#         defaults = self.default_get([ 'department_id'])
-#         int_department_id  = defaults.get('department_id')
-#         int_department_id =  int_department_id or self.department_id.id
-#         if int_department_id:
-#             department_id = self.env['hr.department'].browse(int_department_id)
-#             number_next = self.env.user.department_id.sequence_id.number_next_actual
-#             name = department_id.short_name + '/' + '%s'%number_next
-#             return name
-#         else:
-#             raise UserError(u'Bạn phải chọn department_id cho user')
-#     @api.onchange('department_id','ban_giao_or_nghiem_thu','stt_trong_bien_ban_in')
+
     @api.depends('department_id','ban_giao_or_nghiem_thu','stt_trong_bien_ban_in')
     def name_(self):
         
@@ -375,6 +353,8 @@ class StockPicking(models.Model):
 #                         'location_dest_id': [('usage','=',u'internal')]
 #                         }
 #                     }
+
+            ## chưa xài đoạn code dưới
             elif self.picking_type_id.code in  [ 'outgoing']:
                 self.location_id = default_location_id
 #                 self.location_dest_id = False
@@ -395,42 +375,24 @@ class StockPicking(models.Model):
 #                     }
                  
    
-#     @api.multi
-#     def action_confirm(self):
-#         # call `_action_confirm` on every draft move
-#         
-#         self.mapped('move_lines')\
-#             .filtered(lambda move: move.state == 'draft')\
-#             ._action_confirm()
-#         # call `_action_assign` on every confirmed move which location_id bypasses the reservation
-#         
-#         print ("self.filtered(lambda picking: picking.location_id.usage in ('supplier', 'inventory', 'production') and picking.state == 'confirmed')\
-#             .mapped('move_lines')",self.filtered(lambda picking: picking.location_id.usage in ('supplier', 'inventory', 'production') and picking.state == 'confirmed')\
-#             ,self.filtered(lambda picking: picking.location_id.usage in ('supplier', 'inventory', 'production') and picking.state == 'confirmed')\
-#             .mapped('move_lines'))
-#         raise ValueError('dflsjkdfl kakak')
-#         self.filtered(lambda picking: picking.location_id.usage in ('supplier', 'inventory', 'production') and picking.state == 'confirmed')\
-#             .mapped('move_lines')._action_assign()
-#         if self.env.context.get('planned_picking') and len(self) == 1:
-#             action = self.env.ref('stock.action_picking_form')
-#             result = action.read()[0]
-#             result['res_id'] = self.id
-#             result['context'] = {
-#                 'search_default_picking_type_id': [self.picking_type_id.id],
-#                 'default_picking_type_id': self.picking_type_id.id,
-#                 'contact_display': 'partner_address',
-#                 'planned_picking': False,
-#             }
-#             return result
-#         else:
-#             return True
+
         
+    @api.multi
+    def write(self,vals):
+        print ('**vals***',vals)
+        super(StockPicking, self).write(vals)
         
+    @api.model
+    def create(self,vals):
+        print ('**vals***',vals)
+        obj = super(StockPicking, self).create(vals)
+        return obj
+        
+    
     
     @api.multi
     def action_confirm(self):
         self.ghom_stock_move_lines()
-        # call `_action_confirm` on every draft move
         self.mapped('move_lines')\
             .filtered(lambda move: move.state == 'draft' or move.state == 'cancel')\
             ._action_confirm()
@@ -483,30 +445,8 @@ class StockPicking(models.Model):
                                                     'picking_id': pick.id,
                                                    })
                     ops.move_id = new_move.id
-#                     todo_moves |= new_move
 
-#     Củ có number_next
-#     @api.model
-#     def create(self, vals):
-#         defaults = self.default_get([ 'department_id','picking_type_id'])
-#         department_id = self.env['hr.department'].browse(vals.get('department_id', defaults.get('department_id')))
-#         number_next = _select_nextval(self._cr, 'ir_sequence_%03d' % department_id.sequence_id.id)[0]
-#         name = department_id.short_name +  '/' + '%s'%number_next
-#         vals['stt_bien_ban'] = number_next #department_id.sequence_id.next_by_id()
-#         vals['name'] = name
-#         return super(StockPicking, self).create(vals)
-    
-#     @api.model
-#     def create(self, vals):
-#         defaults = self.default_get([ 'department_id','picking_type_id'])
-#         department_id = self.env['hr.department'].browse(vals.get('department_id', defaults.get('department_id')))
-#        
-#         number_next = _select_nextval(self._cr, 'ir_sequence_%03d' % department_id.sequence_id.id)[0]
-#         name = department_id.short_name +  '/' + '%s'%number_next
-#         vals['stt_bien_ban'] = number_next #department_id.sequence_id.next_by_id()
-#         vals['name'] = name
-#         return super(StockPicking, self).create(vals)
-    
+
     
     
     @api.multi
@@ -539,6 +479,23 @@ class StockPicking(models.Model):
             return adict[self.ban_giao_or_nghiem_thu]
         else:
             return False
+    @api.model
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+        res = super(StockPicking, self).fields_view_get(
+            view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        doc = etree.XML(res['arch'])
+        print ('res[arch]*******',res['arch'])
+        if view_type =='form':
+            nodes =  doc.xpath("//field[@name='location_id']")
+            if len(nodes):
+                node = nodes[0]
+                node.set('string', "Download  nhanh")
+                print ('***domain***',node.get('domain'),type(node.get('domain')))
+                if self.user_has_groups('base.group_erp_manager'):
+                    node.set('domain', "[('is_kho_cha','=',True)]")
+        res['arch'] = etree.tostring(doc, encoding='unicode')
+        return res
+    
 #     @api.multi
 #     def unlink(self):
 #         for r in self:
@@ -546,5 +503,4 @@ class StockPicking(models.Model):
 #             if mode_cancel and r.state !='cancel':
 #                 raise UserError(u'Chỉ được xóa những biên bản có trạng thái Hủy')
 #         return super(StockPicking, self).unlink()
-    
     

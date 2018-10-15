@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo.addons.tonkho.models.dl_model import  download_model
+from odoo.addons.tonkho.models.dl_models.dl_model import  download_model
 from openerp.http import request
 
 def stt_(v,needdata): 
@@ -7,7 +7,7 @@ def stt_(v,needdata):
     return v      
 
 def pr_running_quant_(v,n,parent_location_id='parent_location_id'):
-        domain_quant = [('product_id','=',n['a_instance_dict']['id']['val']),('location_id','child_of',getattr(n['dlcv_obj'], parent_location_id).id)]#dlcv_obj_global
+        domain_quant = [('product_id','=',n['a_instance_dict']['id']['val']),('location_id','child_of',getattr(n['dl_obj'], parent_location_id).id)]#dl_obj_global
         Quant = request.env['stock.quant']
         try:
             item = Quant.read_group(domain_quant, ['product_id', 'quantity'], ['product_id'], orderby='id')[0]
@@ -31,10 +31,12 @@ Export_Para_product = {
 }
     
     
-def download_product(dlcv_obj,append_domain = []):
-    filename = 'product-%s-%s'%(dlcv_obj.parent_location_id.name, dlcv_obj.parent_location_runing_id.name)
+def download_product(dl_obj,append_domain = []):
+#     file_name = 'vat_tu_du_phong_%s_dang_chay_%s'
+    file_name = u'Vật tư dự phòng %s đang chạy %s'
+    filename =file_name%(dl_obj.parent_location_id.name, dl_obj.parent_location_runing_id.name)
     name = "%s.%s" % (filename, '.xls')
-    wb =  download_model(dlcv_obj,
+    wb =  download_model(dl_obj,
                          Export_Para=Export_Para_product,
                          append_domain=append_domain)
     return wb,name

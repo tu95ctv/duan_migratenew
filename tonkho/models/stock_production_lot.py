@@ -16,7 +16,7 @@ class StockProductionLot(models.Model):
         default = False,
         required=True, help="Unique Lot/Serial Number")
      
-    pn = fields.Char(string=u'Part Number')
+#     pn = fields.Char(string=u'Part Number')
     pn_id = fields.Many2one('tonkho.pn')
 #     ghi_chu = fields.Text(string=u'Ghi chú',store=True)
     ghi_chu = fields.Text(string=u'Ghi chú từ dòng điều chuyển',compute='ghi_chu_',store=True)
@@ -70,7 +70,7 @@ class StockProductionLot(models.Model):
         else:
             return self.name
     @api.model
-    def name_search(self, name, args=None, operator='ilike', limit=100):
+    def name_search(self, name, args=None, operator='ilike', limit=100):# cho lot
         location_id = self._context.get('d4_location_id')
         if location_id:
             location_id_object = self.env['stock.location'].browse([location_id])

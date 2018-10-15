@@ -77,6 +77,7 @@
          <field name="domain_force">[('department_id','child_of',[user.department_id.id])]</field>
          <field name="groups" eval="[(4, ref('base.group_user'))]" />
       </record>
+      
       <record id="tvcv_rule" model="ir.rule">
          <field name="name">tvcv của đơn vị nào thì user đơn vị náy được xem không được sửa,xóa</field>
          <field ref="model_tvcv" name="model_id" />
@@ -85,12 +86,14 @@
          <field name="perm_write" eval="False" />
          <field name="perm_unlink" eval="False" />
       </record>
+      
       <record id="tvcv_rule2" model="ir.rule">
          <field name="name">user nào tạo thì được đọc sửa xóa</field>
          <field ref="model_tvcv" name="model_id" />
          <field name="domain_force">['&amp;',('state','=','draft'),('create_uid','=',user.id)]</field>
          <field name="groups" eval="[(4, ref('base.group_user'))]" />
       </record>
+      
       <record id="tvcv_rule3" model="ir.rule">
          <field name="name">user trong group thaydoithuvien có quyền sửa thư viện của nó</field>
          <field ref="model_tvcv" name="model_id" />

@@ -281,7 +281,7 @@ msgstr "Vật tư điều chuyển"
 #. module: stock
 #: model:ir.model.fields,field_description:stock.field_stock_move_line_qty_done
 msgid "Done"
-msgstr "SL"
+msgstr "Số lượng"
 
 #. module: stock
 #: model:ir.model.fields,field_description:stock.field_stock_move_line_state
@@ -331,3 +331,8 @@ msgstr "Cá nhân"
 #: model:ir.ui.view,arch_db:stock.view_stock_return_picking_form
 msgid "Return"
 msgstr "Trả vật tư"
+
+#. module: stock
+#: model:ir.model.fields,field_description:stock.field_stock_location_complete_name
+msgid "Full Location Name kaka"
+msgstr "Tên kho đầy đủ"

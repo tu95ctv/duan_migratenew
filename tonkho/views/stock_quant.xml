@@ -1,165 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-   <data>
-     <record id="view_stock_quant_tree_inherit" model="ir.ui.view">
-         <field name="name">stock.quant.tree.inherit</field>
-         <field name="model">stock.quant</field>
-         <field name="inherit_id" ref="stock.view_stock_quant_tree" />
-         <field name="arch" type="xml">
-         	<field name="reserved_quantity" position="replace"></field>
-         	<field name="product_uom_id" position="replace"></field>
-         	<field name="location_id" position="replace"></field>
-            <field name="lot_id" position="before">
-            	<field name="product_uom_id"></field>
-            	<field name="pn_id"></field>
+    <data>
+        <record id="view_stock_quant_tree_inherit" model="ir.ui.view">
+            <field name="name">stock.quant.tree.inherit</field>
+            <field name="model">stock.quant</field>
+            <field name="inherit_id" ref="stock.view_stock_quant_tree" />
+            <field name="arch" type="xml">
+                <field name="reserved_quantity" position="replace"></field>
+                <field name="product_uom_id" position="replace"></field>
+                <field name="location_id" position="replace"></field>
+                <field name="lot_id" position="before">
+                    <field name="product_uom_id"></field>
+                    <field name="pn_id"></field>
+                </field>
+                <field name="lot_id" position="after">
+                    <field name="categ_id"></field>
+                    <field name="thiet_bi_id"></field>
+                    <field name="brand_id"></field>
+                    <field name="tracking"></field>
+                    <field name="tinh_trang"></field>
+                    <field name="ghi_chu"></field>
+                    <field name="location_id" context="{'show_loc_type':True}"></field>
+                    <field name="inventory_line_id" />
+                    <!-- <field name="department_id" ></field> -->
+                </field>
+                <field name="quantity" position="after">
+                    <field name="write_date" string="Ngày sửa" />
+                    <field name="stt" />
+                </field>
             </field>
-            <field name="lot_id" position="after">
-            	<field name="categ_id"></field>
-            	<field name="thiet_bi_id"></field>
-            	<field name="brand_id"></field>
-            	<field name="tracking"></field>
-            	<field name="tinh_trang"></field>
-            	<field name="ghi_chu"></field>
-         		<field name="location_id" context="{'show_ke':True}"></field>
-         		<field name="inventory_line_id"/>
-         		<!-- <field name="department_id" ></field> -->
-            </field>
-            <field name="quantity" position="after">
-            	<field name="write_date" string="Ngày sửa"/>
-            	<field name="stt"/>
-            </field>
-         </field>
-     </record>
-   <record id="stock_quant_action_product" model="ir.actions.act_window">
-        <field name="name">Số lượng trong kho</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="res_model">stock.quant</field>
-        <field name="view_mode">tree,form</field>
-         <field name="domain"></field> 
-        <field name="context">{'search_default_internal_loc':1, 'show_ke':True}</field>
-        <field name="view_type">form</field>
-     <!--   <field name="search_view_id" ref="tonkho.quant_search_view"/> --> 
         </record>
-    
-       <record id="quant_search_view" model="ir.ui.view">
-         <field name="name">stock.quant.search.inherit</field>
-         <field name="model">stock.quant</field>
-         <field name="inherit_id" ref="stock.quant_search_view" />
-         <field name="arch" type="xml">
-            <xpath expr="//filter[@name='locationgroup']" position="before">
-          <filter string='Nhóm' name="group_by_categ_id" domain="[]" context="{'group_by': 'categ_id'}"/>
-          <filter string='Trạng Thái' name="group_by_tinh_trang" domain="[]" context="{'group_by': 'tinh_trang'}"/>
-          <filter string='Có SN hay không' name="group_tracking" domain="[]" context="{'group_by': 'tracking'}"/>
-      <!--   <filter string='Đơn Vị/Phòng Ban' name="group_department_id" domain="[]" context="{'group_by': 'department_id'}"/> -->  
-          <field string="Tìm Số lượng trong kho có tên" name="stock_location_id_selection"   filter_domain="[('location_id','ilike',self)]"/>
-          <filter name="this month" string="kho thang nay" domain="[('create_date','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01 17:00:00')), ('create_date','&gt;=',time.strftime('%Y-%m-01 00:00:00'))]" help="Chọn tháng này" />
-           <filter name="late" string="Late kho" domain="[('create_date','&lt;', time.strftime('%%Y-%%m-%%d %%H:%%M:%%S'))]" help="Pickings that are late on scheduled time"/>
-                <filter name="late 2" string="Late kho 2" domain="[('create_date','&lt;', (time() +relativedelta(months=1) ).strftime('%%Y-%%m-%%d %%H:%%M:%%S'))]" help="Pickings that are late on scheduled time"/>
-     
-      <!--   <field string="Tìm Số lượng trong đơn vị có tên" name="department_id_selection"   filter_domain="[('department_id','ilike',self)]"/> -->  
-            </xpath>
-         </field>
-     </record>
-     
-     <record id="downloadquants_form" model="ir.ui.view">
-         <field name="name">tonkho.downloadquants.form</field>
-         <field name="model">tonkho.downloadquants</field>
-         <field name="arch" type="xml">
-         	<form string="Download all model">
-         	
-         	<!-- 
-         	<header>
-     			<button name="download_quants_by_new_window"  
-     			attrs = "{'invisible':[('quant_or_product','!=','quant')]}"
-     			string="Download Quants (new window)" type="object" class="oe_highlight" groups="base.group_user"/>
-     			<button name="download_product" 
-     			attrs = "{'invisible':[('quant_or_product','!=','product')]}"
-     			 string="Download Product" type="object" class="oe_highlight" groups="base.group_user"/>
-                 <button name="test1" string="Test" type="object" class="btn-primary"/>
-         	</header>
-         	 -->
-         	
-         	<sheet>
-         	<group>
-         	  	 <field name="name" invisible="1"></field>
-         	  	<field name="parent_location_id" attrs = "{'invisible':[('model_name','!=','product.product'),('model_name','!=','product.template')]}"></field>
-         	  	<field name="parent_location_runing_id" attrs = "{'invisible':[('model_name','!=','product.product'),('model_name','!=','product.template')]}"></field>
-         	  <!-- <field name="ngay_bat_dau_filter"></field>
-         	  	<field name="ngay_ket_thuc_filter"></field> -->	
-         	  	<field name="is_moi_sheet_moi_loai" attrs = "{'invisible':[('model_name','!=','stock.quant')]}"/>
-         	  	<field name="is_dl_right_now"/>
-         	   <field name="test"></field> 
-         	   <field name="data" readonly="1" filename="name" attrs="{'invisible':[('name','=',False)]}"/>
-         	   <field name="domain_text"></field> 
-         	   <field name="model_name" readonly="1"></field> 
-         	  	</group>
-         	</sheet>
-         	<footer>
-         		<button name="download_all_model"  
-     			string="Download" type="object" class="oe_highlight" groups="base.group_user"/><!-- 	attrs = "{'invisible':[('quant_or_product','!=','quant')]}" -->
-     			
-     			
-     			<button name="download_all_model"  
-     			string="Download Ngay" type="object" class="oe_highlight" groups="base.group_user" context = "{'download_right_now':True}"/>
-     			
-     			
-     			
-     			<!-- 
-     			<button name="download_product" 
-     			attrs = "{'invisible':[('quant_or_product','!=','product')]}"
-     			 string="Download Product" type="object" class="oe_highlight" groups="base.group_user"/>
-     			  -->
-         	</footer>
-         	</form>
-         </field>
-         </record>
-         
-    
-    
-    <act_window
-            id="downloadquants"
-            name="Download số lượng trong kho"
-            res_model="tonkho.downloadquants"
-            src_model="stock.quant"
-            view_mode="form"
-            multi="True"
-            target="new"
-            key2="client_action_multi"
-        />
+        <record id="quant_search_view" model="ir.ui.view">
+            <field name="name">stock.quant.search.inherit</field>
+            <field name="model">stock.quant</field>
+            <field name="inherit_id" ref="stock.quant_search_view" />
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='locationgroup']" position="before">
+                    <filter string="Nhóm" name="group_by_categ_id" domain="[]" context="{'group_by': 'categ_id'}" />
+                    <filter string="Trạng Thái" name="group_by_tinh_trang" domain="[]" context="{'group_by': 'tinh_trang'}" />
+                    <filter string="Có SN hay không" name="group_tracking" domain="[]" context="{'group_by': 'tracking'}" />
+                    <!--   <filter string='Đơn Vị/Phòng Ban' name="group_department_id" domain="[]" context="{'group_by': 'department_id'}"/> -->
+                    <field string="Tìm Số lượng trong kho có tên" name="stock_location_id_selection" filter_domain="[('location_id','ilike',self)]" />
+                    <filter name="this month" string="kho thang nay" domain="[('create_date','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01 17:00:00')), ('create_date','&gt;=',time.strftime('%Y-%m-01 00:00:00'))]" help="Chọn tháng này" />
+                    <filter name="late" string="Late kho" domain="[('create_date','&lt;', time.strftime('%%Y-%%m-%%d %%H:%%M:%%S'))]" help="Pickings that are late on scheduled time" />
+                    <filter name="late 2" string="Late kho 2" domain="[('create_date','&lt;', (time() +relativedelta(months=1) ).strftime('%%Y-%%m-%%d %%H:%%M:%%S'))]" help="Pickings that are late on scheduled time" />
+                    <!--   <field string="Tìm Số lượng trong đơn vị có tên" name="department_id_selection"   filter_domain="[('department_id','ilike',self)]"/> -->
+                </xpath>
+            </field>
+        </record>
         
         
+        <record id="stock_quant_action_product" model="ir.actions.act_window">
+            <field name="name">Số lượng trong kho</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.quant</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain"></field>
+            <field name="context">{'search_default_internal_loc':1, 'show_loc_type':True}</field>
+            <field name="view_type">form</field>
+            <!--   <field name="search_view_id" ref="tonkho.quant_search_view"/> -->
+        </record>
         
-    <act_window
-            id="download_product"
-            name="Download vật tư"
-            res_model="tonkho.downloadquants"
-            src_model="product.product"
-            view_mode="form"
-            multi="True"
-            target="new"
-            key2="client_action_multi"
-        />
-        
-        
-        
-         <act_window
-            id="download_template"
-            name="Download Template"
-            res_model="tonkho.downloadquants"
-            src_model="product.template"
-            view_mode="form"
-            multi="True"
-            target="new"
-            key2="client_action_multi"
-        />
-        
-        
-        
-        <!--  cái này không liên quan cái dưới -->
-     
-     
-   <menuitem id="menu_stock_quant_action_product"  action="stock_quant_action_product"
-        parent="stock.menu_stock_inventory_control" sequence="1"/>
-   </data>
- </odoo>
-   
+        <menuitem id="menu_stock_quant_action_product" action="stock_quant_action_product" parent="stock.menu_stock_inventory_control" sequence="1" />
+    </data>
+</odoo>

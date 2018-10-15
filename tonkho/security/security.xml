@@ -1,5 +1,25 @@
 <odoo>
 <data >
+
+<record id="stock_picking_rule_1" model="ir.rule">
+        <field name="name">Biên bản bị hủy thì không được sửa</field>
+        <field ref="model_stock_picking" name="model_id"/>
+        <field name="domain_force">[('ban_giao_or_nghiem_thu','not in',['HUY'])]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="True" />
+  </record>
+  
+  
+  <record id="stock_picking_rule_2" model="ir.rule">
+        <field name="name">Biên bản trả do hủy thì không được sửa</field>
+        <field ref="model_stock_picking" name="model_id"/>
+        <field name="domain_force">[('ban_giao_or_nghiem_thu','not in',['TRA_DO_HUY'])]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="False" />
+  </record>
+  
+  
+  
 <!-- 
 <record id="user_edit_themself" model="ir.rule">
         <field name="name">Only user edit themself</field>

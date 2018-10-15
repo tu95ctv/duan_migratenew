@@ -31,7 +31,7 @@
         	<field name="return_location" position="replace"></field>
         	<field name="location_id"  position="attributes">
         		<attribute name="options"></attribute><!-- {'no_create': False} -->
-        	<!-- 	<attribute name="context">{'show_ke':False}</attribute> -->
+        	<!-- 	<attribute name="context">{'show_loc_type':False}</attribute> -->
         	</field>
         	<field name="company_id" position="before">
 	           		<field name="complete_name"></field>

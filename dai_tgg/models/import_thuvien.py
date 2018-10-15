@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api,exceptions,tools,_
 import re
-from odoo.addons.dai_tgg.models.tao_instance_new import importthuvien
+from odoo.addons.dai_tgg.models.model_dict_folder.tao_instance_new import importthuvien
 # from odoo.addons.dai_tgg.models.tao_instance import import_strect
 
 # from odoo.addons.dai_tgg.models.model_dict import gen_model_dict
