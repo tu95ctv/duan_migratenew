@@ -23,7 +23,7 @@ def download_model(dl_obj,
     exported_model= Export_Para['exported_model']
     FIELDNAME_FIELDATTR= Export_Para['FIELDNAME_FIELDATTR']
     FIELDNAME_FIELDATTR = recursive_OrderedDict(FIELDNAME_FIELDATTR)
-    print ('**FIELDNAME_FIELDATTR***',FIELDNAME_FIELDATTR)
+#     print ('**FIELDNAME_FIELDATTR***',FIELDNAME_FIELDATTR)
     gen_domain= Export_Para.get('gen_domain')
     if workbook==None:
         workbook = xlwt.Workbook()

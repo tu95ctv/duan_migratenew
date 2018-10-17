@@ -56,44 +56,24 @@ class StockLocation(models.Model):
                 name = location.complete_name
             ret_list.append((location.id, name))
         return ret_list
-    
-    
-#     @api.model
-#     def name_search(self, name, args=None, operator='ilike', limit=100):
-#         print ( 'self._context',self._context)
-#         return super(StockLocation,self).name_search( name, args=args, operator=operator, limit=limit)
+   
     def get_stock_location_name_for_report_(self):
         return self.partner_id_of_stock_for_report.name
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
         limit = 100
-        location_id = self._context.get('d4_location_id')
-        product_id = self._context.get('product_id_d4')
-        if location_id:
-            location_id_object = self.env['stock.location'].browse([location_id])
-            if location_id_object.usage == 'internal':
-                def filter_lots(r):
-                    quants = self.env['stock.quant'].search([('location_id','=',r.id),('product_id','=',int(product_id)),('quantity','>',0)])
-                    if len(quants) >0 :
-                        return True
-                    else:
-                        return False
-                if args ==None:
-                    args = []
-                recs = self.search(['|', ('barcode', operator, name), ('complete_name', operator, name)] + args, limit=limit)
-                recs = recs.filtered(filter_lots )
-                return recs.name_get()
+        product_id_for_search_quant_d4 = self._context.get('product_id_for_search_quant_d4')
+        if product_id_for_search_quant_d4:
+            def filter_lots(r):
+                quants = self.env['stock.quant'].search([('location_id','=',r.id),('product_id','=',int(product_id_for_search_quant_d4)),('quantity','>',0)])
+                if len(quants) >0 :
+                    return True
+                else:
+                    return False
+            if args ==None:
+                args = []
+            recs = self.search(['|', ('barcode', operator, name), ('complete_name', operator, name)] + args, limit=limit)
+            recs = recs.filtered(filter_lots )
+            return recs.name_get()
         return super(StockLocation, self).name_search( name, args=args, operator=operator, limit=limit)
     
-#     def name_get(self):
-#         ret_list = []
-#         for location in self:
-#             orig_location = location
-#             name = location.name
-#             while location.location_id and location.usage != 'view':
-#                 location = location.location_id
-# #                 if not name:
-# #                     raise UserError(_('You have to set a name for this location.'))
-#                 name = str(location.name) + "/" + str(name)
-#             ret_list.append((orig_location.id, name))
-#         return ret_list

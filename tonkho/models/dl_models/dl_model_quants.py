@@ -3,6 +3,7 @@ from odoo.addons.tonkho.models.dl_models.dl_model import  download_model
 from openerp.http import request
 import xlwt
 from odoo.exceptions import UserError
+from copy import deepcopy
 
 def get_width(num_characters):
     return int((1+num_characters) * 256)
@@ -65,11 +66,12 @@ def download_quants(dl_obj,append_domain = []):
         cates = Quant.search(append_domain).mapped('categ_id')
         workbook = xlwt.Workbook()
         for cate in cates:
+            Export_Para_quants_copy = deepcopy(Export_Para_quants)
             if append_domain:
                 domain =[('categ_id','=',cate.id)]
                 domain.extend(append_domain)
             download_model(dl_obj,
-                         Export_Para=Export_Para_quants,
+                         Export_Para=Export_Para_quants_copy,
                          append_domain=domain,
                          workbook=workbook,
                          sheet_name=cate.name)

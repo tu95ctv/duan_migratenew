@@ -25,9 +25,9 @@ from lxml import etree
 
 BG_lst = [(u'BBBG',u'Bàn giao'),(u'TRVT',u'Trình vật tư'),
                                                (u'BBNT',u'Nghiệm thu'),(u'BBSD',u'Đưa vào sử dụng'),
-                                               (u'BBNK',u'Nhập kho vật tư lỗi'),
-                                               (u'HUY',u'Hủy biên bản'),
-                                               (u'TRA_DO_HUY',u'Trả do hủy'),
+                                            #   (u'BBNK',u'Nhập kho vật tư lỗi'),
+                                               (u'HUY',u'Biên bản hủy'),
+                                               (u'TRA_DO_HUY',u'Trả do hủy biên bản'),
                                                (u'TRA_DO_MUON',u'Trả do mượn'),
                                                (u'CHUYEN_TIEP',u'Chuyển tiếp'),
                                                (u'TDTT',u'Thay đổi tình trạng vật tư'),
@@ -53,8 +53,8 @@ class StockPicking(models.Model):
         default=lambda self: self.env['hr.department'].browse(self.default_get([ 'department_id']).get('department_id')).default_location_id,
         readonly=True, required=True,
         states={'draft': [('readonly', False)]})
-    noi_ban_giao = fields.Many2one('res.partner',default= lambda self: self.env.user.department_id.partner_id, string=u'Nơi bàn giao')
-    department_id = fields.Many2one('hr.department',default=lambda self:self.env.user.department_id, readonly=True, string=u'Đơn vị', required=True)
+    noi_ban_giao = fields.Many2one('res.partner',default= lambda self: self.env.user.department_id.partner_id, string=u'Nơi bàn giao',copy=False)
+    department_id = fields.Many2one('hr.department',default=lambda self:self.env.user.department_id, readonly=True, string=u'Đơn vị', required=True,copy=False)
 #     stt_bien_ban = fields.Integer(default=lambda self:self.env.user.department_id.sequence_id.number_next_actual,readonly=True, string=u'STT điều chuyển')
     source_member_ids = fields.Many2many('res.partner','source_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân viên giao',copy=False)
     dest_member_ids = fields.Many2many('res.partner','dest_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân viên nhận',copy=False)
@@ -66,25 +66,26 @@ class StockPicking(models.Model):
     
     @api.depends('department_id','ban_giao_or_nghiem_thu')
     def stt_trong_bien_ban_in_(self):
-        domain = [('department_id','=',self.department_id.id),
-                                                    ('ban_giao_or_nghiem_thu','=',self.ban_giao_or_nghiem_thu),
-                                                    ('stt_trong_bien_ban_in','!=', 0),
-                                                    ]
-        if isinstance(self.id, int):
-            domain.append(('id','!=',self.id))
-        picking = self.env['stock.picking'].search(domain, limit=1, order='stt_trong_bien_ban_in desc')
-        print ('domain',domain)
-        print ('picking',picking)
-        if picking:
-#             self.env.cr.execute('select stt_trong_bien_ban_in from stock_picking where id =%s'%picking.id)
-#             ad =  self.env.cr.dictfetchall()
-#             print ('ad',ad)
-#             stt_trong_bien_ban_in = ad[0]['stt_trong_bien_ban_in'] + 1
-            stt_trong_bien_ban_in = picking.stt_trong_bien_ban_in + 1
-#             print ('stt_trong_bien_ban_in',stt_trong_bien_ban_in)
-            self.stt_trong_bien_ban_in = stt_trong_bien_ban_in
-        else:
-            self.stt_trong_bien_ban_in = 1
+        for r in self:
+            domain = [('department_id','=',self.department_id.id),
+                                                        ('ban_giao_or_nghiem_thu','=',r.ban_giao_or_nghiem_thu),
+                                                        ('stt_trong_bien_ban_in','!=', 0),
+                                                        ]
+            if isinstance(r.id, int):
+                domain.append(('id','!=',r.id))
+            picking = self.env['stock.picking'].search(domain, limit=1, order='stt_trong_bien_ban_in desc')
+            print ('domain',domain)
+            print ('picking',picking)
+            if picking:
+    #             self.env.cr.execute('select stt_trong_bien_ban_in from stock_picking where id =%s'%picking.id)
+    #             ad =  self.env.cr.dictfetchall()
+    #             print ('ad',ad)
+    #             stt_trong_bien_ban_in = ad[0]['stt_trong_bien_ban_in'] + 1
+                stt_trong_bien_ban_in = picking.stt_trong_bien_ban_in + 1
+    #             print ('stt_trong_bien_ban_in',stt_trong_bien_ban_in)
+                r.stt_trong_bien_ban_in = stt_trong_bien_ban_in
+            else:
+                r.stt_trong_bien_ban_in = 1
             
             
 #     stt_trong_bien_ban_in = fields.Integer(string=u'STT trong biên bản',copy=False)
@@ -147,12 +148,12 @@ class StockPicking(models.Model):
     lanh_dao_id = fields.Many2one('res.partner',string=u'Lãnh Đạo')
     is_chia_2_dong =  fields.Boolean(string=u'Có chia hai dòng không?')
 
-    is_ghom_tot = fields.Boolean(string=u'Nếu tình trạng vật tư tốt hết thì ko cần ghi trong cột')
+    is_ghom_tot = fields.Boolean(string=u'Nếu tình trạng vật tư tốt hết thì ko cần ghi trong cột',default = True)
     file_dl = fields.Binary('File', readonly=True)
     file_dl_name = fields.Char()
     log = fields.Text()
     is_set_tt_col =  fields.Boolean(string=u'Có cột tình trạng trong biên bản?')
-    is_not_show_y_kien_ld =  fields.Boolean(string=u'Không thêm dòng ý kiến lãnh đạo')
+    is_not_show_y_kien_ld =  fields.Boolean(string=u'Không thêm dòng ý kiến lãnh đạo',default=True)
     title_row_for_import = fields.Integer()
     is_dl_right_now = fields.Boolean(default=True,string=u'Download ngay không cần lưu file')
     

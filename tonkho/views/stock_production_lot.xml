@@ -1,109 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-   <data>
-      <record id="view_production_lot_tree_inherit" model="ir.ui.view">
-         <field name="name">stock.production.lot.tree</field>
-         <field name="model">stock.production.lot</field>
-         <field name="inherit_id" ref="stock.view_production_lot_tree" />
-         <field name="arch" type="xml">
-            <field name="product_id" position="replace" />
-            <field name="ref" position="replace" />
-            <field name="name" position="before">
-               <field name="product_id" />
-               <field name="barcode_sn"/>
-               <field name="pn_id" />
-            <!--   <field name="pn" /> --> 
+    <data>
+        <record id="view_production_lot_form" model="ir.ui.view">
+            <field name="name">stock.production.lot.form.inherit</field>
+            <field name="model">stock.production.lot</field>
+            <field name="inherit_id" ref="stock.view_production_lot_form" />
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//button[2]" position="after">
+                        <button string="Các Dòng Điều Chuyển" type="object" name="action_view_stock_move_lines" class="oe_stat_button" icon="fa-arrows-v" groups="stock.group_stock_user" />
+                    </xpath>
+                    <xpath expr="//button[1]" position="replace"></xpath>
+                    <field name="ref" position="attributes">
+                        <attribute name="invisible">1</attribute>
+                    </field>
+                    <field name="ref" position="before">
+                        <field name="pn_id" />
+                        <!--    <field name="pn" /> -->
+                        <field name="barcode_sn" />
+                        <field name="tinh_trang"></field>
+                        <field name="ghi_chu" />
+                    </field>
+                </data>
             </field>
-            <field name="name" position="after">
-               <field name="tinh_trang"></field>
-               <field name="ghi_chu" />
-               <!-- 
+        </record>
+        <record id="view_production_lot_form_simple" model="ir.ui.view">
+            <field name="name">stock.production.lot.form.simple</field>
+            <field name="model">stock.production.lot</field>
+            <field name="inherit_id" ref="stock.view_production_lot_form_simple" />
+            <field name="arch" type="xml">
+                <field name="ref" position="replace">
+                    <field name="pn_id" />
+                    <field name="tinh_trang"></field>
+                    <field name="ghi_chu" />
+                </field>
+            </field>
+        </record>
+        <record id="view_production_lot_tree_inherit" model="ir.ui.view">
+            <field name="name">stock.production.lot.tree</field>
+            <field name="model">stock.production.lot</field>
+            <field name="inherit_id" ref="stock.view_production_lot_tree" />
+            <field name="arch" type="xml">
+                <field name="product_id" position="replace" />
+                <field name="ref" position="replace" />
+                <field name="name" position="before">
+                    <field name="product_id" />
+                    <field name="barcode_sn" />
+                    <field name="pn_id" />
+                    <!--   <field name="pn" /> -->
+                </field>
+                <field name="name" position="after">
+                    <field name="tinh_trang"></field>
+                    <field name="ghi_chu" />
+                    <!-- 
                <field name="ghi_chu_ban_dau" />
                <field name="ghi_chu_ngay_nhap" />
                <field name="ghi_chu_ngay_xuat" />
                 -->
-               <!-- <field name="create_date"/> -->
+                    <!-- <field name="create_date"/> -->
+                </field>
             </field>
-         </field>
-      </record>
-      <record id="view_production_lot_form" model="ir.ui.view">
-         <field name="name">stock.production.lot.form.inherit</field>
-         <field name="model">stock.production.lot</field>
-         <field name="inherit_id" ref="stock.view_production_lot_form" />
-         <field name="arch" type="xml">
-            <data>
-               <xpath expr="//button[2]" position="after">
-                  <button string="Các Dòng Điều Chuyển" type="object" name="action_view_stock_move_lines" class="oe_stat_button" icon="fa-arrows-v" groups="stock.group_stock_user" />
-               </xpath>
-               <xpath expr="//button[1]" position="replace">
-               </xpath>
-               <field name="ref" position="attributes">
-                  <attribute name="invisible">1</attribute>
-               </field>
-               <field name="ref" position="before">
-                  <field name="pn_id" />
-               <!--    <field name="pn" /> -->
-                  <field name="barcode_sn" />
-               	  <field name="tinh_trang"></field>
-                  <field name="ghi_chu" />
-               </field>
-            </data>
-         </field>
-      </record>
-      <record id="view_production_lot_form_simple" model="ir.ui.view">
-         <field name="name">stock.production.lot.form.simple</field>
-         <field name="model">stock.production.lot</field>
-         <field name="inherit_id" ref="stock.view_production_lot_form_simple" />
-         <field name="arch" type="xml">
-            <field name="ref" position="replace">
-           <!--     <field name="pn" /> -->
-               <field name="pn_id" />
-               <field name="tinh_trang"></field>
-               <field name="ghi_chu" />
+        </record>
+        <record model="ir.ui.view" id="search_product_lot_filter">
+            <field name="name">Production Lots Filter</field>
+            <field name="model">stock.production.lot</field>
+            <field name="inherit_id" ref="stock.search_product_lot_filter"></field>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='group_by_product']" position="after">
+                    <field name="tinh_trang"></field>
+                    <filter name="group_by_tinh_trang" string="Trạng Thái" domain="[]" context="{'group_by':'tinh_trang'}" />
+                </xpath>
             </field>
-         </field>
-      </record>
+        </record>
+        <record id="stock.action_production_lot_form" model="ir.actions.act_window">
+            <field name="context">{}</field>
+            <!-- {'search_default_group_by_product': 1} -->
+        </record>
+        
+            <menuitem action="stock.action_production_lot_form" id="stock.menu_action_production_lot_form"
+        parent="stock.menu_stock_inventory_control" groups="stock.group_production_lot"
+        sequence="2"/>
       
-      <record model="ir.ui.view" id="search_product_lot_filter">
-        <field name="name">Production Lots Filter</field>
-        <field name="model">stock.production.lot</field>
-        <field name="inherit_id" ref="stock.search_product_lot_filter"></field>
-        <field name="arch" type="xml">
-           		<xpath expr="//filter[@name='group_by_product']" position="after">
-           		<field name = "tinh_trang"></field>
-           		<!-- <field name = "pn"></field> -->
-                <filter name="group_by_tinh_trang" string="Trạng Thái" domain="[]" context="{'group_by':'tinh_trang'}"/>
-            <!--    <filter name="group_by_pn" string="Part number" domain="[]" context="{'group_by':'pn'}"/> --> 
-                 </xpath>
-        </field>
-    </record>
-    
-    
-     <record id="stock.action_production_lot_form" model="ir.actions.act_window">
-      <!--  <field name="name">Lots/Serial Numbers</field>
-        <field name="type">ir.actions.act_window</field>
-         <field name="res_model">stock.production.lot</field> 
-        <field name="view_ids"
-                   eval="[(5, 0, 0),
-                          (0, 0, {'view_mode': 'tree', 'view_id': ref('stock.view_production_lot_tree')}),
-                          (0, 0, {'view_mode': 'form', 'view_id': ref('stock.view_production_lot_form')})]"/>
-        <field name="search_view_id" ref="search_product_lot_filter"/>
-        <field name="help" type="html">
-          <p class="oe_view_nocontent_create">
-            Click to add a lot/serial number.
-          </p><p>
-            This is the list of all the production lots you recorded. When
-            you select a lot, you can get the traceability of the products contained in lot.
-          </p>
-        </field>-->
-        <field name="context">{}</field><!-- {'search_default_group_by_product': 1} -->
-    </record>
-    
-    
-    
-    
-               <!--  <filter string='Group by Trạng Thái' name="group_by_tinh_trang" domain="[]" context="{'group_by': 'tinh_trang'}"/> -->
-      
-   </data>
+      <!-- <menuitem action="action_location_form" id="menu_action_location_form" 
+        groups="stock.group_stock_multi_locations"
+        parent="menu_warehouse_config" sequence="2"/>
+         -->  
+        
+    </data>
 </odoo>
-

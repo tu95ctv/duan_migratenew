@@ -34,23 +34,18 @@
                      </group>
                      <group string = "Default">
                          <field name="filename" />
-                        <field name="department_id" required="0"></field>
+                        <!-- <field name="department_id" required="0"></field> -->
                      </group>
                      <group string="Onchange Display">
-                        	<field name="import_location_id"></field>
+                        	<!-- <field name="import_location_id"></field> -->
                      </group>
-                     <group string="Thông Báo">
-                        <field name="log" />
-                        <field name="imported_number_of_row"></field>
-                        <field name="inventory_id"></field>
-                     </group>
+                     
                      <group string="Chưa Xài">
                         <field name="name_inventory_suffix"></field>
                      	   <field name="running_or_prepare"></field>
                         	<field name="skip_field_cause_first_import"></field>
                      </group>
                      <group string="Test">
-                     
                         <field name="create_number" />
                         <field name="update_number" />
                         <field name="skipupdate_number" />
@@ -60,6 +55,12 @@
                         <field name="test_result_2"></field>
                         <field name="test_result_3"></field>
                      </group>
+                     <group string="Thông Báo">
+                        <field name="log" />
+                        <field name="imported_number_of_row"></field>
+                        <field name="inventory_id"></field>
+                     </group>
+                     
                   </group>
                </sheet>
             </form>

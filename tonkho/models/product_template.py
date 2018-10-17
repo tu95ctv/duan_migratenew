@@ -43,7 +43,7 @@ class PT(models.Model):
 #         ('lot', 'By Lots'),
         ('none', 'No Tracking')],default='none', required=True,string=u'Có SN hay không')
     
-    is_co_sn_khong_tinh_barcode = fields.Boolean()
+    is_co_sn_khong_tinh_barcode = fields.Boolean(string=u'Is có SN không tính Barcode')
     pn_id = fields.Many2one('tonkho.pn')
     tram_ltk_tao = fields.Boolean()
     dang_chay_tao = fields.Boolean()
@@ -51,7 +51,6 @@ class PT(models.Model):
     tram_tti_tao = fields.Boolean()
     thiet_bi_id_tti = fields.Many2one('tonkho.thietbi', string = u'Thiết bị TTI')
     thiet_bi_id_ltk = fields.Many2one('tonkho.thietbi', string = u'Thiết bị LTK')
-
     brand_id_tti = fields.Many2one('tonkho.brand',string=u'Hãng sản xuất TTI')
     
 #     is_co_sn_thuan_pr = fields.Boolean(related='product_variant_id.is_co_sn_thuan_pr',store=True)

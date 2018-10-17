@@ -241,7 +241,10 @@ TYPES_ATT_DICT = {
 'xl_title' : {'types': ['str', 'list', 'NoneType']} ,
 'inactive_include_search':{'types':['bool']},
 'is_x2m_field':{'types':['bool']},
-'remove_all_or_just_add_one_x2m':{'types':['bool']}
+'remove_all_or_just_add_one_x2m':{'types':['bool']},
+
+'type_allow':{'types':['list']}
+
 }
 
 
@@ -276,7 +279,7 @@ def check_xem_att_co_nam_ngoai_khong(COPY_MODEL_DICT,key_tram):
                     if attr != 'fields' and attr !='get_or_create_para':
                         val = get_key_allow(field_attr, attr, key_tram)
                         if not check_set_val_is_true_type(val,attr):
-                            raise UserError ('attr %s val %s'%(attr,valg))
+                            raise UserError (u'Thuộc tính nằm ngoài danh sách cho phép: attr %s val %s'%(attr,valg))
                 if 'fields' in field_attr:
                     check_xem_att_co_nam_ngoai_khong(field_attr,key_tram)
                                     

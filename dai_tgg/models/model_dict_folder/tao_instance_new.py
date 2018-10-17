@@ -97,9 +97,10 @@ def replace_val_for_ci(field_attr,key_tram,val,needdata):
     return val
 
                     
-def check_type_of_val(field_attr,val,field_name):        
+def check_type_of_val(field_attr,val,field_name,model_name):        
     field_type = field_attr.get('field_type')
     if field_type:
+        type_allow = field_attr.get('type_allow',[])
         if val != False:
             try:
                 class_or_type_or_tuple = MAP_TYPE[field_type]
@@ -107,8 +108,13 @@ def check_type_of_val(field_attr,val,field_name):
                 raise UserError(u'không có field_type:%s này'%field_type)
             if field_attr.get('is_x2m_field'):
                 class_or_type_or_tuple = list
-            if not isinstance(val, class_or_type_or_tuple):
-                raise UserError(u'field:%s có giá trị: %s, đáng lẽ là field_type:%s nhưng lại có type %s'%(field_name,val,field_type,type(val)))
+            type_allow.append(class_or_type_or_tuple)
+            pass_type_check = False
+            for a_type_allow in type_allow:
+                if isinstance(val, a_type_allow):
+                    pass_type_check = True
+            if not pass_type_check:
+                raise UserError(u'model: %s- field:%s có giá trị: %s, đáng lẽ là field_type:%s nhưng lại có type %s'%(model_name, field_name,val,field_type,type(val)))
 #     else:
 #         raise UserError(u'Không có field_type:%s trong biến MAP_TYPE'%(field_type))      
 def read_val_for_ci(self,set_val,col_index,a_field_vof_dict,MODEL_DICT,field_attr,sheet,row,
@@ -188,7 +194,7 @@ def in_for_create_instance(self,field_name,field_attr,key_tram,needdata,row,shee
     #end func
     
     val =replace_val_for_ci(field_attr,key_tram,val,needdata)
-    check_type_of_val(field_attr,val,field_name)
+    check_type_of_val(field_attr,val,field_name,model_name)
         
         
     a_field_vof_dict['val'] = val

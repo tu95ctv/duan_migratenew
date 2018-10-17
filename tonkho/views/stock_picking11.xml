@@ -7,19 +7,17 @@
             <field name="priority">11</field>
             <field name="inherit_id" ref="stock.view_picking_form" />
             <field name="arch" type="xml">
-            	<xpath expr="//button[6]" position="attributes">
-            		<attribute name="attrs">{'invisible': ['|','|','|',('state', '!=', 'done'), ('is_locked', '=', False), ('ban_giao_or_nghiem_thu', '=', 'HUY'),('is_quyen_chuyen_tiep','=',False)]}</attribute>
-            	</xpath>
+                <xpath expr="//button[6]" position="attributes">
+                    <attribute name="attrs">{'invisible': ['|','|','|',('state', '!=', 'done'), ('is_locked', '=', False), ('ban_giao_or_nghiem_thu', '=', 'HUY'),('is_quyen_chuyen_tiep','=',False)]}</attribute>
+                </xpath>
                 <xpath expr="//button[5]" position="after">
                     <button name="validate_cua_ben_giao" attrs="{'invisible': [('show_validate_ben_giao', '=', False)]}" string="Xác nhận ben giao" groups="stock.group_stock_user" type="object" class="oe_highlight" />
-                    <button name="%(stock.act_stock_return_picking)d" string="Hủy biên bản" context="{'default_loai_tra_hay_chuyen_tiep':'tra_do_huy','tra_do_huy_for_readonly':True}" attrs="{'invisible': ['|','|','|', ('state', '!=', 'done'), ('is_locked', '=', False),('ban_giao_or_nghiem_thu', '=', 'HUY'),('is_quyen_huy_bb','=',False)]}" type="action" groups="base.group_user"  class="btn-danger"/>
-                    <button name="%(stock.act_stock_return_picking)d" string="Chuyển tiếp" context="{'default_loai_tra_hay_chuyen_tiep':'chuyen_tiep'}" attrs="{'invisible': ['|','|','|',('state', '!=', 'done'), ('is_locked', '=', False), ('ban_giao_or_nghiem_thu', '=', 'HUY'),('is_quyen_chuyen_tiep','=',False)]}" type="action" groups="base.group_user"  class="btn-primary"/>
+                    <button name="%(stock.act_stock_return_picking)d" string="Hủy biên bản" context="{'default_loai_tra_hay_chuyen_tiep':'tra_do_huy','tra_do_huy_for_readonly':True}" attrs="{'invisible': ['|','|','|', ('state', '!=', 'done'), ('is_locked', '=', False),('ban_giao_or_nghiem_thu', '=', 'HUY'),('is_quyen_huy_bb','=',False)]}" type="action" groups="base.group_user" class="btn-danger" />
+                    <button name="%(stock.act_stock_return_picking)d" string="Chuyển tiếp" context="{'default_loai_tra_hay_chuyen_tiep':'chuyen_tiep'}" attrs="{'invisible': ['|','|','|',('state', '!=', 'done'), ('is_locked', '=', False), ('ban_giao_or_nghiem_thu', '=', 'HUY'),('is_quyen_chuyen_tiep','=',False)]}" type="action" groups="base.group_user" class="btn-primary" />
                 </xpath>
-                
                 <xpath expr="//button[@name='action_confirm']" position="attributes">
                     <attribute name="groups">base.group_erp_manager</attribute>
                 </xpath>
-                
                 <xpath expr="//button[@name='action_confirm']" position="attributes">
                     <attribute name="groups">base.group_erp_manager</attribute>
                 </xpath>
@@ -43,10 +41,10 @@
                 </xpath>
                 <xpath expr="//button[@name='do_print_picking']" position="replace"></xpath>
                 <xpath expr="//button[@name='action_toggle_is_locked']" position="after">
-                    <button name="ghom_stock_move_lines" string="Tạo Bản In" type="object"  />
-                    <button name="xem_print_theo_move_line" string="Xem biên bản html" type="object"  class="btn-primary"/>
+                    <button name="ghom_stock_move_lines" string="Tạo Bản In" type="object" />
+                    <button name="xem_print_theo_move_line" string="Xem biên bản html" type="object" class="btn-primary" />
                     <button name="xem_print_pdf" string="Xem biên bản pdf" type="object" />
-          			<button name="download_xl_bbbg" string="Download BBBG Excel " type="object"   class="btn-primary"/>
+                    <button name="download_xl_bbbg" string="Download BBBG Excel " type="object" class="btn-primary" />
                 </xpath>
                 <field name="location_id" position="replace">
                     <field name="id" />
@@ -73,16 +71,13 @@
                 <field name="location_dest_id" position="replace" />
                 <field name="origin" position="before">
                     <field name="show_validate_ben_giao" invisible="1"></field>
-                  <!--   <field name="location_dest_id" domain="['|','&amp;',('department_id','=', department_id),('name','not ilike','Đang chạy'),('is_kho_cha','=',True)]" />--> <!-- ('usage','=','internal')  '&amp;','|',('usage','=','internal'),--> 
-                    
                     <field name="location_dest_id" domain="['|',('cho_phep_khac_tram_chon','=', True), '&amp;',('is_kho_cha','=',True),'&amp;',('usage','=','internal'),'|',('name','not ilike','Đang chạy'),('department_id','=', department_id)]" />
                     <field name="ban_giao_or_nghiem_thu" />
                     <field name="ma_bien_ban" readonly="0" />
                     <field name="totrinh_id" />
                     <field name="ly_do" />
-                    	<field name="is_quyen_chuyen_tiep" invisible="1"/>
-                    	<field name="is_quyen_huy_bb" invisible="1"/>
-                    
+                    <field name="is_quyen_chuyen_tiep" invisible="1" />
+                    <field name="is_quyen_huy_bb" invisible="1" />
                 </field>
                 <xpath expr="//page[1]" position="attributes">
                     <attribute name="attrs">{'invisible': False}</attribute>
@@ -119,13 +114,9 @@
                 <field name="product_uom_id" force_save="1" readonly="1" groups="product.group_uom" />
                 <xpath expr="//page[1]/field/tree/field[@name='product_uom_id']" position="after">
                     <field name="tracking" readonly="1"></field>
-                    <field name="lot_id" invisible="0" attrs="{'column_invisible': [('parent.show_lots_text', '=', True)],
-                    'invisible': ['|',('lots_visible', '=', False),('tracking', '=', 'none')],           
-                    'readonly': ['|',('in_entire_package', '=', True),                 ('state', 'in', ('done', 'cancel'))]}" groups="stock.group_production_lot" 
-                    domain="[('product_id', '=', product_id)]" 
-                    context="{'default_product_id': product_id, 'default_pn_id': pn_id }" />
+                    <field name="lot_id" invisible="0" attrs="{'column_invisible': [('parent.show_lots_text', '=', True)],                     'invisible': ['|',('lots_visible', '=', False),('tracking', '=', 'none')],                                'readonly': ['|',('in_entire_package', '=', True),                 ('state', 'in', ('done', 'cancel'))]}" groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'default_product_id': product_id, 'default_pn_id': pn_id }" />
                     <field name="tinh_trang" attrs="{'readonly': [('state', 'in', ('done','cancel'))]}"></field>
-                    <field name="ghi_chu" ></field>
+                    <field name="ghi_chu"></field>
                 </xpath>
                 <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="attributes">
                     <attribute name="string">Serial number</attribute>
@@ -144,13 +135,10 @@
                     <attribute name="groups">base.group_erp_manager</attribute>
                 </xpath>
                 <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="before">
-                  <!--  <field name="pn" attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}"></field> --> 
-                    <field name="pn_id" attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}" context="{'default_product_id':product_id}"
-                    domain="[('product_id','=',product_id)]"
-                    ></field>
+                    <!--  <field name="pn" attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}"></field> -->
+                    <field name="pn_id" attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}" context="{'default_product_id':product_id}" domain="[('product_id','=',product_id)]"></field>
                     <field name="id"></field>
                 </xpath>
-                <!-- toi ngay 07/06 -->
                 <xpath expr="//page[1]/field/tree/field[@name='state']" position="attributes">
                     <attribute name="invisible">0</attribute>
                 </xpath>
@@ -159,7 +147,6 @@
                 </xpath>
                 <xpath expr="//page[2]/field/tree/field[@name='quantity_done']" position="attributes">
                     <attribute name="readonly">0</attribute>
-                    <!-- 	<attribute name="attrs">{}</attribute> -->
                 </xpath>
                 <xpath expr="//page[2]/field/tree/field[@name='state']" position="after">
                     <field name="move_orig_ids"></field>
@@ -169,16 +156,14 @@
                     <field name="ghi_chu"></field>
                     <field name="sn_text"></field>
                 </xpath>
-                <!-- Initial Demand -->
                 <xpath expr="//page[2]/field/tree/field[@name='product_uom_qty']" position="attributes">
                     <attribute name="attrs">{}</attribute>
                 </xpath>
-                <!-- end toi ngay 07/06 -->
                 <xpath expr="//page[3]" position="after">
                     <page string="Thông tin thêm">
                         <group>
                             <group>
-                                <field name="source_member_ids" >
+                                <field name="source_member_ids">
                                     <tree editable="bottom">
                                         <field name="name" />
                                         <field name="department_id" />
@@ -222,31 +207,28 @@
                             </group>
                         </group>
                         <group>
-                        	<field name="is_not_show_y_kien_ld"/>
-                        	<field name="lanh_dao_id"/>
-                        	<!-- <field name="is_chia_2_dong"/> -->
+                            <field name="is_not_show_y_kien_ld" />
+                            <field name="lanh_dao_id" />
+                            <!-- <field name="is_chia_2_dong"/> -->
                         </group>
                     </page>
-                    
                     <page string="Thông tin về Download File">
-                       <header>
-                         <button name="import_file" string="import_file" type="object" />
-          				 <button name="check_file" string="check_file" type="object"   class="btn-primary"/>
-                         </header>
-                           <group>
-                           <field name="is_dl_right_now" />
-		                  <!--   <field name="title_row_for_import" /> -->
-		                    <field name="is_ghom_tot" />
-		                    <field name="is_set_tt_col" />
-		                    <field name="file" filename="filename" />
-		                    <field name="filename"  invisible ="1"/>
-		                    <field name="file_dl"  readonly="1" filename="file_dl_name"/>
-		                    <field name="file_dl_name"  invisible="1"/>
-		                    <field name="log" groups="base.group_erp_manager" />
-		                    </group>
+                        <header>
+                            <button name="import_file" string="import_file" type="object" />
+                            <button name="check_file" string="check_file" type="object" class="btn-primary" />
+                        </header>
+                        <group>
+                            <field name="is_dl_right_now" />
+                            <!--   <field name="title_row_for_import" /> -->
+                            <field name="is_ghom_tot" />
+                            <field name="is_set_tt_col" />
+                            <field name="file" filename="filename" />
+                            <field name="filename" invisible="1" />
+                            <field name="file_dl" readonly="1" filename="file_dl_name" />
+                            <field name="file_dl_name" invisible="1" />
+                            <field name="log" groups="base.group_erp_manager" />
+                        </group>
                     </page>
-                    
-                    
                     <page string="Thông tin trả vật tư">
                         <group>
                             <field name="origin_pick_id"></field>
@@ -254,8 +236,6 @@
                             <field name="ten_truoc_huy" />
                         </group>
                     </page>
-                    
-                    
                 </xpath>
             </field>
         </record>
@@ -269,10 +249,10 @@
                     <attribute name="invisible">1</attribute>
                 </field>
                 <field name="scheduled_date" position="before">
-                	<field name="ma_bien_ban" />
-                	<field name="id" />
+                    <field name="ma_bien_ban" />
+                    <field name="id" />
                     <field name="ly_do" />
-                    <field name="date" string="Ngày biên bản"/>
+                    <field name="date" string="Ngày biên bản" />
                 </field>
                 <xpath expr="//field[@name='location_dest_id']" position="before">
                     <field name="department_id" />
@@ -285,18 +265,12 @@
                 <field name="origin" position="replace" />
             </field>
         </record>
-        <record id="view_picking_internal_search" model="ir.ui.view">
-            <field name="name">stock.picking.internal.search</field>
-            <field name="model">stock.picking</field>
-            <field name="inherit_id" ref="stock.view_picking_internal_search" />
-            <field name="arch" type="xml">
-                <field name="product_id" position="after">
-                    <field name="location_id" />
-                </field>
-            </field>
-        </record>
+   
         <!--! TREE -->
         <!-- SEARCH -->
+        
+          
+        
         <record id="view_picking_internal_search" model="ir.ui.view">
             <field name="name">stock.picking.internal.search</field>
             <field name="model">stock.picking</field>
@@ -304,41 +278,23 @@
             <field name="arch" type="xml">
                 <field name="product_id" position="after">
                     <field name="location_id" />
-                     <filter name="loc_khong_phai_huy" string="Không Hủy" domain="[('ban_giao_or_nghiem_thu','not in',['HUY'])]" ></filter>
-                     <separator/>
-                     <filter name="loc_khong_phai_tra_do_huy" string="Không Trả do Hủy" domain="[('ban_giao_or_nghiem_thu','not in',['TRA_DO_HUY'])]" ></filter>
+                    <filter name="loc_khong_phai_huy" string="Không Hủy" domain="[('ban_giao_or_nghiem_thu','not in',['HUY'])]"></filter>
+                    <separator />
+                    <filter name="loc_khong_phai_tra_do_huy" string="Không Trả do Hủy" domain="[('ban_giao_or_nghiem_thu','not in',['TRA_DO_HUY'])]"></filter>
+             		 <separator />
+                  	<filter name="recently" string="Thay đổi gần đây" domain="[('write_date','&gt;', (datetime.datetime.now() - datetime.timedelta(hours=7,minutes=5)).strftime('%Y-%%m-%%d %%H:%%M:%%S'))]" help="Pickings that are late on scheduled time" />
+                  	<filter name="today" string="Thay đổi trong ngày" domain="[('write_date','&gt;=', (datetime.datetime.now().replace(hour=0,minute=0,second=0) - datetime.timedelta(hours=7)).strftime('%Y-%m-%d %H:%M:%S'))]" help="Pickings that are late on scheduled time" />
+                    <filter name="this month" string="Thay đổi tháng này" domain="[('write_date','&gt;=',(datetime.datetime.now().replace(day=1,hour=0,minute=0,second=0)-datetime.timedelta(hours=7)).strftime('%Y-%%m-%%d %%H:%%M:%%S'))]" help="Chọn tháng này" />
+                   <!--   <filter name="last month" string="Thay đổi tháng trước" domain="[('write_date','&gt;=',(datetime.datetime.now().replace(day=1,hour=0,minute=0,second=0)-datetime.timedelta(months=1,hours=7)).strftime('%Y-%m-%d %H:%M:%S')),('write_date','&lt;',(datetime.datetime.now().replace(day=1,hour=0,minute=0,second=0)-datetime.timedelta(hours=7)).strftime('%Y-%m-%d %H:%M:%S'))]" help="Chọn tháng này" />-->
+                   <!-- <filter name="last month" string="CV Tháng Trước" domain="[('write_date','&gt;=',(datetime.datetime.now().replace(day=1,hour=0,minute=0,second=0) +relativedelta(months=-1) - datetime.timedelta(hours=7) ).strftime('%Y-%m-%d %H:%M:%S '))]" help="Chọn tháng này" /> -->  
                 </field>
             </field>
         </record>
-        
         <record id="stock.action_picking_tree_all" model="ir.actions.act_window">
-           <!-- 
-            <field name="name">Stock Operations</field>
-            <field name="res_model">stock.picking</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">tree,kanban,form,calendar</field>
-            <field name="domain"></field>
-             -->
             <field name="context">{
                     'contact_display': 'partner_address','search_default_loc_khong_phai_huy':1
             }
             </field>
-            
-            <!-- 
-            <field name="search_view_id" ref="view_picking_internal_search"/>
-            <field name="help" type="html">
-              <p class="oe_view_nocontent_create">
-                Click here to create a new transfer.
-              </p><p>
-                You can either do it immediately or mark it as Todo for future processing. Use your scanner to validate the transferred quantity quicker.
-              </p>
-              
-            </field> -->
         </record>
-        
-        
-        
     </data>
 </odoo>
-<!-- !SEARCH -->

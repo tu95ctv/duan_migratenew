@@ -154,10 +154,11 @@ def ghi_chu_(val,n,move,ml, all_tot = False, IS_SET_TT_COL=False):
         ghi_chu =  val
 #     tt = n['a_instance_dict']['tinh_trang']['val']
     if not IS_SET_TT_COL and  not all_tot:
+        tinh_trang_show = TINH_TRANG[tinh_trang]
         if ghi_chu:
-            ghi_chu =  u'%s, %s'%(tinh_trang,ghi_chu)
+            ghi_chu =  u'%s, %s'%(tinh_trang_show,ghi_chu) #aha
         else:
-            ghi_chu = u'%s'%tinh_trang
+            ghi_chu = u'%s'%tinh_trang_show
     return ghi_chu
 def is_same_(m,ml):
     if m.product_id.tracking == 'none':

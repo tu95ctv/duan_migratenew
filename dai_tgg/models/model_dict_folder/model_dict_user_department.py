@@ -23,7 +23,7 @@ def gen_user_department_model_dict():
                                                        ]
                                             }
                          ),
-                                               ('phone',{'func':None,'xl_title':u'phone','key':False, 'func': lambda v,n: int(v) if isinstance(v,float) else v}),
+                                               ('phone',{'func':None,'xl_title':u'phone','key':False, 'func': lambda v,n: str(int(v)) if isinstance(v,float) else v}),
                                                ( 'email',{'func':None,'xl_title':u'email','key':True ,'required':True}),
                                                 
                                                 ('job_id',{'key':False,'required':False,

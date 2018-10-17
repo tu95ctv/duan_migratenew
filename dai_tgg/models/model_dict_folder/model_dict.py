@@ -70,6 +70,13 @@ def location_from_key_tram(v,n,self):
     if not stock_location_id:
         raise UserError ( u' Không tồn tại stock_location ')
     return stock_location_id
+def look_department_from_key_tram_(v,n,self):
+    key_tram = n['key_tram']
+    key_tram_split = key_tram.split('_')
+    tram = key_tram_split[1]
+    stock_location_id =  self.env['hr.department'].search([('name','ilike',tram)])
+    return stock_location_id.id
+    
 def location_goc_(v,n,self):
     return location_from_key_tram(v,n,self).id
 def choose_inventory_id_name(v,n,self):
@@ -96,7 +103,7 @@ def stt_(v,n):
     except :
         return False
 def tinh_trang_(v,n):
-    if v ==None or v ==u'Tốt' or v==u'tot':
+    if v ==None or v ==u'Tốt' or v==u'tot' or v ==False:
         return u'tot'
     else:
         return u'hong'
@@ -156,11 +163,7 @@ def gen_model_dict(sml_title_row = False):
                             'key':True, 'required':True,'skip_field_if_not_found_column_in_some_sheet':True ,
                               }
                      ),
-                    ('location_id_goc', {'model':'stock.location','key':False, 'for_excel_readonly' :True,"required":True, 
-#                                          'set_val':lambda self: self.department_id.default_location_id.id ,
-                                         'func':location_goc_,
-                                         'raise_if_False':True, 'skip_this_field':{sml:True}
-                                         }),  
+                 
                  
                     ('barcode_for_first_read',{'empty_val':[u'NA',u"`"],
                                                'skip_this_field':{key_ltk_dc:False,
@@ -196,11 +199,8 @@ def gen_model_dict(sml_title_row = False):
                                                  },
                                      'key':False,'sheet_allow_this_field_not_has_exel_col':{'key_ltk':[u'XFP, SFP các loại']}}),
                     
-                    ('inventory_id', {'fields':[
-                                            ('name',{'func':choose_inventory_id_name, 'key':True,'required': True}),
-                                            ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id_goc']['val']})
-                                            ,], 'skip_this_field':{sml:True}
-                        }),
+                   
+                   
                     
                     ('product_id',{'string':u'Tên Vật tư','offset_write_xl':{sml:1}, 'key':True,'required':{all_key_tram:True, sml+ '_not_create':False},
                                    'fields':[
@@ -319,6 +319,19 @@ thiết bị'''
                                             ]
                                    }),  
                    
+                   
+                 ('location_id_goc', {'model':'stock.location','key':False, 'for_excel_readonly' :True,"required":True, 
+                                     'func':location_goc_,
+                                     'raise_if_False':True, 'skip_this_field':{sml:True}
+                                     }),  
+                ('department_id_for_excel_readonly',{'skip_this_field':{sml:True},'for_excel_readonly':True,'key':False, 'func':look_department_from_key_tram_}),
+                ('inventory_id', {'fields':[
+                                        ('name',{'func':choose_inventory_id_name, 'key':True,'required': True}),
+                                        ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id_goc']['val']})
+                                        ,], 'skip_this_field':{sml:True}
+                    }),
+                                
+                                
                     ('location_id1',{'skip_this_field':{sml:True},'model':'stock.location', 'for_excel_readonly':True,
                                                            'fields':[
                                                                     ('name',{'func':convert_float_location_,
@@ -333,8 +346,9 @@ thiết bị'''
                                                                                          },
                                                                               'key':True,'required': True,'sheet_allow_this_field_not_has_exel_col':{'key_ltk':[u'XFP, SFP các loại']}}),
                                                                     ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
-                                                                    ('department_id',{'key':False,'model':'hr.department', 'set_val':lambda self: self.department_id.id,'required':True}),
-                                                                     ('stock_type',{'set_val':'phong_may'}),
+#                                                                     ('department_id',{'key':False,'model':'hr.department', 'set_val':lambda self: self.department_id.id,'required':True}),
+                                                                    ('department_id',{'key':False,'model':'hr.department', 'func': lambda v,n:n['vof_dict']['department_id_for_excel_readonly']['val'],'required':True,'raise_if_False':True}),
+                                                                    ('stock_type',{'set_val':'phong_may'}),
                                                                     ]
                                                            }), 
                     ('location_id2',{'skip_this_field':{sml:True},'model':'stock.location', 'for_excel_readonly':True,
@@ -347,8 +361,8 @@ thiết bị'''
                                                                                          },
                                                                               'key':True,'required': True}),
                                                                     ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val']  , 'key':True}),
-                                                                   ('department_id',{'key':False,'model':'hr.department', 'set_val':lambda self: self.department_id.id,'required':True,'raise_if_False':True, }),
-                                                                                     
+#                                                                    ('department_id',{'key':False,'model':'hr.department', 'set_val':lambda self: self.department_id.id,'required':True,'raise_if_False':True, }),
+                                                                    ('department_id',{'key':False,'model':'hr.department', 'func': lambda v,n:n['vof_dict']['department_id_for_excel_readonly']['val'],'required':True,'raise_if_False':True}),
                                                                       ('stock_type',{'set_val':'tu'}),
                                                                     
                                                                     ]
@@ -362,7 +376,8 @@ thiết bị'''
                                                                                              key_tti_dc:None},
                                                                               'key':True,'required': True}),
                                                                     ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id2']['val'] or needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
-                                                                    ('department_id',{'key':False,'model':'hr.department', 'set_val':lambda self: self.department_id.id,'required':True }),
+#                                                                     ('department_id',{'key':False,'model':'hr.department', 'set_val':lambda self: self.department_id.id,'required':True }),
+                                                                    ('department_id',{'key':False,'model':'hr.department', 'func': lambda v,n:n['vof_dict']['department_id_for_excel_readonly']['val'],'required':True,'raise_if_False':True}),
                                                                     ('stock_type',{'set_val':'shelf'}),
                                                                     
                                                                     ]
@@ -377,7 +392,8 @@ thiết bị'''
                                                                                             },   
                                                                       'key':True,'required': True,'skip_field_if_not_found_column_in_some_sheet':True}),
                                                                     ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id3']['val'] or needdata['vof_dict']['location_id2']['val'] or needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
-                                                                    ('department_id',{'key':False,'model':'hr.department', 'set_val':lambda self: self.department_id.id,'required':True}),
+#                                                                     ('department_id',{'key':False,'model':'hr.department', 'set_val':lambda self: self.department_id.id,'required':True}),
+                                                                    ('department_id',{'key':False,'model':'hr.department', 'func': lambda v,n:n['vof_dict']['department_id_for_excel_readonly']['val'],'required':True,'raise_if_False':True}),
                                                                     ('stock_type',{'set_val':'stt_trong_self'}),
                                                                     ]
                                                            }),  
@@ -392,7 +408,8 @@ thiết bị'''
                                                                 'key':True,'required': True,'skip_field_if_not_found_column_in_some_sheet':True}),
                                                         ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id4']['val'] or needdata['vof_dict']['location_id3']['val'] or needdata['vof_dict']['location_id2']['val'] or needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
                                                         ('stock_type',{'set_val':'slot'}),
-                                                        ('department_id',{'key':False,'model':'hr.department', 'set_val':lambda self: self.department_id.id,'required':True}),
+#                                                         ('department_id',{'key':False,'model':'hr.department', 'set_val':lambda self: self.department_id.id,'required':True}),
+                                                                    ('department_id',{'key':False,'model':'hr.department', 'func': lambda v,n:n['vof_dict']['department_id_for_excel_readonly']['val'],'required':True,'raise_if_False':True}),
                                                         ]
                                                }),                              
                     ('location_id', {
@@ -414,12 +431,12 @@ thiết bị'''
                     
                     ('prod_lot_id', {'offset_write_xl':{sml:3},'transfer_name':{sml:'lot_id'},'key':True,'string':u'Serial number',
                                       'fields':[
-                                                    ('name',{'required':{all_key_tram:True,  sml+ '_not_create':False},'func':lambda val,needdata: needdata['vof_dict']['prod_lot_id_excel_readonly']['val'],'key':True}),
+                                                    ('name',{'type_allow':[int],'required':{all_key_tram:True,  sml+ '_not_create':False},'func':lambda val,needdata: needdata['vof_dict']['prod_lot_id_excel_readonly']['val'],'key':True}),
                 #                                     ('pn',{'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)']}),
                                                     ('pn_id',{'offset_write_xl':{sml:2},'model':'tonkho.pn','string':u'Mã vật tư',
                                                                   'fields':[
-                                                                            ('name',{'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)',u'Mã vật tư'],'key':True,
-                                                                                     'required': True
+                                                                            ('name',{'type_allow':[int], 'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)',u'Mã vật tư'],'key':True,
+                                                                                     'required': True,'func':lambda val,needdata: int(val) if isinstance(val,float) else val
                                                                                      }),
                                                                             ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True, 'required':True   }),
 #                                                                             ('import_location_id',{'skip_this_field':{sml:True},'set_val':lambda self: self.import_location_id.id}),

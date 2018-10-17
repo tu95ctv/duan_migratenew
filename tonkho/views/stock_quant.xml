@@ -26,6 +26,7 @@
                 </field>
                 <field name="quantity" position="after">
                     <field name="write_date" string="Ngày sửa" />
+                    <field name="create_date" string="Ngày Tạo" />
                     <field name="stt" />
                 </field>
             </field>
@@ -41,15 +42,14 @@
                     <filter string="Có SN hay không" name="group_tracking" domain="[]" context="{'group_by': 'tracking'}" />
                     <!--   <filter string='Đơn Vị/Phòng Ban' name="group_department_id" domain="[]" context="{'group_by': 'department_id'}"/> -->
                     <field string="Tìm Số lượng trong kho có tên" name="stock_location_id_selection" filter_domain="[('location_id','ilike',self)]" />
-                    <filter name="this month" string="kho thang nay" domain="[('create_date','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01 17:00:00')), ('create_date','&gt;=',time.strftime('%Y-%m-01 00:00:00'))]" help="Chọn tháng này" />
-                    <filter name="late" string="Late kho" domain="[('create_date','&lt;', time.strftime('%%Y-%%m-%%d %%H:%%M:%%S'))]" help="Pickings that are late on scheduled time" />
-                    <filter name="late 2" string="Late kho 2" domain="[('create_date','&lt;', (time() +relativedelta(months=1) ).strftime('%%Y-%%m-%%d %%H:%%M:%%S'))]" help="Pickings that are late on scheduled time" />
-                    <!--   <field string="Tìm Số lượng trong đơn vị có tên" name="department_id_selection"   filter_domain="[('department_id','ilike',self)]"/> -->
+                    <!-- <filter name="this month" string="Kho được tạo tháng này" domain="[('create_date','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01 17:00:00')), ('create_date','&gt;=',time.strftime('%Y-%m-01 00:00:00'))]" help="Chọn tháng này" /> -->
+                    <filter name="this month" string="Kho được tạo tháng này" domain="[('create_date','&gt;=',(datetime.datetime.now().replace(day=1,hour=0,minute=0,second=0)-datetime.timedelta(hours=7)).strftime('%Y-%%m-%%d %%H:%%M:%%S'))]" help="Chọn tháng này" />
+                  	<filter name="recently" string="Thay đổi gần đây" domain="[('write_date','&gt;', (datetime.datetime.now() - datetime.timedelta(hours=8)).strftime('%Y-%%m-%%d %%H:%%M:%%S'))]" help="Pickings that are late on scheduled time" />
+                  	<filter name="today" string="Thay đổi trong ngày" domain="[('write_date','&gt;=', (datetime.datetime.now().replace(hour=0,minute=0,second=0) - datetime.timedelta(hours=7)).strftime('%Y-%m-%d %H:%M:%S'))]" help="Pickings that are late on scheduled time" />
                 </xpath>
+            
             </field>
         </record>
-        
-        
         <record id="stock_quant_action_product" model="ir.actions.act_window">
             <field name="name">Số lượng trong kho</field>
             <field name="type">ir.actions.act_window</field>
@@ -58,9 +58,7 @@
             <field name="domain"></field>
             <field name="context">{'search_default_internal_loc':1, 'show_loc_type':True}</field>
             <field name="view_type">form</field>
-            <!--   <field name="search_view_id" ref="tonkho.quant_search_view"/> -->
         </record>
-        
         <menuitem id="menu_stock_quant_action_product" action="stock_quant_action_product" parent="stock.menu_stock_inventory_control" sequence="1" />
     </data>
 </odoo>

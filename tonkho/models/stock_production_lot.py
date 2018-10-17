@@ -71,7 +71,7 @@ class StockProductionLot(models.Model):
             return self.name
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):# cho lot
-        location_id = self._context.get('d4_location_id')
+        location_id = self._context.get('location_id_for_name_search_exist_in_quants_d4')
         if location_id:
             location_id_object = self.env['stock.location'].browse([location_id])
             if location_id_object.usage == 'internal':
