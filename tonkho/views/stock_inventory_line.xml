@@ -21,6 +21,8 @@
             <field name="view_mode">tree,form</field>
             <!-- <field name="view_id" ref="stock_inventory_line_tree" /> -->
         </record>
-        <menuitem action="action_inventory_line_tonkho" id="action_inventory_line_menu" parent="stock.menu_stock_inventory_control" sequence="30" groups="base.group_erp_manager" />
+      <!--   <menuitem action="action_inventory_line_tonkho" id="action_inventory_line_menu" parent="stock.menu_stock_inventory_control" sequence="30" groups="base.group_erp_manager" />-->
+       <menuitem action="action_inventory_line_tonkho" id="action_inventory_line_menu" parent="stock.menu_stock_warehouse_mgmt" sequence="30" groups="base.group_erp_manager" />
+      
     </data>
 </odoo>

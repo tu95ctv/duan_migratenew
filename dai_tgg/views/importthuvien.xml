@@ -10,6 +10,7 @@
             <form>
                <header>
                   <button name="importthuvien" string="import thư viện" type="object" class="btn-primary" />
+                  <button name="import_all" string="import all" type="object" class="btn-primary" />
                   <!-- 
                   <button name="import_strect" string="import_strect" type="object" class="btn-primary" />
                   <button name="map_noc_voi_ltk" string="map_kiemke_voi_noc" type="object" class="btn-primary" />

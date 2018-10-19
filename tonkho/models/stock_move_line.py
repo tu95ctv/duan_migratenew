@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
 from odoo.tools.float_utils import float_is_zero,_float_check_precision,float_round,float_compare
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError,ValidationError
 from odoo.addons import decimal_precision as dp
 
 
 class StockMoveLine(models.Model):
     _inherit = "stock.move.line"
 
-    pn_id = fields.Many2one('tonkho.pn',related = 'lot_id.pn_id',string=u'Part number')
+#     pn_id = fields.Many2one('tonkho.pn',related = 'lot_id.pn_id',string=u'Part number')
+    pn_id = fields.Many2one('tonkho.pn',string=u'Part number')
     stock_quant_id = fields.Many2one('stock.quant', string=u"Lấy vật tư có trong kho")
     tracking = fields.Selection(related='product_id.tracking',string=u'Có SN hay không', store=False)
     ghi_chu = fields.Text(string=u'Ghi chú vật tư')
@@ -40,6 +41,7 @@ class StockMoveLine(models.Model):
     def lot_id_onchange(self):
         if self.lot_id.tinh_trang:
             self.tinh_trang = self.lot_id.tinh_trang
+            self.pn_id = self.lot_id.pn_id
         
     @api.depends('inventory_id','picking_id.name')
     def ref_picking_id_or_inventory_id_(self):
@@ -51,6 +53,8 @@ class StockMoveLine(models.Model):
         if self.product_id:
             self.qty_done = 1
             self.product_uom_id = self.product_id.uom_id.id
+            if len(self.product_id.pn_ids) ==1:
+                self.pn_id = self.product_id.pn_ids
 
     @api.onchange('qty_done')
     def _onchange_qty_done(self):# ghi đè để tránh cảnh báo: You can only process 1.0 Card for products with unique serial number.
@@ -74,3 +78,12 @@ class StockMoveLine(models.Model):
             self.product_id = self.stock_quant_id.product_id
             self.lot_id = self.stock_quant_id.lot_id
             self.location_id = self.stock_quant_id.location_id
+    @api.constrains('pn_id','product_id','lot_id')
+    def pn_id_product_id_(self):
+        for r in self:
+            if r.pn_id:
+                if r.pn_id.product_id != r.product_id:
+                    raise ValidationError(u'product_id ở pn_id khác với product_id')
+            if r.lot_id:
+                if r.lot_id.product_id != r.product_id:
+                    raise ValidationError(u'product_id ở lot_id khác với product_id')

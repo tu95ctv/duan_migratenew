@@ -21,7 +21,7 @@
                     <field name="tinh_trang"></field>
                     <field name="ghi_chu"></field>
                     <field name="location_id" context="{'show_loc_type':True}"></field>
-                    <field name="inventory_line_id" />
+                   <!--  <field name="inventory_line_id" /> -->
                     <!-- <field name="department_id" ></field> -->
                 </field>
                 <field name="quantity" position="after">

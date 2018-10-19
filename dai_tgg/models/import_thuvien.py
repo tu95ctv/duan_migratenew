@@ -73,6 +73,15 @@ class ImportThuVien(models.Model):
     test_result_2 = fields.Text()
     test_result_3 = fields.Text()
     line_not_has_quant =  fields.Text()
+    def importthuvien(self):
+        importthuvien(self)
+        return True
+    def import_all(self):
+#         importthuvien(self,key=u'User')
+        importthuvien(self,key=u'Department')
+        importthuvien(self,key=u'Partner')
+        importthuvien(self,key=u'location partner')
+        return True
     
     @api.onchange('type_choose')
     def import_location_id_(self):
@@ -124,10 +133,7 @@ class ImportThuVien(models.Model):
 
         else:
             raise UserWarning(u'Bạn phải chọn trigger model')
-    def importthuvien(self):
-        
-        importthuvien(self)
-        return True
+    
     def import_strect(self):
         pass
         return True

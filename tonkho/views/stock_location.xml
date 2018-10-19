@@ -74,7 +74,7 @@
     
     
         <menuitem action="stock.action_location_form" id="menu_action_location_form" name="Các địa điểm"
-         parent="stock.menu_stock_inventory_control"  sequence="12" groups="stock.group_stock_multi_locations"/>
+         parent="stock.menu_stock_inventory_control"  sequence="12" /><!-- groups="stock.group_stock_multi_locations" -->
 </data>
 
 </odoo>

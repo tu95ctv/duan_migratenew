@@ -44,6 +44,35 @@
                     </div>
                     
                     
+                    <div class="col-xs-12 col-md-6 o_setting_box" title="is_validate_mode">
+                        <div class="o_setting_left_pane">
+                            <field name="is_show_for_admin_tram_nao_tao_vat_tu" />
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <label for="is_show_for_admin_tram_nao_tao_vat_tu" />
+                            <div class="text-muted">
+                                    is_show_for_admin_tram_nao_tao_vat_tu
+                                    </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 
+                    <div class="col-xs-12 col-md-6 o_setting_box" title="is_validate_mode">
+                        <div class="o_setting_left_pane">
+                            <field name="some_thing_ids" />
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <label for="some_thing_ids" />
+                            <div class="text-muted">
+                                     some_thing_ids
+                                    </div>
+                        </div>
+                    </div>
+                     -->
+                    
+                    
+                
+                    
                 </xpath>
             </field>
         </record>

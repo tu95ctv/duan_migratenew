@@ -177,7 +177,7 @@ def gen_model_dict(sml_title_row = False):
                                                                         'key_ltk_dc':[u'N/C',u'-',u'--',u'NA',u'N/A',u'chưa đọc được SN'],
                                                                         all_key_tram:[u'N/C',u'-',u'--',u'NA',u'N/A',u'chưa đọc được SN',u'N/C',u'N/a',u'n/a',u'N/A'],
                                                                 }, 'func':lambda val,needdata: int(val) if isinstance(val,float) else val,
-                                                                'xl_title':{all_key_tram:[u'Seri Number',u'Số serial (S/N)',u'Serial Number'],
+                                                                'xl_title':{all_key_tram:[u'Seri Number',u'Số serial (S/N)',u'Serial Number',u'Serial'],
                                                                             key_tti_dc: None,},
                                                                 'for_excel_readonly' :True,
                                                                 'col_index':{'all_key_tram':None,
@@ -213,7 +213,7 @@ def gen_model_dict(sml_title_row = False):
                                                      'xl_title':{'key_ltk':[u'TÊN VẬT TƯ',u'Module quang'],
                                                                     'key_ltk_dc':[u'Loại card'],
                                                                     'key_tti':[u'TÊN VẬT TƯ'],
-                                                                    sml:[u'TÊN VẬT TƯ',u'Tên Vật Tư'],
+                                                                    sml:[u'TÊN VẬT TƯ',u'Tên Vật Tư',u'Danh mục hàng hóa'],
                                                                     key_tti_dc:u'''Tên
 chi tiết
 thiết bị
@@ -297,7 +297,7 @@ thiết bị'''
                                                                   'sheet_allow_this_field_not_has_exel_col':{'key_ltk':[u'XFP, SFP các loại']
                                                                                                              }
                                                                   }),
-                                                                 ('category_id', {'func': lambda n,v,self:self.env['product.uom.categ'].search(['|',('name','=','Unit'),('name','=',u'Đơn Vị')])[0].id
+                                                                 ('category_id', {'func': lambda n,v,self:self.env['product.uom.categ'].search(['|',('name','=','Unit'),('name','=',u'Đơn vị')])[0].id
                                                                                             }
                                                                      ),
                                           
@@ -319,7 +319,18 @@ thiết bị'''
                                             ]
                                    }),  
                    
-                   
+                ('pn_id',{ 'offset_write_xl':{sml:2},'model':'tonkho.pn','string':u'Mã vật tư',
+                                                                  'fields':[
+                                                                            ('name',{'type_allow':[int], 'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)',u'Mã vật tư'],'key':True,
+                                                                                     'required': True,'func':lambda val,needdata: int(val) if isinstance(val,float) else val
+                                                                                     }),
+                                                                            ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True, 'required':True   }),
+#                                                                             ('import_location_id',{'skip_this_field':{sml:True},'set_val':lambda self: self.import_location_id.id}),
+                                                                            ('du_phong_tao',{'skip_this_field':{sml:True},'set_val':lambda self: 'dc' not in self.key_tram}),
+                                                                            ('tram_ltk_tao',{'skip_this_field':{sml:True},'set_val':lambda self: (self.key_tram and 'ltk' in self.key_tram)}),
+                #                                                                             ('tram_tti_tao',{'set_val': (r.key_tram and 'tti' in r.key_tram)}),
+                                                                            ]
+                                                                  }),  
                  ('location_id_goc', {'model':'stock.location','key':False, 'for_excel_readonly' :True,"required":True, 
                                      'func':location_goc_,
                                      'raise_if_False':True, 'skip_this_field':{sml:True}
@@ -433,7 +444,7 @@ thiết bị'''
                                       'fields':[
                                                     ('name',{'type_allow':[int],'required':{all_key_tram:True,  sml+ '_not_create':False},'func':lambda val,needdata: needdata['vof_dict']['prod_lot_id_excel_readonly']['val'],'key':True}),
                 #                                     ('pn',{'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)']}),
-                                                    ('pn_id',{'offset_write_xl':{sml:2},'model':'tonkho.pn','string':u'Mã vật tư',
+                                                    ('pn_id',{'model':'tonkho.pn','string':u'Mã vật tư',
                                                                   'fields':[
                                                                             ('name',{'type_allow':[int], 'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)',u'Mã vật tư'],'key':True,
                                                                                      'required': True,'func':lambda val,needdata: int(val) if isinstance(val,float) else val

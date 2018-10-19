@@ -33,7 +33,7 @@ def gen_product_model_dict():
                            ('categ_id',{'model':'product.category','fields':[('name',{'func':lambda val,needdata: needdata['sheet_name'], 'key':True,'required': True}),]}),
                            ('uom_id',  {'model':'product.uom', 'fields': [ #'func':uom_id_,'default':1,
                                        ('name',{'set_val':u'Cái','key':True}),#'set_val':u'Cái',
-                                                ('category_id', {'func': lambda n,v,self:self.env['product.uom.categ'].search(['|',('name','=','Unit'),('name','=',u'Đơn Vị')])[0].id
+                                                ('category_id', {'func': lambda n,v,self:self.env['product.uom.categ'].search(['|',('name','=','Unit'),('name','=',u'Đơn vị')])[0].id
                                                                            }
                                                     ),
                             

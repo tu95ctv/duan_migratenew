@@ -2,7 +2,7 @@
 from odoo import models, fields, api,exceptions,tools,_
 from odoo.osv import expression
 import datetime
-
+import os,inspect,sys
 KHO_SELECTION= [
                                  ('tram',u'Trạm'),
                                  ('phong_may',u'Phòng máy'),
@@ -69,3 +69,9 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
                 this_model_noti_dict['skipupdate'] = this_model_noti_dict.get('skipupdate',0) + 1
         return_obj = searched_object
     return return_obj
+def write_to_current_path():
+    currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    parent_path = os.path.abspath(os.path.join(currentdir, os.pardir))
+    test_path = os.path.join(parent_path, "test.txt")
+    with open(test_path, 'w') as the_file:
+        the_file.write('hells' )

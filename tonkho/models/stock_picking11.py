@@ -171,6 +171,7 @@ class StockPicking(models.Model):
     #### Button ###########
     @api.multi
     def download_xl_bbbg(self):
+        self.ghom_stock_move_lines()
         if self.is_dl_right_now:
             return {
              'type' : 'ir.actions.act_url',
@@ -207,7 +208,7 @@ class StockPicking(models.Model):
     def import_file(self):
         title_row_for_import = [self.title_row_for_import or 0]
         md = gen_model_dict(title_row_for_import)
-        importthuvien(self,import_for_stock_tranfer = md, key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',key_tram='sml')
+        importthuvien(self,model_dict = md, key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',key_tram='sml')
 
     @api.multi
     def validate_cua_ben_giao(self):
@@ -480,22 +481,20 @@ class StockPicking(models.Model):
             return adict[self.ban_giao_or_nghiem_thu]
         else:
             return False
-    @api.model
-    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
-        res = super(StockPicking, self).fields_view_get(
-            view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
-        doc = etree.XML(res['arch'])
-        print ('res[arch]*******',res['arch'])
-        if view_type =='form':
-            nodes =  doc.xpath("//field[@name='location_id']")
-            if len(nodes):
-                node = nodes[0]
-                node.set('string', "Download  nhanh")
-                print ('***domain***',node.get('domain'),type(node.get('domain')))
-                if self.user_has_groups('base.group_erp_manager'):
-                    node.set('domain', "[('is_kho_cha','=',True)]")
-        res['arch'] = etree.tostring(doc, encoding='unicode')
-        return res
+#     @api.model
+#     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+#         res = super(StockPicking, self).fields_view_get(
+#             view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+#         doc = etree.XML(res['arch'])
+#         if view_type =='form':
+#             nodes =  doc.xpath("//field[@name='location_id']")
+#             if len(nodes):
+#                 node = nodes[0]
+#                 node.set('string', "Download  nhanh")
+#                 if self.user_has_groups('base.group_erp_manager'):
+#                     node.set('domain', "[('is_kho_cha','=',True)]")
+#         res['arch'] = etree.tostring(doc, encoding='unicode')
+#         return res
     
 #     @api.multi
 #     def unlink(self):

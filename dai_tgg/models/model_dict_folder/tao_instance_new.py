@@ -151,7 +151,7 @@ def read_val_for_ci(self,set_val,col_index,a_field_vof_dict,MODEL_DICT,field_att
                     if vof_dict_childrend['name']['val'] !=False:
                         get_or_create_display = u'Chưa'
                     else:
-                        get_or_create_display = u''
+                        get_or_create_display = u'empty cell'
                 sheet_of_copy_wb.write(row,sheet.ncols + offset_write_xl , get_or_create_display,not_horiz_center_border_style)
     return val       
      
@@ -330,16 +330,17 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
     return obj_val, get_or_create 
 
 def importthuvien(odoo_or_self_of_wizard,
-                  import_for_stock_tranfer = False,
+                  model_dict = False,
                   key=False,
                   key_tram=False,
                   not_create = False):
-    if not import_for_stock_tranfer:
+    if not model_dict:
         ALL_MODELS_DICT = gen_model_dict()
     else:
-        ALL_MODELS_DICT =  import_for_stock_tranfer
+        ALL_MODELS_DICT =  model_dict
     self = odoo_or_self_of_wizard
 #     for r in self:
+
     file_content = base64.decodestring(self.file)
     if '.xlsx' in self.filename:
         formatting_info = False
@@ -349,7 +350,7 @@ def importthuvien(odoo_or_self_of_wizard,
     
     noti_dict = {}
     noti_dict['skip because required'] = 0
-    if not import_for_stock_tranfer:
+    if not key:
         CHOOSED_MODEL_DICT = ALL_MODELS_DICT[self.type_choose]
     else:
         CHOOSED_MODEL_DICT = ALL_MODELS_DICT[key]

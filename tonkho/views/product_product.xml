@@ -31,10 +31,11 @@
                 </field>
                 <field name="default_code" position="replace" />
                 <field name="uom_id" position="after">
-                    <field name="pn_id" />
                     <field name="thiet_bi_id" />
                     <field name="brand_id" />
+                    <field name="pn_ids" />
                     <field name="quant_ids" />
+                    <field name="product_tmpl_id"/>
                 </field>
                 <xpath expr="//header" position="attributes">
                     <attribute name="invisible">1</attribute>
@@ -75,16 +76,16 @@
                 <field name="lst_price" position="replace" />
                 <field name="name" position="after">
                     <field name="id" />
-                    <field name="pn_id" />
                     <field name="uom_id" />
                     <field name="categ_id" />
                     <field name="thiet_bi_id" />
                     <field name="brand_id" />
                     <field name="tracking" />
+                    <field name="len_pn" />
                     <field name="location_id" />
-                    <field name="tram_ltk_tao"></field>
-                    <field name="dang_chay_tao"></field>
-                    <field name="du_phong_tao"></field>
+                    <field name="tram_ltk_tao"  groups="base.group_erp_manager"></field>
+                    <field name="dang_chay_tao" groups="base.group_erp_manager"></field>
+                    <field name="du_phong_tao" groups="base.group_erp_manager"></field>
                 </field>
             </field>
         </record>
@@ -93,6 +94,6 @@
             <field name="res_model">product.product</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <menuitem id="product_product_menu" parent="stock.menu_stock_inventory_control" action="product_product_action" name="Vật tư" />
+        <menuitem id="product_product_menu" parent="stock.menu_stock_inventory_control" action="product_product_action" name="Vật tư" sequence="1" />
     </data>
 </odoo>

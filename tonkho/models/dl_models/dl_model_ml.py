@@ -18,7 +18,6 @@ def add_1_row_squant_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, off
     writen_column_number = 0
     col_index = 0
     col_index += offset_column
-    
     for f_name,FIELDATTR in FIELDNAME_FIELDATTR.items():
 #         f_name,FIELDATTR =  field_from_my_FIELDNAME_FIELDATTR
         is_not_model_field = FIELDATTR.get('is_not_model_field')
@@ -28,23 +27,19 @@ def add_1_row_squant_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, off
             continue
         if '.' in f_name:
             f_names = f_name.split('.')
+            f_name = f_names[-1]
             r = ml
-#             is_ml_field = True
-            if not is_not_model_field:
-                f_name = f_names[-1]
-                is_same = len(set(move.move_line_ids.mapped(f_name))) <=1
-            else:
-                is_same = FIELDATTR.get('is_same', False)
-                
-            print ('field','is_same',f_name,is_same)
+            is_same = FIELDATTR.get('is_same', False)
+            if is_same == False:
+                if not is_not_model_field:
+                    is_same = len(set(move.move_line_ids.mapped(f_name))) <=1
         else:
             r = move
             is_same = FIELDATTR.get('is_same', True)
-            if callable(is_same):
-                is_same = is_same(move,ml)
+        if callable(is_same):
+            kargs_for_is_same = FIELDATTR.get('kargs_for_is_same',{})
+            is_same = is_same(move,ml,**kargs_for_is_same)
         is_same = is_same if rowspan > 1 else False       
-        split = FIELDATTR.get('split')
-        fields = FIELDATTR.get('fields')
         write_to_excel = FIELDATTR.get('write_to_excel',True)
         
         
@@ -153,24 +148,36 @@ def ghi_chu_(val,n,move,ml, all_tot = False, IS_SET_TT_COL=False):
     else:
         ghi_chu =  val
 #     tt = n['a_instance_dict']['tinh_trang']['val']
-    if not IS_SET_TT_COL and  not all_tot:
+    if not (IS_SET_TT_COL or  all_tot):# ghop tinh trang vao #not IS_SET_TT_COL and  not all_tot, not (IS_SET_TT_COL or all_tot)
+        
         tinh_trang_show = TINH_TRANG[tinh_trang]
         if ghi_chu:
             ghi_chu =  u'%s, %s'%(tinh_trang_show,ghi_chu) #aha
         else:
             ghi_chu = u'%s'%tinh_trang_show
     return ghi_chu
+# def is_same_ghi_chu_(m,ml, all_tot = False, IS_SET_TT_COL=False):
+#     is_same_tt = len(set(m.move_line_ids.mapped('tinh_trang'))) <=1
+#     is_same_gc = len(set(m.move_line_ids.mapped('ghi_chu'))) <=1
+#     is_same_gc = is_same_gc and is_same_tt
+#     return is_same_gc
+def is_same_ghi_chu_(m,ml, all_tot = False, IS_SET_TT_COL=False):
+    is_same_tt = len(set(m.move_line_ids.mapped('tinh_trang'))) <=1
+    is_same_gc = len(set(m.move_line_ids.mapped('ghi_chu'))) <=1
+    if (IS_SET_TT_COL or  all_tot):
+        return is_same_gc
+    else:
+        is_same_gc = is_same_gc and is_same_tt
+        return is_same_gc
+    
+
 def is_same_(m,ml):
     if m.product_id.tracking == 'none':
         is_same = False
     else:
         is_same = True
     return is_same
-def is_same_ghi_chu_(m,ml):
-    is_same_tt = len(set(m.move_line_ids.mapped('tinh_trang'))) <=1
-    is_same_gc = len(set(m.move_line_ids.mapped('ghi_chu'))) <=1
-    is_same_gc = is_same_gc and is_same_tt
-    return is_same_gc
+
 def quantity_done_(v,n,m,l):
     if m.product_id.tracking == 'none':
         qty = l.qty_done
@@ -201,7 +208,7 @@ def gen_domain_sml(dl_obj):
     return domain
 def download_ml_for_bb(dl_obj,workbook=None,append_domain=None,sheet_name=None,worksheet=None,row_index=0,
                        IS_SET_TT_COL=False,
-                       all_tot=False):
+                       all_tot_and_ghom_all_tot=False):
 #     all_tot = set(dl_obj.move_line_ids.mapped('tinh_trang')) ==set(['tot']) and   dl_obj.is_ghom_tot
     FIELDNAME_FIELDATTR_ML = [
          ('move_line_ids.stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_ml_,'is_same':False }),
@@ -210,8 +217,9 @@ def download_ml_for_bb(dl_obj,workbook=None,append_domain=None,sheet_name=None,w
          ('quantity_done',{'is_same':is_same_,'func':quantity_done_,'string':u'S/L'}),
          ('product_uom',{'func':lambda v,n,m,ml: v.name,'string':u'ĐVT'}),
          ('move_line_ids.lot_id',{'func':lambda v,n,m,ml: v.name,'string':u'Serial Number'}),
-         ('move_line_ids.tinh_trang',{'string':u'T/T','func':tinh_trang_,'skip_field':not (IS_SET_TT_COL and not all_tot)}),
-         ('move_line_ids.ghi_chu',{'string':u'Ghi chú','func':ghi_chu_,'is_same':is_same_ghi_chu_,'kargs':{'all_tot':all_tot, 'IS_SET_TT_COL':IS_SET_TT_COL}}),
+         ('move_line_ids.tinh_trang',{'string':u'T/T','func':tinh_trang_, 'skip_field':not IS_SET_TT_COL or  all_tot_and_ghom_all_tot    }),
+         
+         ('move_line_ids.ghi_chu',{'string':u'Ghi chú','func':ghi_chu_,'is_same':is_same_ghi_chu_,'kargs':{'all_tot':all_tot_and_ghom_all_tot, 'IS_SET_TT_COL':IS_SET_TT_COL},'kargs_for_is_same':{'all_tot':all_tot_and_ghom_all_tot, 'IS_SET_TT_COL':IS_SET_TT_COL}}),
         ]
 
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError,ValidationError
 from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 from odoo.osv import expression
@@ -17,7 +17,7 @@ class StockProductionLot(models.Model):
         required=True, help="Unique Lot/Serial Number")
      
 #     pn = fields.Char(string=u'Part Number')
-    pn_id = fields.Many2one('tonkho.pn')
+    pn_id = fields.Many2one('tonkho.pn',string=u'Partnumber',domain="[('product_id','=',product_id)]")
 #     ghi_chu = fields.Text(string=u'Ghi chú',store=True)
     ghi_chu = fields.Text(string=u'Ghi chú từ dòng điều chuyển',compute='ghi_chu_',store=True)
     ghi_chu_ban_dau =  fields.Text(string=u'Ghi Chú ban đầu')
@@ -61,6 +61,14 @@ class StockProductionLot(models.Model):
                 if move_line_ids:
                     r.ghi_chu =move_line_ids.ghi_chu
                 
+                
+    @api.constrains('pn_id','product_id')
+    def pn_id_product_id_(self):
+        for r in self:
+            if r.pn_id:
+                if r.pn_id.product_id != r.product_id:
+                    raise ValidationError(u'product_id ở pn_id khác với product_id')
+        
     @api.multi
     def name_get(self):
         return [(r.id, r.get_names()) for r in self]   

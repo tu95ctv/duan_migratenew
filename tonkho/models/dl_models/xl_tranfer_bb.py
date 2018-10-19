@@ -76,9 +76,9 @@ def ong_ba_(ws,f_name,fixups,needdata,row,dl_obj,source_member_ids='source_membe
         ws.write_merge(row + c,row + c,3,7,u'C/v: %s %s'%(i.job_id.name,i.parent_id.name),normal_style)
 #         ws.write_merge(row + c,row + c,5,7,u'                 Đ/v: %s'%i.parent_id.name,normal_style)
     return nrow
-def table_(ws,f_name,fixups,needdata,row,dl_obj,IS_SET_TT_COL=False,all_tot=False):
+def table_(ws,f_name,fixups,needdata,row,dl_obj,IS_SET_TT_COL=False,all_tot_and_ghom_all_tot=False):
 #     row = needdata['cr'] + offset
-    nrow = download_ml_for_bb(dl_obj, worksheet=ws,row_index=row,IS_SET_TT_COL = IS_SET_TT_COL,all_tot=all_tot)
+    nrow = download_ml_for_bb(dl_obj, worksheet=ws,row_index=row, IS_SET_TT_COL = IS_SET_TT_COL, all_tot_and_ghom_all_tot=all_tot_and_ghom_all_tot)
 #     needdata['cr'] = row + nrow - 1
     return nrow
 
@@ -125,24 +125,15 @@ def xac_nhan_lanh_dao_(ws,f_name,fixups,needdata,row,dl_obj):
         return u'XÁC NHẬN CỦA LĐ ĐÀI'
     
 def write_xl_bb(dl_obj):
-    all_tot = set(dl_obj.move_line_ids.mapped('tinh_trang')) ==set(['tot']) and   dl_obj.is_ghom_tot
+    all_tot_and_ghom_all_tot = set(dl_obj.move_line_ids.mapped('tinh_trang')) ==set(['tot']) and   dl_obj.is_ghom_tot
     IS_SET_TT_COL = dl_obj.is_set_tt_col
-    IS_SET_TT_COL_COMBINE = IS_SET_TT_COL and not all_tot
+    IS_SET_TT_COL and not all_tot_and_ghom_all_tot
     needdata = {}
-#     directory_path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-#     directory_path = os.path.split(os.path.abspath(directory_path))[0]
-#     directory_path =  os.path.join(directory_path, u'file_import',u'Mẫu BBBG 2018.xls')
-#     directory_path =  os.path.join(directory_path, u'file_import',u'BB2.xls')
-#     print ('directory_path',directory_path)
-#     readbook= xlrd.open_workbook(directory_path, formatting_info=True )#formatting_info=True
-#     readsheet = readbook.sheet_by_name(u'First')
-#     copied_wb, style_list = copy2(readbook)
-#     copied_ws = copied_wb.get_sheet(0)
     wb = xlwt.Workbook()
     ws = wb.add_sheet(u'First',)#cell_overwrite_ok=True
 #     cols = []
 #     set_cols_width = ['sl', 'pr', 'pn', 'sl', 'dvt', 'sn', 'tt','gc']
-    if  IS_SET_TT_COL_COMBINE :
+    if  IS_SET_TT_COL and not all_tot_and_ghom_all_tot :
         set_cols_width = [4,21,16,6,5,16,6,16]
     else:
         set_cols_width = [4,21,16,6,5,16,22,0]
@@ -171,10 +162,9 @@ def write_xl_bb(dl_obj):
                     ('ddbn',{'range': ['auto', 0],'val':u'Đại diện bên nhận (%s)'%(dl_obj.location_dest_id.partner_id_of_stock_for_report.name),'offset':2}),
                     ('ong_ba2',{'range':['auto', 0], 'val':None,  'func':ong_ba_,'kargs':{'source_member_ids':'dest_member_ids'}}),
                     ('bg',{'range': ['auto', 0],'val':u'Chúng tôi đã tiến hành bàn giao vật tư bên dưới'}),
-                    ('table',{'range':['auto', 0],'val':None,'func':table_ ,'offset':2 ,'kargs': {'IS_SET_TT_COL':IS_SET_TT_COL,'all_tot':all_tot}}),
+                    ('table',{'range':['auto', 0],'val':None,'func':table_ ,'offset':2 ,'kargs': {'IS_SET_TT_COL':IS_SET_TT_COL,'all_tot_and_ghom_all_tot':all_tot_and_ghom_all_tot}}),
                     ('tinh_trang_vat_tu',{'range': ['auto', 0],'val':None,'val_func':tinh_trang_vat_tu_,'offset':2}),
                     ('so_ban_in',{'range': ['auto', 0],'val':u'Biên bản được lập thành 04 bản có giá trị như nhau.','offset':1}),
-                   
                     ('dai_dien_ben_giao',{'range': ['auto','auto',0,2],'val':u'ĐẠI DIỆN BÊN GIAO','offset':3, 'style':bold_center_style}),
                     ('dai_dien_ben_nhan',{'range': ['auto','auto',4,7],'val':u'ĐẠI DIỆN BÊN NHẬN','offset':0, 'style':bold_center_style}),
                     

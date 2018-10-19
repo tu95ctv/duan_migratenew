@@ -56,11 +56,12 @@
                     <field name="ref_picking_id_or_inventory_id"></field>
                 </field>
                 <field name="product_id" position="after">
+                    <field name="pn_id" ></field>
                     <field name="lot_id" string="Serial number"></field>
                 </field>
             </field>
         </record>
         
-        <menuitem id="stock_move_line_menu" action="stock.stock_move_line_action" parent="stock.menu_stock_inventory_control" sequence="1" name="Các dòng điều chuyển" />
+        <menuitem id="stock_move_line_menu" action="stock.stock_move_line_action" parent="stock.menu_stock_warehouse_mgmt" sequence="3" name="Các dòng điều chuyển" />
     </data>
 </odoo>

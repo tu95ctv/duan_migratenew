@@ -10,7 +10,8 @@ class InventoryLine(models.Model):
     categ_id = fields.Many2one('product.category', related='product_id.categ_id',store=True,string=u'Nhóm')
     thiet_bi_id = fields.Many2one('tonkho.thietbi', related='product_id.thiet_bi_id',store=True)
     brand_id = fields.Many2one('tonkho.brand', related='product_id.brand_id',store=True)
-    pn_id = fields.Many2one('tonkho.pn',related = 'prod_lot_id.pn_id',store=True)
+#     pn_id = fields.Many2one('tonkho.pn',related = 'prod_lot_id.pn_id',store=True)
+    pn_id = fields.Many2one('tonkho.pn',string=u'Part number')
     stt = fields.Integer(string=u'STT')
     tracking =  fields.Selection(related='product_id.tracking', store=True,string=u'Có SN hay không')
     ghi_chu = fields.Text(string=u'Ghi chú')
@@ -21,6 +22,7 @@ class InventoryLine(models.Model):
         rs = super(InventoryLine, self)._get_move_values(*arg,**karg)
         rs['move_line_ids'][0][2]['stt'] = self.stt#self._context['stt']
         rs['move_line_ids'][0][2]['inventory_line_id'] = self.id
+        rs['move_line_ids'][0][2]['pn_id'] = self.pn_id.id
         return rs
 #     @api.model
 #     def search(self, args, offset=0, limit=None, order=None, count=False):
