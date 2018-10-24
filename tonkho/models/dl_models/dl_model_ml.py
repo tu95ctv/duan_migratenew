@@ -50,14 +50,18 @@ def add_1_row_squant_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, off
         
         one_field_val['val_before_func'] = val
         func = FIELDATTR.get('func',None)
+        
         kargs = FIELDATTR.get('kargs',{})
+        if FIELDATTR.get('is_use_kargs_co_san',None):
+            kargs_co_san = {'is_same':is_same,'ml_index':ml_index}
+            kargs.update(kargs_co_san)
         if func:
             val = func(val,needdata,move,ml, **kargs)
-
         if val == False:
             val = u''
             
         one_field_val['val']=val 
+        
         if write_to_excel:
             if is_same:
                 if ml_index==0:
@@ -106,7 +110,9 @@ def download_model_new_ml(dl_obj, Export_Para=None,workbook=None,append_domain=N
     if append_domain:
         domain.extend(append_domain)  
     order = Export_Para.get('search_para',{})
-    all_objs = request.env[exported_model].search(domain,**order)
+    print ('order',order)
+    all_objs = request.env[exported_model].search(domain,order='stt asc')
+    all_objs = all_objs.sorted(key=lambda r: r.move_line_ids[0].stt)
     model_fields = request.env[exported_model]._fields
     
     
@@ -136,9 +142,12 @@ def download_model_new_ml(dl_obj, Export_Para=None,workbook=None,append_domain=N
 #         return move.ghi_chu
 #     else:
 #         return val
-def stt_ml_(v,needdata,m,ml): 
-    v = needdata['a_instance_dict']['move_line_ids.stt_not_model']['val']  +1   
-    return v    
+def stt_ml_(v,needdata,m,ml,is_same,ml_index): 
+    v = needdata['a_instance_dict']['move_line_ids.stt_not_model']['val']
+    if is_same and ml_index:
+        return v
+    else:
+        return v +1   
 
 def ghi_chu_(val,n,move,ml, all_tot = False, IS_SET_TT_COL=False):
     tinh_trang = ml.tinh_trang
@@ -211,14 +220,14 @@ def download_ml_for_bb(dl_obj,workbook=None,append_domain=None,sheet_name=None,w
                        all_tot_and_ghom_all_tot=False):
 #     all_tot = set(dl_obj.move_line_ids.mapped('tinh_trang')) ==set(['tot']) and   dl_obj.is_ghom_tot
     FIELDNAME_FIELDATTR_ML = [
-         ('move_line_ids.stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_ml_,'is_same':False }),
+         ('move_line_ids.stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_ml_,'is_same':True,'is_use_kargs_co_san':True }),#'is_same':False 
          ('product_id',{'func':lambda v,n,m,ml: v.name,'string':u'Tên vật tư' }),
+#          ('move_line_ids.stt',{'string':u'STT có'}),
          ('move_line_ids.pn_id',{'func':lambda v,n,m,ml: v.name,'string':u'Mã vật tư'}),
          ('quantity_done',{'is_same':is_same_,'func':quantity_done_,'string':u'S/L'}),
          ('product_uom',{'func':lambda v,n,m,ml: v.name,'string':u'ĐVT'}),
          ('move_line_ids.lot_id',{'func':lambda v,n,m,ml: v.name,'string':u'Serial Number'}),
          ('move_line_ids.tinh_trang',{'string':u'T/T','func':tinh_trang_, 'skip_field':not IS_SET_TT_COL or  all_tot_and_ghom_all_tot    }),
-         
          ('move_line_ids.ghi_chu',{'string':u'Ghi chú','func':ghi_chu_,'is_same':is_same_ghi_chu_,'kargs':{'all_tot':all_tot_and_ghom_all_tot, 'IS_SET_TT_COL':IS_SET_TT_COL},'kargs_for_is_same':{'all_tot':all_tot_and_ghom_all_tot, 'IS_SET_TT_COL':IS_SET_TT_COL}}),
         ]
 
@@ -227,7 +236,7 @@ def download_ml_for_bb(dl_obj,workbook=None,append_domain=None,sheet_name=None,w
         'exported_model':'stock.move',
         'FIELDNAME_FIELDATTR':FIELDNAME_FIELDATTR_ML,
         'gen_domain':gen_domain_sml,
-        'search_para':{'order': 'stt asc'},#desc
+        'search_para':{'order': 'stt desc'},#desc
         }
     
     return download_model_new_ml(dl_obj, Export_Para=Export_Para_ml, append_domain=append_domain,

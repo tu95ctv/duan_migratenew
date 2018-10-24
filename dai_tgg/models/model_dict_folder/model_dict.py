@@ -120,7 +120,8 @@ write_xl = 'write_xl'
 sml = 'sml'
 key = 'key',
 required = 'required'
-
+def break_condition_func_for_main_instance_(needdata):
+    needdata ['cate'] = needdata['vof_dict']['product_id']['fields']['name']['val']
 def gen_model_dict(sml_title_row = False):                
     ALL_MODELS_DICT = {
      u'stock.inventory.line.tong.hop.ltk.dp.tti.dp': { #tong hop
@@ -153,6 +154,7 @@ def gen_model_dict(sml_title_row = False):
                     'last_import_function':{all_key_tram:last_import_function_all_,sml:None},
                     'last_record_function':{all_key_tram:last_record_function_all_,
                                                     key_ltk_dc:last_record_function_ltk_vtdc_,sml:None},
+                    'break_condition_func_for_main_instance':{all_key_tram:None,sml:break_condition_func_for_main_instance_,},
                     'fields' : [
                     ('stt',{'func':stt_, 'xl_title': {'key_ltk':u'STT new',
                                                                 'key_tti':u'STT',
@@ -223,7 +225,6 @@ thiết bị
                                                      'empty_val':{'key_ltk':[u'TỔNG ĐÀI IMS',u'JUNIPER ERX 1400; T1600 ; T4000']}
                                                                   }),
                                             ('type',{'set_val':'product'}),
-                                            
                                             ('tracking',{'func':{all_key_tram:lambda val,needdata: 'serial' if needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] !=False else False,
                                                                         key_ltk_dc:lambda val,needdata: 'serial' if (needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] or needdata['vof_dict']['barcode_for_first_read']['val']) !=False else False,
                                                                  }, 
@@ -439,6 +440,7 @@ thiết bị'''
                     ('tinh_trang',{'skip_this_field':{sml:False,all_key_tram:True},'set_val': {all_key_tram:u'tot',  sml:None},'xl_title':  {all_key_tram:None,  sml:[u'T/T',u'Tình trạng']},
                                                                    'skip_field_if_not_found_column_in_some_sheet':True,
                                                                    'func':tinh_trang_}),
+                    ('ghi_chu',{'skip_this_field':{sml:False,all_key_tram:True},'func': lambda v,n:n.get('cate',False)}),
                     
                     ('prod_lot_id', {'offset_write_xl':{sml:3},'transfer_name':{sml:'lot_id'},'key':True,'string':u'Serial number',
                                       'fields':[

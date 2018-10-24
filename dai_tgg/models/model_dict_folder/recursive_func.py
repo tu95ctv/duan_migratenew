@@ -20,24 +20,19 @@ def write_get_or_create_title(model_dict,sheet,sheet_of_copy_wb,title_row,key_tr
             title = attr.get('string',fname)  + u' Có sẵn hay tạo'
             sheet_of_copy_wb.col(col).width =  get_width(len(title))
             sheet_of_copy_wb.write(title_row, col,title ,header_bold_style)
-    
-def f_ordered_a_model_dict(model_dict):
+def ordered_a_model_dict(model_dict):
     fields = model_dict['fields']
 #     print ('fields',fields)
     for fname,attr in fields:
         childrend_model_dict=  attr
         childrend_fields = childrend_model_dict.get('fields')
         if childrend_fields:
-            new_ordered_dict = f_ordered_a_model_dict(childrend_model_dict)
+            new_ordered_dict = ordered_a_model_dict(childrend_model_dict)
     model_dict['fields']=OrderedDict(fields)
-def rECURSIVE_ADD_MODEL_NAME_TO_FIELD_ATTR(self,MODEL_DICT,key_tram=False):
-#     print ('in rECURSIVE_ADD_MODEL_NAME_TO_FIELD_ATTR...')
+def recursive_add_model_name_to_field_attr(self,MODEL_DICT,key_tram=False):
     model_name = get_key_allow(MODEL_DICT, 'model', key_tram)
     fields= self.env[model_name]._fields
-    print ('***fields***',fields)
     for f_name,field_attr in MODEL_DICT.get('fields',{}).items():
-#         f_name = field_tuple[0]
-#         field_attr = field_tuple[1]
         f_name = get_key_allow(field_attr, 'transfer_name', key_tram) or  f_name
         skip_this_field = get_key_allow(field_attr, 'skip_this_field', key_tram,False)
         if callable(skip_this_field):
@@ -51,11 +46,14 @@ def rECURSIVE_ADD_MODEL_NAME_TO_FIELD_ATTR(self,MODEL_DICT,key_tram=False):
                 field_attr['field_type'] = field.type
                 if field.comodel_name:
                     field_attr['model'] = field.comodel_name
-    #                 rECURSIVE_ADD_MODEL_NAME_TO_FIELD_ATTR(self,field_attr,key_tram=key_tram)
+                if field_attr.get('required',None)==None:
+                    field_attr['required'] = field.required
+#                     print ('***fields %s field.default %s'%(f_name,field.default))
+#                     if field.required and not field.default:
+#                         raise UserError('***f_name:%s'%f_name)
             if 'model' in field_attr:
-                    rECURSIVE_ADD_MODEL_NAME_TO_FIELD_ATTR(self,field_attr,key_tram=key_tram)
-
-def lOOP_THROUGH_FIELDS_IN_MODEL_DICT_TO_ADD_COL_INDEX_MATCH_XL_TITLE(MODEL_DICT, read_excel_value_may_be_title, col,key_tram):
+                    recursive_add_model_name_to_field_attr(self,field_attr,key_tram=key_tram)
+def add_col_index(MODEL_DICT, read_excel_value_may_be_title, col,key_tram):
     is_map_xl_title = False
     for field,field_attr in MODEL_DICT.get('fields',{}).items():
         is_real_xl_match_with_xl_excel = False
@@ -65,7 +63,7 @@ def lOOP_THROUGH_FIELDS_IN_MODEL_DICT_TO_ADD_COL_INDEX_MATCH_XL_TITLE(MODEL_DICT
         if xl_title ==None and get_key_allow(field_attr,'col_index',key_tram,None) !=None:
             continue# cos col_index
         elif field_attr.get('fields'):
-            is_real_xl_match_with_xl_excel = lOOP_THROUGH_FIELDS_IN_MODEL_DICT_TO_ADD_COL_INDEX_MATCH_XL_TITLE(field_attr, read_excel_value_may_be_title, col,key_tram)
+            is_real_xl_match_with_xl_excel = add_col_index(field_attr, read_excel_value_may_be_title, col,key_tram)
         elif xl_title:
             if isinstance(xl_title, list):
                 xl_title_s = xl_title
@@ -80,6 +78,10 @@ def lOOP_THROUGH_FIELDS_IN_MODEL_DICT_TO_ADD_COL_INDEX_MATCH_XL_TITLE(MODEL_DICT
                     is_real_xl_match_with_xl_excel = True        
         is_map_xl_title = is_map_xl_title or is_real_xl_match_with_xl_excel
     return is_map_xl_title #or is_map_xl_title_foreinkey
+
+
+
+
 def check_col_index_match_xl_title(self,COPY_MODEL_DICT,key_tram,needdata):
     fields =  COPY_MODEL_DICT.get('fields')
     for field_name,field_attr in fields.items():
@@ -151,58 +153,58 @@ def xuat_het_dac_tinh(COPY_MODEL_DICT,key_tram,dac_tinhs = {}):
         if 'fields' in field_attr:
             xuat_het_dac_tinh(field_attr,key_tram,dac_tinhs)
                 
-def rut_gon_key(COPY_MODEL_DICT,key_tram):
-    fields = COPY_MODEL_DICT['fields']
-    
-    for attr,val in COPY_MODEL_DICT.items():
-        if attr != 'fields':
-            val = get_key_allow(COPY_MODEL_DICT, attr, key_tram)
-            COPY_MODEL_DICT[attr] = val
-        elif attr =='fields' : 
-            for field,field_attr in fields.items():
-                for attr,val in field_attr.items():
-                    if attr != 'fields' and attr !='get_or_create_para':
-                        val = get_key_allow(field_attr, attr, key_tram)
-                        field_attr[attr] = val
-                if 'fields' in field_attr:
-                    rut_gon_key(field_attr,key_tram)
-                    
-                    
-
-
-        
-        
-
-
-def add_type_of_val_vao_1_list(type_cua_attr,val,attr):
-    a_dict =  type_cua_attr.setdefault(attr,{})
-    a_type_list = a_dict.setdefault('types',[])
-    tv = type(val)#type of val
-    if  callable(val):
-        tv = 'function'
-    elif val == None:
-        tv = 'NoneType'
-    else:
-        tv = STRING_TYPE_DICT.get(tv,tv)
-    if tv not in a_type_list:
-        a_type_list.append(tv)
-            
-def tim_type_cua_attr(COPY_MODEL_DICT,key_tram, type_cua_attr ={}):
-    fields = COPY_MODEL_DICT['fields']
-    for attr,val in COPY_MODEL_DICT.items():
-        if attr != 'fields':
-            val = get_key_allow(COPY_MODEL_DICT, attr, key_tram)
+# def rut_gon_key(COPY_MODEL_DICT,key_tram):
+#     fields = COPY_MODEL_DICT['fields']
+#     
+#     for attr,val in COPY_MODEL_DICT.items():
+#         if attr != 'fields':
+#             val = get_key_allow(COPY_MODEL_DICT, attr, key_tram)
 #             COPY_MODEL_DICT[attr] = val
-            add_type_of_val_vao_1_list(type_cua_attr,val,attr)
-        elif attr =='fields' : 
-            for field,field_attr in fields.items():
-                for attr,val in field_attr.items():
-                    if attr != 'fields' and attr !='get_or_create_para':
-                        val = get_key_allow(field_attr, attr, key_tram)
-                        add_type_of_val_vao_1_list(type_cua_attr,val,attr)
-                        
-                if 'fields' in field_attr:
-                    tim_type_cua_attr(field_attr,key_tram,type_cua_attr)
+#         elif attr =='fields' : 
+#             for field,field_attr in fields.items():
+#                 for attr,val in field_attr.items():
+#                     if attr != 'fields' and attr !='get_or_create_para':
+#                         val = get_key_allow(field_attr, attr, key_tram)
+#                         field_attr[attr] = val
+#                 if 'fields' in field_attr:
+#                     rut_gon_key(field_attr,key_tram)
+                    
+                    
+
+
+        
+        
+
+
+# def add_type_of_val_vao_1_list(type_cua_attr,val,attr):
+#     a_dict =  type_cua_attr.setdefault(attr,{})
+#     a_type_list = a_dict.setdefault('types',[])
+#     tv = type(val)#type of val
+#     if  callable(val):
+#         tv = 'function'
+#     elif val == None:
+#         tv = 'NoneType'
+#     else:
+#         tv = STRING_TYPE_DICT.get(tv,tv)
+#     if tv not in a_type_list:
+#         a_type_list.append(tv)
+#             
+# def tim_type_cua_attr(COPY_MODEL_DICT,key_tram, type_cua_attr ={}):
+#     fields = COPY_MODEL_DICT['fields']
+#     for attr,val in COPY_MODEL_DICT.items():
+#         if attr != 'fields':
+#             val = get_key_allow(COPY_MODEL_DICT, attr, key_tram)
+# #             COPY_MODEL_DICT[attr] = val
+#             add_type_of_val_vao_1_list(type_cua_attr,val,attr)
+#         elif attr =='fields' : 
+#             for field,field_attr in fields.items():
+#                 for attr,val in field_attr.items():
+#                     if attr != 'fields' and attr !='get_or_create_para':
+#                         val = get_key_allow(field_attr, attr, key_tram)
+#                         add_type_of_val_vao_1_list(type_cua_attr,val,attr)
+#                         
+#                 if 'fields' in field_attr:
+#                     tim_type_cua_attr(field_attr,key_tram,type_cua_attr)
 
 STRING_TYPE_DICT = {str:'str',bool:'bool',list:'list',dict:'dict',int:'int'}                 
 TYPES_ATT_DICT = {
@@ -242,7 +244,7 @@ TYPES_ATT_DICT = {
 'inactive_include_search':{'types':['bool']},
 'is_x2m_field':{'types':['bool']},
 'remove_all_or_just_add_one_x2m':{'types':['bool']},
-
+'break_condition_func_for_main_instance':{'types': [ 'function']} ,
 'type_allow':{'types':['list']}
 
 }
@@ -288,8 +290,8 @@ def check_xem_att_co_nam_ngoai_khong(COPY_MODEL_DICT,key_tram):
         
 
 def define_col_index(title_rows,sheet,COPY_MODEL_DICT,key_tram):
-    read_excel_value_may_be_titles = []
-    titles = []
+#     read_excel_value_may_be_titles = []
+#     titles = []
     row_title_index =None
     number_map_dict = {}
     for row in title_rows:
@@ -298,12 +300,12 @@ def define_col_index(title_rows,sheet,COPY_MODEL_DICT,key_tram):
                 read_excel_value_may_be_title = unicode(sheet.cell_value(row,col))
             else:
                 read_excel_value_may_be_title = str(sheet.cell_value(row,col))
-            is_map_xl_title = lOOP_THROUGH_FIELDS_IN_MODEL_DICT_TO_ADD_COL_INDEX_MATCH_XL_TITLE( COPY_MODEL_DICT, read_excel_value_may_be_title, col,key_tram)
-            read_excel_value_may_be_titles.append(read_excel_value_may_be_title)
+            is_map_xl_title = add_col_index( COPY_MODEL_DICT, read_excel_value_may_be_title, col,key_tram)
+#             read_excel_value_may_be_titles.append(read_excel_value_may_be_title)
             if is_map_xl_title:
                 row_title_index = row
-                this_row_number_map = number_map_dict.setdefault(row,0)
+                number_map_dict.setdefault(row,0)
                 number_map_dict[row] +=1
-                titles.append(read_excel_value_may_be_title)
+#                 titles.append(read_excel_value_may_be_title)
     largest_map_row = max(number_map_dict.items(), key=operator.itemgetter(1))[0]
     return row_title_index,largest_map_row

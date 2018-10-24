@@ -30,7 +30,7 @@ class StockMoveLine(models.Model):
     returned_move_ids = fields.One2many('stock.move.line', 'origin_returned_move_id', 'All returned moves', help='Optional: all returned moves created from this move')
     stt = fields.Integer()
     inventory_line_id = fields.Many2one('stock.inventory.line')
-    
+    ghi_chu_cate = fields.Text()
     def _action_done(self):
         if 'action_done_from_stock_inventory' in self._context:
             self =  self.with_context(update_inventory={'stt':self.stt, 'inventory_line_id':self.inventory_line_id.id})

@@ -116,9 +116,16 @@ class ImportThuVien(models.Model):
         self.test_result_1 =len(rs1)
         self.test_result_2 =len(rs2)
         self.test_result_3= rs3
-    def test_code(self):
-#         sql_multi_2 = '''select date_trunc('day',create_date) from stock_quant'''
         
+    def test_code(self):
+        fields=self.env['stock.move.line']._fields
+#         print ('fields',fields)
+        self.test_result_1 = dir(fields['product_id'])
+        self.test_result_2 = fields['product_id'].required
+        print ("fields['product_id'].required",fields['product_id'].required)
+    def test_code1(self):
+#         sql_multi_2 = '''select date_trunc('day',create_date) from stock_quant'''
+         
         sql_multi_2 = "select create_date at time zone 'UTC' at time zone 'ICT'  from stock_quant where cast(create_date at time zone 'UTC' at time zone 'ICT' as date) = date '2018-08-31 '"
         self.env.cr.execute(sql_multi_2)
         result_2 = self.env.cr.dictfetchall()
