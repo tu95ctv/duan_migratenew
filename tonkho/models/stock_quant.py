@@ -111,3 +111,13 @@ class Quant(models.Model):
         for quant in self:
             if float_compare(quant.quantity, 1, precision_rounding=quant.product_uom_id.rounding) > 0 and quant.lot_id and quant.product_id.tracking == 'serial':
                 raise ValidationError(_('A serial number should only be linked to a single product. %s,%s,%s'%(quant.quantity,quant.product_id.name,quant.lot_id.name)))
+    
+    @api.constrains('lot_id')
+    def check_product_id(self):
+#         if any(elem.product_id.type != 'product' for elem in self):
+#             raise ValidationError(_('Quants cannot be created for consumables or services.'))
+        if self.lot_id:
+            rs = self.env['stock.quant'].search([('lot_id','=',self.lot_id.id),('location_id.usage','=','internal'),('quantity','>',0)])
+            if len(rs)>1:
+                raise UserError(u'Không được có quants  nội bộ chung lot_id và quantity > 0 product:%s-sn: %s'%(self.product_id.name,self.lot_id.name))
+        

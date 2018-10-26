@@ -285,23 +285,26 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
     some_dict = {'instance_false':False,'remove_all_or_just_add_one_x2m':True}
     break_condition = False
     for field_name,field_attr  in MODEL_DICT['fields'].items():
-        c = in_for_create_instance(self,field_name,field_attr,key_tram,needdata,row,sheet,
+        code = in_for_create_instance(self,field_name,field_attr,key_tram,needdata,row,sheet,
                            MODEL_DICT,not_create,workbook_copy,sheet_of_copy_wb,
                            merge_tuple_list,model_name,main_call_create_instance_model,noti_dict,
                            key_search_dict,update_dict,x2m_fields,some_dict)
-        if c =='break':
+        if code =='break':
 #             return obj,get_or_create
             break_condition = True# moi them
+            break
     if break_condition:
         if main_call_create_instance_model:
-            break_condition_func_for_main_instance = some_var_para.get('break_condition_func_for_main_instance',None)
-            if break_condition_func_for_main_instance:
-    #             needdata ['cate'] = needdata['vof_dict']['product_id']['name']
-                print ("row************* break",row," needdata['vof_dict']['product_id']['name']", needdata['vof_dict']['product_id']['fields']['name']['val'])
-                break_condition_func_for_main_instance(needdata)
+            if  True:#getattr(self, 'allow_cate_for_ghi_chu',False):
+                break_condition_func_for_main_instance = some_var_para.get('break_condition_func_for_main_instance',None)
+                if break_condition_func_for_main_instance:
+                    break_condition_func_for_main_instance(needdata)
         obj_val = False
         get_or_create = False
         return obj_val,get_or_create
+    
+    
+    
     last_record_function = get_key_allow(MODEL_DICT, 'last_record_function', key_tram)
     if last_record_function:
         last_record_function(needdata)
@@ -325,6 +328,12 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
      
     
     return obj_val, get_or_create 
+def check_notice_dict_co_create_or_get(model_name,noti_dict):
+    print ('noti_dict***',noti_dict,'**model_name**',model_name)
+    adict = noti_dict.get(model_name,{})
+    if not adict.get('create') and not adict.get('update'):
+        raise UserError(u'các row bị bỏ qua hết không có dòng nào được tạo hoặc được update')
+    
 
 def importthuvien(odoo_or_self_of_wizard,
                   model_dict = False,
@@ -391,7 +400,7 @@ def importthuvien(odoo_or_self_of_wizard,
     ### end moi them  
     some_var_para = {}
 #     break_condition_func_for_main_instance  = CHOOSED_MODEL_DICT.get('break_condition_func_for_main_instance')
-    break_condition_func_for_main_instance  =get_key_allow(CHOOSED_MODEL_DICT,'break_condition_func_for_main_instance',key_tram)
+    break_condition_func_for_main_instance  = get_key_allow(CHOOSED_MODEL_DICT,'break_condition_func_for_main_instance',key_tram)
     some_var_para['break_condition_func_for_main_instance'] = break_condition_func_for_main_instance
     
     for sheet_name in sheet_names:
@@ -455,8 +464,12 @@ def importthuvien(odoo_or_self_of_wizard,
                               sheet_of_copy_wb = sheet_of_copy_wb,
                               some_var_para = some_var_para
                                )
+        model_name = model_name = get_key_allow(COPY_MODEL_DICT, 'model', key_tram)
+        check_notice_dict_co_create_or_get(model_name,noti_dict)
     if number_row_count:
         self.imported_number_of_row = number_row_count + 1
+        
+    
     last_import_function  = get_key_allow(CHOOSED_MODEL_DICT,'last_import_function',key_tram)
     if last_import_function:
         last_import_function(needdata,self)

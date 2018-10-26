@@ -107,7 +107,19 @@ def tinh_trang_(v,n):
         return u'tot'
     else:
         return u'hong'
-
+def ghi_chu_(v,n,self):
+    if getattr(self, 'allow_cate_for_ghi_chu',False):
+        return n.get('cate',False)
+    else:
+        return v
+    
+def ghi_chu_cate_all_key_tram_(v,n,self):
+    if True:#getattr(self, 'allow_cate_for_ghi_chu',False):
+        return n.get('cate',False)
+    else:
+        return False
+    
+    
 from odoo.addons.dai_tgg.models.model_dict_folder.model_dict_product import gen_product_model_dict
 from odoo.addons.dai_tgg.models.model_dict_folder.model_dict_user_department import gen_user_department_model_dict
 from odoo.addons.dai_tgg.models.model_dict_folder.model_dict_tvcv import  gen_tvcv_model_dict
@@ -154,17 +166,13 @@ def gen_model_dict(sml_title_row = False):
                     'last_import_function':{all_key_tram:last_import_function_all_,sml:None},
                     'last_record_function':{all_key_tram:last_record_function_all_,
                                                     key_ltk_dc:last_record_function_ltk_vtdc_,sml:None},
-                    'break_condition_func_for_main_instance':{all_key_tram:None,sml:break_condition_func_for_main_instance_,},
+                    'break_condition_func_for_main_instance':{#all_key_tram:None,
+                                                              all_key_tram:break_condition_func_for_main_instance_,},
                     'fields' : [
-                    ('stt',{'func':stt_, 'xl_title': {'key_ltk':u'STT new',
-                                                                'key_tti':u'STT',
-                                                                'key_ltk_dc':u'STT',
-                                                                 key_tti_dc: [u'Stt',u'Stt '],
-                                                                 sml:u'STT'
-                                                                 },
-                            'key':True, 'required':True,'skip_field_if_not_found_column_in_some_sheet':True ,
-                              }
-                     ),
+                        #first
+                        
+                        
+
                  
                  
                     ('barcode_for_first_read',{'empty_val':[u'NA',u"`"],
@@ -188,18 +196,7 @@ def gen_model_dict(sml_title_row = False):
                                                                 }),
                     
                     
-                    ('product_qty', {
-                                     'transfer_name':{sml:'qty_done'},
-                                     'func':qty_,'replace_val':{'key_ltk':{u'XFP, SFP các loại':[(False,1)]}},
-                                     'set_val':{'all_key_tram':None,
-                                                    'key_ltk_dc':1,
-                                                    key_tti_dc:1,
-                                                },
-                                     'xl_title':{'key_ltk':[u'Tồn kho cuối kỳ',u'Số lượng',u'Tồn kho cuối kỳ'],
-                                                   'key_tti':[u'Tồn kho cuối kỳ',u'Số lượng',u'Tồn kho cuối kỳ'],
-                                                   sml:[u'Số lượng',u'Số lượng',u'S/L']
-                                                 },
-                                     'key':False,'sheet_allow_this_field_not_has_exel_col':{'key_ltk':[u'XFP, SFP các loại']}}),
+                   
                     
                    
                    
@@ -232,7 +229,10 @@ thiết bị
                                             
                                             ('thiet_bi_id',{
                                                 'get_or_create_para':{'key_tti':{'not_update_field_if_instance_exist':True}},
-                                                'fields':[('name',{'skip_field_if_not_found_column_in_some_sheet':{sml:True},'func':None,
+                                                'fields':[('name',{
+                                                                'func':lambda v,n: str(v) if isinstance(v,float) else False,
+#                                                                     'type_allow':[float],
+                                                                   'skip_field_if_not_found_column_in_some_sheet':{sml:True},
                                                                                'xl_title':{'key_ltk':u'Thiết bị',
                                                                                            'key_tti':u'Thiết bị',
                                                                                            key_ltk_dc:u'Tên hệ thống thiết bị',
@@ -242,21 +242,22 @@ thiết bị'''
                                                                                            }, 
                                                                                'key':True,'required': True}),]}),
                                           
-                                            ('thiet_bi_id_tti',{'skip_this_field':{'key_ltk':True,
-                                                                                                 key_ltk_dc:True,
-                                                                                                 'key_tti':False,
-                                                                                                 key_tti_dc:True,
-                                                                                                 sml:True,
-                                                                                                 },
-                                                                    'fields':[('name',{'func':None,'xl_title':u'Thiết bị', 'key':True,'required': True}),]}),
-                                             
-                                            ('thiet_bi_id_ltk',{'skip_this_field':{'key_ltk':False,
-                                                                                                 key_ltk_dc:False,
-                                                                                                 'key_tti':True,
-                                                                                                 key_tti_dc:True,
-                                                                                                 sml:True},
-                                                                'fields':[('name',{'func':None,'xl_title':[u'Thiết bị',u'Tên hệ thống thiết bị'], 'key':True,'required': True}),]}),
-                                             
+#                                             ('thiet_bi_id_tti',{'skip_this_field':{'key_ltk':True,
+#                                                                                                  key_ltk_dc:True,
+#                                                                                                  'key_tti':False,
+#                                                                                                  key_tti_dc:True,
+#                                                                                                  sml:True,
+#                                                                                                  },
+#                                                                     'fields':[('name',{'func':None,'xl_title':u'Thiết bị', 'key':True,'required': True}),]}),
+#                                              
+#                                             ('thiet_bi_id_ltk',{'skip_this_field':{'key_ltk':False,
+#                                                                                                  key_ltk_dc:False,
+#                                                                                                  'key_tti':True,
+#                                                                                                  key_tti_dc:True,
+#                                                                                                  sml:True},
+#                                                                 'fields':[('name',{'func':None,'xl_title':[u'Thiết bị',u'Tên hệ thống thiết bị'], 'key':True,'required': True}),]}),
+#                                              
+                                          
                                             ('brand_id',{'empty_val':[u'NA'],'skip_this_field':{sml:True},
                                                                     'fields':[('name',{'func':lambda v,n: v.upper() if isinstance(v,str) else v,
                                                                                                 'xl_title':{'key_ltk':[u'Hãng sản xuất',u'Hãng / Model'],
@@ -311,14 +312,40 @@ thiết bị'''
                                             ('ghi_chu_ngay_xuat',{'func':lambda val,needdata: convert_float_to_ghi_chu_ngay_xuat(val) if not needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] else False,
                                                                   'xl_title':u'Ngày xuất','skip_field_if_not_found_column_in_some_sheet':True}),
                                             ('ghi_chu_ban_dau',{'func':lambda val,needdata: val if not needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] else False,
-                                                                'xl_title':[u'Ghi chú',u'Ghi chú - Mô tả thêm'],'skip_field_if_not_found_column_in_some_sheet':True}),
+                                                                'xl_title':[u'Ghi chú',u'Ghi chú - Mô tả thêm',u'diễn giải'],'skip_field_if_not_found_column_in_some_sheet':True}),
                                            
                                             ('du_phong_tao',{'skip_this_field':{sml:True},'set_val':lambda self: 'dc' not in self.key_tram }),
                                             ('dang_chay_tao',{'skip_this_field':{sml:True},'set_val':lambda self: 'dc'  in self.key_tram }),
                                             ('tram_ltk_tao',{'skip_this_field':{sml:True},'set_val':lambda self: (self.key_tram and 'ltk' in self.key_tram), 'bypass_this_field_if_value_equal_False':True }),
                                             ('tram_tti_tao',{'skip_this_field':{sml:True},'set_val': lambda self: (self.key_tram and 'tti' in self.key_tram), 'bypass_this_field_if_value_equal_False':True  }),
+                                            ('ghi_chu_cate',{'skip_this_field':{sml:True,all_key_tram:False},'func': {all_key_tram:ghi_chu_cate_all_key_tram_} }),
+                                            
                                             ]
                                    }),  
+                ('stt',{'func':stt_, 'xl_title': {'key_ltk':u'STT new',
+                                            'key_tti':u'STT',
+                                            'key_ltk_dc':u'STT',
+                                             key_tti_dc: [u'Stt',u'Stt '],
+                                             sml:u'STT'
+                                             },
+                        'key':True, 'required':True,'skip_field_if_not_found_column_in_some_sheet':True ,
+                      }
+             ),
+                                
+                 ('product_qty', {
+                                     'transfer_name':{sml:'qty_done'},
+                                     'func':qty_,'replace_val':{'key_ltk':{u'XFP, SFP các loại':[(False,1)]}},
+                                     'set_val':{'all_key_tram':None,
+                                                    'key_ltk_dc':1,
+                                                    key_tti_dc:1,
+                                                },
+                                     'xl_title':{'key_ltk':[u'Tồn kho cuối kỳ',u'Số lượng',u'Tồn kho cuối kỳ'],
+                                                   'key_tti':[u'Tồn kho cuối kỳ',u'Số lượng',u'Tồn kho cuối kỳ'],
+                                                   sml:[u'Số lượng',u'Số lượng',u'S/L']
+                                                 },
+                                     'key':False,'sheet_allow_this_field_not_has_exel_col':{'key_ltk':[u'XFP, SFP các loại']}}),
+                                
+                                
                    
                 ('pn_id',{ 'offset_write_xl':{sml:2},'model':'tonkho.pn','string':u'Mã vật tư',
                                                                   'fields':[
@@ -440,8 +467,8 @@ thiết bị'''
                     ('tinh_trang',{'skip_this_field':{sml:False,all_key_tram:True},'set_val': {all_key_tram:u'tot',  sml:None},'xl_title':  {all_key_tram:None,  sml:[u'T/T',u'Tình trạng']},
                                                                    'skip_field_if_not_found_column_in_some_sheet':True,
                                                                    'func':tinh_trang_}),
-                    ('ghi_chu',{'skip_this_field':{sml:False,all_key_tram:True},'func': lambda v,n:n.get('cate',False)}),
-                    
+                    ('ghi_chu',{'xl_title':u'ghi chú','func': {'sml':ghi_chu_,all_key_tram:None},'skip_field_if_not_found_column_in_some_sheet':True }),
+#                     ('ghi_chu_cate',{'skip_this_field':{sml:True,all_key_tram:False},'func': {all_key_tram:ghi_chu_cate_all_key_tram_} }),
                     ('prod_lot_id', {'offset_write_xl':{sml:3},'transfer_name':{sml:'lot_id'},'key':True,'string':u'Serial number',
                                       'fields':[
                                                     ('name',{'type_allow':[int],'required':{all_key_tram:True,  sml+ '_not_create':False},'func':lambda val,needdata: needdata['vof_dict']['prod_lot_id_excel_readonly']['val'],'key':True}),
@@ -466,6 +493,7 @@ thiết bị'''
                                                    #copy
                                                     ('ghi_chu_ngay_nhap',{'func':lambda v,n: convert_float_to_ghi_chu_ngay_xuat(n['vof_dict']['product_id']['fields']['ghi_chu_ngay_nhap']['before_func_val'])}),
                                                     ('ghi_chu_ban_dau',{'func':lambda v,n: convert_float_to_ghi_chu_ngay_xuat(n['vof_dict']['product_id']['fields']['ghi_chu_ban_dau']['before_func_val'])}),
+                                          
                                           ]
                                       }),
                                 

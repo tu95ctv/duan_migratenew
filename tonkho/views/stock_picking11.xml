@@ -41,9 +41,11 @@
                 </xpath>
                 <xpath expr="//button[@name='do_print_picking']" position="replace"></xpath>
                 <xpath expr="//button[@name='action_toggle_is_locked']" position="after">
+                    <!-- 
                     <button name="ghom_stock_move_lines" string="Tạo Bản In" type="object" />
                     <button name="xem_print_theo_move_line" string="Xem biên bản html" type="object" class="btn-primary" />
                     <button name="xem_print_pdf" string="Xem biên bản pdf" type="object" />
+                    -->
                     <button name="download_xl_bbbg" string="Download BBBG Excel " type="object" class="btn-primary" />
                 </xpath>
                 <field name="location_id" position="replace">
@@ -229,6 +231,7 @@
                             <!--   <field name="title_row_for_import" /> -->
                             <field name="is_ghom_tot" />
                             <field name="is_set_tt_col" />
+                            <field name="allow_cate_for_ghi_chu" />
                             <field name="file" filename="filename" />
                             <field name="filename" invisible="1" />
                             <field name="file_dl" readonly="1" filename="file_dl_name" />
@@ -256,17 +259,29 @@
                     <attribute name="invisible">1</attribute>
                 </field>
                 <field name="scheduled_date" position="before">
-                    <field name="ma_bien_ban" />
+                    
                     <field name="id" />
                     <field name="ly_do" />
-                    <field name="date" string="Ngày biên bản" />
+                    <field name="ma_bien_ban" />
+					<field name="department_id" />
                 </field>
+                <!-- 
                 <xpath expr="//field[@name='location_dest_id']" position="before">
                     <field name="department_id" />
-                    <field name="location_id" />
                     <field name="loai_tra_hay_chuyen_tiep" />
                     <field name="origin_pick_id" />
+                    <field name="location_id" />
                 </xpath>
+                 -->
+                <xpath expr="//field[@name='location_dest_id']" position="before">
+            		<field name="date" string="Ngày biên bản" />
+                    <field name="location_id" />
+                </xpath>
+                  <xpath expr="//field[@name='location_dest_id']" position="after">
+			                    <field name="loai_tra_hay_chuyen_tiep" />
+			                    <field name="origin_pick_id" />
+                     </xpath>
+                        
                 <field name="backorder_id" position="replace" />
                 <field name="partner_id" position="replace" />
                 <field name="origin" position="replace" />

@@ -7,6 +7,7 @@ from odoo.tools import float_utils
 
 class InventoryLine(models.Model):
     _inherit = "stock.inventory.line"
+    ghi_chu_cate = fields.Text(related='product_id.ghi_chu_cate',store=True)
     categ_id = fields.Many2one('product.category', related='product_id.categ_id',store=True,string=u'Nhóm')
     thiet_bi_id = fields.Many2one('tonkho.thietbi', related='product_id.thiet_bi_id',store=True)
     brand_id = fields.Many2one('tonkho.brand', related='product_id.brand_id',store=True)

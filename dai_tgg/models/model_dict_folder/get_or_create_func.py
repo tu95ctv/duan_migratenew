@@ -100,11 +100,11 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
             search_dict_new[f_name]=val
         if not not_create:
             created_object = self.env[class_name].create(search_dict_new)
-            if this_model_noti_dict !=None:
-                this_model_noti_dict['create'] = this_model_noti_dict.get('create', 0) + 1
+            
         else:
             created_object = False
-        
+        if this_model_noti_dict !=None:
+                this_model_noti_dict['create'] = this_model_noti_dict.get('create', 0) + 1
         return_obj =  created_object
     else:
         for f_name,val in write_dict.items():

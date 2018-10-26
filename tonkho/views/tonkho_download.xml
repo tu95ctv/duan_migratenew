@@ -8,7 +8,7 @@
                     <sheet>
                         <group>
                             <field name="name" invisible="1"></field>
-                            <field name="parent_location_id" attrs="{'invisible':[('model_name','!=','product.product'),('model_name','!=','product.template')]}"></field>
+                            <field name="parent_location_id" ></field><!-- attrs="{'invisible':[('model_name','!=','product.product'),('model_name','!=','product.template')]}" -->
                             <field name="parent_location_runing_id" attrs="{'invisible':[('model_name','!=','product.product'),('model_name','!=','product.template')]}"></field>
                             <!-- <field name="ngay_bat_dau_filter"></field>
          	  	<field name="ngay_ket_thuc_filter"></field> -->

@@ -160,7 +160,7 @@ class StockPicking(models.Model):
     
     is_quyen_chuyen_tiep =  fields.Boolean(compute='is_quyen_chuyen_tiep_')
     is_quyen_huy_bb =  fields.Boolean(compute='is_quyen_huy_bb_')
-    
+    allow_cate_for_ghi_chu =  fields.Boolean()
     @api.one
     def is_quyen_huy_bb_(self):
         self.is_quyen_huy_bb = self.user_has_groups('base.group_erp_manager') or (self.env.user == self.create_uid)

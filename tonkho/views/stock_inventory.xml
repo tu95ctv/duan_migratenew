@@ -38,6 +38,7 @@
 		          		<xpath expr="//field[@name='line_ids']/tree/field[@name='prod_lot_id']" position="after">
 		          			<field name="barcode_sn"></field>
 		          			<field name="ghi_chu"></field>
+		          			<field name="ghi_chu_cate"></field>
 		          		 </xpath>
 		          		 <xpath expr="//field[@name='line_ids']/tree/field[@name='prod_lot_id']" position="attributes">
 		          			<attribute name="attrs">{'invisible':[('tracking','=','none')]}</attribute>

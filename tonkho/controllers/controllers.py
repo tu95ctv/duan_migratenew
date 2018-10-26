@@ -30,7 +30,7 @@ class DownloadQuants(http.Controller):
         call_func = pick_func[model]
         workbook,name = call_func(dj_obj,active_domain)
        
-        name = unidecode(name)
+        name = unidecode(name).replace(' ','_')
         response = request.make_response(None,
             headers=[('Content-Type', 'application/vnd.ms-excel'),
                     ('Content-Disposition', 'attachment; filename=%s;target=blank' %name)],

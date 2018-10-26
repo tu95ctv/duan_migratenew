@@ -84,6 +84,9 @@ def table_(ws,f_name,fixups,needdata,row,dl_obj,IS_SET_TT_COL=False,all_tot_and_
 
 def to_trinh_(ws,f_name,fixups,needdata,row,dl_obj):
     return (u'Căn cứ vào tờ trình ' + dl_obj.totrinh_id.get_names_for_report() )if  dl_obj.totrinh_id else u''
+def ly_do_(ws,f_name,fixups,needdata,row,dl_obj):
+    return (u'Lý do: ' + dl_obj.ly_do )if  dl_obj.ly_do else u''
+
 
 def hom_nay_(ws,f_name,fixups,needdata,row,dl_obj):
     return u'Hôm nay, ngày: ' + convert_odoo_datetime_to_vn_str(dl_obj.date,format='%d/%m/%Y') + u', Tại: ' + dl_obj.noi_ban_giao.name
@@ -161,6 +164,7 @@ def write_xl_bb(dl_obj):
                     ('ong_ba',{'range':['auto', 0],'val':None, 'func':ong_ba_}),
                     ('ddbn',{'range': ['auto', 0],'val':u'Đại diện bên nhận (%s)'%(dl_obj.location_dest_id.partner_id_of_stock_for_report.name),'offset':2}),
                     ('ong_ba2',{'range':['auto', 0], 'val':None,  'func':ong_ba_,'kargs':{'source_member_ids':'dest_member_ids'}}),
+                    ('ly_do',{'range': ['auto', 0],'val':None,'val_func':ly_do_,}),
                     ('bg',{'range': ['auto', 0],'val':u'Chúng tôi đã tiến hành bàn giao vật tư bên dưới'}),
                     ('table',{'range':['auto', 0],'val':None,'func':table_ ,'offset':2 ,'kargs': {'IS_SET_TT_COL':IS_SET_TT_COL,'all_tot_and_ghom_all_tot':all_tot_and_ghom_all_tot}}),
                     ('tinh_trang_vat_tu',{'range': ['auto', 0],'val':None,'val_func':tinh_trang_vat_tu_,'offset':2}),

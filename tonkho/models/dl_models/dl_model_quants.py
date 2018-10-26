@@ -60,7 +60,7 @@ def download_quants(dl_obj,append_domain = []):
                              append_domain=append_domain
                             )
     else:
-        filename = 'so_luong_trong_kho_moi_loai_moi_sheet%s'%dl_obj.parent_location_id.name
+        filename = 'so_luong_trong_kho_moi_loai_moi_sheet_%s'%dl_obj.parent_location_id.name
         name = "%s%s" % (filename, '.xls')
         Quant = request.env['stock.quant']#.search([])
         cates = Quant.search(append_domain).mapped('categ_id')
