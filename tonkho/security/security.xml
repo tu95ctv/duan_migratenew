@@ -6,7 +6,7 @@
         <field ref="model_stock_picking" name="model_id"/>
         <field name="domain_force">[('ban_giao_or_nghiem_thu','not in',['HUY'])]</field>
         <field name="groups" eval="[(4, ref('base.group_user'))]"/>
-        <field name="perm_read" eval="True" />
+        <field name="perm_read" eval="False" />
   </record>
   
   

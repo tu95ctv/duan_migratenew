@@ -45,6 +45,8 @@ def download_model(dl_obj,
     order = Export_Para.get('search_para',{})
     squants = request.env[exported_model].search(domain,**order)
     row_index = ROW_TITLE + 1
+    if not squants:
+        return workbook
     for r in squants:#request.env['cvi'].search([]):
         add_1_row_squant(worksheet,r, FIELDNAME_FIELDATTR, row_index, offset_column=OFFSET_COLUMN,needdata=needdata,save_ndata=True)
         row_index +=1
@@ -52,7 +54,8 @@ def download_model(dl_obj,
     return workbook
 
 
-def add_1_row_squant(worksheet,r ,FIELDNAME_FIELDATTR, row_index, offset_column=0, f_name_slit_parrent = None, needdata=None,save_ndata=False):
+def add_1_row_squant(worksheet,r ,FIELDNAME_FIELDATTR, row_index, offset_column=0, f_name_slit_parrent = None,
+                      needdata=None,save_ndata=False):
     if save_ndata:
         a_instance_dict =  needdata.get('a_instance_dict', {})
     else:
@@ -97,15 +100,12 @@ def add_1_row_squant(worksheet,r ,FIELDNAME_FIELDATTR, row_index, offset_column=
             one_field_val['split'] = a_instance_dict
             col_index +=writen_column_number_children
     return a_instance_dict, writen_column_number
-
-
 def add_title(worksheet,FIELDNAME_FIELDATTR,model_fields,ROW_TITLE=0, offset_column=0,
                is_set_width = True,
 #               is_auto_width = True,
 #                for_len_adj = False
                ):
     writen_column_number = 0
-#     column_index = 0
     column_index = offset_column
     for f_name, FIELDATTR in  FIELDNAME_FIELDATTR.items():
         is_not_model_field = FIELDATTR.get('is_not_model_field')
@@ -122,20 +122,17 @@ def add_title(worksheet,FIELDNAME_FIELDATTR,model_fields,ROW_TITLE=0, offset_col
                 field = model_fields[f_name]
                 f_string = field.string
         if write_to_excel:
-#             if not for_len_adj:
             worksheet.write(ROW_TITLE, column_index, f_string, header_bold_style)
             writen_column_number += 1
-            
-#             width  = FIELDATTR.get('width',0)
-#             if  for_len_adj:
-
             if is_set_width:
+                
                 width  = get_width(FIELDATTR.get('max_len_field_val') + 2) #or width
                 f_string_width = get_width(len(f_string) + 2)
                 if f_string_width > width:
                     width = f_string_width
+                    
+                    
                 worksheet.col(column_index).width = width
-           
             column_index +=1
         else:
             pass

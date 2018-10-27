@@ -111,8 +111,8 @@ def download_model_new_ml(dl_obj, Export_Para=None,workbook=None,append_domain=N
         domain.extend(append_domain)  
     order = Export_Para.get('search_para',{})
     print ('order',order)
-    all_objs = request.env[exported_model].search(domain,order='stt asc')
-    all_objs = all_objs.sorted(key=lambda r: r.move_line_ids[0].stt)
+    all_objs = request.env[exported_model].search(domain,**order)
+#     all_objs = all_objs.sorted(key=lambda r: r.move_line_ids[0].stt)
     model_fields = request.env[exported_model]._fields
     
     
@@ -236,7 +236,7 @@ def download_ml_for_bb(dl_obj,workbook=None,append_domain=None,sheet_name=None,w
         'exported_model':'stock.move',
         'FIELDNAME_FIELDATTR':FIELDNAME_FIELDATTR_ML,
         'gen_domain':gen_domain_sml,
-        'search_para':{'order': 'stt desc'},#desc
+        'search_para':{'order': 'id asc'},#desc
         }
     
     return download_model_new_ml(dl_obj, Export_Para=Export_Para_ml, append_domain=append_domain,

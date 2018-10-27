@@ -164,7 +164,7 @@ def write_xl_bb(dl_obj):
                     ('ong_ba',{'range':['auto', 0],'val':None, 'func':ong_ba_}),
                     ('ddbn',{'range': ['auto', 0],'val':u'Đại diện bên nhận (%s)'%(dl_obj.location_dest_id.partner_id_of_stock_for_report.name),'offset':2}),
                     ('ong_ba2',{'range':['auto', 0], 'val':None,  'func':ong_ba_,'kargs':{'source_member_ids':'dest_member_ids'}}),
-                    ('ly_do',{'range': ['auto', 0],'val':None,'val_func':ly_do_,}),
+                    ('ly_do',{'range': ['auto', 'auto', 0,7],'val':None,'val_func':ly_do_,}),
                     ('bg',{'range': ['auto', 0],'val':u'Chúng tôi đã tiến hành bàn giao vật tư bên dưới'}),
                     ('table',{'range':['auto', 0],'val':None,'func':table_ ,'offset':2 ,'kargs': {'IS_SET_TT_COL':IS_SET_TT_COL,'all_tot_and_ghom_all_tot':all_tot_and_ghom_all_tot}}),
                     ('tinh_trang_vat_tu',{'range': ['auto', 0],'val':None,'val_func':tinh_trang_vat_tu_,'offset':2}),
@@ -224,7 +224,7 @@ def write_xl_bb(dl_obj):
                     ws.write_merge(xrange[0], xrange[1],xrange[2], xrange[3], val, style)
                 needdata['cr'] = xrange[0]
                 
-        height =  field_attr.get('height')
+        height =  field_attr.get('height',400)
         if height != None:
             ws.row(row).height_mismatch = True
             ws.row(row).height = height

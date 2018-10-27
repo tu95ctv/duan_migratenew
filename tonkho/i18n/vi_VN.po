@@ -289,7 +289,7 @@ msgid "state"
 msgstr "Tiến trình"
 
 #. module: stock
-#: model:ir.ui.menu,name:stock.menu_stock_uom_form_action
+#: model:ir.ui.menu,name:stock.menu_stock_uom_form_actionmơi
 #: model:ir.ui.view,arch_db:stock.stock_inventory_line_tree2
 #: model:ir.ui.view,arch_db:stock.view_inventory_form
 msgid "UoM"
@@ -336,3 +336,12 @@ msgstr "Trả vật tư"
 #: model:ir.model.fields,field_description:stock.field_stock_location_complete_name
 msgid "Full Location Name kaka"
 msgstr "Tên kho đầy đủ"
+
+
+
+#. module: stock
+#: model:ir.ui.menu,name:stock.menu_stock_root
+msgid "Inventory"
+msgstr "Vật tư"
+
+

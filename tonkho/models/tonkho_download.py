@@ -60,13 +60,17 @@ class DownloadQuants(models.TransientModel):
         res = super(DownloadQuants, self).fields_view_get(
             view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
         doc = etree.XML(res['arch'])
+        
+        
+        
         if view_type =='form':
-            active_model = self._context['active_model']
-            active_model = active_model.split('.')[1]
             nodes =  doc.xpath("//button[@name='download_all_model']")
             if len(nodes):
                 node = nodes[0]
-                node.set('string', "Download %s"%active_model)
+                active_model = self._context['active_model']
+                active_model = active_model.split('.')[1]
+                translate_dict_for_model = {'quant':u'Số lượng trong kho','product':u'Vật tư'}
+                node.set('string', "Download %s"%translate_dict_for_model.get(active_model,active_model))
         res['arch'] = etree.tostring(doc, encoding='unicode')
         return res
     
@@ -106,6 +110,7 @@ class DownloadQuants(models.TransientModel):
                 'view_mode': 'form',
                 'view_type': 'form',
                 'res_id': dl_obj.id,
+                'context':{'active_model':model},
                 'views': [(False, 'form')],
                 'target': 'new',
             }

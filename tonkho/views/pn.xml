@@ -37,6 +37,8 @@
         </record>
         <menuitem name="Part Number" id="pn_menu" parent="stock.menu_stock_inventory_control" action="pn_action" sequence="1" />
         
+      
+      <!-- 
          <record model="ir.actions.act_window" id="pn_actioncon">
             <field name="name">Part Number</field>
             <field name="res_model">tonkho.pncon</field>
@@ -44,7 +46,7 @@
             <field name="view_mode">tree,form</field>
         </record>
         <menuitem name="Part Number" id="pn_menucon" parent="stock.menu_stock_inventory_control" action="pn_actioncon" sequence="1" />
-        
+         -->
         
     </data>
 </odoo>

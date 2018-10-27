@@ -17,7 +17,7 @@
          	   <field name="test"></field>  -->
                             <field name="data" readonly="1" filename="name" />
                             <!--  <field name="domain_text"></field>  -->
-                            <field name="model_name" readonly="1"></field>
+                         <field name="model_name" invisible="1"></field> 
                         </group>
                     </sheet>
                     <footer>

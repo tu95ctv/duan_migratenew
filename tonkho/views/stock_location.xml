@@ -71,8 +71,23 @@
     </record>
     -->
     
-    
-    
+    <record id="view_location_search" model="ir.ui.view">
+        <field name="name">stock.location.search</field>
+        <field name="model">stock.location</field>
+        <field name="inherit_id" ref="stock.view_location_search"></field>
+        <field name="arch" type="xml">
+        <!-- 
+                <field name="name" string="Stock Locations"/> -->
+                <filter name="customer" position="replace"/>
+               <!-- <filter name="supplier" string="Vendor" domain="[('usage', '=', 'supplier')]" help="Vendor Locations"/> --> 
+                <field name="location_id"  position="replace"/>
+                <filter name="inactive" position="replace">
+                <filter name="department_id" string="group theo đơn vị" context="{'group_by':'department_id'}"/>
+                </filter>
+        </field>
+        
+        
+    </record>
         <menuitem action="stock.action_location_form" id="menu_action_location_form" name="Các địa điểm"
          parent="stock.menu_stock_inventory_control"  sequence="12" /><!-- groups="stock.group_stock_multi_locations" -->
 </data>

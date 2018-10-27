@@ -9,7 +9,7 @@ from odoo.addons.tonkho.tonkho_tool import  KHO_SELECTION, KHO_SELECTION_DICT
 class StockLocation(models.Model):
     _inherit = 'stock.location'
     _rec_name = 'complete_name'
-    department_id =  fields.Many2one('hr.department',string=u'Thuộc phòng ban')
+    department_id =  fields.Many2one('hr.department',string=u'Thuộc phòng ban', default= lambda self: self.env.user.department_id.id)
     partner_id_of_stock_for_report =  fields.Many2one('res.partner',string=u'Phòng ban cho báo cáo')
     cho_phep_am =  fields.Boolean(default=True,string=u'Cho phép số lượng âm')
     cho_phep_khac_tram_chon =  fields.Boolean(string=u'Cho phép khác trạm chọn')

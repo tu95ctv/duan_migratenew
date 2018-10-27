@@ -4,6 +4,7 @@ from odoo import api, fields, models, _
 from odoo.addons import decimal_precision as dp
 from odoo.exceptions import UserError
 from odoo.tools.float_utils import float_round
+from lxml import etree
 
 class ReturnPickingLine(models.TransientModel):
     _inherit = "stock.return.picking.line"
@@ -139,6 +140,30 @@ class ReturnPicking(models.TransientModel):
             'origin_returned_move_id': return_line.ml_id.id,
         }
         return vals
+    
+    
+    
+        
+    @api.model
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+        res = super(ReturnPicking, self).fields_view_get(
+            view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        doc = etree.XML(res['arch'])
+        if view_type =='form':
+            nodes =  doc.xpath("//button[@name='create_returns']")
+            if len(nodes):
+                node = nodes[0]
+#                 active_model = self._context['active_model']
+#                 active_model = active_model.split('.')[1]
+#                 translate_dict_for_model = {'quant':u'Số lượng trong kho','product':u'Vật tư'}
+                default_loai_tra_hay_chuyen_tiep = self._context.get('default_loai_tra_hay_chuyen_tiep','tra_do_muon')
+                if default_loai_tra_hay_chuyen_tiep =='tra_do_huy':
+                    node.set('string', "Hủy BB")
+                    node.set( 'class',"btn-danger")
+        res['arch'] = etree.tostring(doc, encoding='unicode')
+        return res
+    
+    
 
     
     

@@ -21,10 +21,10 @@ class PN(models.Model):
     dang_chay_tao = fields.Boolean()
     du_phong_tao = fields.Boolean()
     
-class PNCon(models.Model):
-    _name = 'tonkho.pncon'
-    _inherits = {'tonkho.pn': 'pn_id'}
-    name2 = fields.Char()
+# class PNCon(models.Model):
+#     _name = 'tonkho.pncon'
+#     _inherits = {'tonkho.pn': 'pn_id'}
+#     name2 = fields.Char()
 class ThietBi(models.Model):
     _name = 'tonkho.thietbi'
     name = fields.Char()

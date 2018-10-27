@@ -53,14 +53,14 @@ Export_Para_quants = {
 def download_quants(dl_obj,append_domain = []):
     if not dl_obj.is_moi_sheet_moi_loai:
 #         return download_quants_chung_sheet(dl_obj)
-        filename = 'so_luong_trong_kho_%s'%dl_obj.parent_location_id.name
+        filename = 'quants_%s'%dl_obj.parent_location_id.name
         name = "%s%s" % (filename, '.xls')
         workbook =  download_model(dl_obj,
                              Export_Para=Export_Para_quants,
                              append_domain=append_domain
                             )
     else:
-        filename = 'so_luong_trong_kho_moi_loai_moi_sheet_%s'%dl_obj.parent_location_id.name
+        filename = 'quants_cate_%s'%dl_obj.parent_location_id.name
         name = "%s%s" % (filename, '.xls')
         Quant = request.env['stock.quant']#.search([])
         cates = Quant.search(append_domain).mapped('categ_id')

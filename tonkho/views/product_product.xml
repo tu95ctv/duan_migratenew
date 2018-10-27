@@ -89,11 +89,35 @@
                 </field>
             </field>
         </record>
+        
+         <record id="product_search_form_view_tonkho" model="ir.ui.view">
+            <field name="name">product.product.search</field>
+            <field name="model">product.product</field>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+              <search>
+              		<field name="name"></field>
+                    <field string="Tìm vật tư có trong kho" name="stock_location_id_selection" filter_domain="[('quant_ids.quantity','&gt;=',1),('quant_ids.location_id','ilike',self)]" />
+              		<group>
+              		 <filter name="group_by_tracking" string="Có SN hay Không" domain="[]" context="{'group_by':'tracking'}" />
+                    <filter name="group_by_uom_id" string="Đơn vị tính" domain="[]" context="{'group_by':'uom_id'}" />
+                    <filter string="Vật tư có tồn tại trong bất cứ kho nào" name="quant_ids" domain="[('quant_ids.quantity','&gt;=',1)]" />
+                    <filter string="Vật tư không  có số lượng" name="quant_ids" domain="[('quant_ids','=',False)]" />
+                    <field string="Tìm vật tư có trong kho này" name="stock_location_id_selection" filter_domain="[('quant_ids.quantity','&gt;=',1),('quant_ids.location_id','ilike',self)]" />
+                    </group>
+              </search>
+            </field>
+        </record>
+        
+        
+        
         <record model="ir.actions.act_window" id="product_product_action">
             <field name="name">Vật tư</field>
             <field name="res_model">product.product</field>
             <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="product_search_form_view_tonkho"></field>
         </record>
+        
         <menuitem id="product_product_menu" parent="stock.menu_stock_inventory_control" action="product_product_action" name="Vật tư" sequence="1" />
     </data>
 </odoo>

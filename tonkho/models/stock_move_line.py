@@ -87,3 +87,14 @@ class StockMoveLine(models.Model):
             if r.lot_id:
                 if r.lot_id.product_id != r.product_id:
                     raise ValidationError(u'product_id ở lot_id khác với product_id')
+                
+    @api.constrains('location_id','location_dest_id')
+    def location_id_dest_location_id_(self):
+        for r in self:
+            if r.location_id ==r.location_dest_id:
+                raise UserError(u'Địa điểm đích và địa điểm nguồn không được giống nhau')
+        
+        
+                        
+                
+                
