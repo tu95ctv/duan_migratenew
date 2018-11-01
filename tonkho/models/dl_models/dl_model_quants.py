@@ -23,9 +23,13 @@ def gen_domain_stock_quant(dl_obj):
     if dl_obj.parent_location_id:
         domain.append(('location_id','child_of',dl_obj.parent_location_id.id))
     return domain
-FIELDNAME_FIELDATTR_quants = [
+
+    
+def download_quants(dl_obj,append_domain = []):
+    
+    FIELDNAME_FIELDATTR_quants = [
          ('stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_}),
-         ('stt',{}),
+         ('stt',{'skip_field':not dl_obj.is_not_skip_field_stt}),
          ('product_id',{'func':lambda v,n: v.name,'width':get_width(50)}),
          ('thiet_bi_id',{'func':lambda v,n: v.name,'width':get_width(20)}),
          ('brand_id',{'func':lambda v,n: v.name}),
@@ -43,16 +47,14 @@ FIELDNAME_FIELDATTR_quants = [
              ]}),
           ('quantity',{'width':get_width(40)}),
                     ]
-Export_Para_quants = {
-    'exported_model':'stock.quant',
-    'FIELDNAME_FIELDATTR':FIELDNAME_FIELDATTR_quants,
-    'gen_domain':gen_domain_stock_quant,
-    'search_para':{'order': 'stt asc'},#desc
-    }
+    Export_Para_quants = {
+        'exported_model':'stock.quant',
+        'FIELDNAME_FIELDATTR':FIELDNAME_FIELDATTR_quants,
+        'gen_domain':gen_domain_stock_quant,
+        'search_para':{'order': 'stt asc'},#desc
+        }
     
-def download_quants(dl_obj,append_domain = []):
     if not dl_obj.is_moi_sheet_moi_loai:
-#         return download_quants_chung_sheet(dl_obj)
         filename = 'quants_%s'%dl_obj.parent_location_id.name
         name = "%s%s" % (filename, '.xls')
         workbook =  download_model(dl_obj,
@@ -80,39 +82,4 @@ def download_quants(dl_obj,append_domain = []):
         
     
 
-
-# def download_quants_chung_sheet(dl_obj,workbook=None,
-#                                 append_domain=None,
-#                                 sheet_name=None):
-#     filename = 'quants-%s'%dl_obj.parent_location_id.name
-#     name = "%s%s" % (filename, '.xls')
-#     wb =  download_model(dl_obj,
-#                          Export_Para=Export_Para_quants,
-#                          append_domain=append_domain,
-#                          workbook=workbook,
-#                          sheet_name=sheet_name)
-#     return wb,name
-# # def download_quants_moi_cage_moi_sheet(dl_obj):
-# #     filename = 'quants_moi_cate_moi_sheet%s'%dl_obj.parent_location_id.name
-# #     name = "%s%s" % (filename, '.xls')
-# #     Quant = request.env['stock.quant']#.search([])
-# #     cates = Quant.search([]).mapped('categ_id')
-# #     workbook = xlwt.Workbook()
-# #     for cate in cates:
-# #         download_quants_chung_sheet(dl_obj,workbook=workbook,append_domain=[('categ_id','=',cate.id)],sheet_name=cate.name)
-# #     return workbook,name
-# def download_quants_moi_cage_moi_sheet(dl_obj):
-#     filename = 'quants_moi_cate_moi_sheet%s'%dl_obj.parent_location_id.name
-#     name = "%s%s" % (filename, '.xls')
-#     Quant = request.env['stock.quant']#.search([])
-#     cates = Quant.search([]).mapped('categ_id')
-#     workbook = xlwt.Workbook()
-#     for cate in cates:
-# #         download_quants_chung_sheet(dl_obj,workbook=workbook,append_domain=[('categ_id','=',cate.id)],sheet_name=cate.name)
-#         download_model(dl_obj,
-#                          Export_Para=Export_Para_quants,
-#                          append_domain=[('categ_id','=',cate.id)],
-#                          workbook=workbook,
-#                          sheet_name=cate.name)
-#     return workbook,name
 

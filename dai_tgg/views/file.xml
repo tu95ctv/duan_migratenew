@@ -23,6 +23,7 @@
                      <field name="name" />
                      <field name="file" filename="name" />
                      <field name="mo_ta" />
+                     <field name="image" widget="image" />
                   </group>
                </sheet>
             </form>
@@ -36,6 +37,7 @@
                <field name="name" />
                <field name="file" />
                <field name="mo_ta" />
+               <field name="image"/>
             </tree>
          </field>
       </record>

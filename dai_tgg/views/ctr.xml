@@ -46,7 +46,7 @@
                      <page string="Công Việc/Sự Cố/Sự Vụ">
                         <!--   <field name="cvi_ids" context="{'active_ctr_id':active_id,'tree_view_ref':'dai_tgg.cvi_list_sample'}" 
                         domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('department_ids','=',department_id)]" /> -->
-                        <field name="cvi_ids" context="{'active_ctr_id':active_id}" domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('department_ids','=',department_id)]" />
+                        <field name="cvi_ids" context="{'active_ctr_id':active_id,'member_ids':member_ids}" domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('department_ids','=',department_id)]" />
                      </page>
                      <page string="Nhận Ca, Giao Ca">
                         <!-- 'tree_view_ref':'dai_tgg.comment_list_has_ctr', -->
@@ -63,7 +63,7 @@
                         </group>
                         <group>
                            <!-- 'tree_view_ref':'dai_tgg.comment_list','form_view_ref':'dai_tgg.comment_form', -->
-                           <field name="giao_ca_ids" context="{  'default_loai_record':'Comment',  'loai_record_more':['Công Việc'], 'giao_ca_context':True,'comment_context':True,}" domain="[('loai_record','=','Comment')]">
+                           <field name="giao_ca_ids" context="{  'default_loai_record':'Comment',  'loai_record_more':['Công Việckakkaa'], 'giao_ca_context':True}" domain="[('loai_record','=','Comment')]">
                               <tree>
                                  <field name="gio_bat_dau" />
                                  <field name="gio_ket_thuc" />
@@ -102,7 +102,7 @@
          <field name="groups" eval="[(4, ref('base.group_user'))]" />
          <field name="view_mode">tree,form</field>
       </record>
-      <menuitem name="Công Việc/Trực" id="ctrtvcv_icon" web_icon="dai_tgg,static/src/image/customers-icon-18.png" />
+      <menuitem name="Công Việc/Trực" id="ctrtvcv_icon" web_icon="dai_tgg,static/src/image/customers-icon-18.png" sequence="2"/>
       <menuitem name="Menu Ca trực" id="ctrmenu_menu" parent="ctrtvcv_icon" action="ctr_action" sequence="2" />
       <menuitem name="Ca trực" id="ctr_menu" parent="ctrmenu_menu" action="ctr_action" sequence="1" />
    </data>

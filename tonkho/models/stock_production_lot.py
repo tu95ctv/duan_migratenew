@@ -9,7 +9,7 @@ class StockProductionLot(models.Model):
     _sql_constraints = [
         ('name_ref_uniq', 'unique (name, product_id,barcode_sn)', 'The combination of serial number and product must be unique !'),
     ]
-    _rec_name = 'complete_name'
+#     _rec_name = 'complete_name'
     name = fields.Char(
         'Lot/Serial Number', 
 #         default=lambda self: self.env['ir.sequence'].next_by_code('stock.lot.serial'),
@@ -17,7 +17,7 @@ class StockProductionLot(models.Model):
         required=True, help="Unique Lot/Serial Number")
      
 #     pn = fields.Char(string=u'Part Number')
-    pn_id = fields.Many2one('tonkho.pn',string=u'Partnumber',domain="[('product_id','=',product_id)]")
+    pn_id = fields.Many2one('tonkho.pn',string=u'Part number',domain="[('product_id','=',product_id)]")
 #     ghi_chu = fields.Text(string=u'Ghi chú',store=True)
     ghi_chu = fields.Text(string=u'Ghi chú từ dòng điều chuyển',compute='ghi_chu_',store=True)
     ghi_chu_ban_dau =  fields.Text(string=u'Ghi Chú ban đầu')
@@ -28,16 +28,18 @@ class StockProductionLot(models.Model):
 #     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',store=True, string=u'Tình trạng')
     # THÊM VÀO ĐỂ COI DỊCH CHUYỂN KHO, KHÔNG PHẢI KẾ THỪA
     barcode_sn = fields.Char()
-    complete_name = fields.Char(compute='complete_name_',store=True)
-    trig_field = fields.Boolean()
-    @api.depends('barcode_sn','name','trig_field')
-    def complete_name_(self):
-        for r in self:
-            if 'use barcode' in  r.name:
-                if r.barcode_sn:
-                    r.complete_name = u'Barcode: ' + r.barcode_sn
-            else:
-                r.complete_name = r.name
+   
+    
+#     complete_name = fields.Char(compute='complete_name_',store=True)
+#     trig_field = fields.Boolean()
+#     @api.depends('barcode_sn','name','trig_field')
+#     def complete_name_(self):
+#         for r in self:
+#             if 'use barcode' in  r.name:
+#                 if r.barcode_sn:
+#                     r.complete_name = u'Barcode: ' + r.barcode_sn
+#             else:
+#                 r.complete_name = r.name
         
     def action_view_stock_move_lines(self):
         self.ensure_one()
@@ -69,14 +71,14 @@ class StockProductionLot(models.Model):
                 if r.pn_id.product_id != r.product_id:
                     raise ValidationError(u'product_id ở pn_id khác với product_id')
         
-    @api.multi
-    def name_get(self):
-        return [(r.id, r.get_names()) for r in self]   
-    def get_names(self): 
-        if 'use barcode' in self.name:
-            return self.barcode_sn
-        else:
-            return self.name
+#     @api.multi
+#     def name_get(self):
+#         return [(r.id, r.get_names()) for r in self]   
+#     def get_names(self): 
+#         if 'use barcode' in self.name:
+#             return self.barcode_sn
+#         else:
+#             return self.name
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):# cho lot
         location_id = self._context.get('location_id_for_name_search_exist_in_quants_d4')

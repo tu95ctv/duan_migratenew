@@ -48,13 +48,13 @@ def download_model(dl_obj,
     if not squants:
         return workbook
     for r in squants:#request.env['cvi'].search([]):
-        add_1_row_squant(worksheet,r, FIELDNAME_FIELDATTR, row_index, offset_column=OFFSET_COLUMN,needdata=needdata,save_ndata=True)
+        add_1_row(worksheet,r, FIELDNAME_FIELDATTR, row_index, offset_column=OFFSET_COLUMN,needdata=needdata,save_ndata=True)
         row_index +=1
     add_title(worksheet, FIELDNAME_FIELDATTR, model_fields, ROW_TITLE=ROW_TITLE, offset_column=OFFSET_COLUMN)
     return workbook
 
 
-def add_1_row_squant(worksheet,r ,FIELDNAME_FIELDATTR, row_index, offset_column=0, f_name_slit_parrent = None,
+def add_1_row(worksheet,r ,FIELDNAME_FIELDATTR, row_index, offset_column=0, f_name_slit_parrent = None,
                       needdata=None,save_ndata=False):
     if save_ndata:
         a_instance_dict =  needdata.get('a_instance_dict', {})
@@ -64,6 +64,8 @@ def add_1_row_squant(worksheet,r ,FIELDNAME_FIELDATTR, row_index, offset_column=
     col_index = 0
     col_index += offset_column
     for  f_name,FIELDATTR in FIELDNAME_FIELDATTR.items():
+        if FIELDATTR.get('skip_field'):
+            continue
         is_not_model_field = FIELDATTR.get('is_not_model_field')
         split = FIELDATTR.get('split')
         write_to_excel = FIELDATTR.get('write_to_excel',True)
@@ -94,7 +96,7 @@ def add_1_row_squant(worksheet,r ,FIELDNAME_FIELDATTR, row_index, offset_column=
             pass
         
         if split:
-            a_instance_dict,writen_column_number_children = add_1_row_squant(worksheet,r ,split, row_index, offset_column=col_index  ,f_name_slit_parrent = f_name,needdata=needdata)
+            a_instance_dict,writen_column_number_children = add_1_row(worksheet,r ,split, row_index, offset_column=col_index  ,f_name_slit_parrent = f_name,needdata=needdata)
             offset_column += writen_column_number_children -1 +  (1 if write_to_excel else 0)
             writen_column_number += writen_column_number_children
             one_field_val['split'] = a_instance_dict

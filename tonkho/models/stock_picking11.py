@@ -63,6 +63,14 @@ class StockPicking(models.Model):
     filename = fields.Char()
 #     stt_trong_bien_ban_in = fields.Integer(default=lambda self:self.default_get([ 'stt_bien_ban']).get('stt_bien_ban'),string=u'STT trong biên bản')
     stt_trong_bien_ban_in = fields.Integer(string=u'STT trong biên bản',compute='stt_trong_bien_ban_in_',store=True,copy=False)
+    file_ids = fields.Many2many('dai_tgg.file','stock_picking_file_relate','stock_picking_id','file_id',string=u'Files đính kèm')
+    
+#     date = fields.Datetime(
+#         'Creation Date',
+#         default=fields.Datetime.now, index=True, track_visibility='onchange',
+#         states={'done': [('readonly', True)], 'cancel': [('readonly', True)]},
+#         help="Creation Date, usually the time of the order")
+#     
     
     @api.depends('department_id','ban_giao_or_nghiem_thu')
     def stt_trong_bien_ban_in_(self):

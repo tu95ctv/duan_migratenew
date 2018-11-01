@@ -208,13 +208,13 @@ class TVCV(models.Model):
             return res
         res = []
         for  r in self:
-            name_field = ' / '.join(get_names(r))      
+            name = ' / '.join(reversed(get_names(r)))      
             
             if from_name_search ==False:
                 adict=[
 #                                                                 ('id',{'pr':u'TVCV id'}),
                                                                 ('code',{}),#'pr':u'Mã'
-                                                                ('name',{'func': lambda x:name_field}),
+                                                                ('name',{'func': lambda x:name}),
 #                                                                 ('diem',{'pr':u'Điểm'}),
 #                                                                 ('don_vi',{'pr':u'Đơn Vị','func':lambda r: r.name}),
                                                                #('do_phuc_tap',{'pr':u'Độ Phức Tạp'})
@@ -223,7 +223,7 @@ class TVCV(models.Model):
                 adict=[
 #                                                                 ('id',{'pr':u'TVCV id'}),
                                                                 ('code',{}),#'pr':u'Mã'
-                                                                ('name',{'func': lambda x:name_field}),
+                                                                ('name',{'func': lambda x:name}),
                                                                 ('diem',{'pr':u'Điểm'}),
                                                                 ('don_vi',{'pr':u'Đơn Vị','func':lambda r: r.name}),
                                                                #('do_phuc_tap',{'pr':u'Độ Phức Tạp'})
@@ -245,6 +245,7 @@ class TVCV(models.Model):
         if default_loai_record:
             all_loai_record.append(default_loai_record)
         if u'Công Việc' not in all_loai_record:
+            print ('***args in name_search tvcv',args)
             return super(TVCV,self).name_search(name, args=args, operator=operator, limit=limit)
         
         limit=500

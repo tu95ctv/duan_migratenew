@@ -14,10 +14,10 @@ def gen_product_model_dict():
                    'begin_data_row_offset_with_title_row' :1,
                    'sheet_names': lambda self:[u'Tổng hợp']if not self.sheet_name else [self.sheet_name],
                    'model':'product.product',
-                   'for_excel_readonly' :True,
+                   'for_create_another' :True,
                    'fields' : [
                            ('stt',{'func':None,'xl_title':u'STT','key':True,'required':True,'skip_field_if_not_found_column_in_some_sheet':True,'for_excel_readonly' :True}),
-                           ('prod_lot_id_excel_readonly',{'empty_val':[u'N/C',u'-',u'--',u'NA',u'N/A',u'chưa đọc được SN'],'func':lambda val,needdata: int(val) if isinstance(val,float) else val,'xl_title':[u'Số serial (S/N)'],'for_excel_readonly' :True}),
+                           ('prod_lot_id_excel_readonly',{'empty_val':[u'N/C',u'-',u'--',u'NA',u'N/A',u'chưa đọc được SN'],'func':lambda val,needdata: int(val) if isinstance(val,float) else val,'xl_title':[u'Số serial (S/N)',u'serial number'],'for_excel_readonly' :True}),
                            ('barcode_for_first_read',{'empty_val':[u'NA',u"'",u"`"],'func':lambda val,needdata: str(int(val)) if isinstance(val,float) else val,'xl_title':[u'Barcode'],'for_excel_readonly' :True}),
                            ('product_id',{ 'for_excel_readonly' :True,'model':'product.product',
                             'fields':[   
@@ -51,7 +51,7 @@ def gen_product_model_dict():
                        ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] ,'key':True,'required':True}),
                        ('pn_id',{'model':'tonkho.pn',
                                                      'fields':[
-                                                               ('name',{'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Mã card (P/N)'],'key':True, 'required':True}),
+                                                               ('name',{'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Mã card (P/N)',u'part number'],'key':True, 'required':True}),
                                                                ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True  }),
 #                                                                ('import_location_id',{'set_val':lambda self:self.import_location_id.id}),
                                                                ('dang_chay_tao',{'set_val':True}),

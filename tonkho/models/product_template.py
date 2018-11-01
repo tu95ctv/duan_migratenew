@@ -12,9 +12,9 @@ class PN(models.Model):
     _sql_constraints = [
         ('name_ref_uniq', 'unique (name, product_id)', 'The combination of pn and product must be unique !'),
     ]
-    name = fields.Char()
-    product_id = fields.Many2one('product.product',required=True)
-    sn_ids = fields.One2many('stock.production.lot','pn_id')
+    name = fields.Char(required=True)
+    product_id = fields.Many2one('product.product',required=True,ondelete='cascade')
+    sn_ids = fields.One2many('stock.production.lot','pn_id',string='Serial numbers')
     running_or_prepare = fields.Selection([('running',u'Đang chạy'),('prepare',u'Dự phòng')])
 #     import_location_id = fields.Many2one('stock.location')
     tram_ltk_tao = fields.Boolean()
@@ -46,7 +46,7 @@ class ProductTemplate(models.Model):
     tracking = fields.Selection([
         ('serial', 'By Unique Serial Number'),
 #         ('lot', 'By Lots'),
-        ('none', 'No Tracking')],default='none', required=True,string=u'Có SN hay không')
+        ('none', 'No Tracking')],required=True,string=u'Có SN hay không')
     
     is_co_sn_khong_tinh_barcode = fields.Boolean(string=u'Is có SN không tính Barcode')
     tram_ltk_tao = fields.Boolean()

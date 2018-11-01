@@ -55,10 +55,16 @@ def read_excel_cho_field(sheet, row, col_index,merge_tuple_list):
     return val
 ### Xong khai bao
 def get_key_allow(field_attr, attr, key_tram,default_if_not_attr=None):
+    return field_attr.get(attr,default_if_not_attr)
+#     value = field_attr.get(attr,default_if_not_attr)
+#     if isinstance(value, dict) and key_tram:
+#         value =  value.get(key_tram,default_if_not_attr) if key_tram in value else value.get('all_key_tram',default_if_not_attr)
+#     return value
+
+def get_key_allow_goc(field_attr, attr, key_tram,default_if_not_attr=None):
     value = field_attr.get(attr,default_if_not_attr)
     if isinstance(value, dict) and key_tram:
         value =  value.get(key_tram,default_if_not_attr) if key_tram in value else value.get('all_key_tram',default_if_not_attr)
     return value
-
 
 ############### end small func ##################

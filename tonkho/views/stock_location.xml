@@ -80,7 +80,9 @@
                 <field name="name" string="Stock Locations"/> -->
                 <filter name="customer" position="replace"/>
                <!-- <filter name="supplier" string="Vendor" domain="[('usage', '=', 'supplier')]" help="Vendor Locations"/> --> 
-                <field name="location_id"  position="replace"/>
+                <field name="location_id"  position="after">
+                 <field name="complete_name"></field>
+                </field>
                 <filter name="inactive" position="replace">
                 <filter name="department_id" string="group theo đơn vị" context="{'group_by':'department_id'}"/>
                 </filter>

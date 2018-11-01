@@ -8,7 +8,7 @@ normal_border_style_not_border = xlwt.easyxf("font:  name Times New Roman, heigh
 horiz_center_normal_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align:  vert centre, horiz center; borders: left thin,right thin, top thin, bottom thin")
 not_horiz_center_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align: wrap on , vert centre; borders: left thin,right thin, top thin, bottom thin")
 header_bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 240 ; align:  vert centre, horiz center ;  pattern: pattern solid, fore_colour gray25;borders: left thin, right thin, top thin, bottom thin")
-def add_1_row_squant_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, offset_column=0, f_name_slit_parrent = None, 
+def add_1_row_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, offset_column=0, f_name_slit_parrent = None, 
                             needdata=None,save_ndata=False,ml=False,
                             ml_index=False,rowspan=False):
     if save_ndata:
@@ -72,18 +72,7 @@ def add_1_row_squant_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, off
             col_index +=1
         else:
             pass
-#         if split:
-#             a_instance_dict,writen_column_number_children = add_1_row_squant(worksheet,r ,split, row_index, offset_column=col_index  ,f_name_slit_parrent = f_name,needdata=needdata)
-#             offset_column += writen_column_number_children -1 +  (1 if write_to_excel else 0)
-#             writen_column_number += writen_column_number_children
-#             one_field_val['split'] = a_instance_dict
-#             col_index +=writen_column_number_children
-#         if fields:
-#             a_instance_dict,writen_column_number_children = add_1_row_squant(worksheet,ml ,fields, row_index, offset_column=col_index  ,f_name_slit_parrent = f_name,needdata=needdata)
-#             offset_column += writen_column_number_children -1 +  (1 if write_to_excel else 0)
-#             writen_column_number += writen_column_number_children
-#             one_field_val['fields'] = a_instance_dict
-#             col_index +=writen_column_number_children
+
     return a_instance_dict, writen_column_number
 
 
@@ -91,7 +80,9 @@ def add_1_row_squant_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, off
 # normal_not_bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 240 ;align:  vert centre, horiz center;")
 
 
-def download_model_new_ml(dl_obj, Export_Para=None,workbook=None,append_domain=None,sheet_name=None,worksheet=None,row_index=15):
+def download_model_new_ml(dl_obj, Export_Para=None,workbook=None,
+                          append_domain=None,sheet_name=None,worksheet=None,
+                          row_index=15):
     exported_model= Export_Para['exported_model']
     FIELDNAME_FIELDATTR= Export_Para['FIELDNAME_FIELDATTR']
     FIELDNAME_FIELDATTR = OrderedDict(FIELDNAME_FIELDATTR)
@@ -131,7 +122,7 @@ def download_model_new_ml(dl_obj, Export_Para=None,workbook=None,append_domain=N
         rowspan = len(move.move_line_ids)
         for ml_index, ml in enumerate(move.move_line_ids):
             nrow +=1
-            add_1_row_squant_new_ml(worksheet, move , FIELDNAME_FIELDATTR, row_index, offset_column=0,needdata=needdata,save_ndata=True, ml=ml, ml_index=ml_index,rowspan=rowspan)
+            add_1_row_new_ml(worksheet, move , FIELDNAME_FIELDATTR, row_index, offset_column=0,needdata=needdata,save_ndata=True, ml=ml, ml_index=ml_index,rowspan=rowspan)
             row_index +=1
     return nrow
 
@@ -215,14 +206,16 @@ def gen_domain_sml(dl_obj):
     domain = []
     domain.append(('picking_id','=',dl_obj.id))
     return domain
-def download_ml_for_bb(dl_obj,workbook=None,append_domain=None,sheet_name=None,worksheet=None,row_index=0,
+def download_ml_for_bb(dl_obj,workbook=None,
+                       append_domain=None,
+                       sheet_name=None,
+                       worksheet=None,
+                       row_index=0,
                        IS_SET_TT_COL=False,
                        all_tot_and_ghom_all_tot=False):
-#     all_tot = set(dl_obj.move_line_ids.mapped('tinh_trang')) ==set(['tot']) and   dl_obj.is_ghom_tot
     FIELDNAME_FIELDATTR_ML = [
          ('move_line_ids.stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_ml_,'is_same':True,'is_use_kargs_co_san':True }),#'is_same':False 
          ('product_id',{'func':lambda v,n,m,ml: v.name,'string':u'Tên vật tư' }),
-#          ('move_line_ids.stt',{'string':u'STT có'}),
          ('move_line_ids.pn_id',{'func':lambda v,n,m,ml: v.name,'string':u'Mã vật tư'}),
          ('quantity_done',{'is_same':is_same_,'func':quantity_done_,'string':u'S/L'}),
          ('product_uom',{'func':lambda v,n,m,ml: v.name,'string':u'ĐVT'}),
@@ -230,8 +223,6 @@ def download_ml_for_bb(dl_obj,workbook=None,append_domain=None,sheet_name=None,w
          ('move_line_ids.tinh_trang',{'string':u'T/T','func':tinh_trang_, 'skip_field':not IS_SET_TT_COL or  all_tot_and_ghom_all_tot    }),
          ('move_line_ids.ghi_chu',{'string':u'Ghi chú','func':ghi_chu_,'is_same':is_same_ghi_chu_,'kargs':{'all_tot':all_tot_and_ghom_all_tot, 'IS_SET_TT_COL':IS_SET_TT_COL},'kargs_for_is_same':{'all_tot':all_tot_and_ghom_all_tot, 'IS_SET_TT_COL':IS_SET_TT_COL}}),
         ]
-
-
     Export_Para_ml = {
         'exported_model':'stock.move',
         'FIELDNAME_FIELDATTR':FIELDNAME_FIELDATTR_ML,

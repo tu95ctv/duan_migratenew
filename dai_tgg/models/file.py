@@ -5,3 +5,5 @@ class File(models.Model):
     name = fields.Char(string=u'File name')
     file = fields.Binary( attachment=True)
     mo_ta = fields.Text(string=u'Mô tả file')
+    image = fields.Binary( attachment=True)
+    

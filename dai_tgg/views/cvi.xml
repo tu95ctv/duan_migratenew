@@ -91,7 +91,7 @@
                         
                         "
                         requried="[('loai_record','=','Công Việc')]" 
-                        domain="['|',('loai_record','=',loai_record),('loai_record','=',context.get('loai_record_more'))]" /><!-- ,('loai_record','=',context.get('loai_comment_la_cong_viec')) -->
+                        domain="['|',('loai_record','=',loai_record),('loai_record','=',context.get('loai_record_more'))]" /><!--  domain="['|',('loai_record','=',loai_record),('loai_record','=',context.get('loai_record_more'))]" /> -->
                         <field name="noi_dung"  attrs="{'readonly':['|','&amp;',('cam_sua','=',True),('is_sep','=',False),'&amp;',('id','&gt;',0),'|',('hd_parent_id','!=',False),('cd_parent_id','!=',False)]}" />
                      </group>
                   </group>
@@ -141,7 +141,7 @@
                         <field name="cd_children_ids" context="{'default_cd_parent_id':active_id,'you_at_cd_form':True,'default_loai_record':loai_record, 'default_user_id':False}">
                            <tree decoration-danger="not valid_diemtc" editable="bottom">
                               <!--  editable="bottom"  -->
-                              <field name="loai_record" invisible="1" />
+                              <field name="loai_record"/>
                               <field name="cd_parent_id" invisible="1" />
                               <!-- có để tránh lỗi   r.diemtt = r.cd_parent_id.diem_goc/r.slnc và để cho @api.constrains('cd_parent_id') có tác dụngl-->
                               <field name="cam_sua" invisible="1" />

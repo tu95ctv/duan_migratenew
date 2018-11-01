@@ -31,6 +31,7 @@
             <field name="arch" type="xml">
                 <field name="ref" position="replace">
                     <field name="pn_id"  readonly="context.get('pn_id_readonly')"/>
+                    <field name="barcode_sn" />
                     <field name="tinh_trang"></field>
                     <field name="ghi_chu" />
                 </field>
@@ -82,7 +83,7 @@
         
             <menuitem action="stock.action_production_lot_form" id="stock.menu_action_production_lot_form"
         parent="stock.menu_stock_inventory_control" groups="stock.group_production_lot"
-        sequence="2"/>
+        sequence="3"/>
       
       <!-- <menuitem action="action_location_form" id="menu_action_location_form" 
         groups="stock.group_stock_multi_locations"

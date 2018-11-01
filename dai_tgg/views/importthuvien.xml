@@ -32,6 +32,7 @@
                         <field name="key_tram" />
                         <field name="dong_test"></field>
                         <field name="begin_row"></field>
+                        <field name="mode_not_create"></field>
                      </group>
                      <group string = "Default">
                          <field name="filename" />

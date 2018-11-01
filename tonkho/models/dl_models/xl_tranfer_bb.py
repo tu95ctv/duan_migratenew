@@ -190,8 +190,11 @@ def write_xl_bb(dl_obj):
     fixups = OrderedDict(fixups)
     instance_dict = {}
     needdata['instance_dict'] = instance_dict
+   
+    
     for f_name,field_attr in fixups.items():
         a_field_dict = {}
+        
         xrange = field_attr.get('range')
         offset = field_attr.get('offset',1)
         if callable(offset):
@@ -204,11 +207,13 @@ def write_xl_bb(dl_obj):
                 xrange[1] = row
         else:
             row = xrange[0]
+            
         val = field_attr.get('val')
         val_func = field_attr.get('val_func')
         if val_func:
             val_kargs =  field_attr.get('val_kargs',{})
             val = val_func(ws,f_name,fixups,needdata,row,dl_obj,**val_kargs)
+        
         func = field_attr.get('func')
         if func:
             kargs = field_attr.get('kargs',{})
@@ -229,7 +234,7 @@ def write_xl_bb(dl_obj):
             ws.row(row).height_mismatch = True
             ws.row(row).height = height
             
-    filename = '%s_%s_%s'%(dl_obj.stt_trong_bien_ban_in,dl_obj.ma_bien_ban,dl_obj.department_id.short_name)
+    filename = '%s_%s_%s'%(dl_obj.department_id.short_name,dl_obj.ma_bien_ban,dl_obj.stt_trong_bien_ban_in)
     name = "%s%s" % (filename, '.xls')
     return wb,name
 #     wb.save(u'C:/D4/test_folder/Mẫu BBBG 2018hehe.xls')

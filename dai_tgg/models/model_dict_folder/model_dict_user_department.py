@@ -136,53 +136,53 @@ def gen_user_department_model_dict():
        }),  
               ]
                 },#End department
-        u'User': {
-                'title_rows' : [1], 
-                'begin_data_row_offset_with_title_row' :2,
-                'sheet_names': ['Sheet1'],
-                'model':'res.users',
-                'fields' : [
-            ('name', {'func':None,'xl_title':u'Họ và Tên','key':True,'required':True}),
-             ( 'login',{'func':None,'xl_title':u'Địa chỉ email','key':True ,'required':True}),
-            ('password',{'func':None,'required':True,'set_val':'123456'}),
-             ('lang',{'set_val':'vi_VN'}),
-             ('phone',{'func':None,'xl_title':u'Số điện thoại','key':False}),
-               ('cac_sep_ids',{'key':False,'required':False,
-                'fields':[
-                         ('login',{'xl_title':u'Cấp trên',  'key':True, 'required':True, 'is_x2m_field':True}),
-  
-                         ]
+     u'User': {
+        'title_rows' : [1], 
+        'begin_data_row_offset_with_title_row' :2,
+        'sheet_names': ['Sheet1'],
+        'model':'res.users',
+        'fields' : [
+                ('name', {'func':None,'xl_title':u'Họ và Tên','key':True,'required':True}),
+                ('login',{'func':None,'xl_title':u'Địa chỉ email','key':True ,'required':True}),
+                ('password',{'func':None,'required':True,'set_val':'123456'}),
+                ('lang',{'set_val':'vi_VN'}),
+                ('phone',{'func':None,'xl_title':u'Số điện thoại','key':False}),
+                ('cac_sep_ids',{'key':False,'required':False,'only_get':True,
+                                        'fields':[
+                                                 ('login',{'xl_title':u'Cấp trên',  'key':True, 'required':True, 'is_x2m_field':True}),
+                                                 ]
                 }),  
                 ('groups_id',{'key':False,'required':False,'skip_this_field':lambda self:self.skip_field_cause_first_import,
-                        'fields':[
-                                 ('name',{'xl_title':u'groups_id',  'key':True, 'required': True,'is_x2m_field':True,'remove_all_or_just_add_one_x2m':False}),     
-                                  ]
-                        }),  
-                         ('job_id',{'key':False,'required':False,
-               'fields':[
-                        ('name',{'xl_title':u'Chức vụ',  'key':True, 'required':True, 'func':lambda v,n: u'Nhân viên' if v==False else v }),
-                        ]
-               }),  
-                ('department_id',{'key':False,'required':True,
-           'fields':[
-                    ('name',{'xl_title':u'Bộ Phận',  'key':True, 'required': True}),
-                    ]
-                 }),  
-                                        
-                    ('partner_id',{'key':False,'required':False,
-               'fields':[
-                        ('name',{'xl_title':None,  'key':True, 'required': True, 'func':lambda val,needdata: needdata['vof_dict']['name']['val']}),
-                        ('email',{'xl_title':None,  'key':True, 'required': True, 'func':lambda val,needdata: needdata['vof_dict']['login']['val']}),
-                        ('department_id',{'xl_title':None,  'key':False, 'required': True, 'func':lambda val,needdata: needdata['vof_dict']['department_id']['val']}),
-                         ('parent_id',{'key':False,'required':False,
-                'fields':[
-                         ('name',{'xl_title':None,  'key':True, 'required': True, 'func':lambda val,needdata: needdata['vof_dict']['department_id']['fields']['name']['val'] }),
-                          
-                         ]
+                                    'fields':[
+                                             ('name',{'xl_title':u'groups_id',  'key':True, 'required': True,'is_x2m_field':True,'remove_all_or_just_add_one_x2m':False}),     
+                                              ]
+                                    }
+                 ),  
+                 ('job_id',{'key':False,'required':False,
+                                   'fields':[
+                                                ('name',{'xl_title':u'Chức vụ',  'key':True, 'required':True, 'func':lambda v,n: u'Nhân viên' if v==False else v }),
+                                               ]
                 }),  
-                         
-                        ]
-               }),  
+                ('department_id',{'key':False,'required':True,'raise_if_False':True,
+                                           'fields':[
+                                                    ('name',{'xl_title':u'Bộ Phận',  'key':True, 'required': True}),
+                                                    ]
+                                                 }),  
+                ('partner_id',{'key':False,'required':False,
+                               'fields':[
+                                            ('name',{'xl_title':None,  'key':True, 'required': True, 'func':lambda val,needdata: needdata['vof_dict']['name']['val']}),
+                                            ('email',{'xl_title':None,  'key':True, 'required': True, 'func':lambda val,needdata: needdata['vof_dict']['login']['val']}),
+                                            ('department_id',{'xl_title':None,  'key':False, 'required': True, 'func':lambda val,needdata: needdata['vof_dict']['department_id']['val']}),
+                                            ('parent_id',{'key':False,'required':False,
+                                                        'fields':[
+                                                                 ('name',{'xl_title':None,  'key':True, 'required': True, 'func':lambda val,needdata: needdata['vof_dict']['department_id']['fields']['name']['val'] }),
+                                                                  
+                                                                 ]
+                                            }),  
+                                             
+                                        ]
+                                    }
+                 ),  
                       ]
                 },#End users'
                        

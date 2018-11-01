@@ -344,4 +344,7 @@ msgstr "Tên kho đầy đủ"
 msgid "Inventory"
 msgstr "Vật tư"
 
-
+#. module: stock
+#: model:ir.ui.view,arch_db:stock.search_product_lot_filter
+msgid "Product Lots"
+msgstr "Serial number"

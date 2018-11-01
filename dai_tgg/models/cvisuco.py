@@ -14,7 +14,8 @@ class CviSuCo(models.Model):
     giao_ca_id = fields.Many2one('ctr',string=u'Ca Trực')
     file_ids = fields.Many2many('dai_tgg.file','cvi_file_relate','cvi_id','file_id',string=u'Files đính kèm')
     doitac_ids = fields.Many2many('res.partner',string=u'Đối Tác')
-    department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',required=True,readonly=True,default = lambda self:  self.env.user.department_id.id,ondelete='restrict')
+#     department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',required=True,readonly=True,default = lambda self:  self.env.user.department_id.id,ondelete='restrict')
+    department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',ondelete='restrict',compute="department_id_",store=True)
     department_ids = fields.Many2many('hr.department', string=u'Đơn vị liên quan' )
     loai_record = fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record')
     loai_record_show =  fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record',compute='loai_record_show_')
@@ -30,6 +31,11 @@ class CviSuCo(models.Model):
     comments_show = fields.Char(compute='comments_show_',string=u'Comments/Ghi Chú/Tiến Độ')
     trig_field = fields.Boolean()
 
+    @api.depends('user_id')
+    def department_id_(self):
+        for r in self:
+            r.department_id = r.user_id.department_id.id
+            
     @api.depends('noi_dung')
     def noi_dung_khong_dau_(self):
         for r in self:
@@ -83,17 +89,22 @@ class CviSuCo(models.Model):
             if self._context.get('you_at_gd_form'):
                 context='''{'thu_vien_da_chon_list':parent.get('thu_vien_da_chon_list'), 
                          'you_at_gd_form':context.get('you_at_gd_form'),
-                         'loai_record_more':context.get('loai_record_more',[]),
+#                          'loai_record_more':context.get('loai_record_more',[]),
                          'thu_vien_id_of_gd_parent_id':parent.get('tvcv_id'),  
                          'default_loai_record':loai_record,
                          'tree_view_ref':tree_view_ref, 
                          'search_view_ref': search_view_ref ,}'''
             else:
+#                 context='''{
+#                          'loai_record_more':context.get('loai_record_more',[]),
+#                          'default_loai_record':loai_record,
+#                          'tree_view_ref':tree_view_ref, 
+#                          'search_view_ref': search_view_ref ,}'''
                 context='''{
-                         'loai_record_more':context.get('loai_record_more',[]),
                          'default_loai_record':loai_record,
                          'tree_view_ref':tree_view_ref, 
                          'search_view_ref': search_view_ref ,}'''
+                
                  
             fields['tvcv_id']['context'] = context
         return res

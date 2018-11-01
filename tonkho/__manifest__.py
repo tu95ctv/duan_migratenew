@@ -49,6 +49,7 @@
         'views/stock_inventory_line.xml',
         'views/uom.xml',
         'views/tonkho_download.xml',
+        'views/sequence_menu.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

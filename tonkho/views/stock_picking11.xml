@@ -62,8 +62,12 @@
                 <field name="partner_id" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field>
+                
+                
+                
+                
                 <field name="scheduled_date" position="replace">
-                    <field name="date" />
+                    <field name="date"  attrs="{'readonly':False}"/> <!--  invisible="1" cái này xài không được -->
                     <field name="choosed_stock_quants_ids" invisible="1">
                         <tree>
                             <field name="id"></field>
@@ -228,16 +232,20 @@
                             <button name="check_file" string="check_file" type="object" class="btn-primary" />
                         </header>
                         <group>
+                            <group>
                             <field name="is_dl_right_now" />
-                            <!--   <field name="title_row_for_import" /> -->
                             <field name="is_ghom_tot" />
                             <field name="is_set_tt_col" />
                             <field name="allow_cate_for_ghi_chu" />
+                            </group>
+                            <group>
                             <field name="file" filename="filename" />
                             <field name="filename" invisible="1" />
                             <field name="file_dl" readonly="1" filename="file_dl_name" />
                             <field name="file_dl_name" invisible="1" />
                             <field name="log" groups="base.group_erp_manager" />
+                            </group>
+                            <field name="file_ids"></field>
                         </group>
                     </page>
                     <page string="Thông tin trả vật tư">
@@ -273,6 +281,7 @@
                     <field name="ly_do" />
                     <field name="ma_bien_ban" />
 					<field name="department_id" />
+					<field name="file"/>
                 </field>
                 <!-- 
                 <xpath expr="//field[@name='location_dest_id']" position="before">
@@ -400,6 +409,10 @@
             </field>
         </record>
         
-        
+       <!-- <menuitem id="stock.menu_stock_inventory_control" name="Master Data" parent="stock.menu_stock_root" sequence="1"/>
+         --> 
+          <menuitem name="Inventory" id="stock.menu_stock_root" sequence="1"
+        groups="stock.group_stock_manager,stock.group_stock_user"
+        web_icon="stock,static/description/icon.png"/>
     </data>
 </odoo>

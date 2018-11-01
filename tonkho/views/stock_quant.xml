@@ -27,36 +27,52 @@
                 <field name="quantity" position="after">
                     <field name="write_date" string="Ngày sửa" />
                     <field name="create_date" string="Ngày Tạo" />
-                    <field name="stt" />
+                    <field name="stt"  groups="base.group_erp_manager"/>
                 </field>
             </field>
         </record>
+        
         <record id="quant_search_view" model="ir.ui.view">
             <field name="name">stock.quant.search.inherit</field>
             <field name="model">stock.quant</field>
             <field name="inherit_id" ref="stock.quant_search_view" />
             <field name="arch" type="xml">
-                <xpath expr="//filter[@name='locationgroup']" position="before">
+                <xpath expr="//group[2]/filter[5]" position="replace">
+                	<separator/>
+                	 <field name="pn_id"></field>
                     <filter string="Nhóm" name="group_by_categ_id" domain="[]" context="{'group_by': 'categ_id'}" />
                     <filter string="Trạng Thái" name="group_by_tinh_trang" domain="[]" context="{'group_by': 'tinh_trang'}" />
                     <filter string="Có SN hay không" name="group_tracking" domain="[]" context="{'group_by': 'tracking'}" />
-                    <!--   <filter string='Đơn Vị/Phòng Ban' name="group_department_id" domain="[]" context="{'group_by': 'department_id'}"/> -->
                     <field string="Tìm Số lượng trong kho có tên" name="stock_location_id_selection" filter_domain="[('location_id','ilike',self)]" />
-                    <!-- <filter name="this month" string="Kho được tạo tháng này" domain="[('create_date','&lt;',(context_today()+relativedelta(months=1)).strftime('%Y-%m-01 17:00:00')), ('create_date','&gt;=',time.strftime('%Y-%m-01 00:00:00'))]" help="Chọn tháng này" /> -->
-                    <filter name="this month" string="Kho được tạo tháng này" domain="[('create_date','&gt;=',(datetime.datetime.now().replace(day=1,hour=0,minute=0,second=0)-datetime.timedelta(hours=7)).strftime('%Y-%%m-%%d %%H:%%M:%%S'))]" help="Chọn tháng này" />
+                    <separator/>
+                    <filter name="this month" string="Kho được  tạo tháng này" domain="[('create_date','&gt;=',(datetime.datetime.now().replace(day=1,hour=0,minute=0,second=0)-datetime.timedelta(hours=7)).strftime('%Y-%%m-%%d %%H:%%M:%%S'))]" help="Chọn tháng này" />
                   	<filter name="recently" string="Thay đổi gần đây" domain="[('write_date','&gt;', (datetime.datetime.now() - datetime.timedelta(hours=8)).strftime('%Y-%%m-%%d %%H:%%M:%%S'))]" help="Pickings that are late on scheduled time" />
                   	<filter name="today" string="Thay đổi trong ngày" domain="[('write_date','&gt;=', (datetime.datetime.now().replace(hour=0,minute=0,second=0) - datetime.timedelta(hours=7)).strftime('%Y-%m-%d %H:%M:%S'))]" help="Pickings that are late on scheduled time" />
+                
                 </xpath>
+                
+                <xpath expr="//group[1]" position="replace">
+                    <filter name='internal_loc' string="Địa điểm nội bộ" domain="[('location_id.usage','=', 'internal')]"/>
+                     <separator/>
+                    <filter name='group_by_pn_id'  string="Nhóm theo Part number" context="{'group_by': 'pn_id'}" />
+                </xpath>
+            
+            
             
             </field>
         </record>
+        
+        
+
+        
+        
         <record id="stock_quant_action_product" model="ir.actions.act_window">
             <field name="name">Số lượng trong kho</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">stock.quant</field>
             <field name="view_mode">tree,form</field>
             <field name="domain"></field>
-            <field name="context">{'search_default_internal_loc':1, 'show_loc_type':True}</field>
+            <field name="context">{'search_default_internal_loc':1, 'show_loc_type':True,'search_default_loc_theo_tram_137':1}</field>
             <field name="view_type">form</field>
         </record>
         <menuitem id="menu_stock_quant_action_product" action="stock_quant_action_product" parent="stock.menu_stock_inventory_control" sequence="1" />

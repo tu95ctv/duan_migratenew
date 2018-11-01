@@ -265,6 +265,22 @@ class Cvi(models.Model):
     thu_vien_da_chon_list = fields.Char(compute='thu_vien_da_chon_list_')   
     cd_user_id = fields.Char(compute='cd_user_id_')  
      
+    @api.onchange('loai_record')
+    def tvcv_id_oc_(self):
+        active_ctr_id =self._context.get('active_ctr_id')
+        print( ' active_ctr_id- %s***'%active_ctr_id)
+        if self.loai_record==u'Công Việc' and active_ctr_id !=None:
+            if not self.cd_children_ids:
+                member_ids = self._context.get('member_ids',None)
+                if member_ids == None:
+                    raise UserError(u'Bạn phải chọn người trực')
+                member_ids = member_ids[0][2]#[[6, False, [1, 46]]]
+                member_ids = [member_id for member_id in member_ids if member_id != self.user_id.id]
+                print ('***member_ids',member_ids)
+                return {'value':
+                        {'cd_children_ids':[(0,0,{'user_id':member_ids[0],'loai_record':u'Công Việc'})]
+                         }
+                        }
     @api.depends('tvcv_id')
     def diem_tvi_(self):
         for r in self:
@@ -676,22 +692,22 @@ class Cvi(models.Model):
                     user_ids = [i.user_id.id for i in  r.cd_parent_id.cd_children_ids]
                     user_ids.append(r.cd_parent_id.user_id.id)
                     if len(user_ids) != len(set(user_ids)):
-                        raise ValidationError(u'Có chia điểm con Trùng') 
+                        raise ValidationError(u'Có Chia điểm con Trùng: user_ids %s- set(user_ids) %s'%(user_ids,set(user_ids)))                        
                 elif r.hd_parent_id: 
                     user_ids = [i.user_id.id for i in  r.hd_parent_id.hd_children_ids]
                     user_ids.append(r.hd_parent_id.user_id.id)
                     if len(user_ids) != len(set(user_ids)):
-                        raise ValidationError(u'Có Hưởng điểm con Trùng')                        
+                        raise ValidationError(u'Có Hưởng điểm con Trùng: user_ids %s- set(user_ids) %s'%(user_ids,set(user_ids)))                        
            
-    @api.model
-    def search(self, args, offset=0, limit=None, order=None, count=False):
-        context = self._context or {}
-        active_ctr_id = context.get('active_ctr_id',False)
-        if active_ctr_id != False:
-            new_args = ['|',('ctr_ids','=',active_ctr_id)]
-            new_args.extend(args)
-            args = new_args
-        return super(Cvi, self).search(args, offset, limit, order, count=count)           
+#     @api.model
+#     def search(self, args, offset=0, limit=None, order=None, count=False):
+#         context = self._context or {}
+#         active_ctr_id = context.get('active_ctr_id',False)
+#         if active_ctr_id != False:
+#             new_args = ['|',('ctr_ids','=',active_ctr_id)]
+#             new_args.extend(args)
+#             args = new_args
+#         return super(Cvi, self).search(args, offset, limit, order, count=count)           
     
     @api.model
     def create(self, vals):

@@ -45,7 +45,10 @@ class ImportThuVien(models.Model):
                                   ('key_tti','key_tti'),
                                   ('key_tti_dc','key_tti_dc'),
                                   ('key_ltk_dc','key_ltk_dc'),
+                                  ('key_tti_dc_product','key_tti_dc_product'),
+                                  
                                   ])
+    mode_not_create = fields.Boolean()
     file = fields.Binary()
     filename = fields.Char()
     name_inventory_suffix = fields.Char()

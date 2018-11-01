@@ -5,6 +5,8 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 from  odoo.addons.dai_tgg.mytools import name_compute
+from  odoo.addons.tonkho.tonkho_tool import write_to_current_path
+
 # import datetime
 # from odoo.addons.tonkho.controllers.controllers import  download_quants,download_product,download_quants_moi_cage_moi_sheet
 # from odoo.addons.tonkho.models.dl_models.dl_model_quants import  download_quants
@@ -12,6 +14,7 @@ from  odoo.addons.dai_tgg.mytools import name_compute
 # from odoo import _
 
 
+from lxml import etree
 
 
 
@@ -24,7 +27,7 @@ class Quant(models.Model):
     """ Quants are the smallest unit of stock physical instances """
     _inherit = "stock.quant"
 #     pn = fields.Char(related='lot_id.pn')
-    pn_id = fields.Many2one('tonkho.pn',related='lot_id.pn_id')
+    pn_id = fields.Many2one('tonkho.pn',related='lot_id.pn_id',store=True)
     categ_id = fields.Many2one('product.category', related='product_id.categ_id',store=True,string=u'Nhóm')
     thiet_bi_id = fields.Many2one('tonkho.thietbi',related='product_id.thiet_bi_id', string = u'Thiết bị',store=True)
     brand_id = fields.Many2one('tonkho.brand',related='product_id.brand_id',string=u'Hãng sản xuất',store=True)
@@ -120,4 +123,18 @@ class Quant(models.Model):
             rs = self.env['stock.quant'].search([('lot_id','=',self.lot_id.id),('location_id.usage','=','internal'),('quantity','>',0)])
             if len(rs)>1:
                 raise UserError(u'Không được có quants  nội bộ chung lot_id và quantity > 0 product:%s-sn: %s'%(self.product_id.name,self.lot_id.name))
-        
+    @api.model
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+        res = super(Quant, self).fields_view_get(
+            view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        if view_type =='search':
+            write_to_current_path(u'%s'%res['arch'])
+            print ("res['arch']",res['arch'])
+            doc = etree.fromstring(res['arch'])
+            node =  doc.xpath("//filter[@name='locationgroup']")[0]
+            node.addnext(etree.Element('separator', {}))
+            node.addnext(etree.Element('filter', {'string':'Lọc theo kho của trạm %s'%self.env.user.department_id.name,'name': 'loc_theo_tram_137', 'domain': "[('location_id.department_id','=',%s)]"%self.env.user.department_id.id}))
+            res['arch'] = etree.tostring(doc, encoding='unicode')
+        return res
+            
+            

@@ -62,6 +62,6 @@
             </field>
         </record>
         
-        <menuitem id="stock_move_line_menu" action="stock.stock_move_line_action" parent="stock.menu_stock_warehouse_mgmt" sequence="3" name="Các dòng điều chuyển" />
+        <menuitem id="stock_move_line_menu" action="stock.stock_move_line_action" parent="stock.menu_stock_warehouse_mgmt" sequence="31" name="Các dòng điều chuyển" />
     </data>
 </odoo>

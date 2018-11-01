@@ -10,11 +10,20 @@ class ReturnPickingLine(models.TransientModel):
     _inherit = "stock.return.picking.line"
     _rec_name = 'product_id'
     ml_id = fields.Many2one('stock.move.line')
+
+
+
 class ReturnPicking(models.TransientModel):
     _inherit = 'stock.return.picking'
 #     is_chuyen_tiep = fields.Boolean()
     loai_tra_hay_chuyen_tiep = fields.Selection([('tra_do_huy',u'Trả do hủy'),('tra_do_muon',u'Trả do mượn'),('chuyen_tiep',u'Chuyển tiếp')],string=u'Loại trả vật tư')
+    location_id = fields.Many2one(
+        'stock.location', 'Return Location fff'
+        )#domain="['|', ('id', '=', original_location_id), '&', ('return_location', '=', True), ('id', 'child_of', parent_location_id)]"
     
+    location_id2 = fields.Many2one(
+        'stock.location', 'Return Location'
+        )
     @api.onchange('loai_tra_hay_chuyen_tiep')
     def loai_tra_hay_chuyen_tiep_(self):
         if  self.loai_tra_hay_chuyen_tiep =='chuyen_tiep': # return

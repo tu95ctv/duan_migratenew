@@ -69,9 +69,10 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
                 this_model_noti_dict['skipupdate'] = this_model_noti_dict.get('skipupdate',0) + 1
         return_obj = searched_object
     return return_obj
-def write_to_current_path():
+def write_to_current_path(content='helo'):
     currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     parent_path = os.path.abspath(os.path.join(currentdir, os.pardir))
     test_path = os.path.join(parent_path, "test.txt")
+    print ('***test_path',test_path)
     with open(test_path, 'w') as the_file:
-        the_file.write('hells' )
+        the_file.write(content)

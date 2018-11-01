@@ -3,6 +3,7 @@ from odoo.addons.dai_tgg.models.model_dict_folder.tool_tao_instance import get_k
 from odoo.osv import expression
 import datetime
 from odoo import  fields
+from odoo.exceptions import UserError
 def get_or_create_object_has_x2m (self, class_name, search_dict,
                                 write_dict ={},
                                 is_must_update=False, 
@@ -94,6 +95,11 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
     searched_object  = self.env[class_name].search(domain)
     if not searched_object:
 #         search_dict.update(write_dict)
+#         print ('**model_dict',model_dict)
+        only_get = get_key_allow(model_dict,'only_get',key_tram)
+#         print ('only_get***',only_get)
+        if only_get:
+            raise UserError(u'Model này chỉ được get chứ không được tạo')
         for f_name,val in write_dict.items():
             field_attr = model_dict['fields'][f_name]
             f_name = get_key_allow(field_attr, 'transfer_name', key_tram) or f_name
@@ -112,7 +118,14 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
             f_name = get_key_allow(field_attr, 'transfer_name', key_tram) or f_name
             get_or_create_para = get_key_allow(field_attr, 'get_or_create_para', key_tram, {})
             not_update_field_if_instance_exist = get_or_create_para.get('not_update_field_if_instance_exist',False)
-            if not not_update_field_if_instance_exist or (not_update_field_if_instance_exist and not getattr(searched_object, f_name)) :
+            write_func = field_attr.get('write_func')
+            if write_func:
+                code = write_func(searched_object=searched_object, f_name=f_name,val=val)
+                if code =='continue':
+                    continue
+#             if getattr(searched_object, f_name)=='none':
+#                 continue
+            if not not_update_field_if_instance_exist or (not_update_field_if_instance_exist and not getattr(searched_object, f_name)) :#update cả khi thuộc tính này = False
                 write_dict_new[f_name] = val
       
         if not is_must_update:

@@ -8,6 +8,8 @@ import contextlib
 import io
 from odoo.addons.tonkho.models.dl_models.dl_model_quants import  download_quants
 from odoo.addons.tonkho.models.dl_models.dl_model_product import  download_product
+from odoo.addons.tonkho.models.dl_models.dl_tvcv import  download_tvcv1
+
 
 
 class DownloadQuants(models.TransientModel):
@@ -20,6 +22,7 @@ class DownloadQuants(models.TransientModel):
 #     test =  fields.Text()
     data = fields.Binary('File', readonly=True)
     is_moi_sheet_moi_loai = fields.Boolean(string=u' Chia nhóm vật tư')
+    is_not_skip_field_stt = fields.Boolean(groups="base.group_erp_manager")
 #     is_dl_right_now = fields.Boolean(string=u'Download ngay(phải cho phép pop up)')
 #     domain_text = fields.Text(default = lambda self: self._context)
     
@@ -60,15 +63,15 @@ class DownloadQuants(models.TransientModel):
         res = super(DownloadQuants, self).fields_view_get(
             view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
         doc = etree.XML(res['arch'])
-        
-        
-        
         if view_type =='form':
             nodes =  doc.xpath("//button[@name='download_all_model']")
             if len(nodes):
                 node = nodes[0]
                 active_model = self._context['active_model']
-                active_model = active_model.split('.')[1]
+                try:
+                    active_model = active_model.split('.')[1]
+                except:
+                    active_model = active_model.split('.')[0]
                 translate_dict_for_model = {'quant':u'Số lượng trong kho','product':u'Vật tư'}
                 node.set('string', "Download %s"%translate_dict_for_model.get(active_model,active_model))
         res['arch'] = etree.tostring(doc, encoding='unicode')
@@ -82,7 +85,7 @@ class DownloadQuants(models.TransientModel):
         active_domain = self._context['active_domain']
         self.domain_text = self._context
         model =self._context['active_model']
-        pick_func = {'stock.quant':download_quants,'product.product':download_product}
+        pick_func = {'stock.quant':download_quants,'product.product':download_product,'tvcv':download_tvcv1}
         if not model:
             raise UserError('sao khong co model nao map, model:%s'%model)
         download_right_now = self._context.get('download_right_now')
