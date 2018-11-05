@@ -25,7 +25,7 @@ from lxml import etree
 
 BG_lst = [
           (u'BBBG',u'Bàn giao'),
-          (u'NHAN',u'Giao Nhận'),
+          (u'NHAN',u'Nhận'),
           (u'TRVT',u'Trình vật tư'),
            (u'BBNT',u'Nghiệm thu'),
            (u'BBSD',u'Đưa vào sử dụng'),

@@ -13,11 +13,11 @@
                     <filter string="Chủ sở hữu" context="{'group_by': 'owner_id'}" invisible="1" modifiers="{&quot;invisible&quot;: true}"/>
                     <filter string="Serial Number" context="{'group_by': 'lot_id'}"/>
                     <separator/>
-                 <field name="pn_id" can_create="true" can_write="true" modifiers="{&quot;readonly&quot;: true}"/>
+                 <field name="pn_id" can_create="true" can_write="true" modifiers="{}"/>
                     <filter string="Nhóm" name="group_by_categ_id" domain="[]" context="{'group_by': 'categ_id'}"/>
                     <filter string="Trạng Thái" name="group_by_tinh_trang" domain="[]" context="{'group_by': 'tinh_trang'}"/>
                     <filter string="Có SN hay không" name="group_tracking" domain="[]" context="{'group_by': 'tracking'}"/>
-                    <field string="Tìm Số lượng trong kho có tên" name="stock_location_id_selection" filter_domain="[('location_id','ilike',self)]" modifiers="{&quot;readonly&quot;: true}"/>
+                    <field string="Tìm Số lượng trong kho có tên" name="stock_location_id_selection" filter_domain="[('location_id','ilike',self)]" modifiers="{}"/>
                     <separator/>
                     <filter name="this month" string="Kho được  tạo tháng này" domain="[('create_date','&gt;=',(datetime.datetime.now().replace(day=1,hour=0,minute=0,second=0)-datetime.timedelta(hours=7)).strftime('%Y-%m-%d %H:%M:%S'))]" help="Chọn tháng này"/>
                   <filter name="recently" string="Thay đổi gần đây" domain="[('write_date','&gt;', (datetime.datetime.now() - datetime.timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S'))]" help="Pickings that are late on scheduled time"/>

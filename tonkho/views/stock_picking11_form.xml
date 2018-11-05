@@ -118,7 +118,7 @@
                 <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="replace"></xpath>
                 <field name="product_uom_id" force_save="1" readonly="1" groups="product.group_uom" />
                 <xpath expr="//page[1]/field/tree/field[@name='product_uom_id']" position="after">
-                    <field name="categ_id"></field>
+                    <field name="categ_id" string="Nhóm"></field>
                     <field name="tracking"></field>
                     <field name="lot_id" invisible="0" attrs="{'column_invisible': [('parent.show_lots_text', '=', True)],                     'invisible': ['|',('lots_visible', '=', False),('tracking', '=', 'none')],                                'readonly': ['|',('in_entire_package', '=', True),                 ('state', 'in', ('done', 'cancel'))]}" groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'default_product_id': product_id, 'default_pn_id': pn_id,'pn_id_readonly':True}" />
                     <field name="tinh_trang" attrs="{'readonly': [('state', 'in', ('done','cancel'))]}"></field>
