@@ -23,16 +23,20 @@ import os
 
 from lxml import etree
 
-BG_lst = [(u'BBBG',u'Bàn giao'),(u'TRVT',u'Trình vật tư'),
-                                               (u'BBNT',u'Nghiệm thu'),(u'BBSD',u'Đưa vào sử dụng'),
-                                            #   (u'BBNK',u'Nhập kho vật tư lỗi'),
-                                               (u'HUY',u'Biên bản hủy'),
-                                               (u'TRA_DO_HUY',u'Trả do hủy biên bản'),
-                                               (u'TRA_DO_MUON',u'Trả do mượn'),
-                                               (u'CHUYEN_TIEP',u'Chuyển tiếp'),
-                                               (u'TDTT',u'Thay đổi tình trạng vật tư'),
-                                               (u'DCNB',u'Dịch chuyển nội bộ'),
-                                               ]
+BG_lst = [
+          (u'BBBG',u'Bàn giao'),
+          (u'NHAN',u'Giao Nhận'),
+          (u'TRVT',u'Trình vật tư'),
+           (u'BBNT',u'Nghiệm thu'),
+           (u'BBSD',u'Đưa vào sử dụng'),
+        #   (u'BBNK',u'Nhập kho vật tư lỗi'),
+           (u'HUY',u'Biên bản hủy'),
+           (u'TRA_DO_HUY',u'Trả do hủy biên bản'),
+           (u'TRA_DO_MUON',u'Trả do mượn'),
+           (u'CHUYEN_TIEP',u'Chuyển tiếp'),
+           (u'TDTT',u'Thay đổi tình trạng vật tư'),
+           (u'DCNB',u'Dịch chuyển nội bộ'),
+           ]
 BG_dict = dict(BG_lst)
 def _select_nextval(cr, seq_name):
     cr.execute("SELECT nextval('%s')" % seq_name)
@@ -97,10 +101,10 @@ class StockPicking(models.Model):
             
             
 #     stt_trong_bien_ban_in = fields.Integer(string=u'STT trong biên bản',copy=False)
-    ma_bien_ban = fields.Char(string=u'Mã biên bản',compute='ma_bien_ban_',store=True,copy=False)#default=lambda self:self.default_get([ 'ban_giao_or_nghiem_thu']).get('ban_giao_or_nghiem_thu'),
-    @api.depends('ban_giao_or_nghiem_thu')
-    def ma_bien_ban_(self):
-        self.ma_bien_ban = self.ban_giao_or_nghiem_thu
+#     ma_bien_ban = fields.Char(string=u'Mã biên bản',compute='ma_bien_ban_',store=True,copy=False)#default=lambda self:self.default_get([ 'ban_giao_or_nghiem_thu']).get('ban_giao_or_nghiem_thu'),
+#     @api.depends('ban_giao_or_nghiem_thu')
+#     def ma_bien_ban_(self):
+#         self.ma_bien_ban = self.ban_giao_or_nghiem_thu
         
     name = fields.Char(
         compute='name_',store=True,
@@ -160,7 +164,7 @@ class StockPicking(models.Model):
     file_dl = fields.Binary('File', readonly=True)
     file_dl_name = fields.Char()
     log = fields.Text()
-    is_set_tt_col =  fields.Boolean(string=u'Có cột tình trạng trong biên bản?')
+    is_set_tt_col =  fields.Boolean(string=u'Có cột tình trạng?')
     is_not_show_y_kien_ld =  fields.Boolean(string=u'Không thêm dòng ý kiến lãnh đạo',default=True)
     title_row_for_import = fields.Integer()
     is_dl_right_now = fields.Boolean(default=True,string=u'Download ngay không cần lưu file')
@@ -215,7 +219,7 @@ class StockPicking(models.Model):
     @api.multi
     def import_file(self):
         title_row_for_import = [self.title_row_for_import or 0]
-        md = gen_model_dict(title_row_for_import)
+        md = gen_model_dict(title_row_for_import,self)
         importthuvien(self,model_dict = md, key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',key_tram='sml')
 
     @api.multi

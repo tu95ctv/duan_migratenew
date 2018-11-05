@@ -10,6 +10,8 @@
                     <field name="sequence_id" />
                     <field name="default_location_id" />
                     <field name="default_location_running_id" />
+                    <field name="kho_tam_id" />
+                    
                 </xpath>
             </field>
         </record>

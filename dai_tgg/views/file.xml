@@ -24,6 +24,8 @@
                      <field name="file" filename="name" />
                      <field name="mo_ta" />
                      <field name="image" widget="image" />
+                     <field name="image_2" widget="image" />
+                     <field name="image_3" widget="image" />
                   </group>
                </sheet>
             </form>
@@ -38,6 +40,9 @@
                <field name="file" />
                <field name="mo_ta" />
                <field name="image"/>
+               <field name="image_2"/>
+               <field name="image_3"/>
+               
             </tree>
          </field>
       </record>

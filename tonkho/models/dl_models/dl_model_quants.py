@@ -23,7 +23,9 @@ def gen_domain_stock_quant(dl_obj):
     if dl_obj.parent_location_id:
         domain.append(('location_id','child_of',dl_obj.parent_location_id.id))
     return domain
-
+def tracking_(v,needdata):
+    adict = {'serial':u'Có SN','none':u'Không có SN'}
+    return adict[v]
     
 def download_quants(dl_obj,append_domain = []):
     
@@ -33,7 +35,7 @@ def download_quants(dl_obj,append_domain = []):
          ('product_id',{'func':lambda v,n: v.name,'width':get_width(50)}),
          ('thiet_bi_id',{'func':lambda v,n: v.name,'width':get_width(20)}),
          ('brand_id',{'func':lambda v,n: v.name}),
-         ('tracking',{}),
+         ('tracking',{'func':tracking_}),
          ('categ_id',{'func':lambda v,n: v.name,'width':get_width(20) }),
          ('pn_id',{'func':lambda v,n: v.name,'width':get_width(20)}),
          ('lot_id',{'func':lambda v,n: v.name,'width':get_width(20)}),

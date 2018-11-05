@@ -35,7 +35,7 @@ TYPES_ATT_DICT = {
             'skip_field_if_not_found_column_in_some_sheet' : {'types': ['bool', 'NoneType']} ,
             'skip_this_field' : {'types': ['NoneType', 'bool','function']} ,
             'string' : {'types': ['str']} ,
-            'title_rows' : {'types': ['list']} ,
+            'title_rows' : {'types': ['list'],'no_need_check_type':True} ,
             'title_rows_some_sheets' : {'types': ['dict']} ,
             'transfer_name' : {'types': ['str']} ,
             'xl_title' : {'types': ['str', 'list', 'NoneType']} ,
@@ -48,12 +48,11 @@ TYPES_ATT_DICT = {
             'only_get':{'types':['bool']},
             'required_not_create':{'types':['bool']},
             'write_func':{'types': ['function']},
-            'mode_not_create':{'types': ['bool']},
-            'skip_this_field_2':{'types': ['bool']},
+            'mode_no_create_in_main_instance':{'types': ['bool']},
+            'skip_this_field_for_mode_no_create':{'types': ['bool']},
+            'required_force':{'types': ['bool']},
 #             'skip_field_default':{'types': ['bool']}
 }
-
-
 ###R1
 def ordered_a_model_dict(model_dict):
     fields = model_dict['fields']
@@ -62,7 +61,6 @@ def ordered_a_model_dict(model_dict):
         if attr.get('fields'):
             new_ordered_dict = ordered_a_model_dict(attr)
     model_dict['fields']=OrderedDict(fields)
-    
 #R5
 def write_get_or_create_title(model_dict,sheet,sheet_of_copy_wb,title_row,key_tram):
     fields = model_dict['fields']
@@ -78,8 +76,31 @@ def write_get_or_create_title(model_dict,sheet,sheet_of_copy_wb,title_row,key_tr
             title = attr.get('string',fname)  + u' Có sẵn hay tạo'
             sheet_of_copy_wb.col(col).width =  get_width(len(title))
             sheet_of_copy_wb.write(title_row, col,title ,header_bold_style)
-            
-#R2
+#R2                   
+def rut_gon_key(MD,key_tram,mode_no_create_in_main_instance=None): # rút gọn key không dùng được vì nó vướn vào cái sml_not_create, required nó khác với sml thường
+#     if mode_no_create_in_main_instance:
+#         raise UserError(u'kkakaka 1')
+    for attr,val in MD.items():
+        if attr != 'fields':
+#             if attr !='get_or_create_para':
+            adict = TYPES_ATT_DICT.get(attr)
+            if adict == None:
+                raise UserError(u'**None** attr:%s- attr_val:%s- thiếu attr trong TYPES_ATT_DICT'%(attr,val))
+            default = adict.get('default')
+            val = get_key_allow_goc(MD, attr, key_tram,default)
+            if attr =='skip_this_field' and mode_no_create_in_main_instance:
+                skip_this_field_for_mode_no_create = get_key_allow_goc(MD, 'skip_this_field_for_mode_no_create', key_tram)
+                if skip_this_field_for_mode_no_create==True:
+                    val = True
+#             elif attr =='skip_this_field_for_mode_no_create':
+#                 MD['skip_this_field'] = val
+            MD[attr] = val
+        else:
+            for field_name, field_attr_is_MD_child in MD['fields'].items(): 
+                rut_gon_key(field_attr_is_MD_child,key_tram,mode_no_create_in_main_instance=mode_no_create_in_main_instance)
+                
+                
+#R3
 def recursive_add_model_name_to_field_attr(self,MODEL_DICT,key_tram=False):
     model_name = get_key_allow(MODEL_DICT, 'model', key_tram)
     fields= self.env[model_name]._fields
@@ -90,7 +111,7 @@ def recursive_add_model_name_to_field_attr(self,MODEL_DICT,key_tram=False):
             skip_this_field = skip_this_field(self)
         if not skip_this_field:
             if f_name not in fields and not field_attr.get('for_excel_readonly'):
-                raise UserError(u'f_name:%s không nằm trong fields, phải thêm thược tính for_excel_readonly')
+                raise UserError(u'f_name:"%s" không nằm trong fields, phải thêm thược tính for_excel_readonly-field_attr:%s'%(f_name,field_attr))
             if not field_attr.get('for_excel_readonly') :# and not skip_this_field
                 try:
                     field = fields[f_name]
@@ -100,11 +121,15 @@ def recursive_add_model_name_to_field_attr(self,MODEL_DICT,key_tram=False):
                 if field.comodel_name:
                     field_attr['model'] = field.comodel_name
                 required_from_model = field.required
+                required_force = field_attr.get('required_force',None)
                 bypass_this_field_if_value_equal_False = field_attr.get('bypass_this_field_if_value_equal_False')
                 if bypass_this_field_if_value_equal_False:
                     required = False
                 else:
-                    required = required_from_model
+                    if required_force:
+                        required =True
+                    else:
+                        required = required_from_model
 #                 if field_attr.get('required',None)==None:
 #                     field_attr['required'] = field.required
                 field_attr['required']= required
@@ -208,6 +233,7 @@ def define_col_index(title_rows,sheet,COPY_MODEL_DICT,key_tram):
                 number_map_dict.setdefault(row,0)
                 number_map_dict[row] +=1
 #                 titles.append(read_excel_value_may_be_title)
+    print ('***number_map_dict',number_map_dict)
     largest_map_row = max(number_map_dict.items(), key=operator.itemgetter(1))[0]
     return row_title_index,largest_map_row
 
@@ -258,7 +284,7 @@ def check_col_index_match_xl_title(self,COPY_MODEL_DICT,key_tram,needdata):
                 
                 
 #!5
-#R6             
+#R4             
 def muon_xuat_dac_tinh_gi(COPY_MODEL_DICT, attr_muon_xuats = ['field_type'],ghom_dac_tinh = {}):
     #ghom_dac_tinh = {'field_type':['char','many2one']}
     fields = COPY_MODEL_DICT['fields']
@@ -304,29 +330,7 @@ def xuat_het_dac_tinh(COPY_MODEL_DICT,key_tram,dac_tinhs = {}):
 #                 if 'fields' in field_attr_is_MD_child:
 #                     rut_gon_key1(field_attr_is_MD_child,key_tram)
                     
-                    
-def rut_gon_key(MD,key_tram,mode_not_create=None): # rút gọn key không dùng được vì nó vướn vào cái sml_not_create, required nó khác với sml thường
-#     if mode_not_create:
-#         raise UserError(u'kkakaka 1')
-    for attr,val in MD.items():
-        if attr != 'fields':
-#             if attr !='get_or_create_para':
-            adict = TYPES_ATT_DICT.get(attr)
-            if adict == None:
-                raise UserError(u'**None** attr:%s- attr_val:%s- thiếu attr trong TYPES_ATT_DICT'%(attr,val))
-            default = adict.get('default')
-            val = get_key_allow_goc(MD, attr, key_tram,default)
-            if attr =='skip_this_field' and mode_not_create:
-               
-                skip_this_field_2 = get_key_allow_goc(MD, 'skip_this_field_2', key_tram)
-                if skip_this_field_2==True:
-                    val = True
-#             elif attr =='skip_this_field_2':
-#                 MD['skip_this_field'] = val
-            MD[attr] = val
-        else:
-            for field_name, field_attr_is_MD_child in MD['fields'].items(): 
-                rut_gon_key(field_attr_is_MD_child,key_tram,mode_not_create=mode_not_create)
+ 
                 
             
 #         elif attr =='fields' : 

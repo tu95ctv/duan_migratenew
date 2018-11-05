@@ -27,10 +27,10 @@ class PN(models.Model):
 #     name2 = fields.Char()
 class ThietBi(models.Model):
     _name = 'tonkho.thietbi'
-    name = fields.Char()
+    name = fields.Char(required=True)
 class Brand(models.Model):
     _name = 'tonkho.brand'
-    name = fields.Char()
+    name = fields.Char(required=True)
 
 class ProductTemplate(models.Model):
     """ Quants are the smallest unit of stock physical instances """

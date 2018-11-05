@@ -11,7 +11,7 @@ class Product(models.Model):
     
     lot_ids = fields.One2many('stock.production.lot','product_id')
     pn_ids = fields.One2many('tonkho.pn','product_id')
-    len_pn = fields.Integer(compute='len_pn_',store=True)
+    len_pn = fields.Integer(compute='len_pn_',store=True,string=u'Số lượng PN')
     ghi_chu_cate = fields.Text()
     @api.depends('pn_ids')
     def len_pn_(self):

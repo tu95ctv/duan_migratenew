@@ -12,19 +12,40 @@ def get_width(num_characters):
 def stt_(v,needdata): 
     v = needdata['a_instance_dict']['stt_not_model']['val']  +1   
     return v  
-FIELDNAME_FIELDATTR_quants = [
+def cac_sep_ids_(v,n):
+    if v:
+        return ','.join(v.mapped('login'))
+    else:
+        return ''
+def groups_id_(v,n,dl_obj=None):
+    nhom_chinhs = dl_obj.env['res.groups'].search([('name','in',[u'Group Thay Đổi TVCV','Group Chấm điểm CVI'])]).ids
+#     if nhom_chinhs:
+#         print ("nhom_chinhs",nhom_chinhs)
+#         raise UserError(u'kaka1')
+    new = v.filtered(lambda r: True if (r.id in nhom_chinhs) else False)
+    if new:
+        return ','.join(new.mapped('name'))
+    else:
+        return 'khong co j'
+    
+def download_user(dl_obj,append_domain = []):
+    
+    FIELDNAME_FIELDATTR_quants = [
          ('stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_}),
           ('name',{'width':get_width(40)}),
-          ('don_vi',{})
+          ('department_id',{}),
+          ('cac_sep_ids',{'func':cac_sep_ids_}),
+          ('groups_id',{'func':groups_id_,'kargs':{'dl_obj':dl_obj}}),
                     ]
-Export_Para_quants = {
-    'exported_model':'tvcv',
-    'FIELDNAME_FIELDATTR':FIELDNAME_FIELDATTR_quants,
-#     'gen_domain':gen_domain_stock_quant,
-#     'search_para':{'order': 'stt asc'},#desc
-    }
-    
-def download_tvcv1(dl_obj,append_domain = []):
+    Export_Para_quants = {
+        'exported_model':'res.users',
+        'FIELDNAME_FIELDATTR':FIELDNAME_FIELDATTR_quants,
+    #     'gen_domain':gen_domain_stock_quant,
+    #     'search_para':{'order': 'stt asc'},#desc
+        }
+
+
+
     if not dl_obj.is_moi_sheet_moi_loai:
 #         return download_quants_chung_sheet(dl_obj)
         filename = 'tvcv'

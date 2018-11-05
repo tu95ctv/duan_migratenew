@@ -22,7 +22,7 @@
                   Số:
                   <span t-field="o.stt_trong_bien_ban_in" />
                   /
-                  <span t-esc="o.ma_bien_ban" />
+                  <span t-esc="o.ban_giao_or_nghiem_thu" />
                   -
                   <span t-field="o.department_id.short_name" />
                </div>

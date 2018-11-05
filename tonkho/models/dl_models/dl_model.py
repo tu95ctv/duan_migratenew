@@ -79,11 +79,15 @@ def add_1_row(worksheet,r ,FIELDNAME_FIELDATTR, row_index, offset_column=0, f_na
         kargs = FIELDATTR.get('kargs',{})
         if func:
             val = func(val,needdata, **kargs)
+        else:
+            if hasattr(val, 'name'):
+                val = val.name
 #         print (f_name, val)
         if val == False:
 #             print ('FALSE',f_name,val)
             val = u''
         one_field_val['val']=val 
+       
         max_len_field_val =  FIELDATTR.setdefault('max_len_field_val',0)
         val_len = len(val) if isinstance(val, str) else 0
         if val_len > max_len_field_val:

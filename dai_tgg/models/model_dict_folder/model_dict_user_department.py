@@ -2,10 +2,6 @@
 from odoo.exceptions import UserError
 import datetime
 # from odoo.addons.dai_tgg.mytools import convert_float_to_ghi_chu_ngay_xuat,lot_name_
- 
- 
-
-
 def gen_user_department_model_dict():
     user_model_dict = {
         u'Partner': {
@@ -24,7 +20,7 @@ def gen_user_department_model_dict():
                                             }
                          ),
                                                ('phone',{'func':None,'xl_title':u'phone','key':False, 'func': lambda v,n: str(int(v)) if isinstance(v,float) else v}),
-                                               ( 'email',{'func':None,'xl_title':u'email','key':True ,'required':True}),
+                                               ( 'email',{'func':None,'xl_title':u'email','key':True ,'required_force':True}),
                                                 
                                                 ('job_id',{'key':False,'required':False,
                                        'fields':[
@@ -59,7 +55,8 @@ def gen_user_department_model_dict():
                 ('name',{'func':None,'xl_title':u'công ty','key':True,'required':True}),
                 ('report_name',{'func':None,'xl_title':u'report_name','key':False,'required':False}),
                 ('short_name',{'func':None,'xl_title':u'short_name','key':False,'required':False}),
-                ('parent_id',{'fields':[('name',{'xl_title':u'parent_id','key':True,'required':True}),
+                ('parent_id',{'fields':[
+                                              ('name',{'xl_title':u'parent_id','key':True,'required':True}),
                                                ]
                                     }
                  ),
@@ -78,6 +75,20 @@ def gen_user_department_model_dict():
                                                ]
                                     }
                  ),
+                ('partner_id',{'key':False,'required':False,
+                                   'fields':[
+                                            ('name',{'xl_title':None,  'key':True, 'required': True, 'func':lambda val,needdata: needdata['vof_dict']['name']['val']}),
+                                            ('company_type',{'xl_title':None,  'key':False, 'required': False, 'set_val':'company'}),
+                                            ('parent_id',{'key':False,'required':False,
+                                                               'fields':[
+                                                                        ('name',{'xl_title':None,  'key':True, 'required_force': True, 'func':lambda val,needdata: needdata['vof_dict']['parent_id']['fields']['name']['val'] }),
+                                                                        ('company_type',{'xl_title':None,  'key':False, 'required': False, 'set_val':'company'}),
+                                                                        ]
+                                   }),  
+                 
+                ]}),
+                    
+                    
                 ('default_location_id',{'fields':[
                     ('name',{'xl_title':u'default_location_id','func':None,'key':True,'required':True}),
                     ('partner_id_of_stock_for_report',{'fields':[('name',{'func': lambda v,n:n['vof_dict']['name']['val'], 'key':True,'required':True}),
@@ -91,49 +102,44 @@ def gen_user_department_model_dict():
                              ('name',{'func':lambda v,needdata:needdata['vof_dict']['name']['val'],'key':True,'required':True}),
                                     ]
                           }),
-                    ('location_id',{'fields':[('name',{'xl_title':u'location_id','key':True,'required':True}),
-                                                                          ]
-                                                               }
-                                            ),                                                                                
                                                                         ]
                                                             }
                  ),
-                     
                 ('default_location_running_id',{'model':'stock.location','fields':[
-                    ('name',{'xl_title':u'default_location_id_running','func':None,'key':True,'required':True}),
-                    ('usage',{'xl_title':u'usage','func':None,'key':False,'required':False}),
-                    ('is_kho_cha',{'set_val':True}),
-                     ('stock_type',{'set_val':'tram'}),
-                     ('partner_id_of_stock_for_report',{'model':'res.partner','fields':[('name',{'func': lambda v,n:n['vof_dict']['name']['val'], 'key':True,'required':True}),
-                                               ]
-                                    }
-                 ),
-                ('department_id',
-                 {'model':'hr.department','fields':[
-                     ('name',{'func':lambda v,needdata:needdata['vof_dict']['name']['val'],'key':True,'required':True}),
-                            ]
-                  }),
-                     
-                    ('location_id',{'model':'stock.location', 'fields':[('name',{'xl_title':u'location_id','key':True,'required':True}),
-                                                                          ]
-                                                               }
-                                            ),                                                                                
-                                                                        ]
-                                                            }
-                 ),
-                    ('partner_id',{'key':False,'required':False,
-       'fields':[
-                ('name',{'xl_title':None,  'key':True, 'required': True, 'func':lambda val,needdata: needdata['vof_dict']['name']['val']}),
-                ('company_type',{'xl_title':None,  'key':False, 'required': False, 'set_val':'company'}),
-                ('parent_id',{'key':False,'required':False,
-       'fields':[
-                ('name',{'xl_title':None,  'key':True, 'required': True, 'func':lambda val,needdata: needdata['vof_dict']['parent_id']['fields']['name']['val'] }),
-                ('company_type',{'xl_title':None,  'key':False, 'required': False, 'set_val':'company'}),
-                ]
-       }),  
-                 
-                ]
-       }),  
+                        ('name',{'xl_title':u'default_location_id_running','func':None,'key':True,'required':True}),
+                        ('usage',{'xl_title':u'usage','func':None,'key':False,'required':False}),
+                        ('is_kho_cha',{'set_val':True}),
+                        ('stock_type',{'set_val':'tram'}),
+                        ('partner_id_of_stock_for_report',{'model':'res.partner','fields':[('name',{'func': lambda v,n:n['vof_dict']['name']['val'], 'key':True,'required':True}),
+                                                   ]} ),
+                        ('department_id',
+                                             {'model':'hr.department','fields':[
+                                                 ('name',{'func':lambda v,needdata:needdata['vof_dict']['name']['val'],'key':True,'required':True}),
+                                                        ]
+                                              }),
+#                         ('location_id',{'model':'stock.location', 'fields':[('name',{'xl_title':u'location_id','key':True,'required':True}),]}), 
+                                                                                ]
+                                                                    }),
+                ('kho_tam_id',{'model':'stock.location','fields':[
+                        ('name',{'xl_title':u'kho_tam','func':None,'key':True,'required':True}),
+                        ('usage',{'xl_title':u'usage','func':None,'key':False,'required':False}),
+                        ('is_kho_cha',{'set_val':True}),
+                        ('stock_type',{'set_val':'tram'}),
+                        ('partner_id_of_stock_for_report',{'model':'res.partner','func':lambda v,needdata:needdata['vof_dict']['partner_id']['val']}),
+                        ('department_id',
+                                             {'model':'hr.department','fields':[
+                                                 ('name',{'func':lambda v,needdata:needdata['vof_dict']['name']['val'],'key':True,'required':True}),
+                                                        ]
+                                              }),
+#                         ('location_id',{'model':'stock.location', 'fields':[('name',{'xl_title':u'location_id','key':True,'required':True}),]}), 
+                                                                                ]
+                                                                    }),
+                    
+                       
+                    
+                    
+                    
+            
               ]
                 },#End department
      u'User': {

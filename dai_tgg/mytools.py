@@ -6,17 +6,64 @@ import re
 from unidecode import unidecode
 import sys
 import datetime
+from odoo.osv import expression
+def get_or_create_object_sosanh(self, class_name, search_dict,
+                                write_dict ={},is_must_update=False, noti_dict=None,
+                                inactive_include_search = False):
+    
+    
+    if noti_dict !=None:
+        this_model_noti_dict = noti_dict.setdefault(class_name,{})
+    else:
+        this_model_noti_dict = None
+    if inactive_include_search:
+        domain_not_active = ['|',('active','=',True),('active','=',False)]
+    else:
+        domain_not_active = []
+    domain = []
+    for i in search_dict:
+        tuple_in = (i,'=',search_dict[i])
+        domain.append(tuple_in)
+    domain = expression.AND([domain_not_active, domain])
+    searched_object  = self.env[class_name].search(domain)
+    if not searched_object:
+        search_dict.update(write_dict)
+        #print '***search_dict***',search_dict
+        created_object = self.env[class_name].create(search_dict)
+        if this_model_noti_dict !=None:
+            this_model_noti_dict['create'] = this_model_noti_dict.get('create', 0) + 1
+        return_obj =  created_object
+    else:
+        if not is_must_update:
+            is_write = False
+            for f_name in write_dict:
+                field_dict_val = write_dict[f_name]
+                orm_field_val = getattr(searched_object, f_name)
+                try:
+                    converted_orm_val_to_dict_val = getattr(orm_field_val, 'id', orm_field_val)
+                    if converted_orm_val_to_dict_val == None: #recorderset.id ==None when recorder sset = ()
+                        converted_orm_val_to_dict_val = False
+                except:#not singelton
+                    pass
+                if isinstance(orm_field_val, datetime.date):
+                    converted_orm_val_to_dict_val = fields.Date.from_string(orm_field_val)
+                if converted_orm_val_to_dict_val != field_dict_val:
+                    is_write = True
+                    break
+        else:
+            is_write = True
+        if is_write:
+            searched_object.write(write_dict)
+            if this_model_noti_dict !=None:
+                this_model_noti_dict['update'] = this_model_noti_dict.get('update',0) + 1
+        else:#'not update'
+            if this_model_noti_dict !=None:
+                this_model_noti_dict['skipupdate'] = this_model_noti_dict.get('skipupdate',0) + 1
+        return_obj = searched_object
+    return return_obj
 
-def lot_name_(val,needdata,self):
-    p_id = needdata['vof_dict']['product_id']['val']
-    product_id = self.env['product.product'].browse(p_id)
-    UBC  = 'use barcode '
-    lot_name = needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] or (needdata['vof_dict']['barcode_for_first_read']['val'] and  (UBC +' ' + needdata['vof_dict']['barcode_for_first_read']['val']))
-    if lot_name== UBC:
-        lot_name= lot_name + str(int(needdata['vof_dict']['stt']['val']))
-    elif  (lot_name ==False and  product_id.tracking=='serial'):
-        lot_name = 'unknown ' + product_id.name + '  ' + str(int(needdata['vof_dict']['stt']['val']) )
-    return lot_name
+
+
 def convert_float_to_ghi_chu_ngay_xuat(val):
     if isinstance(val, float):
         seconds = (val - 25569) * 86400.0

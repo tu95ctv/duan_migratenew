@@ -45,10 +45,9 @@ class ImportThuVien(models.Model):
                                   ('key_tti','key_tti'),
                                   ('key_tti_dc','key_tti_dc'),
                                   ('key_ltk_dc','key_ltk_dc'),
-                                  ('key_tti_dc_product','key_tti_dc_product'),
                                   
                                   ])
-    mode_not_create = fields.Boolean()
+    mode_no_create_in_main_instance = fields.Boolean()
     file = fields.Binary()
     filename = fields.Char()
     name_inventory_suffix = fields.Char()
@@ -76,6 +75,8 @@ class ImportThuVien(models.Model):
     test_result_2 = fields.Text()
     test_result_3 = fields.Text()
     line_not_has_quant =  fields.Text()
+    only_xuat_thuoc_tinh =  fields.Boolean()
+    dac_tinh = fields.Char()
     def importthuvien(self):
         importthuvien(self)
         return True

@@ -153,6 +153,14 @@ import re
 #     else:
 #         return True
 # print check_thuoc_tinh_co_nam('ad',u'begin_data_row_offset_with_title_row')  
+domain = ' location_id in %s'
+args = (tuple([1,2,3]),)
+        
+domain = \
+"""SELECT product_id, sum(quantity) as product_qty, location_id, lot_id as prod_lot_id, package_id, owner_id as partner_id
+            FROM stock_quant
+            WHERE %s
+            GROUP BY product_id, location_id, lot_id, package_id, partner_id """ % domain, args
 
-kq = re.search(u'Số thứ tự (trong shelf)', u'Số thứ tự (trong shelf)')
-print (kq.group())
+print (domain)
+

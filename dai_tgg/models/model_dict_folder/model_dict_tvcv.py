@@ -1,5 +1,6 @@
  # -*- coding: utf-8 -*-
 # from odoo.addons.dai_tgg.models.get_or_create_func import get_or_create_object_sosanh
+from odoo.addons.dai_tgg.mytools import get_or_create_object_sosanh
 def convert_integer(val,needdata):
     try:
         return int(val)
@@ -22,7 +23,7 @@ def gen_tvcv_model_dict():
                                                                   #'fields':[('name',{'key':True,'set_val':'LTK'})]
                                                                   }),
                         ( 'state',{'set_val':'confirmed'}),
-#                         ( 'cong_viec_cate_id',{'func':lambda val,needdata,self:get_or_create_object_sosanh(self, 'tvcvcate', {'name':needdata['sheet_name']}, {} ).id , 'key':False }),
+                        ( 'cong_viec_cate_id',{'func':lambda val,needdata,self:get_or_create_object_sosanh(self, 'tvcvcate', {'name':needdata['sheet_name']}, {} ).id , 'key':False }),
                         ( 'code',{'func':None,'xl_title':u'Mã CV','key':True ,'required':True}),
                         ('do_phuc_tap',{'func':convert_integer,'xl_title':u'Độ phức tạp','key':False}),
                         ('diem',{'func':None,'xl_title':u'Điểm','key':False}),

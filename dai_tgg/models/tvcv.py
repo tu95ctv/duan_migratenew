@@ -48,11 +48,8 @@ class TVCV(models.Model):
     
     
     department_id = fields.Many2one('hr.department',ondelete='restrict')
-    name = fields.Char(string=u'Tên công việc')
-#     name_khong_dau = fields.Char(compute='name_khong_dau_', store=True)
-#     name_viet_tat =  fields.Char(compute='name_khong_dau_', store=True)
+    name = fields.Char(string=u'Tên công việc',required=True)
     loai_record = fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record')
-#     loai_record_show =  fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record',compute='loai_record_show_')
     code = fields.Char(string=u'Mã công việc')
     don_vi = fields.Many2one('donvi',string=u'Đơn vị tính')
     do_phuc_tap = fields.Integer(string=u'Độ Phức Tạp')
@@ -61,15 +58,18 @@ class TVCV(models.Model):
     dot_xuat_hay_dinh_ky = fields.Many2one('dotxuathaydinhky',string=u'Đột xuất hay định kỳ')
     cong_viec_cate_id = fields.Many2one('tvcvcate',string=u'Phân loại TVCV')
     diem_percent = fields.Integer(string=u'Phần trăm điểm so với TVCV cha')
-    is_has_children = fields.Boolean(string=u'Có TVCV Giai Đoạn Con',compute='is_has_children_',store=True)
     children_ids = fields.One2many('tvcv','parent_id',string=u'Các TVCV Giai Đoạn Con')
     parent_id = fields.Many2one('tvcv',string=u'TVCV Giai Đoạn Cha')
-    co_cong_viec_cha = fields.Boolean(string=u'Có TVCV Giai Đoạn Cha',compute='co_cong_viec_cha_',store=True)
     ghi_chu = fields.Text(u'Ghi Chú')
-    valid_thu_vien = fields.Boolean(compute='valid_thu_vien_',store=True,string=u'Valid thư viện')
     active = fields.Boolean(default=True)
     state = fields.Selection([('draft',u'Bản Nháp'),('confirmed',u'Xác Nhận')],default='draft')
    
+   
+   
+   
+    is_has_children = fields.Boolean(string=u'Có TVCV Giai Đoạn Con',compute='is_has_children_',store=True)
+    co_cong_viec_cha = fields.Boolean(string=u'Có TVCV Giai Đoạn Cha',compute='co_cong_viec_cha_',store=True)
+    valid_thu_vien = fields.Boolean(compute='valid_thu_vien_',store=True,string=u'Valid thư viện')
 #     @api.model
 #     def fields_view_get(self, view_id=None, view_type=False, toolbar=False, submenu=False):
 #         res = super(TVCV, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)

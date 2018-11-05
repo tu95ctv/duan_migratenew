@@ -128,7 +128,6 @@ def read_val_for_ci(self,set_val,col_index,a_field_vof_dict,MODEL_DICT,field_att
         if val != False and field_type_of_this_model != None and '2many' in field_type_of_this_model and field_attr.get('is_x2m_field'):
             val = val.split(',')
             val = list(map(lambda i: empty_string_to_False(i.strip()),val))
-            print ('val *** in m2m',val)
             for i in val:
                 if i==False:
                     raise UserError(u'Không được = False')
@@ -152,7 +151,8 @@ def read_val_for_ci(self,set_val,col_index,a_field_vof_dict,MODEL_DICT,field_att
                     else:
                         get_or_create_display = u'empty cell'
                 sheet_of_copy_wb.write(row,sheet.ncols + offset_write_xl , get_or_create_display,not_horiz_center_border_style)
-    return val       
+    return val      
+#F1 
 def get_a_field_val(self,field_name,field_attr,key_tram,needdata,row,sheet,
                            MODEL_DICT,not_create,
 #                            workbook_copy,
@@ -170,6 +170,7 @@ def get_a_field_val(self,field_name,field_attr,key_tram,needdata,row,sheet,
     ###  deal set_val ########
     set_val = get_key_allow( field_attr,'set_val',key_tram)
     func = get_key_allow( field_attr,'func',key_tram)
+    #F11
     val = read_val_for_ci(self,set_val,col_index,a_field_vof_dict,MODEL_DICT,field_attr,sheet,row,
                     merge_tuple_list,not_create,needdata,noti_dict,key_tram,
 #                     workbook_copy,
@@ -189,7 +190,7 @@ def get_a_field_val(self,field_name,field_attr,key_tram,needdata,row,sheet,
     val =replace_val_for_ci(field_attr,key_tram,val,needdata)
     check_type_of_val(field_attr,val,field_name,model_name)
     a_field_vof_dict['val'] = val
-    print ("row", row,'model_name',model_name,'field', field_name, 'val', val)
+    print ("row: ", row,'model_name: ',model_name,'-field: ', field_name, '-val: ', val)
     
     
     bypass_this_field_if_value_equal_False = get_key_allow(field_attr, 'bypass_this_field_if_value_equal_False', key_tram, False)
@@ -224,8 +225,10 @@ def get_a_field_val(self,field_name,field_attr,key_tram,needdata,row,sheet,
             raise UserError('raise_if_False field: %s'%field_name)
         if main_call_create_instance_model:
             print ('skip because required,model %s- field %s'%(model_name,field_name))
-            noti_dict['skip because required'] +=  1
-        return 'break' #sua 5
+        this_model_notice = noti_dict.setdefault(model_name,{})
+        skip_because_required = this_model_notice.setdefault('skip_because_required',0)
+        this_model_notice['skip_because_required'] = skip_because_required + 1
+        return 'break_because_required' #sua 5
     elif not field_attr.get('for_excel_readonly'):
         key_or_not = field_attr.get('key')
         if key_or_not==True:
@@ -241,6 +244,7 @@ def get_a_field_val(self,field_name,field_attr,key_tram,needdata,row,sheet,
             some_dict['remove_all_or_just_add_one_x2m'] &= field_attr.get('remove_all_or_just_add_one_x2m',True)
 #     return instance_false
     return False        
+#F2
 def get_or_create_instance(self,
                            model_name,
                            key_search_dict,
@@ -250,10 +254,13 @@ def get_or_create_instance(self,
                            noti_dict,
                            inactive_include_search,
                            x2m_fields,
-                           remove_all_or_just_add_one_x2m,MODEL_DICT,key_tram):
+                           remove_all_or_just_add_one_x2m,MODEL_DICT,key_tram,
+                           mode_no_create_in_main_instance):
     if key_search_dict:
-        if MODEL_DICT.get('mode_not_create'):
+        
+        if mode_no_create_in_main_instance:
             return False, False
+        
         if not_create:
             if instance_false:
                 obj_val = False
@@ -272,17 +279,15 @@ def get_or_create_instance(self,
                                 )
         return obj_val, get_or_create 
     else:
-        if not MODEL_DICT.get('for_create_another'):
-            raise UserError(u' không có key_search_dict')             
-        else:
-            return False,False  
+        return False,False  
 
 ################# CREATE INSTANCE
 def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, noti_dict, main_call_create_instance_model = False,
                     key_tram=None, 
                     not_create = False,
                     sheet_of_copy_wb = False,
-                    some_var_para = {}
+#                     some_var_para = {},
+                    mode_no_create_in_main_instance = False
                      ):
     key_search_dict = {}
     update_dict = {}
@@ -297,19 +302,22 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
     some_dict = {'instance_false':False,'remove_all_or_just_add_one_x2m':True}
     break_condition = False
     for field_name,field_attr  in MODEL_DICT['fields'].items():
+        #F1
         code = get_a_field_val(self,field_name,field_attr,key_tram,needdata,row,sheet,
                            MODEL_DICT,not_create,
                            sheet_of_copy_wb,
                            merge_tuple_list,model_name,main_call_create_instance_model,noti_dict,
                            key_search_dict,update_dict,x2m_fields,some_dict)
-        if code =='break':
+        if code =='break_because_required':
 #             return obj,get_or_create
+            
             break_condition = True# moi them
             break
     if break_condition:
         if main_call_create_instance_model:
             if  True:#getattr(self, 'allow_cate_for_ghi_chu',False):
-                break_condition_func_for_main_instance = some_var_para.get('break_condition_func_for_main_instance',None)
+#                 break_condition_func_for_main_instance = some_var_para.get('break_condition_func_for_main_instance',None)
+                break_condition_func_for_main_instance  = get_key_allow(MODEL_DICT,'break_condition_func_for_main_instance',key_tram)
                 if break_condition_func_for_main_instance:
                     break_condition_func_for_main_instance(needdata)
         obj_val = False
@@ -323,8 +331,10 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
         last_record_function(needdata,self)
     
     if main_call_create_instance_model:
-        print ('key_search_dict',key_search_dict)
-        print ('update_dict',update_dict)
+        pass
+#         print ('key_search_dict',key_search_dict)
+#         print ('update_dict',update_dict)
+    #F2
     obj_val, get_or_create  = get_or_create_instance(
                                                    self,
                                                    model_name,
@@ -337,14 +347,14 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
                                                    x2m_fields,
                                                    some_dict['remove_all_or_just_add_one_x2m'],
                                                    MODEL_DICT,
-                                                   key_tram)
+                                                   key_tram,
+                                                   mode_no_create_in_main_instance)
      
     
     return obj_val, get_or_create 
-def check_notice_dict_co_create_or_get(model_name,noti_dict,not_create,mode_not_create):
-    print ('noti_dict***',noti_dict,'**model_name**',model_name)
+def check_notice_dict_co_create_or_get(model_name,noti_dict,not_create,mode_no_create_in_main_instance):
     adict = noti_dict.get(model_name,{})
-    if not adict.get('create') and not adict.get('update') and not not_create and not mode_not_create:
+    if not adict.get('create') and not adict.get('update') and not not_create and not mode_no_create_in_main_instance:
         raise UserError(u'các row bị bỏ qua hết không có dòng nào được tạo hoặc được update')
     
 
@@ -369,7 +379,7 @@ def importthuvien(odoo_or_self_of_wizard,
         formatting_info = True
     xl_workbook = xlrd.open_workbook(file_contents = file_content, formatting_info=formatting_info)
     noti_dict = {}
-    noti_dict['skip because required'] = 0
+#     noti_dict['skip because required'] = 0
     if not key:
         CHOOSED_MODEL_DICT = ALL_MODELS_DICT[self.type_choose]
     else:
@@ -381,19 +391,20 @@ def importthuvien(odoo_or_self_of_wizard,
         raise UserError(u'ban phai chon key_tram')
     #R1
     ordered_a_model_dict( CHOOSED_MODEL_DICT)
-    #R3
-    mode_not_create = self.mode_not_create
-    rut_gon_key(CHOOSED_MODEL_DICT,key_tram,mode_not_create=mode_not_create)
     #R2
+#     mode_no_create_in_main_instance = getattr(self,'mode_no_create_in_main_instance',None)
+    mode_no_create_in_main_instance = getattr(self,'mode_no_create_in_main_instance',None)
+    rut_gon_key(CHOOSED_MODEL_DICT,key_tram,mode_no_create_in_main_instance=mode_no_create_in_main_instance)
+    #R3
     recursive_add_model_name_to_field_attr(self,CHOOSED_MODEL_DICT,key_tram=key_tram)
 #     dac_tinhs = {}
 #     xuat_het_dac_tinh(CHOOSED_MODEL_DICT,key_tram,dac_tinhs)
 #     self.test_result_2 =u'kaka %s'% dac_tinhs 
 #     return False
 
-    ghom_dac_tinh = {}
-    rs = muon_xuat_dac_tinh_gi(CHOOSED_MODEL_DICT,attr_muon_xuats = ['skip_this_field'],ghom_dac_tinh=ghom_dac_tinh)
-    self.test_result_1 = rs
+#     ghom_dac_tinh = {}
+#     rs = muon_xuat_dac_tinh_gi(CHOOSED_MODEL_DICT,attr_muon_xuats = ['skip_this_field'],ghom_dac_tinh=ghom_dac_tinh)
+#     self.test_result_1 = rs
 #     return False
 #     self.test_result_1 = ghom_dac_tinh
 
@@ -412,9 +423,9 @@ def importthuvien(odoo_or_self_of_wizard,
     needdata['key_tram'] = key_tram
     
 
-    some_var_para = {}
-    break_condition_func_for_main_instance  = get_key_allow(CHOOSED_MODEL_DICT,'break_condition_func_for_main_instance',key_tram)
-    some_var_para['break_condition_func_for_main_instance'] = break_condition_func_for_main_instance
+#     some_var_para = {}
+#     break_condition_func_for_main_instance  = get_key_allow(CHOOSED_MODEL_DICT,'break_condition_func_for_main_instance',key_tram)
+#     some_var_para['break_condition_func_for_main_instance'] = break_condition_func_for_main_instance
     
     for sheet_name in sheet_names:
         COPY_MODEL_DICT = deepcopy(CHOOSED_MODEL_DICT)
@@ -424,19 +435,35 @@ def importthuvien(odoo_or_self_of_wizard,
 #             rut_gon_key(COPY_MODEL_DICT,key_tram)
         
         sheet = xl_workbook.sheet_by_name(sheet_name)
-
+        #R3 xuat dac tinh
+        if getattr(self,'dac_tinh',None):
+            dt = self.dac_tinh.split(',')
+            
+            dactinh = muon_xuat_dac_tinh_gi(COPY_MODEL_DICT, attr_muon_xuats = dt,ghom_dac_tinh = {})
+            print ('***dactinh',dactinh)
+            self.test_result_1 =  dactinh
+            self.test_result_2 =  COPY_MODEL_DICT
+            if self.only_xuat_thuoc_tinh:
+                if not dt:
+                    raise UserError(u'bạn phải chọn thuộc tính gì đó')
+                return False
         
         #R4 define_col_index
         
         largest_map_row_choosing = get_key_allow(CHOOSED_MODEL_DICT, 'largest_map_row_choosing', key_tram)#largest_map_row_choosing  is boolean
+      
         if largest_map_row_choosing:
             title_rows = range(0,sheet.nrows)
         else:
-            title_rows_some_sheets = CHOOSED_MODEL_DICT.get('title_rows_some_sheets')
+            title_rows_some_sheets = CHOOSED_MODEL_DICT.get('title_rows_some_sheets',{})
             if title_rows_some_sheets:
-                title_rows = title_rows_some_sheets.get(sheet_name)
+                title_rows_some_sheets=title_rows_some_sheets.get(sheet_name)
+            if title_rows_some_sheets:
+                title_rows = title_rows_some_sheets
             else:
                 title_rows = get_key_allow(CHOOSED_MODEL_DICT, 'title_rows', key_tram)  # MODEL_DICT['title_rows']
+        
+        
         row_title_index,largest_map_row = define_col_index(title_rows,sheet,COPY_MODEL_DICT,key_tram)
         if largest_map_row_choosing:
             row_title_index = largest_map_row
@@ -466,15 +493,11 @@ def importthuvien(odoo_or_self_of_wizard,
         #R5 check_col_index_match_xl_title
         check_col_index_match_xl_title(self,COPY_MODEL_DICT,key_tram,needdata)
         #R6 muon_xuat_dac_tinh_gi
-        dactinh = muon_xuat_dac_tinh_gi(COPY_MODEL_DICT, attr_muon_xuats = ['col_index'],ghom_dac_tinh = {})
-        print ('***dactinh',dactinh)
+       
         
         
         
-        
-        #R7
-        
-        not_create = get_key_allow(CHOOSED_MODEL_DICT, 'not_create', key_tram) or not_create
+#         not_create = get_key_allow(CHOOSED_MODEL_DICT, 'not_create', key_tram) or not_create
         if not_create:
             workbook_copy = copy(xl_workbook)
             sheet_of_copy_wb = workbook_copy.get_sheet(0)
@@ -494,11 +517,12 @@ def importthuvien(odoo_or_self_of_wizard,
                               not_create = not_create,
 #                               workbook_copy = workbook_copy,
                               sheet_of_copy_wb = sheet_of_copy_wb,
-                              some_var_para = some_var_para
+#                               some_var_para = some_var_para,
+                              mode_no_create_in_main_instance = mode_no_create_in_main_instance
                                )
         model_name = model_name = get_key_allow(COPY_MODEL_DICT, 'model', key_tram)
         
-        check_notice_dict_co_create_or_get(model_name,noti_dict,not_create,mode_not_create)
+        check_notice_dict_co_create_or_get(model_name,noti_dict,not_create,mode_no_create_in_main_instance)
     if number_row_count:
         self.imported_number_of_row = number_row_count + 1
         

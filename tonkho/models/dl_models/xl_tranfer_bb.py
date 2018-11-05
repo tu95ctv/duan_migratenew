@@ -43,7 +43,7 @@ normal_13_style = xlwt.easyxf(generate_easyxf(vert = 'center',height=13))
 
 # bold_normal_style = xlwt.easyxf("font:  name Times New Roman, bold on,height 240")
 bold_center_style = xlwt.easyxf(generate_easyxf(bold=True,vert = 'center',horiz='center'))
-
+center_style = xlwt.easyxf(generate_easyxf(vert = 'center',horiz='center'))
 # center_normal_style = xlwt.easyxf("font: name Times New Roman,underline on,bold on, height 240; align:  vert centre, horiz center;")
 center_normal_style = xlwt.easyxf(generate_easyxf(bold=True,underline=True,height=12, vert = 'center',horiz = 'center'))
 # bbbg_normal_style = xlwt.easyxf("font: name Times New Roman,bold on, height 320; align:  vert centre, horiz center;")
@@ -98,16 +98,17 @@ def tinh_trang_vat_tu_(ws,f_name,fixups,needdata,row,dl_obj):
     if all_hong:
         return u'Tình trạng vật tư : Hỏng'
     return None
-def ky_ten_cac_ben_(ws,f_name,fixups,needdata,row,dl_obj,source_member_ids='source_member_ids',is_not_show = False):
+def ky_ten_cac_ben_(ws,f_name,fixups,needdata,row,dl_obj,source_member_ids='source_member_ids',is_not_show = False,type='name'):
     if is_not_show:
         return None
     source_member_ids = getattr(dl_obj,source_member_ids)
-    source_member_ids = source_member_ids.mapped('name')
+    source_member_ids = source_member_ids.mapped(type)
     if source_member_ids:
         source_member_ids = (u' '*10).join(source_member_ids)
     else:
         source_member_ids = None
     return source_member_ids
+
 
 def dai_dien_ben_t3_(ws,f_name,fixups,needdata,row,dl_obj,title_ben_thu_3='title_ben_thu_3'):
     title_ben_thu_3 = getattr(dl_obj,title_ben_thu_3).name
@@ -156,7 +157,7 @@ def write_xl_bb(dl_obj):
                     ('trung_tam2',{'range':[1,1,0,2],'val':u'ĐÀI VIỄN THÔNG HCM', 'style':xlwt.easyxf(generate_easyxf(bold=True,underline=True,height=12, vert = 'center',horiz = 'center'))}),
                     ('chxhcnvn',{'range':[0,0,3,7],'val':u'CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', 'style':xlwt.easyxf(generate_easyxf(bold=True,height=12, vert = 'center',horiz = 'center'))}),
                     ('dltdhp',{'range':[1,1,3,7],'val':u'Độc lập - Tự do - Hạnh Phúc', 'style':xlwt.easyxf(generate_easyxf(bold=True,underline=True,height=12, vert = 'center',horiz = 'center'))}),
-                    ('so',{'range':[2,2,0,2],'val':u'Số: %s/%s-%s'%(dl_obj.stt_trong_bien_ban_in,dl_obj.ma_bien_ban,dl_obj.department_id.short_name), 'style':xlwt.easyxf(generate_easyxf(height=12, vert = 'center',horiz = 'center'))}),
+                    ('so',{'range':[2,2,0,2],'val':u'Số: %s/%s-%s'%(dl_obj.stt_trong_bien_ban_in,dl_obj.ban_giao_or_nghiem_thu,dl_obj.department_id.short_name), 'style':xlwt.easyxf(generate_easyxf(height=12, vert = 'center',horiz = 'center'))}),
                     ('bbg',{'range':[3,3,0,7],'val':u'BIÊN BẢN BÀN GIAO VẬT TƯ', 'style':bbbg_normal_style,'height':1119,'off_set':1}),
                     ('to_trinh',{'range':[5,5,0,7],'val':None, 'val_func': to_trinh_ ,'height':600}),
                     ('hom_nay',{'range':[6,0],'val':None, 'val_func': hom_nay_ }),
@@ -169,19 +170,36 @@ def write_xl_bb(dl_obj):
                     ('table',{'range':['auto', 0],'val':None,'func':table_ ,'offset':2 ,'kargs': {'IS_SET_TT_COL':IS_SET_TT_COL,'all_tot_and_ghom_all_tot':all_tot_and_ghom_all_tot}}),
                     ('tinh_trang_vat_tu',{'range': ['auto', 0],'val':None,'val_func':tinh_trang_vat_tu_,'offset':2}),
                     ('so_ban_in',{'range': ['auto', 0],'val':u'Biên bản được lập thành 04 bản có giá trị như nhau.','offset':1}),
+                  
                     ('dai_dien_ben_giao',{'range': ['auto','auto',0,2],'val':u'ĐẠI DIỆN BÊN GIAO','offset':3, 'style':bold_center_style}),
                     ('dai_dien_ben_nhan',{'range': ['auto','auto',4,7],'val':u'ĐẠI DIỆN BÊN NHẬN','offset':0, 'style':bold_center_style}),
+                    
+                    ('job_ben_giao',{'range': ['auto','auto',0,2],'val':None,'offset':1,'val_func':ky_ten_cac_ben_,'val_kargs':{'type':'job_id.name'},'style':center_style}),
+                    ('job_ben_nhan',{'range': ['auto','auto',4,7],'val':None,'offset':0,'val_func':ky_ten_cac_ben_, 'val_kargs':{'source_member_ids':'dest_member_ids','type':'job_id.name'},'style':center_style}),
+                    
+                    
                     
                     ('ky_ten_ben_giao',{'range': ['auto','auto',0,2],'val':None,'offset':5,'val_func':ky_ten_cac_ben_, 'style':bold_center_style}),
                     ('ky_ten_ben_nhan',{'range': ['auto','auto',4,7],'val':None,'offset':0,
                                         'val_func':ky_ten_cac_ben_,'val_kargs':{'source_member_ids':'dest_member_ids'}, 'style':bold_center_style}),
+                   
+                    
                     ('dai_dien_ben_t3',{'range': ['auto','auto',0,2],'val':None,'offset':3, 'style':bold_center_style,'val_func':dai_dien_ben_t3_,'val_kargs':{'title_ben_thu_3':'title_ben_thu_3'}}),
                     ('dai_dien_ben_t4',{'range': ['auto','auto',4,7],'val':None,'offset':0, 'style':bold_center_style,'val_func':dai_dien_ben_t3_,'val_kargs':{'title_ben_thu_3':'title_ben_thu_4'}}),
-                   
+                    
+                    ('job_ben_t3',{'range': ['auto','auto',0,2],'val':None,'offset':1,'val_func':ky_ten_cac_ben_,'val_kargs':{'type':'job_id.name','source_member_ids':'ben_thu_3_ids'},'style':center_style}),
+                    ('job_ben_t4',{'range': ['auto','auto',4,7],'val':None,'offset':0,'val_func':ky_ten_cac_ben_, 'val_kargs':{'source_member_ids':'ben_thu_4_ids','type':'job_id.name'},'style':center_style}),
+                    
+                    
+                    
                     ('ky_ten_ben_t3',{'range': ['auto','auto',0,2],'val':None,'offset':5,'val_func':ky_ten_cac_ben_, 'style':bold_center_style,'val_kargs':{'source_member_ids':'ben_thu_3_ids'}}),
                     ('ky_ten_ben_t4',{'range': ['auto','auto',4,7],'val':None,'offset':offset_ky_ten_ben_t4_,
                                         'val_func':ky_ten_cac_ben_, 'style':bold_center_style,'val_kargs':{'source_member_ids':'ben_thu_4_ids'}
                                         }, ),
+             
+             
+             
+             
                     ('xac_nhan_lanh_dao',{'range': ['auto','auto',0,7],'val':None,'val_func': xac_nhan_lanh_dao_,'offset':2, 'style':bold_center_style}),
                     ('ld_dai_id',{'range': ['auto','auto',0,7],'val':None,'offset':5, 'style':bold_center_style,
                                    'val_func':ky_ten_cac_ben_, 'style':bold_center_style,'val_kargs':{'source_member_ids':'lanh_dao_id','is_not_show':dl_obj.is_not_show_y_kien_ld}
@@ -234,7 +252,7 @@ def write_xl_bb(dl_obj):
             ws.row(row).height_mismatch = True
             ws.row(row).height = height
             
-    filename = '%s_%s_%s'%(dl_obj.department_id.short_name,dl_obj.ma_bien_ban,dl_obj.stt_trong_bien_ban_in)
+    filename = '%s_%s_%s'%(dl_obj.department_id.short_name,dl_obj.ban_giao_or_nghiem_thu,dl_obj.stt_trong_bien_ban_in)
     name = "%s%s" % (filename, '.xls')
     return wb,name
 #     wb.save(u'C:/D4/test_folder/Mẫu BBBG 2018hehe.xls')

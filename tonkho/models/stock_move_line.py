@@ -12,6 +12,7 @@ class StockMoveLine(models.Model):
     pn_id = fields.Many2one('tonkho.pn',string=u'Part number')
     stock_quant_id = fields.Many2one('stock.quant', string=u"Lấy vật tư có trong kho")
     tracking = fields.Selection(related='product_id.tracking',string=u'Có SN hay không', store=False)
+    categ_id = fields.Many2one('product.category',related='product_id.categ_id', store=False)
     ghi_chu = fields.Text(string=u'Ghi chú vật tư')
     inventory_id = fields.Many2one('stock.inventory', 'Inventory',related='move_id.inventory_id',readonly=True)
     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')], default='tot', string=u'Tình trạng',required=True)

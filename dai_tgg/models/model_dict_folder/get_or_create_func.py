@@ -72,8 +72,7 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
     write_dict_new = {}
     if noti_dict !=None:
         this_model_noti_dict = noti_dict.setdefault(class_name,{})
-    else:
-        this_model_noti_dict = None
+
     if inactive_include_search:
         domain_not_active = ['|',('active','=',True),('active','=',False)]
     else:
@@ -87,7 +86,6 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
         f_name = get_key_allow(field_attr, 'transfer_name', key_tram) or f_name
         get_or_create_para = get_key_allow(field_attr, 'get_or_create_para', key_tram, {})
         operator_search = get_or_create_para.get('operator_search','=')
-       
         tuple_in = (f_name, operator_search, val)
         domain.append(tuple_in)
         search_dict_new[f_name] =  val

@@ -9,7 +9,7 @@ import io
 from odoo.addons.tonkho.models.dl_models.dl_model_quants import  download_quants
 from odoo.addons.tonkho.models.dl_models.dl_model_product import  download_product
 from odoo.addons.tonkho.models.dl_models.dl_tvcv import  download_tvcv1
-
+from odoo.addons.tonkho.models.dl_models.dl_user import  download_user
 
 
 class DownloadQuants(models.TransientModel):
@@ -85,7 +85,7 @@ class DownloadQuants(models.TransientModel):
         active_domain = self._context['active_domain']
         self.domain_text = self._context
         model =self._context['active_model']
-        pick_func = {'stock.quant':download_quants,'product.product':download_product,'tvcv':download_tvcv1}
+        pick_func = {'stock.quant':download_quants,'product.product':download_product,'tvcv':download_tvcv1,'res.users':download_user}
         if not model:
             raise UserError('sao khong co model nao map, model:%s'%model)
         download_right_now = self._context.get('download_right_now')

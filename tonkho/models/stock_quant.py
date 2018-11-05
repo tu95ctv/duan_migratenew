@@ -61,7 +61,7 @@ class Quant(models.Model):
         for r in self:
             if not r.location_id.cho_phep_am:
                 if r.quantity < 0:
-                    raise UserError ( u' Không cho phép tạo âm')
+                    raise UserError ( u' Kho:%s, không cho phép tạo âm- sản phẩm:%s-Serial number:%s'%(r.location_id.name,r.product_id.name,r.lot_id.name))
    
     # GHI ĐÈ CÁI XEM DỊCH CHUYỂN KHO, KHÔNG CẦN LỌC VỊ TRÍ KHO
     def action_view_stock_moves(self):
@@ -120,7 +120,7 @@ class Quant(models.Model):
 #         if any(elem.product_id.type != 'product' for elem in self):
 #             raise ValidationError(_('Quants cannot be created for consumables or services.'))
         if self.lot_id:
-            rs = self.env['stock.quant'].search([('lot_id','=',self.lot_id.id),('location_id.usage','=','internal'),('quantity','>',0)])
+            rs = self.env['stock.quant'].search([('lot_id','=',self.lot_id.id),('quantity','>',0)])
             if len(rs)>1:
                 raise UserError(u'Không được có quants  nội bộ chung lot_id và quantity > 0 product:%s-sn: %s'%(self.product_id.name,self.lot_id.name))
     @api.model

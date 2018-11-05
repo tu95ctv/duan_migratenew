@@ -5,6 +5,7 @@ from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 from odoo.osv import expression
 from odoo.addons.tonkho.tonkho_tool import  KHO_SELECTION, KHO_SELECTION_DICT
+from unidecode import unidecode
 
 class StockLocation(models.Model):
     _inherit = 'stock.location'
@@ -16,6 +17,14 @@ class StockLocation(models.Model):
     is_kho_cha =  fields.Boolean(string=u'Kho cha')
     stock_type = fields.Selection(KHO_SELECTION
                                 )
+    complete_name_khong_dau = fields.Char(compute='complete_name_khong_dau_',store=True)
+    
+    @api.depends('complete_name','stock_type')
+    def complete_name_khong_dau_(self):
+        for r in self:
+            r.complete_name_khong_dau = unidecode(r.complete_name)
+    
+    
     
     
 #     @api.one
@@ -72,8 +81,11 @@ class StockLocation(models.Model):
                     return False
             if args ==None:
                 args = []
-            recs = self.search(['|', ('barcode', operator, name), ('complete_name', operator, name)] + args, limit=limit)
+            recs = self.search(['|','|',('complete_name_khong_dau', operator, name), ('barcode', operator, name), ('complete_name', operator, name)] + args, limit=limit)
             recs = recs.filtered(filter_lots )
             return recs.name_get()
-        return super(StockLocation, self).name_search( name, args=args, operator=operator, limit=limit)
+        
+        recs = self.search(['|', ('complete_name_khong_dau', operator, name), ('complete_name', operator, name)] + args, limit=limit)
+        return recs.name_get()
+#         return super(StockLocation, self).name_search( name, args=args, operator=operator, limit=limit)
     

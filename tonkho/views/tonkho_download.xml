@@ -12,7 +12,7 @@
                             <field name="parent_location_runing_id" attrs="{'invisible':[('model_name','!=','product.product'),('model_name','!=','product.template')]}"></field>
                             <!-- <field name="ngay_bat_dau_filter"></field>
          	  	<field name="ngay_ket_thuc_filter"></field> -->
-                            <field name="is_moi_sheet_moi_loai" attrs="{'invisible':[('model_name','!=','stock.quant')]}" />
+                            <field name="is_moi_sheet_moi_loai" attrs="{'invisible':[('model_name','!=','stock.quant'),('model_name','!=','tvcv')]}" />
                             <!-- <field name="is_dl_right_now"/>
          	   <field name="test"></field>  -->
                             <field name="data" readonly="1" filename="name" />
@@ -34,6 +34,6 @@
         
        
         <act_window id="download_tvcv" name="Download TVCV" res_model="tonkho.downloadquants" src_model="tvcv" view_mode="form" multi="True" target="new" key2="client_action_multi" />
-     
+        <act_window id="download_user" name="Download User" res_model="tonkho.downloadquants" src_model="res.users" view_mode="form" multi="True" target="new" key2="client_action_multi" />
     </data>
 </odoo>
