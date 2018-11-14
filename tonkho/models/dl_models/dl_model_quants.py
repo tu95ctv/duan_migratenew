@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from odoo.addons.tonkho.models.dl_models.dl_model import  download_model
+# from odoo.addons.tonkho.models.dl_models.dl_model import  download_model
+from odoo.addons.downloadwizard.models.dl_models.dl_model import  download_model
+
 from openerp.http import request
 import xlwt
 from odoo.exceptions import UserError
@@ -71,8 +73,8 @@ def download_quants(dl_obj,append_domain = []):
         workbook = xlwt.Workbook()
         for cate in cates:
             Export_Para_quants_copy = deepcopy(Export_Para_quants)
+            domain =[('categ_id','=',cate.id)]
             if append_domain:
-                domain =[('categ_id','=',cate.id)]
                 domain.extend(append_domain)
             download_model(dl_obj,
                          Export_Para=Export_Para_quants_copy,

@@ -51,6 +51,7 @@ TYPES_ATT_DICT = {
             'mode_no_create_in_main_instance':{'types': ['bool']},
             'skip_this_field_for_mode_no_create':{'types': ['bool']},
             'required_force':{'types': ['bool']},
+            'bypass_check_type':{'types':['bool']}
 #             'skip_field_default':{'types': ['bool']}
 }
 ###R1

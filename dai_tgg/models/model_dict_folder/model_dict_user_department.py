@@ -1,7 +1,16 @@
  # -*- coding: utf-8 -*-
 from odoo.exceptions import UserError
 import datetime
-# from odoo.addons.dai_tgg.mytools import convert_float_to_ghi_chu_ngay_xuat,lot_name_
+from odoo.addons.dai_tgg.mytools import convert_vn_datetime_to_utc_datetime
+
+def convert_vn_datetime_to_utc_datetime_2(v):
+    if v:
+        dt_v = datetime.datetime.strptime(v,'%d/%m/%Y %H:%M:%S')
+    #     raise UserError(u'%s-%s'%(v,type(v)))
+        utc_v =  convert_vn_datetime_to_utc_datetime(dt_v)
+        utc_str = utc_v.strftime('%d/%m/%Y %H:%M:%S')
+        return utc_str
+    return v
 def gen_user_department_model_dict():
     user_model_dict = {
         u'Partner': {
@@ -46,6 +55,25 @@ def gen_user_department_model_dict():
                          ),
                       ]
                 },#location partner
+                       
+        u'categ': {
+                'title_rows' : [0], 
+                'begin_data_row_offset_with_title_row' :1,
+                'sheet_names': [u'categ'],
+                'model':'product.category',
+                'fields' : [
+                         ('name',{'func':None,'xl_title':u'Name','key':True,'required':True}),
+                         ('stt_for_report',{'func':None,'xl_title':u'stt_for_report','required':True,'type_allow':[float]}),
+#                          ('usage',{'set_val':'supplier'}),
+#                          ('is_kho_cha',{'set_val':True}),
+#                          ('cho_phep_khac_tram_chon',{'set_val':True}),
+#                          ('partner_id_of_stock_for_report',{'fields':[('name',{'func': lambda v,n:n['vof_dict']['name']['val'], 'key':True,'required':True}),
+#                                                        ]
+#                                             }
+#                          ),
+                      ]
+                },#location partner
+                       
         u'Department': {
         'title_rows' : [1], 
         'begin_data_row_offset_with_title_row' :1,
@@ -191,11 +219,83 @@ def gen_user_department_model_dict():
                  ),  
                       ]
                 },#End users'
-                       
-                       
-        
+    u'cvi': {
+                'title_rows' : [0], 
+                'begin_data_row_offset_with_title_row' :1,
+                'sheet_names': [u'Sheet 1'],
+                'model':'cvi',
+                'fields' : [
+                      ('department_id',{'fields':[
+                          ('name',{'key':True,'required':True,'xl_title':u'Đơn vị tạo'})
+                          ]}),
+                      ('loai_record',{'required':True, 'key':True, 'xl_title':u'Loại Record'}),
+                      ('categ_id',{'fields':[
+                          ('name',{'key':True,'required':True,'xl_title':u'Nhóm'})
+                          ]}
+                       ),
+                      ('thiet_bi_id',{'fields':[
+                          ('name',{'key':True,'required':True,'xl_title':u'Thiết bị'})
+                          ]}),
+                      ('tvcv_id',{'key':True,'fields':[
+                          ('name',{'key':True,'required':True,'xl_title':u'TVCV/ Loại sự cố/ Loại sự vụ'})
+                          ]}
+                       ),
+                      ('noi_dung',{'key':True,'xl_title':u'Nội dung'}),
+                      ('gio_bat_dau',{'key':True,'xl_title':u'Giờ bắt đầu','bypass_check_type':True,'func':convert_vn_datetime_to_utc_datetime_2}),
+                      ('gio_ket_thuc',{'key':True,'xl_title':u'Giờ Kết Thúc','bypass_check_type':True,'func':convert_vn_datetime_to_utc_datetime_2}),
+                      ]
+                },#location partner            
+                   
+    u'cvi': {
+                'title_rows' : [0], 
+                'begin_data_row_offset_with_title_row' :1,
+                'sheet_names': [u'Sheet 1'],
+                'model':'cvi',
+                'fields' : [
+                      ('department_id',{'fields':[
+                          ('name',{'key':True,'required':True,'xl_title':u'Đơn vị tạo'})
+                          ]}),
+                      ('loai_record',{'required':True, 'key':True, 'xl_title':u'Loại Record'}),
+                      ('categ_id',{'fields':[
+                          ('name',{'key':True,'required':True,'xl_title':u'Nhóm'})
+                          ]}
+                       ),
+                      ('thiet_bi_id',{'fields':[
+                          ('name',{'key':True,'required':True,'xl_title':u'Thiết bị'})
+                          ]}),
+                      ('tvcv_id',{'key':True,'fields':[
+                          ('name',{'key':True,'required':True,'xl_title':u'TVCV/ Loại sự cố/ Loại sự vụ'})
+                          ]}
+                       ),
+                      ('noi_dung',{'key':True,'xl_title':u'Nội dung'}),
+                      ('gio_bat_dau',{'key':True,'xl_title':u'Giờ bắt đầu','bypass_check_type':True,'func':convert_vn_datetime_to_utc_datetime_2}),
+                      ('gio_ket_thuc',{'key':True,'xl_title':u'Giờ Kết Thúc','bypass_check_type':True,'func':convert_vn_datetime_to_utc_datetime_2}),
+                      ]
+                },#location partner            
+        u'thuebaoline': {
+                'title_rows' : [0], 
+                'begin_data_row_offset_with_title_row' :1,
+                'largest_map_row_choosing':True,
+                'sheet_names': [u'BCN'],
+                'model':'dai_tgg.thuebaoline',
+                'fields' : [
+                      ('stt',{'func':stt_thuebaoline_}),
+                      ('thuebao_id',{'fields':[
+                          ('date',{'key':True,'required':True,'set_val':datetime.date.today()})
+                          ]}),
+                      ('msc',{'required':True, 'key':True, 'xl_title':u'MSC-VLR'}),
+             
+                      ('tb_cap_nhat',{'key':True,'xl_title':u'TB cập nhật'}),
+                      
+                      ]
+                },#location partner            
                    }
+                   
     return user_model_dict
     
-
+def stt_thuebaoline_(v,n):
+    stt  = n['vof_dict'].setdefault('stt',{})
+    val = stt.setdefault('val',0)
+    val +=1
+    return val
                 

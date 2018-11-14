@@ -163,6 +163,7 @@
             <tree>
                <field name="id" />
                <field name="name" string="Tên" />
+               <field name="loai_record" />
                <field name="name_khong_dau" groups="base.group_erp_manager"/>
                <field name="name_viet_tat" groups="base.group_erp_manager"/>
             </tree>

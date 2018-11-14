@@ -16,7 +16,8 @@ text_template,\
 setting,\
 stock_inventory,\
 stock_picking_return,\
-tonkho_download
+tonkho_download,\
+tonkho_cvi
 
 # res_config_setting,\
 # part_number,\

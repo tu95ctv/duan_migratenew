@@ -73,7 +73,13 @@ def ong_ba_(ws,f_name,fixups,needdata,row,dl_obj,source_member_ids='source_membe
     for c,i in enumerate(getattr(dl_obj,source_member_ids)):
         nrow +=1
         ws.write_merge(row + c,row + c,1,2,u'Ông/bà: %s'%i.name,normal_style)
-        ws.write_merge(row + c,row + c,3,7,u'C/v: %s %s'%(i.job_id.name,i.parent_id.name),normal_style)
+        chuc_vu_don_vis =[]
+        if i.job_id.name:
+            chuc_vu_don_vis.append(i.job_id.name)
+        if i.parent_id.name:
+            chuc_vu_don_vis.append(i.parent_id.name)
+        if chuc_vu_don_vis: 
+            ws.write_merge(row + c,row + c,3,7,u'C/v: %s'%(u' '.join(chuc_vu_don_vis)),normal_style)
 #         ws.write_merge(row + c,row + c,5,7,u'                 Đ/v: %s'%i.parent_id.name,normal_style)
     return nrow
 def table_(ws,f_name,fixups,needdata,row,dl_obj,IS_SET_TT_COL=False,all_tot_and_ghom_all_tot=False):
@@ -98,7 +104,7 @@ def tinh_trang_vat_tu_(ws,f_name,fixups,needdata,row,dl_obj):
     if all_hong:
         return u'Tình trạng vật tư : Hỏng'
     return None
-def ky_ten_cac_ben_(ws,f_name,fixups,needdata,row,dl_obj,source_member_ids='source_member_ids',is_not_show = False,type='name'):
+def ky_ten_cac_ben_(ws,f_name,fixups,needdata,row,dl_obj,source_member_ids='source_member_ids',is_not_show = False,type='name',empty_force = False):
     if is_not_show:
         return None
     source_member_ids = getattr(dl_obj,source_member_ids)
@@ -106,6 +112,8 @@ def ky_ten_cac_ben_(ws,f_name,fixups,needdata,row,dl_obj,source_member_ids='sour
     if source_member_ids:
         source_member_ids = (u' '*10).join(source_member_ids)
     else:
+        if empty_force:
+            return ' '
         source_member_ids = None
     return source_member_ids
 
@@ -115,6 +123,7 @@ def dai_dien_ben_t3_(ws,f_name,fixups,needdata,row,dl_obj,title_ben_thu_3='title
     if title_ben_thu_3:
         return title_ben_thu_3
     else:
+        
         return None
 def offset_ky_ten_ben_t4_(n):
     if n['instance_dict']['ky_ten_ben_t3']['val'] != None:
@@ -127,31 +136,69 @@ def xac_nhan_lanh_dao_(ws,f_name,fixups,needdata,row,dl_obj):
         return None
     else:
         return u'XÁC NHẬN CỦA LĐ ĐÀI'
-    
-def write_xl_bb(dl_obj):
-    all_tot_and_ghom_all_tot = set(dl_obj.move_line_ids.mapped('tinh_trang')) ==set(['tot']) and   dl_obj.is_ghom_tot
-    IS_SET_TT_COL = dl_obj.is_set_tt_col
-    IS_SET_TT_COL and not all_tot_and_ghom_all_tot
+def write_all_row(fixups,dl_obj,set_cols_width):
     needdata = {}
     wb = xlwt.Workbook()
     ws = wb.add_sheet(u'First',)#cell_overwrite_ok=True
+    if set_cols_width:
+        for col,width in enumerate(set_cols_width):
+            ws.col(col).width =  width
+    fixups = OrderedDict(fixups)
+    instance_dict = {}
+    needdata['instance_dict'] = instance_dict
+    for f_name,field_attr in fixups.items():
+        a_field_dict = {}
+        xrange = field_attr.get('range')
+        offset = field_attr.get('offset',1)
+        if callable(offset):
+            offset = offset(needdata)
+        style = field_attr.get('style',normal_13_style)
+        if xrange[0]=='auto':
+            row = needdata['cr'] + offset
+            xrange[0] = row
+            if xrange[1] == 'auto':
+                xrange[1] = row
+        else:
+            row = xrange[0]
+        val = field_attr.get('val')
+        val_func = field_attr.get('val_func')
+        if val_func:
+            val_kargs =  field_attr.get('val_kargs',{})
+            val = val_func(ws,f_name,fixups,needdata,row,dl_obj,**val_kargs)
+        
+        func = field_attr.get('func')
+        if func:
+            kargs = field_attr.get('kargs',{})
+            nrow = func(ws,f_name,fixups,needdata,row,dl_obj, **kargs)
+            needdata['cr'] = needdata['cr'] + nrow + ( (offset-1) if nrow>0 else 0)
+        else:
+            a_field_dict['val'] = val
+            instance_dict[f_name]=a_field_dict
+            if val != None:
+                if len(xrange) ==2:
+                    ws.write(xrange[0], xrange[1], val, style)
+                elif len(xrange)==4:
+                    ws.write_merge(xrange[0], xrange[1],xrange[2], xrange[3], val, style)
+                needdata['cr'] = xrange[0]
+        height =  field_attr.get('height',400)
+        if height != None:
+            ws.row(row).height_mismatch = True
+            ws.row(row).height = height
+    return wb
+def write_xl_bb(dl_obj):
+    
+    all_tot_and_ghom_all_tot = set(dl_obj.move_line_ids.mapped('tinh_trang')) ==set(['tot']) and   dl_obj.is_ghom_tot
+    IS_SET_TT_COL = dl_obj.is_set_tt_col
+    IS_SET_TT_COL and not all_tot_and_ghom_all_tot
+
 #     cols = []
 #     set_cols_width = ['sl', 'pr', 'pn', 'sl', 'dvt', 'sn', 'tt','gc']
     if  IS_SET_TT_COL and not all_tot_and_ghom_all_tot :
         set_cols_width = [4,21,16,6,5,16,6,16]
     else:
         set_cols_width = [4,21,16,6,5,16,22,0]
-        
     set_cols_width = map(get_width,set_cols_width)
-#     for col in range(1,readsheet.ncols):
-#         width = copied_ws.col(col).width
-#         cols.append(width)
-#     print ('cols',cols)
-    for col,width in enumerate(set_cols_width):
-#         width = copied_ws.col(col).width
-        ws.col(col).width =  width
-#     merge_tuple_list =  readsheet.merged_cells
-
+    
     fixups =[  
                     ('trung_tam1',{'range':[0,0,0,2],'val':u'TRUNG TÂM HẠ TẦNG MẠNG MIỀN NAM', 'style':xlwt.easyxf(generate_easyxf(bold=True,height=11, vert = 'center',horiz = 'center'))}),
                     ('trung_tam2',{'range':[1,1,0,2],'val':u'ĐÀI VIỄN THÔNG HCM', 'style':xlwt.easyxf(generate_easyxf(bold=True,underline=True,height=12, vert = 'center',horiz = 'center'))}),
@@ -174,11 +221,8 @@ def write_xl_bb(dl_obj):
                     ('dai_dien_ben_giao',{'range': ['auto','auto',0,2],'val':u'ĐẠI DIỆN BÊN GIAO','offset':3, 'style':bold_center_style}),
                     ('dai_dien_ben_nhan',{'range': ['auto','auto',4,7],'val':u'ĐẠI DIỆN BÊN NHẬN','offset':0, 'style':bold_center_style}),
                     
-                    ('job_ben_giao',{'range': ['auto','auto',0,2],'val':None,'offset':1,'val_func':ky_ten_cac_ben_,'val_kargs':{'type':'job_id.name'},'style':center_style}),
-                    ('job_ben_nhan',{'range': ['auto','auto',4,7],'val':None,'offset':0,'val_func':ky_ten_cac_ben_, 'val_kargs':{'source_member_ids':'dest_member_ids','type':'job_id.name'},'style':center_style}),
-                    
-                    
-                    
+                    ('job_ben_giao',{'range': ['auto','auto',0,2],'val':None,'offset':1,'val_func':ky_ten_cac_ben_,'val_kargs':{'type':'job_id.name','empty_force':True},'style':center_style}),
+                    ('job_ben_nhan',{'range': ['auto','auto',4,7],'val':None,'offset':0,'val_func':ky_ten_cac_ben_, 'val_kargs':{'source_member_ids':'dest_member_ids','type':'job_id.name','empty_force':True},'style':center_style}),
                     ('ky_ten_ben_giao',{'range': ['auto','auto',0,2],'val':None,'offset':5,'val_func':ky_ten_cac_ben_, 'style':bold_center_style}),
                     ('ky_ten_ben_nhan',{'range': ['auto','auto',4,7],'val':None,'offset':0,
                                         'val_func':ky_ten_cac_ben_,'val_kargs':{'source_member_ids':'dest_member_ids'}, 'style':bold_center_style}),
@@ -187,8 +231,8 @@ def write_xl_bb(dl_obj):
                     ('dai_dien_ben_t3',{'range': ['auto','auto',0,2],'val':None,'offset':3, 'style':bold_center_style,'val_func':dai_dien_ben_t3_,'val_kargs':{'title_ben_thu_3':'title_ben_thu_3'}}),
                     ('dai_dien_ben_t4',{'range': ['auto','auto',4,7],'val':None,'offset':0, 'style':bold_center_style,'val_func':dai_dien_ben_t3_,'val_kargs':{'title_ben_thu_3':'title_ben_thu_4'}}),
                     
-                    ('job_ben_t3',{'range': ['auto','auto',0,2],'val':None,'offset':1,'val_func':ky_ten_cac_ben_,'val_kargs':{'type':'job_id.name','source_member_ids':'ben_thu_3_ids'},'style':center_style}),
-                    ('job_ben_t4',{'range': ['auto','auto',4,7],'val':None,'offset':0,'val_func':ky_ten_cac_ben_, 'val_kargs':{'source_member_ids':'ben_thu_4_ids','type':'job_id.name'},'style':center_style}),
+                    ('job_ben_t3',{'range': ['auto','auto',0,2],'val':None,'offset':1,'val_func':ky_ten_cac_ben_,'val_kargs':{'type':'job_id.name','source_member_ids':'ben_thu_3_ids','empty_force':True},'style':center_style}),
+                    ('job_ben_t4',{'range': ['auto','auto',4,7],'val':None,'offset':0,'val_func':ky_ten_cac_ben_, 'val_kargs':{'source_member_ids':'ben_thu_4_ids','type':'job_id.name','empty_force':True},'style':center_style}),
                     
                     
                     
@@ -196,65 +240,28 @@ def write_xl_bb(dl_obj):
                     ('ky_ten_ben_t4',{'range': ['auto','auto',4,7],'val':None,'offset':offset_ky_ten_ben_t4_,
                                         'val_func':ky_ten_cac_ben_, 'style':bold_center_style,'val_kargs':{'source_member_ids':'ben_thu_4_ids'}
                                         }, ),
-             
-             
-             
-             
                     ('xac_nhan_lanh_dao',{'range': ['auto','auto',0,7],'val':None,'val_func': xac_nhan_lanh_dao_,'offset':2, 'style':bold_center_style}),
                     ('ld_dai_id',{'range': ['auto','auto',0,7],'val':None,'offset':5, 'style':bold_center_style,
                                    'val_func':ky_ten_cac_ben_, 'style':bold_center_style,'val_kargs':{'source_member_ids':'lanh_dao_id','is_not_show':dl_obj.is_not_show_y_kien_ld}
                                   }),
              ]
-    fixups = OrderedDict(fixups)
-    instance_dict = {}
-    needdata['instance_dict'] = instance_dict
-   
     
-    for f_name,field_attr in fixups.items():
-        a_field_dict = {}
-        
-        xrange = field_attr.get('range')
-        offset = field_attr.get('offset',1)
-        if callable(offset):
-            offset = offset(needdata)
-        style = field_attr.get('style',normal_13_style)
-        if xrange[0]=='auto':
-            row = needdata['cr'] + offset
-            xrange[0] = row
-            if xrange[1] == 'auto':
-                xrange[1] = row
-        else:
-            row = xrange[0]
-            
-        val = field_attr.get('val')
-        val_func = field_attr.get('val_func')
-        if val_func:
-            val_kargs =  field_attr.get('val_kargs',{})
-            val = val_func(ws,f_name,fixups,needdata,row,dl_obj,**val_kargs)
-        
-        func = field_attr.get('func')
-        if func:
-            kargs = field_attr.get('kargs',{})
-            nrow = func(ws,f_name,fixups,needdata,row,dl_obj, **kargs)
-            needdata['cr'] = needdata['cr'] + nrow + ( (offset-1) if nrow>0 else 0)
-        else:
-            a_field_dict['val'] = val
-            instance_dict[f_name]=a_field_dict
-            if val != None:
-                if len(xrange) ==2:
-                    ws.write(xrange[0], xrange[1], val, style)
-                elif len(xrange)==4:
-                    ws.write_merge(xrange[0], xrange[1],xrange[2], xrange[3], val, style)
-                needdata['cr'] = xrange[0]
-                
-        height =  field_attr.get('height',400)
-        if height != None:
-            ws.row(row).height_mismatch = True
-            ws.row(row).height = height
-            
+    wb = write_all_row(fixups,dl_obj,set_cols_width)
     filename = '%s_%s_%s'%(dl_obj.department_id.short_name,dl_obj.ban_giao_or_nghiem_thu,dl_obj.stt_trong_bien_ban_in)
     name = "%s%s" % (filename, '.xls')
     return wb,name
+   
+        
+    
+#     for col in range(1,readsheet.ncols):
+#         width = copied_ws.col(col).width
+#         cols.append(width)
+#     print ('cols',cols)
+
+#     merge_tuple_list =  readsheet.merged_cells
+
+    
+    
 #     wb.save(u'C:/D4/test_folder/Mẫu BBBG 2018hehe.xls')
     
     

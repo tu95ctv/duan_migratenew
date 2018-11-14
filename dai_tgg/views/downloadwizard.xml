@@ -1,0 +1,22 @@
+<odoo>
+<data>
+
+
+<record id="downloadquants_form" model="ir.ui.view">
+            <field name="name">downloadwizard.download.form</field>
+            <field name="model">downloadwizard.download</field>
+            <field name="inherit_id" ref="downloadwizard.downloadquants_form"></field>
+            <field name="arch" type="xml">
+            	<field name="name" position="before">
+            		<field name="date"></field>
+            	</field>
+            </field>
+            </record>   
+	 <act_window id="download_tvcv" name="Download TVCV" res_model="downloadwizard.download" src_model="tvcv" view_mode="form" multi="True" target="new" key2="client_action_multi" />
+       <act_window id="download_user" name="Download User" res_model="downloadwizard.download" src_model="res.users" view_mode="form" multi="True" target="new" key2="client_action_multi" />
+       <act_window id="download_bcn" name="Download BCN" res_model="downloadwizard.download" src_model="ctr" view_mode="form" multi="True" target="new" key2="client_action_multi" context="{'transfer_active_model':'download_bcn'}" />
+
+       <act_window id="download_cvi" name="Download list theo domain" res_model="downloadwizard.download" src_model="cvi" view_mode="form" multi="True" target="new" key2="client_action_multi"  />
+
+</data>
+</odoo>

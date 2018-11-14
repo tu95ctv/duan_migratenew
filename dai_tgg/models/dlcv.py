@@ -8,7 +8,7 @@ from dateutil.relativedelta import relativedelta
 from odoo.exceptions import UserError
 
 import os,sys,inspect
-from odoo.addons.dai_tgg.controllers.controllers import download_cvi
+# from odoo.addons.dai_tgg.controllers.controllers import download_cvi
 # def download_cvi(a):
 #     pass
 class DLCV(models.TransientModel):
@@ -21,18 +21,19 @@ class DLCV(models.TransientModel):
 
     @api.multi
     def download_cvi_binh(self):
+        pass
 #         download_cvi(self)
-        workbook = download_cvi(self)
-        currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-        dir_tmp = os.path.dirname(currentdir) + '/static/'
-        
-        workbook.save(dir_tmp + 'abc.xls')
-        return {
-            'type' : 'ir.actions.act_url',
-            'url': '/dai_tgg/static/%s' % ('abc.xls'),
-            'target': 'blank',
-        }
-        
+#         workbook = download_cvi(self)
+#         currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+#         dir_tmp = os.path.dirname(currentdir) + '/static/'
+#         
+#         workbook.save(dir_tmp + 'abc.xls')
+#         return {
+#             'type' : 'ir.actions.act_url',
+#             'url': '/dai_tgg/static/%s' % ('abc.xls'),
+#             'target': 'blank',
+#         }
+#         
         
     def check_department_(self):   
         if not self.department_ids:

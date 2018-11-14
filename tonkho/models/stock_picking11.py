@@ -24,7 +24,7 @@ import os
 from lxml import etree
 
 BG_lst = [
-          (u'BBBG',u'Bàn giao'),
+          (u'BBBG',u'Giao'),
           (u'NHAN',u'Nhận'),
           (u'TRVT',u'Trình vật tư'),
            (u'BBNT',u'Nghiệm thu'),
@@ -51,6 +51,15 @@ class StockPicking(models.Model):
         ('name_uniq', 'unique(name, company_id)', 'Reference must be unique per company!'),
         ('name_ma_bb', 'unique(stt_trong_bien_ban_in,department_id,ban_giao_or_nghiem_thu)', u'Mã BBBG và số TT trong bản phải là duy nhất trên mỗi phòng ban!'),
     ]
+    categ_id = fields.Many2one('product.category')
+    
+    @api.onchange('categ_id')
+    def categ_id_(self):
+            print ("sao khong chay****")
+            for c,ml in enumerate(self.move_line_ids):
+                print ('ohoho',c)
+                ml.categ_id = self.categ_id
+                
     choosed_stock_quants_ids = fields.Many2many('stock.quant',compute='choosed_stock_quants_ids_',store=False)
     location_id = fields.Many2one(
         'stock.location', "Source Location",

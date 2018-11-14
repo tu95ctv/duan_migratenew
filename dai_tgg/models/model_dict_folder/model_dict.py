@@ -68,6 +68,9 @@ def name_of_uom_id_(v,n):
         v = v.capitalize()
     return v
 SHEET_CONVERT = {'TTI':{u'CHUYỂN MẠCH':u'Chuyển Mạch (IMS, Di Động)',u'IP':u'IP (VN2, VNP)',u'TRUYỀN DẪN':u'Truyền dẫn',u'GTGT': u'GTGT',u'VÔ TUYẾN' :u'Vô tuyến'}}
+SHEET_CONVERT_2_BC = {u'Chuyển Mạch (IMS, Di Động)':u'Chuyển mạch',u'IP (VN2, VNP)':u'IP'}
+
+
 def categ_id_tti_convert_to_ltk_(v,n,tram=None):
 #         raise UserError('kdkfasdlkfjld')
     v =  n['sheet_name']
@@ -264,20 +267,7 @@ thiết bị
                                                             'write_func': tracking_write_func_,
                                                          }),
                                              
-                                            ('thiet_bi_id',{
-                                                'get_or_create_para':{'key_tti':{'not_update_field_if_instance_exist':True}},
-                                                'fields':[('name',{
-                                                                'func':lambda v,n: str(v) if isinstance(v,float) else v,
-#                                                                     'type_allow':[float],
-                                                                   'skip_field_if_not_found_column_in_some_sheet':{sml:True,all_key_tram:None},
-                                                                               'xl_title':{'key_ltk':u'Thiết bị',
-                                                                                           'key_tti':u'Thiết bị',
-                                                                                           key_ltk_dc:u'Tên hệ thống thiết bị',
-                                                                                           sml:u'Thiết bị',
-                                                                                           key_tti_dc:u'''Tên
-thiết bị'''
-                                                                                           }, 
-                                                                               'key':True,'required': True}),]}),
+                                          
                                           
 #                                             ('thiet_bi_id_tti',{'skip_this_field':{'key_ltk':True,
 #                                                                                                  key_ltk_dc:True,
@@ -295,16 +285,10 @@ thiết bị'''
 #                                                                 'fields':[('name',{'func':None,'xl_title':[u'Thiết bị',u'Tên hệ thống thiết bị'], 'key':True,'required': True}),]}),
 #                                              
                                           
-                                            ('brand_id',{'empty_val':[u'NA'],'skip_this_field':{sml:True},
-                                                                    'fields':[('name',{'func':lambda v,n: v.upper() if isinstance(v,str) else v,
-                                                                                                'xl_title':{'key_ltk':[u'Hãng sản xuất',u'Hãng / Model'],
-                                                                                                                'key_tti':[u'Hãng sản xuất',u'Hãng / Model'],
-                                                                                                                key_ltk_dc :[u'Hãng sản xuất'],
-                                                                                                                 },
-                                                                                                
-                                                                                                 'key':True,'required': True}),]}),
+                                           
                                             ('categ_id',{'skip_this_field':{sml:True, all_key_tram:False},
                                                 'fields':[('name',{
+                                                                        'replace_string':{all_key_tram:None,'key_ltk':[(u'Chuyển Mạch (IMS, Di Động)',u'Chuyển mạch'),(u'IP (VN2, VNP)',u'IP')]},
                                                                         
                                                                         'func':{all_key_tram:lambda val,needdata: needdata['sheet_name'],
                                                                                     'key_tti':categ_id_tti_convert_to_ltk_,
@@ -323,6 +307,36 @@ thiết bị'''
                                                           ]
                                                          }
                                              ),
+                                             
+                                            ('brand_id',{'empty_val':[u'NA'],'skip_this_field':{sml:True},
+                                                                    'fields':[('name',{'func':lambda v,n: v.upper() if isinstance(v,str) else v,
+                                                                                                'xl_title':{'key_ltk':[u'Hãng sản xuất',u'Hãng / Model'],
+                                                                                                                'key_tti':[u'Hãng sản xuất',u'Hãng / Model'],
+                                                                                                                key_ltk_dc :[u'Hãng sản xuất'],
+                                                                                                                 },
+                                                                                                
+                                                                                                 'key':True,'required': True}),
+                                                                              
+                                                                              ]}),
+                                              ('thiet_bi_id',{
+                                                'get_or_create_para':{'key_tti':{'not_update_field_if_instance_exist':True}},
+                                                'fields':[('name',{
+                                                                'func':lambda v,n: str(v) if isinstance(v,float) else v,
+#                                                                     'type_allow':[float],
+                                                                   'skip_field_if_not_found_column_in_some_sheet':{sml:True,all_key_tram:None},
+                                                                               'xl_title':{'key_ltk':u'Thiết bị',
+                                                                                           'key_tti':u'Thiết bị',
+                                                                                           key_ltk_dc:u'Tên hệ thống thiết bị',
+                                                                                           sml:u'Thiết bị',
+                                                                                           key_tti_dc:u'''Tên
+thiết bị'''
+                                                                                           }, 
+                                                                               'key':True,'required': True}),
+                                                            ('categ_id',{'key':True,'func': lambda v,n:n['vof_dict']['product_id']['fields']['categ_id']['val']}),
+                                                            ('brand_id',{'key':True,'func': lambda v,n:n['vof_dict']['product_id']['fields']['brand_id']['val']}),                                                               
+                                                          ]}), 
+                                             
+                                            
                                             ('uom_id',  {'bypass_this_field_if_value_equal_False':True, 'fields': [ #'func':uom_id_,'default':1,
                                                         ('name',{'set_val':{
                                                                             all_key_tram:None,

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo.addons.tonkho.models.dl_models.dl_model import  download_model
+from odoo.addons.downloadwizard.models.dl_models.dl_model import  download_model
 from openerp.http import request
 import xlwt
 from odoo.exceptions import UserError
@@ -15,6 +15,7 @@ def stt_(v,needdata):
 FIELDNAME_FIELDATTR_quants = [
          ('stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_}),
           ('name',{'width':get_width(40)}),
+          ('diem',{'width':get_width(40)}),
           ('don_vi',{})
                     ]
 Export_Para_quants = {

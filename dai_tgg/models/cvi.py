@@ -116,7 +116,7 @@ class CamSua(models.Model):
             if r.cam_sua:
                 raise UserError(u'Không được Xóa tại bạn không phải là chủ topic')
             else:
-                if r.state != 'mark_delete':
+                if r.state != 'mark_delete' and not (r.is_sep or r.is_admin):
                     raise UserError(u'Muốn Xóa thì phải Đánh Dấu Xóa trước đã')
 #             else:
 #                 if r.state !='ready_delete' and not r.is_admin:
@@ -149,6 +149,17 @@ class DuyetDiem(models.TransientModel):
                     raise UserError (u'Bạn không phải là lãnh đạo của nhân viên tạo record này')
         else:
             raise UserError (u'Bạn chưa chọn dòng nào')
+        
+    @api.multi
+    def multi_mark_delete(self):
+        active_ids = self._context.get('active_ids')
+        if active_ids:
+            cvis = self.env['cvi'].browse(active_ids)
+            cvis.write({'state':'mark_delete'})
+        else:
+            raise UserError (u'Bạn chưa chọn dòng nào')
+        
+        
                 
                 
     
@@ -209,14 +220,13 @@ class Cvi(models.Model):
         for r in self:
             if r.user_id:
                 r.department_id = r.user_id.department_id
-
+   
     state = fields.Selection([
 #                               ('ready_delete',u'Cho phép xóa'),
                               ('mark_delete',u'Đánh Dấu Để Xóa'),
                               ('confirmed',u'Xác Nhận'), ('approved',u'Lãnh Đạo đã duyệt'),
                           ],default='confirmed',required=True,string=u'Trạng thái')
     ti_le_chia_diem = fields.Float(digits=(6,2),string=u'Tỉ lệ chia điểm')
-    id_for_pivot = fields.Integer(compute='name_',store=True)
     tvcv_id_name = fields.Char(compute='tvcv_id_name_',string=u'Thư Viện Công Việc',store=True)
     code= fields.Char(compute='code_',string=u'Mã Công Việc',store=True)
     diem_tvi = fields.Float(digits=(6,2),string=u'Điểm Thư Viện',compute='diem_tvi_',store=True,readonly=True)# 
@@ -225,7 +235,7 @@ class Cvi(models.Model):
     so_lan = fields.Integer(string=u'Số Lần',default = 1,required=True)
     tree_view_ref = fields.Char(compute='tree_view_ref_',default='dai_tgg.tvcv_list')
     search_view_ref = fields.Char(compute='tree_view_ref_',default='dai_tgg.tvcv_search')
-    cvi_lien_quan_ids = fields.Many2many('cvi','cvi_cvi_relate','cvi_id','cvi_lien_quan_id', string=u'Công Việc/Sự Cố/ Sự Vụ Liên quan')
+#     cvi_lien_quan_ids = fields.Many2many('cvi','cvi_cvi_relate','cvi_id','cvi_lien_quan_id', string=u'Công Việc/Sự Cố/ Sự Vụ Liên quan')
     gd_parent_id = fields.Many2one('cvi',string=u'Công Việc Giai Đoạn Cha',ondelete='cascade')
     gd_children_ids = fields.One2many('cvi','gd_parent_id',string=u'Các CV Giai Đoạn Con')
     cd_parent_id = fields.Many2one('cvi',string=u'Công Việc Chia Điểm Cha',ondelete='cascade')# ondelete='restrict' #ondelete='cascade', ondelete='set null'
@@ -264,23 +274,31 @@ class Cvi(models.Model):
     is_has_tvcv_con = fields.Boolean(compute='is_has_tvcv_con_')
     thu_vien_da_chon_list = fields.Char(compute='thu_vien_da_chon_list_')   
     cd_user_id = fields.Char(compute='cd_user_id_')  
-     
-    @api.onchange('loai_record')
+    context_get =  fields.Text(compute='context_get_')
+    
+    
+    @api.depends('department_id')
+    def context_get_(self):
+        for r in self:
+            r.context_get = r._context
+  
+    
+    
+    @api.onchange('loai_record','tvcv_id')
     def tvcv_id_oc_(self):
-        active_ctr_id =self._context.get('active_ctr_id')
-        print( ' active_ctr_id- %s***'%active_ctr_id)
-        if self.loai_record==u'Công Việc' and active_ctr_id !=None:
+        member_ids = self._context.get('member_ids')
+        if self.loai_record==u'Công Việc' and member_ids !=None:
             if not self.cd_children_ids:
-                member_ids = self._context.get('member_ids',None)
-                if member_ids == None:
-                    raise UserError(u'Bạn phải chọn người trực')
                 member_ids = member_ids[0][2]#[[6, False, [1, 46]]]
                 member_ids = [member_id for member_id in member_ids if member_id != self.user_id.id]
-                print ('***member_ids',member_ids)
-                return {'value':
-                        {'cd_children_ids':[(0,0,{'user_id':member_ids[0],'loai_record':u'Công Việc'})]
-                         }
-                        }
+                rt = list(map(lambda m:(0,0,{'user_id':m,'loai_record':u'Công Việc'}),member_ids))
+                if member_ids:
+                    return {'value':
+                            {'cd_children_ids':rt
+                             }
+                            }
+                    
+                    
     @api.depends('tvcv_id')
     def diem_tvi_(self):
         for r in self:
@@ -699,15 +717,7 @@ class Cvi(models.Model):
                     if len(user_ids) != len(set(user_ids)):
                         raise ValidationError(u'Có Hưởng điểm con Trùng: user_ids %s- set(user_ids) %s'%(user_ids,set(user_ids)))                        
            
-#     @api.model
-#     def search(self, args, offset=0, limit=None, order=None, count=False):
-#         context = self._context or {}
-#         active_ctr_id = context.get('active_ctr_id',False)
-#         if active_ctr_id != False:
-#             new_args = ['|',('ctr_ids','=',active_ctr_id)]
-#             new_args.extend(args)
-#             args = new_args
-#         return super(Cvi, self).search(args, offset, limit, order, count=count)           
+       
     
     @api.model
     def create(self, vals):

@@ -6,9 +6,9 @@ from odoo.tools.float_utils import float_compare
 from odoo.addons.tonkho.tonkho_tool import get_or_create_object_sosanh
 
 # thừa bên dai_tgg có rồi cũng giống như totrinh
-class User(models.Model):
-    _inherit = 'res.users'
-    department_id = fields.Many2one('hr.department')
+# class User(models.Model):
+#     _inherit = 'res.users'
+#     department_id = fields.Many2one('hr.department')
     
 class Department(models.Model):
     _inherit = 'hr.department'

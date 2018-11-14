@@ -1,0 +1,39 @@
+<odoo>
+    <data>
+        <record id="downloadquants_form" model="ir.ui.view">
+            <field name="name">downloadwizard.download.form</field>
+            <field name="model">downloadwizard.download</field>
+            <field name="arch" type="xml">
+                <form string="Download all model">
+                    <sheet>
+                        <group>
+                            <field name="name" invisible="1"></field>
+                            <field name="parent_location_id"  domain="[('is_kho_cha','=',True)]"></field><!-- attrs="{'invisible':[('model_name','!=','product.product'),('model_name','!=','product.template')]}" -->
+                            <field name="parent_location_runing_id" attrs="{'invisible':[('model_name','!=','product.product'),('model_name','!=','product.template')]}"></field>
+                            <!-- <field name="ngay_bat_dau_filter"></field>
+         	  	<field name="ngay_ket_thuc_filter"></field> -->
+                            <field name="is_moi_sheet_moi_loai"  /> <!-- attrs="{'invisible':[('model_name','!=','stock.quant'),('model_name','!=','tvcv')]}" -->
+                            <!-- <field name="is_dl_right_now"/>
+         	   <field name="test"></field>  -->
+                            <field name="data" readonly="1" filename="name" />
+                            <!--  <field name="domain_text"></field>  -->
+                         <field name="model_name" ></field> 
+                         <field name="is_not_skip_field_stt"  attrs="{'invisible':[('model_name','!=','stock.quant')]}"></field> 
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="download_all_model" string="Download" type="object" class="oe_highlight" groups="base.group_user" />
+                        <button name="download_all_model" string="Download Ngay" type="object" class="oe_highlight" groups="base.group_user" context="{'download_right_now':True}" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <!-- 
+        <act_window id="downloadquants" name="Download số lượng trong kho" res_model="downloadwizard.download" src_model="stock.quant" view_mode="form" multi="True" target="new" key2="client_action_multi" />
+        <act_window id="download_product" name="Download vật tư" res_model="downloadwizard.download" src_model="product.product" view_mode="form" multi="True" target="new" key2="client_action_multi" />
+        <act_window id="download_template" name="Download Template" res_model="downloadwizard.download" src_model="product.template" view_mode="form" multi="True" target="new" key2="client_action_multi" />
+         -->
+       
+       
+    </data>
+</odoo>

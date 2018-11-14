@@ -192,7 +192,7 @@ def name_compute_char_join_rieng(r,adict=None,join_char = u' - '):
                 val ='New'
             else:
                 val ='_'
-        if attr_dict.get('pr',None) != None:
+        if attr_dict.get('pr') != None:
             item =  attr_dict['pr'] + u': ' + unicode(val)
         else:
             item = unicode (val)

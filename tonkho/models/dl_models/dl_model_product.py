@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo.addons.tonkho.models.dl_models.dl_model import  download_model
+# from odoo.addons.tonkho.models.dl_models.dl_model import  download_model
+from odoo.addons.downloadwizard.models.dl_models.dl_model import  download_model
 from openerp.http import request
 
 def stt_(v,needdata): 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo.addons.tonkho.models.dl_models.dl_model import  download_model
+from odoo.addons.downloadwizard.models.dl_models.dl_model import  download_model
 from openerp.http import request
 import xlwt
 from odoo.exceptions import UserError
@@ -17,53 +17,51 @@ def cac_sep_ids_(v,n):
         return ','.join(v.mapped('login'))
     else:
         return ''
-def groups_id_(v,n,dl_obj=None):
-    nhom_chinhs = dl_obj.env['res.groups'].search([('name','in',[u'Group Thay Đổi TVCV','Group Chấm điểm CVI'])]).ids
-#     if nhom_chinhs:
-#         print ("nhom_chinhs",nhom_chinhs)
-#         raise UserError(u'kaka1')
-    new = v.filtered(lambda r: True if (r.id in nhom_chinhs) else False)
-    if new:
-        return ','.join(new.mapped('name'))
-    else:
-        return 'khong co j'
+
     
 def download_user(dl_obj,append_domain = []):
+    def groups_id_(v,n):
+        nhom_chinhs = dl_obj.env['res.groups'].search([('name','in',[u'Group Thay Đổi TVCV',u'Group Chấm điểm CVI'])]).ids
     
+        new = v.filtered(lambda r: True if (r.id in nhom_chinhs) else False)
+        if new:
+            return ','.join(new.mapped('name'))
+        else:
+            return 'khong co j'
     FIELDNAME_FIELDATTR_quants = [
          ('stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_}),
-          ('name',{'width':get_width(40)}),
+          ('name',{}),
           ('department_id',{}),
           ('cac_sep_ids',{'func':cac_sep_ids_}),
-          ('groups_id',{'func':groups_id_,'kargs':{'dl_obj':dl_obj}}),
+          ('groups_id',{'func':groups_id_,}),
                     ]
     Export_Para_quants = {
         'exported_model':'res.users',
         'FIELDNAME_FIELDATTR':FIELDNAME_FIELDATTR_quants,
     #     'gen_domain':gen_domain_stock_quant,
-    #     'search_para':{'order': 'stt asc'},#desc
+        'search_para':{'order': 'name asc'},#desc
         }
 
 
 
     if not dl_obj.is_moi_sheet_moi_loai:
 #         return download_quants_chung_sheet(dl_obj)
-        filename = 'tvcv'
+        filename = 'users'
         name = "%s%s" % (filename, '.xls')
         workbook =  download_model(dl_obj,
                              Export_Para=Export_Para_quants,
                              append_domain=append_domain
                             )
     else:
-        filename = 'tvcv_cate'
+        filename = 'users_cate'
         name = "%s%s" % (filename, '.xls')
-        Quant = request.env['tvcv']#.search([])
-        cates = Quant.search(append_domain).mapped('cong_viec_cate_id')
+        Quant = request.env['res.users']#.search([])
+        cates = Quant.search(append_domain).mapped('department_id')
         workbook = xlwt.Workbook()
         for cate in cates:
             Export_Para_quants_copy = deepcopy(Export_Para_quants)
+            domain =[('department_id','=',cate.id)]
             if append_domain:
-                domain =[('cong_viec_cate_id','=',cate.id)]
                 domain.extend(append_domain)
             download_model(dl_obj,
                          Export_Para=Export_Para_quants_copy,

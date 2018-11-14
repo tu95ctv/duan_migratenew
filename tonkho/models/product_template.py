@@ -6,6 +6,9 @@ from odoo.tools.float_utils import float_compare
 import psycopg2
 # import itertools
 # from odoo.addons.product.models.product_template import  ProductTemplate
+class Categ(models.Model):
+    _inherit = 'product.category'
+    stt_for_report = fields.Integer()
 
 class PN(models.Model):
     _name = 'tonkho.pn'
@@ -28,15 +31,19 @@ class PN(models.Model):
 class ThietBi(models.Model):
     _name = 'tonkho.thietbi'
     name = fields.Char(required=True)
+    brand_id = fields.Many2one('tonkho.brand',ondelete="restrict")
+    categ_id = fields.Many2one(
+        'product.category', u'Nhóm',ondelete="restrict")
 class Brand(models.Model):
     _name = 'tonkho.brand'
     name = fields.Char(required=True)
+   
 
 class ProductTemplate(models.Model):
     """ Quants are the smallest unit of stock physical instances """
     _inherit = 'product.template'
     type = fields.Selection(selection_add=[],default = 'product')
-    thiet_bi_id = fields.Many2one('tonkho.thietbi', string = u'Thiết bị')
+    thiet_bi_id = fields.Many2one('tonkho.thietbi', string = u'Thiết bị',ondelete="restrict")
     brand_id = fields.Many2one('tonkho.brand',string=u'Hãng sản xuất')
     ghi_chu_ban_dau =  fields.Text(string=u'Ghi chú ban đầu')
     ghi_chu_ngay_nhap = fields.Text(string=u'Ghi chú ngày nhập')

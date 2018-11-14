@@ -19,7 +19,7 @@
     'version': '0.1',
     'application': True,
     # any module necessary for this one to work correctly
-    'depends': ['base','stock','hr','dai_tgg'],#'dai_tgg',
+    'depends': ['base','stock','hr','dai_tgg','downloadwizard'],#'dai_tgg',
     #'css': ['static/src/css/style.css'], 
     # always loaded
     'data': [
@@ -52,6 +52,8 @@
         'views/uom.xml',
         'views/tonkho_download.xml',
         'views/sequence_menu.xml',
+        'views/tonkho_cvi.xml',
+        
     ],
     # only loaded in demonstration mode
     'demo': [

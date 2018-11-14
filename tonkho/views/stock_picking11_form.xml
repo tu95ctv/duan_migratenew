@@ -81,6 +81,7 @@
                     <field name="ly_do" />
                     <field name="is_quyen_chuyen_tiep" invisible="1" />
                     <field name="is_quyen_huy_bb" invisible="1" />
+                    <field name="categ_id"></field>
                 </field>
                 <xpath expr="//page[1]" position="attributes">
                     <attribute name="attrs">{'invisible': False}</attribute>

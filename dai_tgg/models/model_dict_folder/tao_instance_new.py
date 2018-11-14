@@ -32,7 +32,7 @@ from odoo.addons.dai_tgg.models.model_dict_folder.get_or_create_func import get_
 from odoo.addons.dai_tgg.models.model_dict_folder.recursive_func import muon_xuat_dac_tinh_gi,ordered_a_model_dict,recursive_add_model_name_to_field_attr,define_col_index,define_col_index,check_xem_att_co_nam_ngoai_khong,write_get_or_create_title,check_col_index_match_xl_title,rut_gon_key
 # from odoo.addons.dai_tgg.models.model_dict_folder.recursive_func import tim_type_cua_attr
 MAP_TYPE = {
-                      'integer':int,
+                      'integer':[int,float],
                       'float':float, 
                       'many2one':int,
                       'char':str,
@@ -40,7 +40,9 @@ MAP_TYPE = {
                       'text':str, 
                       'boolean':bool,
                       'many2many':list,
-                      'one2many':list
+                      'one2many':list,
+                      
+                      
                       }
 
 # def check_type(val,field_type):
@@ -59,6 +61,7 @@ def replace_val_for_ci(field_attr,key_tram,val,needdata):
     replace_string = get_key_allow( field_attr,'replace_string',key_tram)
     if  replace_string and check_is_string_depend_python_version(val):
         for pattern,repl in replace_string:
+            pattern = pattern.replace('(','\(').replace(')','\)')
             val = re.sub(pattern, repl, val)
     #### end  deal replace string ####
     
@@ -91,21 +94,29 @@ def replace_val_for_ci(field_attr,key_tram,val,needdata):
     ### !!!!deal defautl ###
     return val
 def check_type_of_val(field_attr,val,field_name,model_name):        
+    if field_attr.get('bypass_check_type'):
+        return True
     field_type = field_attr.get('field_type')
+#     check_field_type = field_attr.get('check_field_type',True)
     if field_type:
         type_allow = field_attr.get('type_allow',[])
         if val != False:
             try:
                 class_or_type_or_tuple = MAP_TYPE[field_type]
             except:
+                return True
                 raise UserError(u'không có field_type:%s này'%field_type)
             if field_attr.get('is_x2m_field'):
                 class_or_type_or_tuple = list
-            type_allow.append(class_or_type_or_tuple)
+            if isinstance( class_or_type_or_tuple,list):
+                type_allow.extend(class_or_type_or_tuple)
+            else:
+                type_allow.append(class_or_type_or_tuple)
             pass_type_check = False
             for a_type_allow in type_allow:
                 if isinstance(val, a_type_allow):
                     pass_type_check = True
+                    continue
             if not pass_type_check:
                 raise UserError(u'model: %s- field:%s có giá trị: %s, đáng lẽ là field_type:%s nhưng lại có type %s'%(model_name, field_name,val,field_type,type(val)))
 #     else:
@@ -185,7 +196,10 @@ def get_a_field_val(self,field_name,field_attr,key_tram,needdata,row,sheet,
         try:
             val = func(val, needdata,**karg)
         except TypeError:
-            val = func(val, needdata,self,**karg)
+            try:
+                val = func(val, needdata,self,**karg)
+            except TypeError:
+                val = func(val,**karg)
     #end func
     val =replace_val_for_ci(field_attr,key_tram,val,needdata)
     check_type_of_val(field_attr,val,field_name,model_name)
@@ -279,6 +293,7 @@ def get_or_create_instance(self,
                                 )
         return obj_val, get_or_create 
     else:
+        raise UserError(u'Không có Key search dict')
         return False,False  
 
 ################# CREATE INSTANCE

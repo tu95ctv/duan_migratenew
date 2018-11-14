@@ -15,11 +15,12 @@
     'category': 'Uncategorized',
     'version': '0.1',
     # any module necessary for this one to work correctly
-    'depends': ['base','base_import','hr','stock'],
+    'depends': ['base','base_import','hr','stock','downloadwizard'],
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
         'views/ctr.xml',
+        'views/cvi_form.xml',
         'views/cvi.xml',
         'views/tvcv.xml',
         'views/importthuvien.xml',
@@ -32,6 +33,9 @@
         'views/file.xml',
         'views/to_trinh.xml',
         'views/department.xml',
+        'views/downloadwizard.xml',
+                'views/tb.xml',
+
        # 'views/assets.xml',
       #  'views/print.xml',
      #   'views/ca_truc.xml',

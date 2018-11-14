@@ -26,6 +26,7 @@
                <sheet>
                   <group>
                      <group>
+                     	<field name="id" invisible="1"/>
                         <field name="name" />
                         <field name="department_id" />
                         <field name="date" />
@@ -34,7 +35,8 @@
                         <field name="gio_ket_thuc_ca" invisible="1" />
                      </group>
                      <group>
-                        <field name="member_ids" domain="['|',('department_id','child_of',department_id),('department_id','parent_of',department_id)]">
+                        <field name="member_ids"
+                         domain="[('department_id','=',department_id)]">
                            <tree>
                               <field name="name" string="Tên người Trực" />
                               <field name="department_id" />
@@ -43,34 +45,17 @@
                      </group>
                   </group>
                   <notebook>
-                     <page string="Công Việc/Sự Cố/Sự Vụ">
-                        <!--   <field name="cvi_ids" context="{'active_ctr_id':active_id,'tree_view_ref':'dai_tgg.cvi_list_sample'}" 
-                        domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('department_ids','=',department_id)]" /> -->
-                        <field name="cvi_ids" context="{'active_ctr_id':active_id,'member_ids':member_ids}" domain="[('ctr_ids','!=',False),('gio_ket_thuc','=',False),('department_ids','=',department_id)]" />
+                     <page string="Công việc/ Sự cố/ Sự vụ">
+                        
+                        <field name="cvi_ids" context="{'member_ids':member_ids}" />
                      </page>
-                     <page string="Nhận Ca, Giao Ca">
+                     <page string="Tồn đọng của những ca trước">
                         <!-- 'tree_view_ref':'dai_tgg.comment_list_has_ctr', -->
                         <group>
-                           <field name="giao_ca_truoc_ids" context="{'default_loai_record':'Comment'}">
-                              <tree>
-                                 <field name="gio_bat_dau" />
-                                 <field name="gio_ket_thuc" />
-                                 <field name="tvcv_id"  string="Loại Comment"/>
-                                 <field name="noi_dung" />
-                                 <field name="giao_ca_id"/>
-                              </tree>
+                           <field name="ton_dong_ca_truoc_ids"  context="{'member_ids':member_ids}">
                            </field>
                         </group>
                         <group>
-                           <!-- 'tree_view_ref':'dai_tgg.comment_list','form_view_ref':'dai_tgg.comment_form', -->
-                           <field name="giao_ca_ids" context="{  'default_loai_record':'Comment',  'loai_record_more':['Công Việckakkaa'], 'giao_ca_context':True}" domain="[('loai_record','=','Comment')]">
-                              <tree>
-                                 <field name="gio_bat_dau" />
-                                 <field name="gio_ket_thuc" />
-                                 <field name="tvcv_id" string="Loại Comment" />
-                                 <field name="noi_dung" />
-                              </tree>
-                           </field>
                         </group>
                      </page>
                   </notebook>

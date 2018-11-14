@@ -2,7 +2,8 @@
 #######################ML################################
 import xlwt
 from openerp.http import request
-from odoo.addons.tonkho.models.dl_models.dl_model import add_title
+# from odoo.addons.tonkho.models.dl_models.dl_model import add_title
+from odoo.addons.downloadwizard.models.dl_models.dl_model import  add_title
 from collections import  OrderedDict
 normal_border_style_not_border = xlwt.easyxf("font:  name Times New Roman, height 240")
 horiz_center_normal_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align:  vert centre, horiz center; borders: left thin,right thin, top thin, bottom thin")

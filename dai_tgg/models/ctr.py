@@ -2,9 +2,11 @@
 from odoo import models, fields, api,exceptions,tools,_
 from odoo.addons.dai_tgg.mytools import  convert_memebers_to_str,convert_utc_to_gmt_7,name_compute,convert_odoo_datetime_to_vn_datetime,convert_odoo_datetime_to_vn_str,name_compute_char_join_rieng,convert_vn_datetime_to_utc_datetime,Convert_date_orm_to_str
 import datetime
+from odoo.exceptions import UserError
 from unidecode import unidecode
 class CTR(models.Model):
     _name = 'ctr'
+    
     name = fields.Char(compute = '_name_truc_ca_compute', store=True)
     name_khong_dau = fields.Char(compute = '_name_truc_ca_compute', store=True)
     ca = fields.Selection([(u'Sáng',u'Sáng'), (u'Chiều',u'Chiều'), (u'Đêm',u'Đêm')],string=u'Buổi ca',default = lambda self: self.buoi_ca_now_default_())
@@ -13,18 +15,23 @@ class CTR(models.Model):
     gio_ket_thuc_ca = fields.Datetime(u'Giờ Kết Thúc ca',default=lambda self: self.gio_bat_dau_defaut_or_ket_thuc_(is_tinh_gio_bat_dau_or_ket_thuc = 'gio_ket_thuc'))#
     department_id = fields.Many2one('hr.department',string=u'Đơn vị',default=lambda self:self.env.user.department_id, readonly=True, required=True,ondelete='restrict')
     member_ids = fields.Many2many('res.users', string=u'Những thành viên trực',default =  lambda self : [self.env.user.id],required=True)
-    cvi_ids = fields.Many2many('cvi','ctr_cvi_relate','ctr_id','cvi_id',string=u'Công Việc/Sự Cố/Sự Vụ')
+#     cvi_ids = fields.Many2many('cvi','ctr_cvi_relate','ctr_id','cvi_id',string=u'Công Việc/Sự Cố/Sự Vụ')
+    cvi_ids = fields.One2many('cvi','ctr_id',string=u'Công Việc/Sự Cố/Sự Vụ')
+
     cvi_show =  fields.Char(compute='cvi_show_',string=u'Công Việc/Sự Cố/ Sự Vụ')
-    giao_ca_ids = fields.One2many('cvi','giao_ca_id',string=u'Giao Ca Sau')
-    giao_ca_truoc_ids = fields.Many2many('cvi', compute='nhan_ca_ids_',string=u'Ca Trước Giao')
-    @api.depends('name','department_id')
-    def nhan_ca_ids_(self):
+    
+#     giao_ca_ids = fields.One2many('cvi','giao_ca_id',string=u'Giao Ca Sau')
+    ton_dong_ca_truoc_ids = fields.Many2many('cvi', compute='ton_dong_ca_truoc_ids_',string=u'Tồn đọng ca trước')
+    
+    
+    @api.depends('name')
+    def ton_dong_ca_truoc_ids_(self):
         for r in self:
-            domain = [('giao_ca_id','!=',False),('department_id','=',r.department_id.id)]
+            domain = []
             if r.id:
-                domain.append(('giao_ca_id','<',r.id))
-            giao_ca_truoc_ids = self.env['cvi'].search(domain,limit=10,order='giao_ca_id desc')
-            r.giao_ca_truoc_ids = giao_ca_truoc_ids
+                domain =['|',('is_giao_ca','=',True),('gio_ket_thuc','=',False)]
+            ton_dong_ca_truoc_ids = self.env['cvi'].search(domain,limit=20,order='id desc')
+            r.ton_dong_ca_truoc_ids = ton_dong_ca_truoc_ids
 #     @api.depends('cvi_ids')
 #     def cvi_show_(self):
 #         for r in self:
@@ -106,20 +113,22 @@ class CTR(models.Model):
                 return gio_ket_thuc_utc
             else:
                 return False
-    @api.model
-    def default_get(self, fields):
-        res = super(CTR, self).default_get(fields)
-        adict = {'cvi_ids':{'model':'cvi','domain':[('gio_ket_thuc','=',False),('ctr_ids','!=',False),('department_ids','=',self.env.user.department_id.id)]},
-#                  'su_co_ids':{'model':'suco','add_domain':[('ctr_ids','!=',False)]},
-#                  'su_vu_ids':{'model':'suvu','add_domain':[('ctr_ids','!=',False)]}
-              
-                 }
-        #def afunc(atuple):
-        for field,attr_field_dict in adict.items():
-            model = attr_field_dict['model']
-            domain=  attr_field_dict['domain']
-            empty_ket_thuc_comments = self.env[ model].search(domain)
-            if empty_ket_thuc_comments:
-                res[field] = empty_ket_thuc_comments.mapped('id')
-#         res['member_ids']  = [self.env.user.id]
-        return res           
+#     @api.model
+#     def default_get(self, fields):
+#         res = super(CTR, self).default_get(fields)
+# #         adict = {'cvi_ids':{'model':'cvi','domain':[('gio_ket_thuc','=',False),('ctr_ids','!=',False),('department_ids','=',self.env.user.department_id.id)]},
+#         adict = {'cvi_ids':{'model':'cvi','domain':[('gio_ket_thuc','=',False),('ctr_ids','!=',False),'|',('department_id','=',self.env.user.department_id.id),('department_ids','=',self.env.user.department_id.id)]},
+# #                  'su_co_ids':{'model':'suco','add_domain':[('ctr_ids','!=',False)]},
+# #                  'su_vu_ids':{'model':'suvu','add_domain':[('ctr_ids','!=',False)]}
+#               
+#                  }
+#         #def afunc(atuple):
+#         print ('defaut_get************')
+#         for field,attr_field_dict in adict.items():
+#             model = attr_field_dict['model']
+#             domain=  attr_field_dict['domain']
+#             empty_ket_thuc_comments = self.env[ model].search(domain)
+#             if empty_ket_thuc_comments:
+#                 res[field] = empty_ket_thuc_comments.mapped('id')
+# #         res['member_ids']  = [self.env.user.id]
+#         return res           

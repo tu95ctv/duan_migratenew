@@ -70,29 +70,7 @@ class TVCV(models.Model):
     is_has_children = fields.Boolean(string=u'Có TVCV Giai Đoạn Con',compute='is_has_children_',store=True)
     co_cong_viec_cha = fields.Boolean(string=u'Có TVCV Giai Đoạn Cha',compute='co_cong_viec_cha_',store=True)
     valid_thu_vien = fields.Boolean(compute='valid_thu_vien_',store=True,string=u'Valid thư viện')
-#     @api.model
-#     def fields_view_get(self, view_id=None, view_type=False, toolbar=False, submenu=False):
-#         res = super(TVCV, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
-#         if view_type =='search':
-#             id_you_want = self._context.get('active_id')
-#             fields = res.get('fields')
-#             fields['date']['string'] =u'anh con no'# ['|',('ctr_ids','=','active_id'),'&',('ctr_ids','!=',False),('gio_ket_thuc','=',False)]
-#             fields['loai_su_co']['domain'] ='''[('l','!=',False)]'''
-#         return res
 
-#     @api.depends('name')
-#     def name_khong_dau_(self):
-#         for r  in self:
-#             #print 'in name khong dau'
-#             if r.name:
-#                 name = r.name
-#                 if name:
-#                     try:
-#                         name_khong_dau = unidecode(name)
-#                     except:
-#                         raise ValueError(name)
-#                     r.name_khong_dau = name_khong_dau
-#                     r.name_viet_tat = viet_tat(name_khong_dau)
 #         
     @api.model
     def fields_view_get(self, view_id=None, view_type=False, toolbar=False, submenu=False):
@@ -102,7 +80,7 @@ class TVCV(models.Model):
             loai_record = self._context.get('default_loai_record')
             if loai_record in [u'Sự Cố',u'Sự Vụ',u'Comment']:
                 fields = res.get('fields')
-                fields['name']['string'] =u'Tên Loại ' + loai_record # ['|',('ctr_ids','=','active_id'),'&',('ctr_ids','!=',False),('gio_ket_thuc','=',False)]
+                fields['name']['string'] =u'Tên Loại ' + loai_record
             elif loai_record == u'Công Việc':
                 fields = res.get('fields')
                 fields['name']['string'] =u'Tên TVCV'

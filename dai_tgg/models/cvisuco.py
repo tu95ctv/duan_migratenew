@@ -7,28 +7,42 @@ class CviSuCo(models.Model):
     
     _name = 'cvisuco'
     _auto = False
+    
+    is_giao_ca = fields.Boolean(u'Giao ca')
+    cvi_id = fields.Many2one('cvi',u'Sự cố liên quan')
+    cvi_cm_ids = fields.One2many('cvi','cvi_id',u'Công việc, comment liên quan')
+    nguyen_nhan     = fields.Char()
     name = fields.Char(compute='name_',store=True)
     noi_dung = fields.Text(string=u'Nội dung')
     noi_dung_khong_dau = fields.Text(string=u'Nội dung không dấu', compute='noi_dung_khong_dau_',)  
-    cvi_id = fields.Many2one('cvi')
-    giao_ca_id = fields.Many2one('ctr',string=u'Ca Trực')
+#     cvi_id = fields.Many2one('cvi')
+#     giao_ca_id = fields.Many2one('ctr',string=u'Ca Trực')
     file_ids = fields.Many2many('dai_tgg.file','cvi_file_relate','cvi_id','file_id',string=u'Files đính kèm')
     doitac_ids = fields.Many2many('res.partner',string=u'Đối Tác')
 #     department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',required=True,readonly=True,default = lambda self:  self.env.user.department_id.id,ondelete='restrict')
-    department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',ondelete='restrict',compute="department_id_",store=True)
+    department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',ondelete='restrict',
+#                                        default= lambda self:self.env.user.department_id.id
+                                    compute="department_id_",store=True
+                                    )
     department_ids = fields.Many2many('hr.department', string=u'Đơn vị liên quan' )
-    loai_record = fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record')
+    loai_record = fields.Selection([(u'Công Việc',u'Công Việc'),
+                                    (u'Sự Cố',u'Sự Cố'),
+                                    (u'Sự Vụ',u'Sự Vụ'),
+                                    (u'Comment',u'Comment')
+                                    ], string = u'Loại Record')
     loai_record_show =  fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record',compute='loai_record_show_')
     ngay_bat_dau =  fields.Date(compute='ngay_bat_dau_',store=True,string=u'Ngày')
     gio_bat_dau = fields.Datetime(string=u'Giờ bắt đầu ', default=fields.Datetime.now)
     gio_ket_thuc = fields.Datetime(string=u'Giờ Kết Thúc')
     duration = fields.Float(digits=(6, 1), help='Duration in Hours',compute = '_get_duration', store = True,string=u'Thời lượng (giờ)')
     user_id = fields.Many2one('res.users',default =  lambda self: self.env.uid, readonly=True, string=u'Nhân viên tạo')   
-    ctr_ids  = fields.Many2many('ctr','ctr_cvi_relate','cvi_id','ctr_id',string=u'Ca Trực')
-    ctr_show = fields.Char(compute='ctr_show_',string=u'Số ca trực')
-    tvcv_id = fields.Many2one('tvcv', string=u'Thư Viện Công việc/ Loại Sự Cố/ Loại Sự Vụ',ondelete='restrict')
-    comment_ids = fields.One2many('cvi','cvi_id',string=u'Comments/Ghi Chú/Tiến Độ')
-    comments_show = fields.Char(compute='comments_show_',string=u'Comments/Ghi Chú/Tiến Độ')
+#     ctr_ids  = fields.Many2many('ctr','ctr_cvi_relate','cvi_id','ctr_id',string=u'Ca Trực')
+    
+    ctr_id  = fields.Many2one('ctr',string=u'Ca Trực')
+#     ctr_show = fields.Char(compute='ctr_show_',string=u'Số ca trực')
+    tvcv_id = fields.Many2one('tvcv', string=u'TVCV/ Loại sự cố/ Loại sự vụ',ondelete='restrict')
+#     comment_ids = fields.One2many('cvi','cvi_id',string=u'Comments')
+#     comments_show = fields.Char(compute='comments_show_',string=u'Comments')
     trig_field = fields.Boolean()
 
     @api.depends('user_id')
@@ -46,19 +60,19 @@ class CviSuCo(models.Model):
         for r in self:
             r.loai_record_show = r.loai_record
             
-    @api.depends('comment_ids')
-    def comments_show_(self):
-        for r in self:
-            comment_ids_text_lists = []
-            for i in r.comment_ids:
-                i_text = name_compute_char_join_rieng(i, [
-                    ('create_date',{'func':convert_odoo_datetime_to_vn_str}),#,'pr_more':u'('
-                    ('create_uid',{'func': lambda r: r.name ,'join_char':u'-'}),#'sf_more':u')' 
-                    ('noi_dung',{'pr':u''}),
-                                          ],
-                                       join_char = ' ')
-                comment_ids_text_lists.append(i_text)
-            r.comments_show = u' | '.join(comment_ids_text_lists)
+#     @api.depends('comment_ids')
+#     def comments_show_(self):
+#         for r in self:
+#             comment_ids_text_lists = []
+#             for i in r.comment_ids:
+#                 i_text = name_compute_char_join_rieng(i, [
+#                     ('create_date',{'func':convert_odoo_datetime_to_vn_str}),#,'pr_more':u'('
+#                     ('create_uid',{'func': lambda r: r.name ,'join_char':u'-'}),#'sf_more':u')' 
+#                     ('noi_dung',{'pr':u'',}),
+#                                           ],
+#                                        join_char = ' ')
+#                 comment_ids_text_lists.append(i_text)
+#             r.comments_show = u' | '.join(comment_ids_text_lists)
                 
         
 
@@ -66,26 +80,25 @@ class CviSuCo(models.Model):
             
             
             
-    @api.depends('ctr_ids')
-    def ctr_show_(self):
-        for r in self:
-            r.ctr_show =u'%s ca trực'% len(r.ctr_ids)
+#     @api.depends('ctr_ids')
+#     def ctr_show_(self):
+#         for r in self:
+#             r.ctr_show =u'%s ca trực'% len(r.ctr_ids)
  
     @api.model
     def fields_view_get(self, view_id=None, view_type=False, toolbar=False, submenu=False):
         res = super(CviSuCo, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        fields = res.get('fields')
         if view_type in ['tree','form']:
-            loai_record_context = self._context.get('default_loai_record')
-            if view_type =='tree':
-                print ('loai_record_context',loai_record_context)
-            if loai_record_context in [u'Sự Cố',u'Sự Vụ',u'Comment']:
-                fields = res.get('fields')
-                fields['tvcv_id']['string'] =u'Loại ' + loai_record_context # ['|',('ctr_ids','=','active_id'),'&',('ctr_ids','!=',False),('gio_ket_thuc','=',False)]
-            elif loai_record_context == u'Công Việc':
+            default_loai_record = self._context.get('default_loai_record')
+            if default_loai_record in [u'Sự Cố',u'Sự Vụ',u'Comment']:
+                
+                fields['tvcv_id']['string'] =u'Loại ' + default_loai_record 
+            elif default_loai_record == u'Công Việc':
                 fields = res.get('fields')
                 fields['tvcv_id']['string'] =u'Thư Viện Công Việc'
 #                 fields['user_id']['string'] =u'Nhân Viên Làm'
-        if view_type =='form' and loai_record_context:
+        if view_type =='form':
             if self._context.get('you_at_gd_form'):
                 context='''{'thu_vien_da_chon_list':parent.get('thu_vien_da_chon_list'), 
                          'you_at_gd_form':context.get('you_at_gd_form'),
@@ -105,7 +118,6 @@ class CviSuCo(models.Model):
                          'tree_view_ref':tree_view_ref, 
                          'search_view_ref': search_view_ref ,}'''
                 
-                 
             fields['tvcv_id']['context'] = context
         return res
     @api.depends('loai_record')
@@ -131,9 +143,10 @@ class CviSuCo(models.Model):
     def get_names(self):
             adict = {u'Công Việc':u'TVCV',u'Sự Cố':u'Loại',u'Sự Vụ':u'Loại',u'Comment':u'Loại'}
             if self.loai_record :
-                adict=[('id',{'pr':u'%s id'%self.loai_record}),
+                adict=[
+                                              ('id',{'pr':u'%s,id'%self.loai_record}),
                                               ('tvcv_id',{'pr':adict[self.loai_record],'func':lambda val:val.name}),
-                                              ('noi_dung',{'pr':u'Nội Dung','skip_if_False':False}),
+                                              ('noi_dung',{'pr':u'Nội Dung', 'skip_if_False':False,'func':lambda val: val[0:30]+'...' if  (val and len(val)>30) else  val}),
                                               ]
                 if self._context.get('default_loai_record') ==u'Công Việc':
                     adict.append(('user_id',{'func':lambda r:r.name,'pr':u'Người Làm','skip_if_False':False}))
@@ -148,11 +161,8 @@ class CviSuCo(models.Model):
     @api.depends('tvcv_id','loai_record','noi_dung')
     def name_(self):
         for r in self:
-
             name = r.get_names()
             r.name = name
-            if r.id:
-                r.id_for_pivot = r.id
     @api.depends('gio_bat_dau')
     def ngay_bat_dau_(self):#trong su kien
         for r in self:

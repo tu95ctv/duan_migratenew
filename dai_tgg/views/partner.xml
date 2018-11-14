@@ -14,9 +14,11 @@
                 <xpath expr="//group[1]/group[1]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+                <!-- 
                 <field name="vat" position="attributes">
                 	<field name="invisbile">1</field>
                 </field>
+                 -->
                 <field name="category_id" position="replace"></field>
                 <field name="website" position="replace"></field>
                 <xpath expr="//field[@name='lang']" position="attributes">
@@ -68,15 +70,17 @@
             <field name="inherit_id" ref="base.view_res_partner_filter" />
             <field name="arch" type="xml">
                 <filter name="salesperson" position="replace" />
-                <filter name="group_country" position="replace" />
+                <!--<filter name="group_country" position="replace" />  -->
                 <field name="name" position="attributes">
                     <attribute name="filter_domain">['|','|','|','|',('display_name','ilike',self),('ref','=',self),('email','ilike',self),('name_khong_dau','ilike',self),('name_viet_tat','ilike',self)]</attribute>
                     <attribute name="string">Name hoặc Mail hoặc Tên không dấu hoặc Tên Viết Tắt</attribute>
                 </field>
-                <filter name="group_company" position="after">
+                
+                <!-- <filter name="group_company" position="after">
                     <filter name="group_is_company" string="Công ty hay cá nhân" context="{'group_by': 'is_company'}" />
                     <filter name="group_job_id" string="Chức vụ" context="{'group_by': 'job_id'}" />
                 </filter>
+                 -->
             </field>
         </record>
         <record model="ir.actions.act_window" id="partner_action">
