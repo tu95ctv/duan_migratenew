@@ -348,3 +348,13 @@ msgstr "Vật tư"
 #: model:ir.ui.view,arch_db:stock.search_product_lot_filter
 msgid "Product Lots"
 msgstr "Serial number"
+
+#. module: stock
+#: model:ir.model.fields,field_description:stock.field_stock_move_create_date
+#: model:ir.model.fields,field_description:stock.field_stock_picking_date
+#: model:ir.model.fields,field_description:stock.field_stock_production_lot_create_date
+msgid "Creation Date"
+msgstr "Ngày giờ tạo"
+
+
+

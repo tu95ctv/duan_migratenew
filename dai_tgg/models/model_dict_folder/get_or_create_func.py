@@ -97,7 +97,7 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
         only_get = get_key_allow(model_dict,'only_get',key_tram)
 #         print ('only_get***',only_get)
         if only_get:
-            raise UserError(u'Model này chỉ được get chứ không được tạo')
+            raise UserError(u'Model %s này chỉ được get chứ không được tạo'%class_name)
         for f_name,val in write_dict.items():
             field_attr = model_dict['fields'][f_name]
             f_name = get_key_allow(field_attr, 'transfer_name', key_tram) or f_name

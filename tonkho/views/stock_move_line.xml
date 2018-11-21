@@ -62,6 +62,37 @@
             </field>
         </record>
         
+        <!-- SEARCH -->
+        
+        <record id="stock_move_line_view_search" model="ir.ui.view">
+        <field name="name">stock.move.line.search</field>
+        <field name="model">stock.move.line</field>
+        <field name ="inherit_id" ref="stock.stock_move_line_view_search"/>
+        <field name="arch" type="xml">
+                <field name="product_id" position="after">
+                	<field string="Serial number" name="lot_id"></field>
+                	<field string = "Part number" name="pn_id"></field>
+                </field>
+                
+                <!-- 
+                <field name="product_id"/>
+                <field name="location_id" groups="stock.group_stock_multi_locations"/>
+                <field name="location_dest_id" groups="stock.group_stock_multi_locations"/>
+                <filter string="To Do" name="todo" domain="[('state','not in', ['done', 'draft'])]"/>
+                <filter string="Done" name="done" domain="[('state','=','done')]"/>
+                 -->
+                <filter name="incoming" position="replace"/>
+                <filter  name="outgoing" position="replace" />
+                <filter  name="internal" position="replace"/>
+                <filter  name="manufacturing" position="replace"/>
+
+                
+        </field>
+    </record>
+    
+    
+    
+        
         <menuitem id="stock_move_line_menu" action="stock.stock_move_line_action" parent="stock.menu_stock_warehouse_mgmt" sequence="31" name="Các dòng điều chuyển" />
     </data>
 </odoo>

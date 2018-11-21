@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 # from odoo.addons.tonkho.models.dl_models.dl_model import  download_model
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  download_model
+from odoo.addons.downloadwizard.models.dl_models.dl_model import  stt_
 from openerp.http import request
-
-def stt_(v,needdata): 
-    v = needdata['a_instance_dict']['stt_not_model']['val']  +1   
-    return v      
+# 
+# def stt_(v,needdata): 
+#     v = needdata['a_instance_dict']['stt_not_model']['val']  +1   
+#     return v      
 
 def pr_running_quant_(v,n,parent_location_id='parent_location_id'):
         domain_quant = [('product_id','=',n['a_instance_dict']['id']['val']),('location_id','child_of',getattr(n['dl_obj'], parent_location_id).id)]#dl_obj_global

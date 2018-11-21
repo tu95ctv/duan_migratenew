@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api,exceptions,tools,_
-from odoo.addons.dai_tgg.mytools import  convert_utc_to_gmt_7,name_compute,convert_odoo_datetime_to_vn_datetime,convert_odoo_datetime_to_vn_str,name_compute_char_join_rieng,convert_vn_datetime_to_utc_datetime,Convert_date_orm_to_str
+from odoo.addons.dai_tgg.mytools import  convert_utc_to_gmt_7,name_compute,convert_odoo_datetime_to_vn_datetime,convert_odoo_datetime_to_vn_str,convert_vn_datetime_to_utc_datetime,Convert_date_orm_to_str
 from odoo.exceptions import ValidationError,UserError
 import datetime
 import sys
@@ -186,32 +186,51 @@ class Cvi(models.Model):
 #                     raise UserError(u'Bạn không có quyến set từ Approve thành Ready Delete')
 #             else:
 #                 r.state = 'ready_delete'
-    
+    state = fields.Selection([
+#                               ('ready_delete',u'Cho phép xóa'),
+                              ('mark_delete',u'Đánh Dấu Để Xóa'),
+                              ('confirmed',u'Xác Nhận'), ('approved',u'Lãnh Đạo đã duyệt'),
+                          ],default='confirmed',required=True,string=u'Trạng thái')
+#     @api.multi
+#     def action_mark_delete(self):
+#         for r in self:
+#             if r.state == 'confirmed':
+#                 r.state = 'mark_delete'
+#                 
+#                 
+#     @api.multi
+#     def action_confirmed(self):
+#         for r in self:
+#             if r.state == 'approved':
+#                 if r.is_sep:# or r.is_admin:
+#                     r.state = 'confirmed'
+#                 else:
+#                     raise UserError(u'Bạn không có quyến set từ Approve thành Confirm')
+#             else:
+#                 r.state = 'confirmed'
+#     
+#     @api.multi
+#     def action_approved(self):
+#         print ('**action_approved**')
+#         for r in self:
+#             if r.is_sep:#or r.is_admin:
+#                 r.state = 'approved'
+#                 print ('**da set**')
+#             else:
+#                 raise UserError(u'Bạn không có quyền aprroved')
+
     @api.multi
     def action_mark_delete(self):
         for r in self:
-            if r.state == 'confirmed':
-                r.state = 'mark_delete'
-                
-                
+            r.state = 'mark_delete'
     @api.multi
     def action_confirmed(self):
         for r in self:
-            if r.state == 'approved':
-                if r.is_sep:# or r.is_admin:
-                    r.state = 'confirmed'
-                else:
-                    raise UserError(u'Bạn không có quyến set từ Approve thành Confirm')
-            else:
-                r.state = 'confirmed'
-    
+            r.state = 'confirmed'
     @api.multi
     def action_approved(self):
         for r in self:
-            if r.is_sep:#or r.is_admin:
-                r.state = 'approved'
-            else:
-                raise UserError(u'Bạn không có quyền aprroved')
+            r.state = 'approved'
             
                 
 
@@ -221,11 +240,7 @@ class Cvi(models.Model):
             if r.user_id:
                 r.department_id = r.user_id.department_id
    
-    state = fields.Selection([
-#                               ('ready_delete',u'Cho phép xóa'),
-                              ('mark_delete',u'Đánh Dấu Để Xóa'),
-                              ('confirmed',u'Xác Nhận'), ('approved',u'Lãnh Đạo đã duyệt'),
-                          ],default='confirmed',required=True,string=u'Trạng thái')
+  
     ti_le_chia_diem = fields.Float(digits=(6,2),string=u'Tỉ lệ chia điểm')
     tvcv_id_name = fields.Char(compute='tvcv_id_name_',string=u'Thư Viện Công Việc',store=True)
     code= fields.Char(compute='code_',string=u'Mã Công Việc',store=True)

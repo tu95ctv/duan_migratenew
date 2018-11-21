@@ -14,7 +14,7 @@ TYPES_ATT_DICT = {
             'for_excel_readonly' : {'types': ['bool']} ,
             'func' : {'types': ['function', 'NoneType']} ,
             'get_or_create_para' : {'types': ['NoneType','dict'],'default':{}} ,#not_use_key: chưa xài
-            'karg' : {'types': ['NoneType']} ,#khong_can_khai_bao_key
+            'karg' : {'types': ['NoneType','dict']} ,#khong_can_khai_bao_key
             'key' : {'types': ['bool']} ,
             'key_allow' : {'types': ['bool']} ,
             # 'key_ltk_dc' : {'types': ['list']} ,
@@ -51,7 +51,9 @@ TYPES_ATT_DICT = {
             'mode_no_create_in_main_instance':{'types': ['bool']},
             'skip_this_field_for_mode_no_create':{'types': ['bool']},
             'required_force':{'types': ['bool']},
-            'bypass_check_type':{'types':['bool']}
+            'bypass_check_type':{'types':['bool']},
+            'dong_test':{'types':['int']},
+            
 #             'skip_field_default':{'types': ['bool']}
 }
 ###R1

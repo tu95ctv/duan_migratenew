@@ -84,7 +84,9 @@ class StockLocation(models.Model):
             recs = self.search(['|','|',('complete_name_khong_dau', operator, name), ('barcode', operator, name), ('complete_name', operator, name)] + args, limit=limit)
             recs = recs.filtered(filter_lots )
             return recs.name_get()
-        
+#         print ('args**********',args)
+#         args  = [ tuple(i) for i in args if isinstance(i, list)]
+#         print ('args2**********',args)
         recs = self.search(['|', ('complete_name_khong_dau', operator, name), ('complete_name', operator, name)] + args, limit=limit)
         return recs.name_get()
 #         return super(StockLocation, self).name_search( name, args=args, operator=operator, limit=limit)

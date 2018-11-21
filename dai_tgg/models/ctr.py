@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api,exceptions,tools,_
-from odoo.addons.dai_tgg.mytools import  convert_memebers_to_str,convert_utc_to_gmt_7,name_compute,convert_odoo_datetime_to_vn_datetime,convert_odoo_datetime_to_vn_str,name_compute_char_join_rieng,convert_vn_datetime_to_utc_datetime,Convert_date_orm_to_str
+from odoo.addons.dai_tgg.mytools import  convert_memebers_to_str,convert_utc_to_gmt_7,name_compute,convert_odoo_datetime_to_vn_datetime,convert_odoo_datetime_to_vn_str,convert_vn_datetime_to_utc_datetime,Convert_date_orm_to_str
 import datetime
 from odoo.exceptions import UserError
 from unidecode import unidecode

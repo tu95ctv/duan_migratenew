@@ -148,11 +148,13 @@ def gen_user_department_model_dict():
 #                         ('location_id',{'model':'stock.location', 'fields':[('name',{'xl_title':u'location_id','key':True,'required':True}),]}), 
                                                                                 ]
                                                                     }),
-                ('kho_tam_id',{'model':'stock.location','fields':[
+                ('kho_tam_id',{'inactive_include_search':True,'model':'stock.location','fields':[
                         ('name',{'xl_title':u'kho_tam','func':None,'key':True,'required':True}),
                         ('usage',{'xl_title':u'usage','func':None,'key':False,'required':False}),
+                        ('active',{'set_val':False,'key':False,'required':False}),
                         ('is_kho_cha',{'set_val':True}),
                         ('stock_type',{'set_val':'tram'}),
+                        ('location_id',{'func':lambda v,needdata:needdata['vof_dict']['default_location_id']['val'] }),
                         ('partner_id_of_stock_for_report',{'model':'res.partner','func':lambda v,needdata:needdata['vof_dict']['partner_id']['val']}),
                         ('department_id',
                                              {'model':'hr.department','fields':[
@@ -219,33 +221,7 @@ def gen_user_department_model_dict():
                  ),  
                       ]
                 },#End users'
-    u'cvi': {
-                'title_rows' : [0], 
-                'begin_data_row_offset_with_title_row' :1,
-                'sheet_names': [u'Sheet 1'],
-                'model':'cvi',
-                'fields' : [
-                      ('department_id',{'fields':[
-                          ('name',{'key':True,'required':True,'xl_title':u'Đơn vị tạo'})
-                          ]}),
-                      ('loai_record',{'required':True, 'key':True, 'xl_title':u'Loại Record'}),
-                      ('categ_id',{'fields':[
-                          ('name',{'key':True,'required':True,'xl_title':u'Nhóm'})
-                          ]}
-                       ),
-                      ('thiet_bi_id',{'fields':[
-                          ('name',{'key':True,'required':True,'xl_title':u'Thiết bị'})
-                          ]}),
-                      ('tvcv_id',{'key':True,'fields':[
-                          ('name',{'key':True,'required':True,'xl_title':u'TVCV/ Loại sự cố/ Loại sự vụ'})
-                          ]}
-                       ),
-                      ('noi_dung',{'key':True,'xl_title':u'Nội dung'}),
-                      ('gio_bat_dau',{'key':True,'xl_title':u'Giờ bắt đầu','bypass_check_type':True,'func':convert_vn_datetime_to_utc_datetime_2}),
-                      ('gio_ket_thuc',{'key':True,'xl_title':u'Giờ Kết Thúc','bypass_check_type':True,'func':convert_vn_datetime_to_utc_datetime_2}),
-                      ]
-                },#location partner            
-                   
+  
     u'cvi': {
                 'title_rows' : [0], 
                 'begin_data_row_offset_with_title_row' :1,
@@ -277,6 +253,7 @@ def gen_user_department_model_dict():
                 'begin_data_row_offset_with_title_row' :1,
                 'largest_map_row_choosing':True,
                 'sheet_names': [u'BCN'],
+                'dong_test':10,
                 'model':'dai_tgg.thuebaoline',
                 'fields' : [
                       ('stt',{'func':stt_thuebaoline_}),
@@ -286,7 +263,9 @@ def gen_user_department_model_dict():
                       ('msc',{'required':True, 'key':True, 'xl_title':u'MSC-VLR'}),
              
                       ('tb_cap_nhat',{'key':True,'xl_title':u'TB cập nhật'}),
-                      
+                      ('tb_mo_may',{'key':True,'xl_title':u'TB mở máy'}),
+                      ('tb_tat_may',{'key':True,'xl_title':u'TB tắt máy'}),
+                      ('tai_cp',{'key':True,'xl_title':u'Tải CP'}),
                       ]
                 },#location partner            
                    }

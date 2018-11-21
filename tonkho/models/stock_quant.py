@@ -97,6 +97,7 @@ class Quant(models.Model):
         if context.get('kho_da_chon') !=None:
             choosed_list = context.get('kho_da_chon') [0][2]
             args +=[('id','not in',choosed_list)]
+     
         recs = self.search(['|',('product_id', operator, name),('lot_id.name', operator, name)] + args, limit=limit)
         return recs.name_get()
     
@@ -128,8 +129,8 @@ class Quant(models.Model):
         res = super(Quant, self).fields_view_get(
             view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
         if view_type =='search':
-            write_to_current_path(u'%s'%res['arch'])
-            print ("res['arch']",res['arch'])
+#             write_to_current_path(u'%s'%res['arch'])
+#             print ("res['arch']",res['arch'])
             doc = etree.fromstring(res['arch'])
             node =  doc.xpath("//filter[@name='locationgroup']")[0]
             node.addnext(etree.Element('separator', {}))

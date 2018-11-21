@@ -494,10 +494,12 @@ def importthuvien(odoo_or_self_of_wizard,
         min_row = row_title_index + off_set_row
         first_row = min_row + getattr(self,'begin_row',0)
         print ('first_row','min_row',first_row,min_row)
-        if not getattr(self,'dong_test',None):
+       
+        dong_test = getattr(self,'dong_test',None) or CHOOSED_MODEL_DICT.get('dong_test')
+        if not dong_test:
             last_row = sheet.nrows
         else:
-            last_row = first_row + self.dong_test
+            last_row = first_row + dong_test
        
         if last_row > sheet.nrows:
             last_row =  sheet.nrows

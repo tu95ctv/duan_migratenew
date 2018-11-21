@@ -29,11 +29,18 @@
                   <button name="action_approved" type="object" string="Lãnh Đạo Đồng Ý"  class="oe_highlight"   attrs="{'invisible':['|',('is_sep','=',False),'|',('loai_record','!=','Công Việc'),'|',('state','=','approved')]}" />
                   <button name="action_mark_delete" type="object" string="Đánh Dấu Xóa"  class="oe_highlight"   states="confirmed" />
                   -->
+                  <!-- 
                   <button name="action_mark_delete" type="object" string="Đánh Dấu Xóa"  class="oe_highlight"   states="confirmed" />
-                  <button name="action_confirmed" type="object" string="Xác Nhận"  class="oe_highlight"    attrs="{'invisible':['|',('state','=','confirmed'),'&amp;',('is_sep','=',False),('state','=','approved')]}"/> <!-- states="mark_delete,approved" -->
-                  <button name="action_approved" type="object" string="Lãnh Đạo Đồng Ý"  class="oe_highlight"    attrs="{'invisible':['|','|',('state','=','mark_delete'),('state','=','approved'),'&amp;',('state','=','confirmed'),'|',('loai_record','!=','Công Việc'),('is_sep','=',False)]}" /> <!-- ('state','=','confirmed') -->
-                 
-                  <field name="state" widget="statusbar"  attrs="{'invisible':[('loai_record','!=','Công Việc')]}"/>
+                  <button name="action_confirmed" type="object" string="Xác Nhận"  class="oe_highlight"    attrs="{'invisible':['|',('state','=','confirmed'),'&amp;',('is_sep','=',False),('state','=','approved')]}"/>
+                  <button name="action_approved" type="object" string="Lãnh Đạo Đồng Ý"  class="oe_highlight"    attrs="{'invisible':['|','|',('state','=','mark_delete'),('state','=','approved'),'&amp;',('state','=','confirmed'),'|',('loai_record','!=','Công Việc'),('is_sep','=',False)]}" />
+                  -->
+                  
+                  <button name="action_mark_delete" type="object" string="Đánh Dấu Xóa"  class="oe_highlight"  states="confirmed" />
+                  <button name="action_confirmed" type="object" string="Xác Nhận"  class="oe_highlight"  attrs="{'invisible':['|',('state','=','confirmed'),'&amp;',('is_sep','=',False),('state','=','approved')]}"  />
+                  <button name="action_approved" type="object" string="Lãnh Đạo Đồng Ý"  class="oe_highlight"  attrs="{'invisible':['|','|',('state','=','mark_delete'),('state','=','approved'),'&amp;',('state','=','confirmed'),'|',('loai_record','!=','Công Việc'),('is_sep','=',False)]}"   />
+                  
+                  
+                  <field name="state" widget="statusbar"  /><!-- attrs="{'invisible':[('loai_record','!=','Công Việc')]}" -->
                </header>
                <sheet>
                   <group>
@@ -53,7 +60,7 @@
                     	<field name="cvi_id" readonly="context.get('default_cvi_id')" ></field>
                     	<field name="ctr_id"/>
                     	<field name="is_giao_ca"/>
-                    	<field name="context_get"/>
+                    	<field name="context_get" groups="base.group_erp_manager"/>
                      </group>
                      <group>
                         <field name="ngay_bat_dau" invisible="1" />
@@ -70,8 +77,8 @@
                        
                        <!--  context="{'tree_view_ref':tree_view_ref,'search_view_ref':search_view_ref,'default_loai_record':loai_record}" -->
                         <field name="noi_dung"  attrs="{'readonly':['|','&amp;',('cam_sua','=',True),('is_sep','=',False),'&amp;',('id','&gt;',0),'|',('hd_parent_id','!=',False),('cd_parent_id','!=',False)]}" />
-                    	
-                    	
+                        <field name="nguyen_nhan"  attrs="{'invisible':[('loai_record','!=','Sự Cố')]}" />
+                    	<field name="is_bc" />
                      </group>
                   </group>
                   <group attrs="{'invisible':[('loai_record','!=','Công Việc')]}">

@@ -5,11 +5,9 @@ from openerp.http import request
 # from odoo.addons.tonkho.models.dl_models.dl_model import add_title
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  add_title
 from collections import  OrderedDict
-normal_border_style_not_border = xlwt.easyxf("font:  name Times New Roman, height 240")
-horiz_center_normal_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align:  vert centre, horiz center; borders: left thin,right thin, top thin, bottom thin")
-not_horiz_center_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align: wrap on , vert centre; borders: left thin,right thin, top thin, bottom thin")
-header_bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 240 ; align:  vert centre, horiz center ;  pattern: pattern solid, fore_colour gray25;borders: left thin, right thin, top thin, bottom thin")
-def add_1_row_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, offset_column=0, f_name_slit_parrent = None, 
+from odoo.addons.downloadwizard.models.dl_models.dl_model import  not_horiz_center_border_style
+
+def add_1_row_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, offset_column=0, 
                             needdata=None,save_ndata=False,ml=False,
                             ml_index=False,rowspan=False):
     if save_ndata:

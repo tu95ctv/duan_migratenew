@@ -50,7 +50,10 @@
                 </xpath>
                 <field name="location_id" position="replace">
                     <field name="id" />
-                    <field name="location_id" domain="['|',('cho_phep_khac_tram_chon','=', True),'&amp;',('is_kho_cha','=',True),('department_id','=', department_id)]" />
+                     <field name="location_id"  domain="['|',('cho_phep_khac_tram_chon','=', True),'&amp;',('is_kho_cha','=',True),('department_id','=', department_id)]" /> <!-- domain="[('cho_phep_khac_tram_chon','=', True)]"  -->
+                   <!--   <field name="location_id" domain="['|',('cho_phep_khac_tram_chon','=', True),'&amp;',('is_kho_cha','=',True),('department_id','=', department_id)]" />
+                 
+                   <field name="location_id" domain="['|',(1,'=',1),'&amp;',('is_kho_cha','=',True),('department_id','=', department_id)]" /> -->
                     <field name="department_id" />
                     <field name="noi_ban_giao" />
                     <field name="stt_trong_bien_ban_in" readonly="0" />
@@ -81,7 +84,6 @@
                     <field name="ly_do" />
                     <field name="is_quyen_chuyen_tiep" invisible="1" />
                     <field name="is_quyen_huy_bb" invisible="1" />
-                    <field name="categ_id"></field>
                 </field>
                 <xpath expr="//page[1]" position="attributes">
                     <attribute name="attrs">{'invisible': False}</attribute>
@@ -93,6 +95,11 @@
                 <xpath expr="//page[1]/field/tree" position="attributes">
                     <attribute name="class">d4tree</attribute>
                 </xpath>
+                <!-- 
+                <field name="move_line_ids"  position="attributes">
+                	<attribute name="context">{'product_id_readonly':True}</attribute>
+                </field>
+                 -->
                 <xpath expr="//page[1]/field/tree/field[@name='product_uom_qty']" position="attributes">
                     <attribute name="groups">base.group_erp_manager</attribute>
                 </xpath>
@@ -121,7 +128,7 @@
                 <xpath expr="//page[1]/field/tree/field[@name='product_uom_id']" position="after">
                     <field name="categ_id" string="Nhóm"></field>
                     <field name="tracking"></field>
-                    <field name="lot_id" invisible="0" attrs="{'column_invisible': [('parent.show_lots_text', '=', True)],                     'invisible': ['|',('lots_visible', '=', False),('tracking', '=', 'none')],                                'readonly': ['|',('in_entire_package', '=', True),                 ('state', 'in', ('done', 'cancel'))]}" groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'default_product_id': product_id, 'default_pn_id': pn_id,'pn_id_readonly':True}" />
+                    <field name="lot_id" invisible="0" attrs="{'column_invisible': [('parent.show_lots_text', '=', True)],                     'invisible': ['|',('lots_visible', '=', False),('tracking', '=', 'none')],                                'readonly': ['|',('in_entire_package', '=', True),                 ('state', 'in', ('done', 'cancel'))]}" groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'product_id_readonly':True,'default_product_id': product_id, 'default_pn_id': pn_id,'pn_id_readonly':True}" />
                     <field name="tinh_trang" attrs="{'readonly': [('state', 'in', ('done','cancel'))]}"></field>
                     <field name="ghi_chu"></field>
                     <field name="stt"></field>
@@ -145,7 +152,7 @@
                 </xpath>
                 <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="before">
                     <!--  <field name="pn" attrs="{'invisible': [('tracking', '=', 'none')],'readonly': [('state', 'in', ('done', 'cancel'))]}"></field> -->
-                    <field name="pn_id" attrs="{'readonly': [('state', 'in', ('done', 'cancel'))]}" context="{'default_product_id':product_id}" domain="[('product_id','=',product_id)]"></field>
+                    <field name="pn_id" attrs="{'readonly': [('state', 'in', ('done', 'cancel'))]}" context="{'default_product_id':product_id,'product_id_readonly':True}" domain="[('product_id','=',product_id)]"></field>
                     <!-- 'invisible': [('tracking', '=', 'none')], -->
                     <field name="id"></field>
                 </xpath>
@@ -269,6 +276,13 @@
                             <field name="ten_truoc_huy" />
                         </group>
                     </page>
+                    <page string="Công Cụ">
+                        <group>
+                    		<field name="categ_id"></field>
+                        </group>
+                    </page>
+                    
+                    
                 </xpath>
             </field>
         </record>

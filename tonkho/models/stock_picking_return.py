@@ -10,20 +10,21 @@ class ReturnPickingLine(models.TransientModel):
     _inherit = "stock.return.picking.line"
     _rec_name = 'product_id'
     ml_id = fields.Many2one('stock.move.line')
-
+#     lot_id = fields.Many2one('stock.production.lot',related='ml_id.lot_id',store=True)
+    lot_id = fields.Many2one('stock.production.lot')
 
 
 class ReturnPicking(models.TransientModel):
     _inherit = 'stock.return.picking'
 #     is_chuyen_tiep = fields.Boolean()
     loai_tra_hay_chuyen_tiep = fields.Selection([('tra_do_huy',u'Trả do hủy'),('tra_do_muon',u'Trả do mượn'),('chuyen_tiep',u'Chuyển tiếp')],string=u'Loại trả vật tư')
-    location_id = fields.Many2one(
-        'stock.location', 'Return Location fff'
-        )#domain="['|', ('id', '=', original_location_id), '&', ('return_location', '=', True), ('id', 'child_of', parent_location_id)]"
-    
-    location_id2 = fields.Many2one(
-        'stock.location', 'Return Location'
-        )
+#     location_id = fields.Many2one(
+#         'stock.location', 'Return Location'
+#         )#domain="['|', ('id', '=', original_location_id), '&', ('return_location', '=', True), ('id', 'child_of', parent_location_id)]"
+#     
+#     location_id2 = fields.Many2one(
+#         'stock.location', 'Return Location'
+#         )
     @api.onchange('loai_tra_hay_chuyen_tiep')
     def loai_tra_hay_chuyen_tiep_(self):
         if  self.loai_tra_hay_chuyen_tiep =='chuyen_tiep': # return
@@ -46,15 +47,13 @@ class ReturnPicking(models.TransientModel):
             for ml in picking.move_line_ids:
                 if ml.move_line_dest_ids:
                     move_dest_exists = True
-                    print ("ml.move_line_dest_ids.mapped('qty_done')",ml.move_line_dest_ids.mapped('qty_done'))
-                    print ("ml.move_line_dest_ids.filtered(lambda m: m.state in ['partially_available', 'assigned', 'done']).mapped('qty_done')",ml.move_line_dest_ids.filtered(lambda m: m.state in ['partially_available', 'assigned', 'done']).mapped('qty_done'))
                     quantity = ml.qty_done - sum(ml.move_line_dest_ids.filtered(lambda m: m.state in ['partially_available', 'assigned', 'done']).mapped('qty_done'))
                 else:
                     quantity = ml.qty_done
                 quantity = float_round(quantity, precision_rounding=ml.product_uom_id.rounding)
                 if not quantity:
                     continue
-                product_return_moves.append((0, 0, {'product_id': ml.product_id.id, 'quantity': quantity, 'ml_id': ml.id, 'uom_id': ml.product_id.uom_id.id}))
+                product_return_moves.append((0, 0, {'product_id': ml.product_id.id, 'quantity': quantity, 'ml_id': ml.id, 'uom_id': ml.product_id.uom_id.id,'lot_id':ml.lot_id.id}))
             if not product_return_moves:
                 raise UserError(_("No products to return (only lines in Done state and not fully returned yet can be returned)!"))
             if 'product_return_moves' in fields:
@@ -167,8 +166,12 @@ class ReturnPicking(models.TransientModel):
 #                 translate_dict_for_model = {'quant':u'Số lượng trong kho','product':u'Vật tư'}
                 default_loai_tra_hay_chuyen_tiep = self._context.get('default_loai_tra_hay_chuyen_tiep','tra_do_muon')
                 if default_loai_tra_hay_chuyen_tiep =='tra_do_huy':
-                    node.set('string', "Hủy BB")
+                    node.set('string', u"Hủy BB")
                     node.set( 'class',"btn-danger")
+                elif default_loai_tra_hay_chuyen_tiep =='chuyen_tiep':
+                    node.set('string', u"Chuyển tiếp")
+
+                    
         res['arch'] = etree.tostring(doc, encoding='unicode')
         return res
     

@@ -17,6 +17,7 @@
                      <field name="allow_edit_time" />
                      <field name="is_cam_sua_truoc_ngay" />
                      <field name="cam_sua_truoc_ngay" />
+                     <field name="is_show_loai_record" />
                   </group>
                   <group string="Else">
                      <field name="group_co_tvcv_giai_doan_con" widget="radio" />

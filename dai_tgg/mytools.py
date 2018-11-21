@@ -147,7 +147,7 @@ def name_compute(r,adict=None,join_char = u' - ',junc_char=u':'):
         karg = attr_dict.get('karg',{})
         if func:
             val = func(val,**karg)
-        if  not val:# Cho có trường hợp New ID
+        if  val ==False or (not val and  fname=='id' ):# Cho có trường hợp New ID
             if attr_dict.get('skip_if_False',True):
                 continue
             if  fname=='id' :
@@ -172,50 +172,50 @@ def name_compute(r,adict=None,join_char = u' - ',junc_char=u':'):
 
 
 
-def name_compute_char_join_rieng(r,adict=None,join_char = u' - '):
-    names = []
-#     adict = [('cate_cvi',{'pr':''}),('noi_dung',{'pr':'','func':lambda r: r.name }),('id',{'pr':''})]
-    sum_txt = ''
-    for c,fname_and_attr_dict in enumerate(adict):
-        fname,attr_dict = fname_and_attr_dict
-        val = getattr(r,fname)
-        func = attr_dict.get('func',None)
-        pr_more = attr_dict.get('pr_more','')
-        sf_more = attr_dict.get('sf_more','')
-        join_char_of_one_field = attr_dict.get('join_char',join_char)
-        if func:
-            val = func(val)
-        if  not val:# Cho có trường hợp New ID
-            if attr_dict.get('skip_if_False',True) and  (pr_more=='' and sf_more==''):
-                continue
-            if  fname=='id' :
-                val ='New'
-            else:
-                val ='_'
-        if attr_dict.get('pr') != None:
-            item =  attr_dict['pr'] + u': ' + unicode(val)
-        else:
-            item = unicode (val)
-            
-        if pr_more:
-            item =  pr_more +  val
-        if sf_more:
-            item =  val + sf_more
-        if c ==0:
-            pass
-        else:
-            item =join_char_of_one_field + item
-        sum_txt = sum_txt + item
-#         names.append(item)
-#     if names:
-#         name = join_char.join(names)
+# def name_compute_char_join_rieng(r,adict=None,join_char = u' - '):
+#     names = []
+# #     adict = [('cate_cvi',{'pr':''}),('noi_dung',{'pr':'','func':lambda r: r.name }),('id',{'pr':''})]
+#     sum_txt = ''
+#     for c,fname_and_attr_dict in enumerate(adict):
+#         fname,attr_dict = fname_and_attr_dict
+#         val = getattr(r,fname)
+#         func = attr_dict.get('func',None)
+#         pr_more = attr_dict.get('pr_more','')
+#         sf_more = attr_dict.get('sf_more','')
+#         join_char_of_one_field = attr_dict.get('join_char',join_char)
+#         if func:
+#             val = func(val)
+#         if  not val:# Cho có trường hợp New ID
+#             if attr_dict.get('skip_if_False',True) and  (pr_more=='' and sf_more==''):
+#                 continue
+#             if  fname=='id' :
+#                 val ='New'
+#             else:
+#                 val ='_'
+#         if attr_dict.get('pr') != None:
+#             item =  attr_dict['pr'] + u': ' + unicode(val)
+#         else:
+#             item = unicode (val)
+#             
+#         if pr_more:
+#             item =  pr_more +  val
+#         if sf_more:
+#             item =  val + sf_more
+#         if c ==0:
+#             pass
+#         else:
+#             item =join_char_of_one_field + item
+#         sum_txt = sum_txt + item
+# #         names.append(item)
+# #     if names:
+# #         name = join_char.join(names)
+# #     else:
+# #         name = False
+#     if sum_txt:
+#         pass
 #     else:
-#         name = False
-    if sum_txt:
-        pass
-    else:
-        sum_txt = False
-    return sum_txt
+#         sum_txt = False
+#     return sum_txt
 
 
 

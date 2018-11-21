@@ -5,9 +5,9 @@ import xlwt
 from odoo.exceptions import UserError
 from copy import deepcopy
 
-
-def get_width(num_characters):
-    return int((1+num_characters) * 256)
+# 
+# def get_width(num_characters):
+#     return int((1+num_characters) * 256)
 
 def stt_(v,needdata): 
     v = needdata['a_instance_dict']['stt_not_model']['val']  +1   

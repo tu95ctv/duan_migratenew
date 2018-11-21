@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api,exceptions,tools,_
-from odoo.addons.dai_tgg.mytools import convert_odoo_datetime_to_vn_str,name_compute_char_join_rieng,name_compute,convert_odoo_datetime_to_vn_datetime
+from odoo.addons.dai_tgg.mytools import convert_odoo_datetime_to_vn_str,name_compute,convert_odoo_datetime_to_vn_datetime
 from unidecode import unidecode
+from odoo.exceptions import ValidationError,UserError
 
 class CviSuCo(models.Model):
     
@@ -11,7 +12,7 @@ class CviSuCo(models.Model):
     is_giao_ca = fields.Boolean(u'Giao ca')
     cvi_id = fields.Many2one('cvi',u'Sự cố liên quan')
     cvi_cm_ids = fields.One2many('cvi','cvi_id',u'Công việc, comment liên quan')
-    nguyen_nhan     = fields.Char()
+    nguyen_nhan     = fields.Char(string=u'Nguyên nhân')
     name = fields.Char(compute='name_',store=True)
     noi_dung = fields.Text(string=u'Nội dung')
     noi_dung_khong_dau = fields.Text(string=u'Nội dung không dấu', compute='noi_dung_khong_dau_',)  
@@ -44,7 +45,12 @@ class CviSuCo(models.Model):
 #     comment_ids = fields.One2many('cvi','cvi_id',string=u'Comments')
 #     comments_show = fields.Char(compute='comments_show_',string=u'Comments')
     trig_field = fields.Boolean()
-
+    is_bc =  fields.Boolean(u'Có báo cáo',default=True)
+     
+    @api.onchange('tvcv_id')
+    def is_bc_oc(self):
+        self.is_bc = self.tvcv_id.is_bc
+        
     @api.depends('user_id')
     def department_id_(self):
         for r in self:
@@ -102,17 +108,13 @@ class CviSuCo(models.Model):
             if self._context.get('you_at_gd_form'):
                 context='''{'thu_vien_da_chon_list':parent.get('thu_vien_da_chon_list'), 
                          'you_at_gd_form':context.get('you_at_gd_form'),
-#                          'loai_record_more':context.get('loai_record_more',[]),
+                        'loai_record_more':context.get('loai_record_more',[]),
                          'thu_vien_id_of_gd_parent_id':parent.get('tvcv_id'),  
                          'default_loai_record':loai_record,
                          'tree_view_ref':tree_view_ref, 
                          'search_view_ref': search_view_ref ,}'''
             else:
-#                 context='''{
-#                          'loai_record_more':context.get('loai_record_more',[]),
-#                          'default_loai_record':loai_record,
-#                          'tree_view_ref':tree_view_ref, 
-#                          'search_view_ref': search_view_ref ,}'''
+
                 context='''{
                          'default_loai_record':loai_record,
                          'tree_view_ref':tree_view_ref, 
@@ -187,3 +189,11 @@ class CviSuCo(models.Model):
                 secs = duration.total_seconds()
                 hour = secs / 3600
                 r.duration = hour    
+                
+    @api.multi
+    def write(self,vals):
+        rs = super(CviSuCo, self).write(vals)
+        for r in self:
+            if vals.get(u'loai_record') and vals.get(u'loai_record') != u'Công Việc' and  r.loai_record ==u'Công Việc':
+                raise UserError(u'không được thay đổi record từ công việc sang cái khác')
+        return rs

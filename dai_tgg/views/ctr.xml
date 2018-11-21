@@ -72,7 +72,7 @@
                <field name="date" />
                <field name="ca" />
                <field name="cvi_show" />
-               <field name="member_ids" />
+               <field name="member_ids" widget="many2many_tags"/>
                <field name="department_id" />
                <field name="create_uid" string="Người tạo" groups="dai_tgg.show_thong_tin_create_write" />
                <field name="write_uid" string="Người sửa" groups="dai_tgg.show_thong_tin_create_write" />

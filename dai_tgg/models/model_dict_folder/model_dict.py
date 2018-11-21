@@ -76,7 +76,9 @@ def categ_id_tti_convert_to_ltk_(v,n,tram=None):
     v =  n['sheet_name']
     tram_dict = SHEET_CONVERT.get(tram)
     if tram_dict:
-        return tram_dict.get(v,v)
+        categ_theo_ltk =  tram_dict.get(v,v)
+        return categ_theo_ltk
+#         categ_theo_bc = 
     else:
         return v
     
@@ -288,7 +290,7 @@ thiết bị
                                            
                                             ('categ_id',{'skip_this_field':{sml:True, all_key_tram:False},
                                                 'fields':[('name',{
-                                                                        'replace_string':{all_key_tram:None,'key_ltk':[(u'Chuyển Mạch (IMS, Di Động)',u'Chuyển mạch'),(u'IP (VN2, VNP)',u'IP')]},
+                                                                        'replace_string':{all_key_tram:[(u'Chuyển Mạch (IMS, Di Động)',u'Chuyển mạch'),(u'IP (VN2, VNP)',u'IP')]},
                                                                         
                                                                         'func':{all_key_tram:lambda val,needdata: needdata['sheet_name'],
                                                                                     'key_tti':categ_id_tti_convert_to_ltk_,

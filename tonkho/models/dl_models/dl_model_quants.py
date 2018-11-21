@@ -1,24 +1,27 @@
 # -*- coding: utf-8 -*-
 # from odoo.addons.tonkho.models.dl_models.dl_model import  download_model
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  download_model
+from odoo.addons.downloadwizard.models.dl_models.dl_model import  get_width
+from odoo.addons.downloadwizard.models.dl_models.dl_model import  stt_
 
 from openerp.http import request
 import xlwt
 from odoo.exceptions import UserError
 from copy import deepcopy
 
-def get_width(num_characters):
-    return int((1+num_characters) * 256)
+# def get_width(num_characters):
+#     return int((1+num_characters) * 256)
 
-
-def stt_(v,needdata): 
-    v = needdata['a_instance_dict']['stt_not_model']['val']  +1   
-    return v      
+# 
+# def stt_(v,needdata): 
+#     v = needdata['a_instance_dict']['stt_not_model']['val']  +1   
+#     return v      
 
 def tu_shelf_(v,needdata, stock_type=None):
     location_id = needdata['a_instance_dict']['location_id']['val_before_func']
     l_id = request.env['stock.location'].search([('id','parent_of',location_id.id),('stock_type','=',stock_type)])
-    return l_id.name
+    if l_id:
+        return l_id[0].name
 
 def gen_domain_stock_quant(dl_obj):
     domain = []
@@ -36,7 +39,7 @@ def download_quants(dl_obj,append_domain = []):
          ('stt',{'skip_field':not dl_obj.is_not_skip_field_stt}),
          ('product_id',{'func':lambda v,n: v.name,'width':get_width(50)}),
          ('thiet_bi_id',{'func':lambda v,n: v.name,'width':get_width(20)}),
-         ('brand_id',{'func':lambda v,n: v.name}),
+         ('brand_id',{'func':lambda v,n: v.name}), 
          ('tracking',{'func':tracking_}),
          ('categ_id',{'func':lambda v,n: v.name,'width':get_width(20) }),
          ('pn_id',{'func':lambda v,n: v.name,'width':get_width(20)}),
@@ -59,17 +62,18 @@ def download_quants(dl_obj,append_domain = []):
         }
     
     if not dl_obj.is_moi_sheet_moi_loai:
-        filename = 'quants_%s'%dl_obj.parent_location_id.name
+        filename = u'Số lượng trong kho %s'%dl_obj.parent_location_id.name
         name = "%s%s" % (filename, '.xls')
         workbook =  download_model(dl_obj,
                              Export_Para=Export_Para_quants,
                              append_domain=append_domain
                             )
     else:
-        filename = 'quants_cate_%s'%dl_obj.parent_location_id.name
+        filename = u'Số lượng trong kho phân_nhóm %s'%dl_obj.parent_location_id.name
         name = "%s%s" % (filename, '.xls')
         Quant = request.env['stock.quant']#.search([])
-        cates = Quant.search(append_domain).mapped('categ_id')
+        tram_domain = gen_domain_stock_quant(dl_obj)
+        cates = Quant.search(append_domain + tram_domain).mapped('categ_id')
         workbook = xlwt.Workbook()
         for cate in cates:
             Export_Para_quants_copy = deepcopy(Export_Para_quants)
@@ -81,7 +85,6 @@ def download_quants(dl_obj,append_domain = []):
                          append_domain=domain,
                          workbook=workbook,
                          sheet_name=cate.name)
-    
     return workbook,name
         
     

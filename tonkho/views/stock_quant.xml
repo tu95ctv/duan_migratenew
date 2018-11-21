@@ -12,9 +12,10 @@
                 <field name="lot_id" position="before">
                     <field name="product_uom_id"></field>
                     <field name="pn_id"></field>
-                    <field name="owner_id"></field>
+                   <!--  <field name="owner_id"></field>
                     <field name="package_id"></field>
                     <field name="company_id"></field>
+                     -->
                 </field>
                 <field name="lot_id" position="after">
                     <field name="categ_id"></field>
@@ -28,8 +29,8 @@
                     <!-- <field name="department_id" ></field> -->
                 </field>
                 <field name="quantity" position="after">
-                    <field name="write_date" string="Ngày sửa" />
-                    <field name="create_date" string="Ngày Tạo" />
+                    <field name="write_date" string="Ngày  giờ sửa" />
+                    <field name="create_date" string="Ngày giờ tạo" />
                     <field name="stt"  groups="base.group_erp_manager"/>
                 </field>
             </field>
@@ -51,13 +52,12 @@
                     <filter name="this month" string="Kho được  tạo tháng này" domain="[('create_date','&gt;=',(datetime.datetime.now().replace(day=1,hour=0,minute=0,second=0)-datetime.timedelta(hours=7)).strftime('%Y-%%m-%%d %%H:%%M:%%S'))]" help="Chọn tháng này" />
                   	<filter name="recently" string="Thay đổi gần đây" domain="[('write_date','&gt;', (datetime.datetime.now() - datetime.timedelta(hours=8)).strftime('%Y-%%m-%%d %%H:%%M:%%S'))]" help="Pickings that are late on scheduled time" />
                   	<filter name="today" string="Thay đổi trong ngày" domain="[('write_date','&gt;=', (datetime.datetime.now().replace(hour=0,minute=0,second=0) - datetime.timedelta(hours=7)).strftime('%Y-%m-%d %H:%M:%S'))]" help="Pickings that are late on scheduled time" />
-                
                 </xpath>
                 
                 <xpath expr="//group[1]" position="replace">
                     <filter name='internal_loc' string="Địa điểm nội bộ" domain="[('location_id.usage','=', 'internal')]"/>
                      <separator/>
-                    <filter name='group_by_pn_id'  string="Nhóm theo Part number" context="{'group_by': 'pn_id'}" />
+                    <filter name='group_by_pn_id'  string="Part number" context="{'group_by': 'pn_id'}" />
                 </xpath>
             
             

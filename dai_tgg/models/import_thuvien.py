@@ -24,7 +24,8 @@ class ImportThuVien(models.Model):
         ,(u'location partner',u'location partner')
         ,(u'categ',u'Product Category')
         ,(u'cvi',u'Công việc')
-         ,(u'thuebaoline',u'Thuê bao')
+         ,(u'thuebaoline',u'Thuê bao'),
+         (u'Loại sự cố, sự vụ', u'Loại sự cố, sự vụ')
 #         ,(u'Stock Location',u'Stock Location')
 #         ,(u'stock production lot',u'stock production lot')
 #         ,(u'Kiểm Kê',u'Kiểm Kê'),(u'Vật Tư LTK',u'Vật Tư LTK')
@@ -80,15 +81,23 @@ class ImportThuVien(models.Model):
     line_not_has_quant =  fields.Text()
     only_xuat_thuoc_tinh =  fields.Boolean()
     dac_tinh = fields.Char()
+    
     def importthuvien(self):
         importthuvien(self)
         return True
+   
     def import_all(self):
 #         importthuvien(self,key=u'User')
         importthuvien(self,key=u'Department')
         importthuvien(self,key=u'Partner')
         importthuvien(self,key=u'location partner')
+        importthuvien(self,key= u'Loại sự cố, sự vụ')
+        importthuvien(self,key= u'thuebaoline')
+        importthuvien(self,key= u'categ')
         return True
+    
+    
+    
     
     @api.onchange('type_choose')
     def import_location_id_(self):

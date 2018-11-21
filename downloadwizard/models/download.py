@@ -6,25 +6,22 @@ from urllib.parse import quote
 import base64
 import contextlib
 import io
-# from odoo.addons.tonkho.models.dl_models.dl_model_quants import  download_quants
-# from odoo.addons.tonkho.models.dl_models.dl_model_product import  download_product
-# from odoo.addons.dai_tgg.models.dl_models.dl_tvcv import  download_tvcv1
-# from odoo.addons.dai_tgg.models.dl_models.dl_user import  download_user
+
 
 class DownloadQuants(models.TransientModel):
     _name = "downloadwizard.download"
-    name = fields.Char()
-    parent_location_id =  fields.Many2one('stock.location', 
-#                                           default=lambda self:self.env.user.department_id.default_location_id.id, string=u'Kho cha dự phòng'
-                                          )
-    parent_location_runing_id =  fields.Many2one('stock.location',
-#                                                  default=lambda self:self.env.user.department_id.default_location_running_id.id,
-                                                 string=u'Kho cha đang chạy'
-                                                 )
+#     parent_location_id =  fields.Many2one('stock.location', 
+#                                         default=lambda self:self.env.user.department_id.default_location_id.id, string=u'Kho cha dự phòng'
+#                                           )
+#     parent_location_runing_id =  fields.Many2one('stock.location',
+#                                                 default=lambda self:self.env.user.department_id.default_location_running_id.id,
+#                                                  string=u'Kho cha đang chạy'
+#                                                  )
 #     test =  fields.Text()
+    file_name = fields.Char(string=u'File name')
     data = fields.Binary('File', readonly=True)
     is_moi_sheet_moi_loai = fields.Boolean(string=u' Chia nhóm vật tư')
-    is_not_skip_field_stt = fields.Boolean(groups="base.group_erp_manager")
+    is_not_skip_field_stt = fields.Boolean(string=u'Không bỏ trường STT')
 #     is_dl_right_now = fields.Boolean(string=u'Download ngay(phải cho phép pop up)')
 #     domain_text = fields.Text(default = lambda self: self._context)
     
@@ -59,7 +56,11 @@ class DownloadQuants(models.TransientModel):
         return active_model
 
     model_name = fields.Char(default=model_name_)
-    
+    verbal_model_name = fields.Char(compute='verbal_model_name_',store=True,string=u'Tên đối tượng')
+    @api.depends('model_name')
+    def verbal_model_name_(self):
+        for r in self:
+            r.verbal_model_name = self.gen_pick_model_name().get(r.model_name,r.model_name)
 #     @api.model
 #     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
 #         res = super(DownloadQuants, self).fields_view_get(
@@ -80,23 +81,23 @@ class DownloadQuants(models.TransientModel):
 #         return res
     
     
-
+    @api.multi
+    def gen_pick_model_name(self): 
+        return {}
+    
     @api.multi
     def gen_pick_func(self): 
         return {}
     @api.multi
     def download_all_model(self):
-        active_domain = self._context['active_domain']
+        active_domain = self._context.get('active_domain',[])
         self.domain_text = self._context
         model =self._context.get('transfer_active_model') or self._context['active_model']
         
-#         pick_func = {'stock.quant':download_quants,'product.product':download_product,'tvcv':download_tvcv1,'res.users':download_user}
-#         pick_func = {'tvcv':download_tvcv1,'res.users':download_user}
-        pick_func = self.gen_pick_func()
+
         if not model:
             raise UserError('sao khong co model nao map, model:%s'%model)
-        download_right_now = self._context.get('download_right_now')
-        if download_right_now:#self.is_dl_right_now:
+        if self._context.get('download_right_now'):#self.is_dl_right_now:
 #             url = '/web/binary/download_model?model=%s&id=%s&active_domain=%s'%(model, self.id,quote(u'%s'%active_domain))
             download_from_model = self._context.get('download_from_model') or ''
 #             active_domain = ''
@@ -108,7 +109,7 @@ class DownloadQuants(models.TransientModel):
                  'target': 'new',
             }
         else:
-            
+            pick_func = self.gen_pick_func()
             dl_obj = self
             call_func = pick_func[model]
             workbook,name = call_func(dl_obj,active_domain)
@@ -116,7 +117,7 @@ class DownloadQuants(models.TransientModel):
             with contextlib.closing(io.BytesIO()) as buf:
                 workbook.save(buf)
                 out = base64.encodestring(buf.getvalue())
-            dl_obj.write({ 'data': out, 'name': name})
+            dl_obj.write({ 'data': out, 'file_name': name})
             return {
                 'type': 'ir.actions.act_window',
                 'res_model': 'downloadwizard.download',

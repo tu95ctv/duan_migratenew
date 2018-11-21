@@ -11,6 +11,8 @@ class LTKSetting(models.TransientModel):
     cam_sua_truoc_ngay = fields.Date(string=u'Cấm sửa trước ngày')
     allow_edit_time = fields.Integer(string = u'Thời gian cho phép để sửa record (giây)',default=20)
     
+    is_show_loai_record =fields.Boolean(string=u'Show loại record trong BCN?')
+
 
     
 #     group_show_cot_lanh_dao = fields.Selection([
@@ -31,7 +33,7 @@ class LTKSetting(models.TransientModel):
     @api.multi
     def set_values(self):
         super(LTKSetting, self).set_values()
-        for fname in [ 'is_cam_sua_truoc_ngay','cam_sua_truoc_ngay','allow_edit_time','is_cam_sua_do_time']:
+        for fname in [ 'is_cam_sua_truoc_ngay','cam_sua_truoc_ngay','allow_edit_time','is_cam_sua_do_time','is_show_loai_record']:
             if VERSION_INFO==2:
                 self.env['ir.values'].sudo().set_default(
             'ltk.config.settings',fname,getattr(self, fname))
@@ -40,7 +42,7 @@ class LTKSetting(models.TransientModel):
     @api.model
     def get_values(self):
         res = super(LTKSetting, self).get_values()
-        for fname in ['cam_sua_truoc_ngay','is_cam_sua_truoc_ngay','is_cam_sua_do_time']:   
+        for fname in ['cam_sua_truoc_ngay','is_cam_sua_truoc_ngay','is_cam_sua_do_time','is_show_loai_record']:   
             res.update(
                {fname:self.env['ir.config_parameter'].sudo().get_param('dai_tgg.' + fname)}
             )

@@ -51,13 +51,11 @@ class StockPicking(models.Model):
         ('name_uniq', 'unique(name, company_id)', 'Reference must be unique per company!'),
         ('name_ma_bb', 'unique(stt_trong_bien_ban_in,department_id,ban_giao_or_nghiem_thu)', u'Mã BBBG và số TT trong bản phải là duy nhất trên mỗi phòng ban!'),
     ]
-    categ_id = fields.Many2one('product.category')
+    categ_id = fields.Many2one('product.category',string=u'Thay đổi nhóm cho các dòng điều chuyển')
     
     @api.onchange('categ_id')
     def categ_id_(self):
-            print ("sao khong chay****")
             for c,ml in enumerate(self.move_line_ids):
-                print ('ohoho',c)
                 ml.categ_id = self.categ_id
                 
     choosed_stock_quants_ids = fields.Many2many('stock.quant',compute='choosed_stock_quants_ids_',store=False)
@@ -77,6 +75,12 @@ class StockPicking(models.Model):
 #     stt_trong_bien_ban_in = fields.Integer(default=lambda self:self.default_get([ 'stt_bien_ban']).get('stt_bien_ban'),string=u'STT trong biên bản')
     stt_trong_bien_ban_in = fields.Integer(string=u'STT trong biên bản',compute='stt_trong_bien_ban_in_',store=True,copy=False)
     file_ids = fields.Many2many('dai_tgg.file','stock_picking_file_relate','stock_picking_id','file_id',string=u'Files đính kèm')
+#     not_loc_kho = fields.Integer()
+#     is_admin = fields.Integer(compute='is_admin_',)
+    
+#     @api.depends('name')
+#     def is_admin_(self):
+#         self.is_admin = 1 if self.user_has_groups('base.grou_erp_manager') else 0
     
 #     date = fields.Datetime(
 #         'Creation Date',
@@ -92,11 +96,11 @@ class StockPicking(models.Model):
                                                         ('ban_giao_or_nghiem_thu','=',r.ban_giao_or_nghiem_thu),
                                                         ('stt_trong_bien_ban_in','!=', 0),
                                                         ]
+            print ('r.id***',r.id)
             if isinstance(r.id, int):
                 domain.append(('id','!=',r.id))
+#                 raise UserError(u'không thể có r.id được')
             picking = self.env['stock.picking'].search(domain, limit=1, order='stt_trong_bien_ban_in desc')
-            print ('domain',domain)
-            print ('picking',picking)
             if picking:
     #             self.env.cr.execute('select stt_trong_bien_ban_in from stock_picking where id =%s'%picking.id)
     #             ad =  self.env.cr.dictfetchall()
@@ -181,7 +185,7 @@ class StockPicking(models.Model):
     
     is_quyen_chuyen_tiep =  fields.Boolean(compute='is_quyen_chuyen_tiep_')
     is_quyen_huy_bb =  fields.Boolean(compute='is_quyen_huy_bb_')
-    allow_cate_for_ghi_chu =  fields.Boolean()
+    allow_cate_for_ghi_chu =  fields.Boolean(string=u"Lấy Tiêu đề làm ghi chú")
     @api.one
     def is_quyen_huy_bb_(self):
         self.is_quyen_huy_bb = self.user_has_groups('base.group_erp_manager') or (self.env.user == self.create_uid)
@@ -495,13 +499,36 @@ class StockPicking(models.Model):
             'url':'/report/pdf/tonkho.bcdc/%s'%self.id,
             'target': 'new',
         }
-        
     def ban_giao_or_nghiem_thu_show(self):
         adict = {u'BBBG':u'Bàn Giao',u'BBNT':u'Nghiệm Thu'}
         if self.ban_giao_or_nghiem_thu != False:
             return adict[self.ban_giao_or_nghiem_thu]
         else:
             return False
+    @api.model
+    def fields_view_get(self, view_id=None, view_type=False, toolbar=False, submenu=False):
+        res = super(StockPicking, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        if view_type in ['form']:
+            fields = res.get('fields')# không được
+            if self.user_has_groups('base.group_erp_manager'):
+                domain = "[('is_kho_cha','=',True)]"
+            else:
+                domain = "['|',('cho_phep_khac_tram_chon','=', True),'&',('is_kho_cha','=',True),('department_id','=', department_id)]"
+# domain ở form sẽ đè lên domain này
+#             fields = res.get('fields')
+#             fields['location_id']['domain'] = domain
+            
+            # này sẽ đề lên trên  domain ở form
+            doc = etree.XML(res['arch'])
+            nodes =  doc.xpath("//field[@name='location_id']")
+            if len(nodes):
+                print ("ok có node")
+                node = nodes[0]
+                node.set('domain',domain )
+            res['arch'] = etree.tostring(doc, encoding='unicode')
+        return res
+    
+    
 #     @api.model
 #     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
 #         res = super(StockPicking, self).fields_view_get(
@@ -516,7 +543,8 @@ class StockPicking(models.Model):
 #                     node.set('domain', "[('is_kho_cha','=',True)]")
 #         res['arch'] = etree.tostring(doc, encoding='unicode')
 #         return res
-    
+#     
+        
 #     @api.multi
 #     def unlink(self):
 #         for r in self:

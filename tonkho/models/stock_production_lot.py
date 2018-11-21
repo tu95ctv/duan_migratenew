@@ -28,8 +28,10 @@ class StockProductionLot(models.Model):
 #     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',store=True, string=u'Tình trạng')
     # THÊM VÀO ĐỂ COI DỊCH CHUYỂN KHO, KHÔNG PHẢI KẾ THỪA
     barcode_sn = fields.Char()
-   
-    
+    context = fields.Char(compute='context_')
+    @api.depends('name')
+    def context_(self):
+        self.context = self._context
 #     complete_name = fields.Char(compute='complete_name_',store=True)
 #     trig_field = fields.Boolean()
 #     @api.depends('barcode_sn','name','trig_field')

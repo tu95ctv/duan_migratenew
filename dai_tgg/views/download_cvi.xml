@@ -34,7 +34,7 @@
          </field>
       </record>
       <record model="ir.actions.act_window" id="dlcv_action">
-         <field name="name">Download P3</field>
+         <field name="name">Download P3 Cũ</field>
          <field name="res_model">dlcv</field>
          <field name="view_mode">tree,form</field>
          <field name="view_type">form</field>

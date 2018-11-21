@@ -17,7 +17,7 @@ def gen_tvcv_model_dict():
                 'sheet_names':lambda self,wb: wb.sheet_names(),
                 'model':'tvcv',
                 'fields' : [
-                        ('name', {'func':None,'xl_title':u'Công việc', 'required':True } ),#'func_de_tranh_empty':lambda r:  len(r) > 2
+                        ('name', {'func':None,'xl_title':u'Công việc', 'required':True,'key':True } ),#'func_de_tranh_empty':lambda r:  len(r) > 2
                         ( 'loai_record',{'func':None,'set_val':u'Công Việc', 'key':False }),
                         ('department_id',{'key':True,'model':'hr.department', 'set_val': lambda self: self.env['hr.department'].search([('name','=ilike',u'Đài HCM')]).id,'required':True,'raise_if_False':True
                                                                   #'fields':[('name',{'key':True,'set_val':'LTK'})]
@@ -44,6 +44,17 @@ def gen_tvcv_model_dict():
                       ]
                 },#End stock.inventory.line'   
         
-        
+         u'Loại sự cố, sự vụ': {
+                'inactive_include_search':True,
+                'title_rows' : [0], 
+                'begin_data_row_offset_with_title_row' :1,
+                'sheet_names':['Loại sự cố sự vụ'],
+                'model':'tvcv',
+                'fields' : [
+                        ('name', {'func':None,'xl_title':u'Loại', 'required':True,'key':True } ),#'func_de_tranh_empty':lambda r:  len(r) > 2
+                        ( 'loai_record',{'func':None,'xl_title':u'loai_record', 'key':True,'required_force':True, 'raise_if_False':True}),
+                        ( 'is_bc',{'set_val':True}),
+                      ]
+                },#End stock.inventory.line'   
         }
     return tvcv_dict

@@ -23,7 +23,7 @@ class ToTrinh(models.Model):
     so_to_trinh = fields.Char(string=u'Số')
     ngay_to_trinh = fields.Date(string=u'Ngày')
     name = fields.Char(compute='complete_name_',store=True, string=u'Tên')
-    image_ids =  fields.Many2many('dai_tgg.file','to_trinh_image_relate','to_trinh_id','image_id')
+    file_ids =  fields.Many2many('dai_tgg.file','to_trinh_file_relate','to_trinh_id','file_id',string=u'File')
     
     
     

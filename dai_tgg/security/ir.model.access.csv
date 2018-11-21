@@ -15,3 +15,5 @@ access_dai_tgg_res_company,dai_tgg res partner,base.model_res_company,base.group
 access_dai_tgg_dlcv,dai_tgg.dlcv,model_dlcv,base.group_user,1,1,1,1
 access_dai_tgg_department,dai_tgg.department,hr.model_hr_department,base.group_user,1,0,0,0
 access_dai_tgg_totrinh,dai_tgg.totrinh,model_dai_tgg_totrinh,base.group_user,1,1,1,0
+access_dai_tgg_thuebaoline,dai_tgg.thuebaoline,model_dai_tgg_thuebaoline,base.group_user,1,1,1,1
+access_dai_tgg_thuebao,dai_tgg.thuebao,model_dai_tgg_thuebao,base.group_user,1,1,1,1

@@ -7,14 +7,14 @@
          <field name="name">dai_tgg.totrinh.form</field>
          <field name="model">dai_tgg.totrinh</field>
          <field name="arch" type="xml">
-            <form string="Tờ Trình ">
+            <form string="Tờ trình ">
                <sheet>
                   <group>
                     <field name="name" />
                     <field name="so_to_trinh" />
                		<field name="ngay_to_trinh" />
                     <field name="ve_viec" />
-               		<field name="image_ids"></field>
+               		<field name="file_ids"></field>
                		<!-- 
                		<field name="name_khong_dau" />
                		<field name="name_viet_tat" />
@@ -38,7 +38,7 @@
          </field>
       </record>
       <record model="ir.actions.act_window" id="dai_tgg.totrinh_action">
-         <field name="name">Tờ Trình</field>
+         <field name="name">Tờ trình</field>
          <field name="res_model">dai_tgg.totrinh</field>
          <field name="view_mode">tree,form</field>
       </record>
@@ -47,7 +47,7 @@
       
       
       
-            <menuitem id="dai_tgg.totrinh_menu" parent="else_more_menu" action="dai_tgg.totrinh_action" sequence="7" />
+            <menuitem id="dai_tgg.totrinh_menu" parent="else_more_menu" action="dai_tgg.totrinh_action" sequence="9" />
       
 </data>
 </odoo>

@@ -63,6 +63,7 @@ class TVCV(models.Model):
     ghi_chu = fields.Text(u'Ghi Chú')
     active = fields.Boolean(default=True)
     state = fields.Selection([('draft',u'Bản Nháp'),('confirmed',u'Xác Nhận')],default='draft')
+    is_bc =  fields.Boolean(u'Có báo cáo',default=True)
    
    
    

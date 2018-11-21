@@ -53,7 +53,7 @@
         'views/tonkho_download.xml',
         'views/sequence_menu.xml',
         'views/tonkho_cvi.xml',
-        
+        'views/nhom_brand_thiet_bi.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

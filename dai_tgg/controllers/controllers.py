@@ -23,10 +23,11 @@ import string
 from odoo.addons.dai_tgg.mytools import  convert_date_odoo_to_str_vn_date, convert_utc_to_gmt_7
 from unidecode import unidecode
 
-from odoo.addons.dai_tgg.models.dl_models.dl_tvcv import  download_tvcv1
+from odoo.addons.dai_tgg.models.dl_models.dl_tvcv import  download_tvcv
 from odoo.addons.dai_tgg.models.dl_models.dl_user import  download_user
 from odoo.addons.dai_tgg.models.dl_models.dl_bcn import  dl_bcn
 from odoo.addons.dai_tgg.models.dl_models.dl_bcn import  dl_cvi
+from odoo.addons.dai_tgg.models.dl_models.dl_p3 import  dl_p3
 
 
 from odoo.addons.downloadwizard.download_tool import  download_by_url
@@ -42,7 +43,7 @@ from odoo.addons.downloadwizard.download_tool import  download_by_url
 def get_width(num_characters):
     return int((1+num_characters) * 256)
 
-def add_header_TrungTamHaTangMang(worksheet,user_id,ROW_TRUNG_TAM,offset_column,normal_border_style_not_border,bold_style,ROW_SUM,KEY_COL,VAL_COL):
+def add_header_TrungTamHaTangMang(worksheet,user_id,ROW_TRUNG_TAM,offset_column,normal_style,bold_style,ROW_SUM,KEY_COL,VAL_COL):
     cty_bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 256; align: horiz left, vert centre, wrap 1; alignment: wrap 1")# align: horiz centre, vert centre
     ROW_HO_TEN = ROW_TRUNG_TAM+ 1
     ROW_TRAM = ROW_TRUNG_TAM + 2
@@ -50,12 +51,12 @@ def add_header_TrungTamHaTangMang(worksheet,user_id,ROW_TRUNG_TAM,offset_column,
     worksheet.write_merge(ROW_TRUNG_TAM, ROW_TRUNG_TAM, 0, 4, u'TRUNG TÂM HẠ TẦNG MẠNG MIỀN NAM\n ĐÀI VIỄN THÔNG HỒ CHÍ MINH',cty_bold_style)
     worksheet.row(ROW_TRUNG_TAM).height_mismatch = True
     worksheet.row(ROW_TRUNG_TAM).height = 256*5
-    worksheet.write(ROW_HO_TEN,KEY_COL,u'Họ và Tên',normal_border_style_not_border)
+    worksheet.write(ROW_HO_TEN,KEY_COL,u'Họ và Tên',normal_style)
     worksheet.write(ROW_HO_TEN, VAL_COL,user_id.name,bold_style)
-    worksheet.write(ROW_TRAM,KEY_COL, u'Trạm',normal_border_style_not_border)
+    worksheet.write(ROW_TRAM,KEY_COL, u'Trạm',normal_style)
     worksheet.write(ROW_TRAM,VAL_COL ,user_id.department_id.name,bold_style)
-    worksheet.write(ROW_SUM, KEY_COL,u'Điểm Tổng LĐ Chấm',normal_border_style_not_border)
-    worksheet.write(ROW_SUM, KEY_COL,u'Điểm Tổng Nhân Viên Chấm',normal_border_style_not_border)
+    worksheet.write(ROW_SUM, KEY_COL,u'Điểm Tổng LĐ Chấm',normal_style)
+    worksheet.write(ROW_SUM, KEY_COL,u'Điểm Tổng Nhân Viên Chấm',normal_style)
     
 def add_title(FIELDNAME_FIELDATTR,cvi_fields,offset_column,worksheet,ROW_TITLE):
     header_bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 240 ; pattern: pattern solid, fore_colour gray25;borders: left thin, right thin, top thin, bottom thin")
@@ -166,9 +167,11 @@ def generate_domain_date_and_department(dlcv_obj, theo_sql = False):
     else:
         return domain
 
+
+
 def download_cvi(dlcv_obj):
     num2alpha = dict(zip(range(0, 26), string.ascii_uppercase))
-    normal_border_style_not_border = xlwt.easyxf("font:  name Times New Roman, height 240")
+    normal_style = xlwt.easyxf("font:  name Times New Roman, height 240")
     normal_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;borders: left thin,right thin, top thin, bottom thin")
     bold_style = xlwt.easyxf("font: bold on")
     department_ids = dlcv_obj.department_ids
@@ -197,7 +200,7 @@ def download_cvi(dlcv_obj):
         domain_user = [('user_id','=',user_id.id),('loai_record','=',u'Công Việc')]
         domain = expression.AND([domain_user, domain_date])
         worksheet = workbook.add_sheet(user_id.name,cell_overwrite_ok=True)
-        add_header_TrungTamHaTangMang(worksheet,user_id,ROW_TRUNG_TAM,offset_column,normal_border_style_not_border,bold_style,ROW_SUM,KEY_COL,VAL_COL)
+        add_header_TrungTamHaTangMang(worksheet,user_id,ROW_TRUNG_TAM,offset_column,normal_style,bold_style,ROW_SUM,KEY_COL,VAL_COL)
         cvi_fields = request.env['cvi']._fields
         add_title(FIELDNAME_FIELDATTR, cvi_fields, offset_column, worksheet, ROW_TITLE)
         row_index = ROW_TITLE + 1
@@ -221,18 +224,20 @@ class DownloadCvi(http.Controller):
         rsul = request.env.cr.fetchall()
         workbook = xlwt.Workbook()
         worksheet = workbook.add_sheet('Sheet 1')
-        normal_border_style_not_border = xlwt.easyxf("font:  name Times New Roman, height 240")
-        worksheet.write(0,0,'STT',normal_border_style_not_border)
-        worksheet.write(0,1,u'Tên',normal_border_style_not_border)
-        worksheet.write(0,2,u'Điểm', normal_border_style_not_border)
+        normal_style = xlwt.easyxf("font:  name Times New Roman, height 240")
+        worksheet.write(0,0,'STT',normal_style)
+        worksheet.write(0,1,u'Tên',normal_style)
+        worksheet.write(0,2,u'Điểm', normal_style)
         row_index = 1
         stt =1
         for u_id,diem,login,name in rsul:
-            worksheet.write(row_index,0,stt,normal_border_style_not_border)
-            worksheet.write(row_index,1,login,normal_border_style_not_border)
-            worksheet.write(row_index,2,diem,normal_border_style_not_border)
+            worksheet.write(row_index,0,stt,normal_style)
+            worksheet.write(row_index,1,login,normal_style)
+            worksheet.write(row_index,2,diem,normal_style)
             row_index += 1
             stt +=1
+            
+            
         response = request.make_response(None,
             headers=[('Content-Type', 'application/vnd.ms-excel'),
                     ('Content-Disposition', 'attachment; filename=table_cv_%s_%s.xls;'%(request.env.user.name, datetime.datetime.now().strftime('%d_%m_%H_%M')))],
@@ -255,7 +260,7 @@ class DownloadCvi(http.Controller):
     
     @http.route('/web/binary/download_model',type='http', auth="public")
     def download_all_model_controller(self,model, id, **kw):
-        pick_func = {'tvcv':download_tvcv1,'res.users':download_user,'download_bcn':dl_bcn,'cvi':dl_cvi}
+        pick_func = {'tvcv':download_tvcv,'res.users':download_user,'download_bcn':dl_bcn,'cvi':dl_cvi,'download_p3':dl_p3}
         response = download_by_url(model,id,kw,pick_func)
         return response
 #         active_domain = kw['active_domain']

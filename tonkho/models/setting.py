@@ -9,18 +9,18 @@ class ResConfigSettings(models.TransientModel):
     is_validate_mode  = fields.Boolean()
     is_bg_or_nt_tra_do_muon = fields.Boolean()
     is_show_for_admin_tram_nao_tao_vat_tu = fields.Boolean()
-    
+    font_height = fields.Integer()
     @api.model
     def get_values(self):
         res = super(ResConfigSettings, self).get_values()
-        for  f_name in ('cancel_mode','is_validate_mode','is_bg_or_nt_tra_do_muon','is_show_for_admin_tram_nao_tao_vat_tu'):
+        for  f_name in ('cancel_mode','is_validate_mode','is_bg_or_nt_tra_do_muon','is_show_for_admin_tram_nao_tao_vat_tu','font_height'):
             res[ f_name] = self.env['ir.config_parameter'].sudo().get_param('tonkho.' + f_name)
             
         return res
     @api.multi
     def set_values(self):
         super(ResConfigSettings, self).set_values()
-        for f_name in ('cancel_mode','is_validate_mode','is_bg_or_nt_tra_do_muon','is_show_for_admin_tram_nao_tao_vat_tu'):
+        for f_name in ('cancel_mode','is_validate_mode','is_bg_or_nt_tra_do_muon','is_show_for_admin_tram_nao_tao_vat_tu','font_height'):
                 self.env['ir.config_parameter'].sudo().set_param('tonkho.'+f_name, getattr(self, f_name))
     #         self.env['ir.config_parameter'].sudo().set_param('tonkho.cancel_mode', self.cancel_mode)
 #         self.env['ir.config_parameter'].sudo().set_param('tonkho.is_validate_mode', self.is_validate_mode)

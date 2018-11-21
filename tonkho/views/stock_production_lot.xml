@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+    
+    <record id="stock.view_production_lot_form_simple" model="ir.ui.view">
+        <!-- <field name="name">stock.production.lot.form.simple</field>
+        <field name="model">stock.production.lot</field> -->
+        <field name="priority">11</field>
+      </record>
+        
+        
         <record id="view_production_lot_form" model="ir.ui.view">
             <field name="name">stock.production.lot.form.inherit</field>
             <field name="model">stock.production.lot</field>
@@ -14,12 +22,15 @@
                     <field name="ref" position="attributes">
                         <attribute name="invisible">1</attribute>
                     </field>
+                    <field name="product_id" position="attributes">
+                		<attribute name="readonly">context.get('pn_id_readonly')</attribute>
+                	</field>
                     <field name="ref" position="before">
-                        <field name="pn_id" />
-                        <!--    <field name="pn" /> -->
+                        <field name="pn_id"  readonly="context.get('pn_id_readonly')"/>
                         <field name="barcode_sn" />
                         <field name="tinh_trang"></field>
                         <field name="ghi_chu" />
+                        <field name="context"></field>
                     </field>
                 </data>
             </field>
@@ -29,6 +40,9 @@
             <field name="model">stock.production.lot</field>
             <field name="inherit_id" ref="stock.view_production_lot_form_simple" />
             <field name="arch" type="xml">
+            	<field name="product_id" position="attributes">
+            		<attribute name="readonly">context.get('product_id_readonly')</attribute>
+            	</field>
                 <field name="ref" position="replace">
                     <field name="pn_id"  readonly="context.get('pn_id_readonly')"/>
                     <field name="barcode_sn" />

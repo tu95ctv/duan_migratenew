@@ -44,7 +44,7 @@
                     </div>
                     
                     
-                    <div class="col-xs-12 col-md-6 o_setting_box" title="is_validate_mode">
+                    <div class="col-xs-12 col-md-6 o_setting_box" title="is_show_for_admin_tram_nao_tao_vat_tu">
                         <div class="o_setting_left_pane">
                             <field name="is_show_for_admin_tram_nao_tao_vat_tu" />
                         </div>
@@ -54,23 +54,21 @@
                                     is_show_for_admin_tram_nao_tao_vat_tu
                                     </div>
                         </div>
-                    </div>
+                        
                     
-                    <!-- 
-                    <div class="col-xs-12 col-md-6 o_setting_box" title="is_validate_mode">
+                        
+                        
+                    </div>
+   					    <div class="col-xs-12 col-md-6 o_setting_box" title="font height">
                         <div class="o_setting_left_pane">
-                            <field name="some_thing_ids" />
+                            <field name="font_height" />
                         </div>
                         <div class="o_setting_right_pane">
-                            <label for="some_thing_ids" />
+                            <label for="font_height" />
                             <div class="text-muted">
-                                     some_thing_ids
+                                     Chiều cao của font trong báo cáo
                                     </div>
-                        </div>
-                    </div>
-                     -->
-                    
-                    
+                        </div></div>
                 
                     
                 </xpath>

@@ -23,7 +23,7 @@
                <field name="duration" />
                <field name="tvcv_id" string="Thư viện Công Việc" />
                <field name="noi_dung" />
-               <field name="noi_dung_khong_dau"  groups="base.group_erp_manager"/>
+             <!-- <field name="noi_dung_khong_dau"  groups="base.group_erp_manager"/> -->  
                <!-- <field name="comments_show" /> -->
                <field name="department_id" />
                <field name="loai_cvi" />
@@ -205,7 +205,7 @@
                <field name="gio_bat_dau" />
                <field name="gio_ket_thuc" />
                <field name="duration" />
-       
+               <field name="is_bc" />
               <!--  <field name="comments_show" /> -->
                <field name="department_id" />
                <!--  <field name="ctr_ids"  /> -->
