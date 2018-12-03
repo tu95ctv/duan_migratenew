@@ -219,6 +219,10 @@ class Cvi(models.Model):
 #             else:
 #                 raise UserError(u'Bạn không có quyền aprroved')
 
+    
+
+
+    
     @api.multi
     def action_mark_delete(self):
         for r in self:
@@ -289,30 +293,43 @@ class Cvi(models.Model):
     is_has_tvcv_con = fields.Boolean(compute='is_has_tvcv_con_')
     thu_vien_da_chon_list = fields.Char(compute='thu_vien_da_chon_list_')   
     cd_user_id = fields.Char(compute='cd_user_id_')  
-    context_get =  fields.Text(compute='context_get_')
+#     context_get =  fields.Text(compute='context_get_')
     
     
-    @api.depends('department_id')
-    def context_get_(self):
-        for r in self:
-            r.context_get = r._context
+#     @api.depends('department_id')
+#     def context_get_(self):
+#         for r in self:
+#             r.context_get = r._context
   
     
     
     @api.onchange('loai_record','tvcv_id')
     def tvcv_id_oc_(self):
         member_ids = self._context.get('member_ids')
+        print ('**member_ids',member_ids)
         if self.loai_record==u'Công Việc' and member_ids !=None:
             if not self.cd_children_ids:
                 member_ids = member_ids[0][2]#[[6, False, [1, 46]]]
                 member_ids = [member_id for member_id in member_ids if member_id != self.user_id.id]
-                rt = list(map(lambda m:(0,0,{'user_id':m,'loai_record':u'Công Việc'}),member_ids))
                 if member_ids:
+                    rt = list(map(lambda m:(0,0,{'user_id':m,'loai_record':u'Công Việc'}),member_ids))
                     return {'value':
                             {'cd_children_ids':rt
                              }
                             }
                     
+#     @api.model
+#     def default_get(self, fields):
+#         res = super(Cvi).default_get(fields)
+#         member_ids = self._context.get('member_ids')
+#         loai_record = self._context.get('loai_record')
+#         if loai_record==u'Công Việc' and member_ids !=None:
+#             if not self.cd_children_ids:
+#                 member_ids = member_ids[0][2]#[[6, False, [1, 46]]]
+#                 member_ids = [member_id for member_id in member_ids if member_id != self.user_id.id]
+#                 rt = list(map(lambda m:(0,0,{'user_id':m,'loai_record':u'Công Việc'}),member_ids))
+#                 if member_ids:
+#                     res['cd_children_ids'] = rt
                     
     @api.depends('tvcv_id')
     def diem_tvi_(self):

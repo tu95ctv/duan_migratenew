@@ -24,8 +24,8 @@
                 </field>
                 <field name="scheduled_date" position="before">
                     
-                    
                     <field name="ly_do" />
+                    <field name="totrinh_id" />
                     <field name="ban_giao_or_nghiem_thu" />
 					<field name="department_id" />
 					<field name="file"/>

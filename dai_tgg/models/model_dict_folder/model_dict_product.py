@@ -48,16 +48,16 @@ def gen_product_model_dict():
                        ('name',{'func':lot_name_ ,'key':True,'required':True}),
                        ('barcode_sn',{'func':lambda v,n:n['vof_dict']['barcode_for_first_read']['val'] ,'key':True}),
                        ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] ,'key':True,'required':True}),
-                       ('pn_id',{'model':'tonkho.pn',
-                                                     'fields':[
-                                                               ('name',{'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Mã card (P/N)',u'part number'],'key':True, 'required':True}),
-                                                               ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True  }),
-#                                                                ('import_location_id',{'set_val':lambda self:self.import_location_id.id}),
-                                                               ('dang_chay_tao',{'set_val':True}),
-                                                               ('tram_ltk_tao',{'set_val':True}),
-                                                                  
-                                                               ]
-                                                     }),
+#                        ('pn_id',{'model':'tonkho.pn',
+#                                                      'fields':[
+#                                                                ('name',{'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Mã card (P/N)',u'part number'],'key':True, 'required':True}),
+#                                                                ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True  }),
+# #                                                                ('import_location_id',{'set_val':lambda self:self.import_location_id.id}),
+#                                                                ('dang_chay_tao',{'set_val':True}),
+#                                                                ('tram_ltk_tao',{'set_val':True}),
+#                                                                   
+#                                                                ]
+#                                                      }),
                        ('ghi_chu_ngay_nhap',{'xl_title':[u'Năm sử dụng'], 'func':lambda v,n: convert_float_to_ghi_chu_ngay_xuat(v)}),
                        ('ghi_chu_ban_dau',{'xl_title':[u'Ghi chú - Mô tả thêm'], 'func':lambda v,n: convert_float_to_ghi_chu_ngay_xuat(v)}),
 #                        ('pn',{'empty_val':[u'NA','-','--'],'xl_title':[u'Mã card (P/N)']}),

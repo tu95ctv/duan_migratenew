@@ -45,7 +45,9 @@ def add_1_row_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, offset_col
         if is_not_model_field:
             val = False
         else:
-            val = getattr(r, f_name)
+#             real_f_name = f_name
+            real_f_name = FIELDATTR.get('transfer_field') or f_name
+            val = getattr(r, real_f_name)
         
         one_field_val['val_before_func'] = val
         func = FIELDATTR.get('func',None)
@@ -215,7 +217,8 @@ def download_ml_for_bb(dl_obj,workbook=None,
     FIELDNAME_FIELDATTR_ML = [
          ('move_line_ids.stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_ml_,'is_same':True,'is_use_kargs_co_san':True }),#'is_same':False 
          ('product_id',{'func':lambda v,n,m,ml: v.name,'string':u'Tên vật tư' }),
-         ('move_line_ids.pn_id',{'func':lambda v,n,m,ml: v.name,'string':u'Mã vật tư'}),
+#          ('move_line_ids.pn_id',{'func':lambda v,n,m,ml: v.name,'string':u'Mã vật tư'}),
+         ('product_id_pn',{'transfer_field':'product_id','func':lambda v,n,m,ml: v.pn,'string':u'Mã vật tư'}),
          ('quantity_done',{'is_same':is_same_,'func':quantity_done_,'string':u'S/L'}),
          ('product_uom',{'func':lambda v,n,m,ml: v.name,'string':u'ĐVT'}),
          ('move_line_ids.lot_id',{'func':lambda v,n,m,ml: v.name,'string':u'Serial Number'}),

@@ -245,6 +245,8 @@ def get_a_field_val(self,field_name,field_attr,key_tram,needdata,row,sheet,
         return 'break_because_required' #sua 5
     elif not field_attr.get('for_excel_readonly'):
         key_or_not = field_attr.get('key')
+        if callable(key_or_not):
+            key_or_not = key_or_not(needdata)
         if key_or_not==True:
             key_search_dict [field_name] = val
         elif key_or_not == 'Both':
@@ -347,8 +349,8 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
     
     if main_call_create_instance_model:
         pass
-#         print ('key_search_dict',key_search_dict)
-#         print ('update_dict',update_dict)
+        print ('key_search_dict',key_search_dict)
+        print ('update_dict',update_dict)
     #F2
     obj_val, get_or_create  = get_or_create_instance(
                                                    self,

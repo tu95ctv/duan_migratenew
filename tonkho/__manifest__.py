@@ -44,7 +44,7 @@
         'views/warehouse.xml',
         'views/mau_ly_do.xml',
         'views/stock_picking_return.xml',
-        'views/pn.xml',
+#         'views/pn.xml',
         'views/product_product.xml',
         'views/setting.xml',
         'views/insert_style.xml',

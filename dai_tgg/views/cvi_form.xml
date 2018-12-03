@@ -58,9 +58,9 @@
                         <field name="gio_bat_dau" readonly="context.get('you_at_gd_form') or context.get('you_at_cd_form')" attrs="{'readonly':['|','|',('cd_parent_id','!=',False),('hd_parent_id','!=',False),('cam_sua','=',True)]}" />
                         <field name="gio_ket_thuc" readonly="context.get('you_at_cd_form')" attrs="{'readonly':[('cd_parent_id','!=',False)]}" />
                     	<field name="cvi_id" readonly="context.get('default_cvi_id')" ></field>
-                    	<field name="ctr_id"/>
+                    	<field name="ctr_id" readonly="1"/>
                     	<field name="is_giao_ca"/>
-                    	<field name="context_get" groups="base.group_erp_manager"/>
+                    	<!-- <field name="context_get" groups="base.group_erp_manager"/> -->
                      </group>
                      <group>
                         <field name="ngay_bat_dau" invisible="1" />

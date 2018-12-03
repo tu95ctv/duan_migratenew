@@ -40,11 +40,11 @@
                     <separator />
                   	<filter name="recently" string="Thay đổi gần đây" domain="[('write_date','&gt;', (datetime.datetime.now() - datetime.timedelta(hours=7,minutes=5)).strftime('%Y-%%m-%%d %%H:%%M:%%S'))]" help="Pickings that are late on scheduled time" />
                   	<filter name="today" string="Thay đổi trong ngày" domain="[('write_date','&gt;=', (datetime.datetime.now().replace(hour=0,minute=0,second=0) - datetime.timedelta(hours=7)).strftime('%Y-%m-%d %H:%M:%S'))]" help="Pickings that are late on scheduled time" />
-                    <filter name="this month" string="Thay đổi tháng này" domain="[('write_date','&gt;=',(datetime.datetime.now().replace(day=1,hour=0,minute=0,second=0)-datetime.timedelta(hours=7)).strftime('%Y-%%m-%%d %%H:%%M:%%S'))]" help="Chọn tháng này" />
-                    <filter name="last month" string="Tháng trước" domain="[('date','&gt;=', datetime.datetime.combine((context_today() - relativedelta(months=1)), datetime.time(17,00,00)).strftime('%%Y-%%m-01 %H:%M:%S'))]" help="Orders processed today or scheduled for today"/>
+                    <filter name="this month" string="Tạo tháng này" domain="[('date','&gt;=',(datetime.datetime.now().replace(day=1,hour=0,minute=0,second=0)-datetime.timedelta(hours=7)).strftime('%Y-%%m-%%d %%H:%%M:%%S'))]" help="Chọn tháng này" />
+                    <filter name="last month" string="Tạo tháng trước" domain="[('date','&gt;=', (datetime.datetime.combine(((context_today() - relativedelta(months=1)).replace(day=1)), datetime.time(00,00,00))-datetime.timedelta(hours=7)).strftime('%%Y-%%m-%%d %H:%M:%S')),('date','&lt;',(datetime.datetime.now().replace(day=1,hour=0,minute=0,second=0)-datetime.timedelta(hours=7)).strftime('%Y-%%m-%%d %%H:%%M:%%S'))]" help="Orders processed today or scheduled for today"/>
                     
                     <group expand="0" string="Group By">
-                        <filter string="Status" domain="[]" context="{'group_by':'state'}"/>
+                        <filter name="group_by_status" string="Trạng thái" domain="[]" context="{'group_by':'state'}"/>
                     </group>
                 </search>
             </field>
@@ -53,7 +53,7 @@
         <record id="stock.action_picking_tree_all" model="ir.actions.act_window">
         	 <field name="search_view_id" ref="view_picking_internal_search_tonkho"/>
         	   <field name="context">{
-                    'contact_display': 'partner_address','search_default_loc_khong_phai_huy':1
+                    'contact_display': 'partner_address','search_default_loc_khong_phai_huy':1,'search_default_loc_picking_theo_tram_cua_user':1
             }
             </field>
         </record>

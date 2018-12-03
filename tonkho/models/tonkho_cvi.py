@@ -5,16 +5,19 @@ class Cvi(models.Model):
     _inherit = 'cvi'
     thiet_bi_id = fields.Many2one('tonkho.thietbi', string = u'Thiết bị')
     categ_id = fields.Many2one(
-        'product.category', u'Nhóm')
+        'product.category', u'Nhóm',
+        default= lambda self: self.env['product.category'].search([('name','=',u'Khác')])[0].id
+        )
     
     @api.onchange('thiet_bi_id')
     def thiet_bi_id_oc_(self):
-        if not self.categ_id:
+        if self.thiet_bi_id.categ_id:
             self.categ_id = self.thiet_bi_id.categ_id
             
             
     @api.onchange('cvi_id')
     def cvi_id_oc_(self):
-        self.categ_id = self.cvi_id.categ_id
-        self.thiet_bi_id = self.cvi_id.thiet_bi_id
+        if self.cvi_id:
+            self.categ_id = self.cvi_id.categ_id
+            self.thiet_bi_id = self.cvi_id.thiet_bi_id
             

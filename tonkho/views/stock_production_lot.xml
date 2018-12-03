@@ -26,11 +26,11 @@
                 		<attribute name="readonly">context.get('pn_id_readonly')</attribute>
                 	</field>
                     <field name="ref" position="before">
-                        <field name="pn_id"  readonly="context.get('pn_id_readonly')"/>
+                       <!--  <field name="pn_id"  readonly="context.get('pn_id_readonly')"/> -->
                         <field name="barcode_sn" />
                         <field name="tinh_trang"></field>
                         <field name="ghi_chu" />
-                        <field name="context"></field>
+                     <!--    <field name="context"></field> -->
                     </field>
                 </data>
             </field>
@@ -44,7 +44,7 @@
             		<attribute name="readonly">context.get('product_id_readonly')</attribute>
             	</field>
                 <field name="ref" position="replace">
-                    <field name="pn_id"  readonly="context.get('pn_id_readonly')"/>
+                 <!--    <field name="pn_id"  readonly="context.get('pn_id_readonly')"/> -->
                     <field name="barcode_sn" />
                     <field name="tinh_trang"></field>
                     <field name="ghi_chu" />
@@ -64,7 +64,8 @@
                 <field name="name" position="before">
                     <field name="product_id" />
                     <field name="barcode_sn" />
-                    <field name="pn_id" />
+                 <!--  <field name="pn_id" /> -->  
+                    <field name="name_replace" />
                     <!--   <field name="pn" /> -->
                 </field>
                 <field name="name" position="after">

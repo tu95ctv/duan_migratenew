@@ -5,18 +5,58 @@ from lxml import etree
 import os,inspect,sys
 import datetime
 from odoo.osv.orm import setup_modifiers
-
+import re
+from odoo.addons.dai_tgg.mytools import pn_replace
 class Product(models.Model):
     _inherit = "product.product"
     
     lot_ids = fields.One2many('stock.production.lot','product_id')
-    pn_ids = fields.One2many('tonkho.pn','product_id')
-    len_pn = fields.Integer(compute='len_pn_',store=True,string=u'Số lượng PN')
-    ghi_chu_cate = fields.Text()
-    @api.depends('pn_ids')
-    def len_pn_(self):
+    pn = fields.Char()
+    pn_replace = fields.Char(compute='pn_replace_',store=True)
+    @api.depends('name')
+    def pn_replace_(self):
         for r in self:
-            r.len_pn = len(r.pn_ids)
+            if r.pn:
+#                 r.pn_replace = re.sub('[-_ \s]','',r.pn)
+                r.pn_replace = pn_replace(r.pn)
+                
+                
+#     pn_ids = fields.One2many('tonkho.pn','product_id')
+#     len_pn = fields.Integer(compute='len_pn_',store=True,string=u'Số lượng PN')
+#     ghi_chu_cate = fields.Text()
+#     @api.depends('pn_ids')
+#     def len_pn_(self):
+#         for r in self:
+#             r.len_pn = len(r.pn_ids)
+
+    @api.multi
+    def name_get(self):
+        result = []
+        if self._context.get('show_pn_in_lot_id_name_get'):
+            for r in self:
+                    result.append((r.id, "%s%s" % (r.name,r.pn and  u' (%s)'%r.pn or '')))
+        else:
+            result = super(Product, self).name_get()
+#             for r in self:
+                
+#                 result.append((r.id, "%s %s" % (r.name,r.pn and  u'|%s'%r.pn or '')))
+        return result
+    
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        args = args or []
+        
+        if name:
+            pn_replace_str = pn_replace(name)
+            domain = ['|',('name', operator, name),('pn_replace',operator,pn_replace_str)] 
+        else:
+            domain = []
+        recs = self.search(domain + args, limit=limit)
+#         if not recs:
+#             recs = self.search([('name', operator, name)] + args, limit=limit)
+        return recs.name_get()
+    
+    
     def _get_domain_locations(self):
         default_location_name = self.env.user.department_id.default_location_id.name
         if default_location_name:

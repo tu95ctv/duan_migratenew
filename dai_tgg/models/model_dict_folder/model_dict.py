@@ -12,7 +12,8 @@ import datetime
 # from odoo.addons.dai_tgg.models.model_dict_folder.model_dict_product import gen_product_model_dict
 from odoo.addons.dai_tgg.models.model_dict_folder.model_dict_user_department import gen_user_department_model_dict
 from odoo.addons.dai_tgg.models.model_dict_folder.model_dict_tvcv import  gen_tvcv_model_dict
-
+import re
+from odoo.addons.dai_tgg.mytools import pn_replace
  
 all_key_tram = 'all_key_tram'
 key_ltk_dc = 'key_ltk_dc'
@@ -138,7 +139,12 @@ def ghi_chu_cho_sml_(v,n,self):
         return n.get('cate',False)
     else:
         return v
-    
+# def name_replace_(v,n,self):
+#     v = n['vof_dict']['prod_lot_id']['fields']['pn_id']['fields']['name']['val'] 
+#     print ('val****',v)
+#     if isinstance(v,str):
+#         v = re.sub('[-_ \s]','',v)
+#     return v
 def ghi_chu_cho_sml_cate_all_key_tram_(v,n,self):
     if True:#getattr(self, 'allow_cate_for_ghi_chu',False):
         return n.get('cate',False)
@@ -146,7 +152,13 @@ def ghi_chu_cho_sml_cate_all_key_tram_(v,n,self):
         return False
     
     
-
+def pn_replace_(v,n,self):
+    v = n['vof_dict']['product_id']['fields']['pn']['val'] 
+    if isinstance(v,str):
+        v = pn_replace(v)
+#         v = re.sub('[-_ \s]','',v)
+    
+    return v
 def break_condition_func_for_main_instance_(needdata):
     needdata ['cate'] = needdata['vof_dict']['product_id']['fields']['name']['val']
 def tracking_write_func_(**kargs):
@@ -234,10 +246,10 @@ def gen_model_dict(sml_title_row = False,self=None):
                  ), # bỏ stt ở đây để dùng trong hàm break, function
                    
                    
-                    
                     ('product_id',{'string':u'Tên Vật tư','offset_write_xl':{sml:1}, 'key':True,'required':{all_key_tram:True, sml+ '_not_create':False},'required_not_create':False,
                                    'fields':[
-                                            
+                                            ('pn',{'type_allow':[int,float],'func':lambda val,needdata: int(val) if isinstance(val,float) else val,'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)',u'Mã vật tư']}),
+                                            ('pn_replace',{'type_allow':[int,float],'func':pn_replace_, 'key':True   }),
                                             ('name',{
                                                      'get_or_create_para':{'all_key_tram':{'operator_search':'=ilike'}},
                                                      'func':None,
@@ -253,7 +265,9 @@ chi tiết
 thiết bị
 (card)'''
                                                                  },
-                                                     'key':True,'required':True,
+#                                                      'key':True,
+                                                     'key':lambda n: False if n['vof_dict']['product_id']['fields']['pn_replace']['val'] else True ,
+                                                     'required':True,
                                                      'empty_val':{'key_ltk':[u'TỔNG ĐÀI IMS',u'JUNIPER ERX 1400; T1600 ; T4000'],all_key_tram:None}
                                                                   }),
                                             ('stt_readonly',{'required':True,'for_excel_readonly':True,'func':lambda v,n:n['vof_dict']['stt_readonly']['val'],'required_not_create':False}),
@@ -288,20 +302,23 @@ thiết bị
 #                                              
                                           
                                            
-                                            ('categ_id',{'skip_this_field':{sml:True, all_key_tram:False},
+                                            ('categ_id',{'skip_this_field':{sml:True,all_key_tram:False},'bypass_this_field_if_value_equal_False':True,
                                                 'fields':[('name',{
+                                                                        'skip_field_if_not_found_column_in_some_sheet':{sml:True,all_key_tram:False},
                                                                         'replace_string':{all_key_tram:[(u'Chuyển Mạch (IMS, Di Động)',u'Chuyển mạch'),(u'IP (VN2, VNP)',u'IP')]},
                                                                         
                                                                         'func':{all_key_tram:lambda val,needdata: needdata['sheet_name'],
                                                                                     'key_tti':categ_id_tti_convert_to_ltk_,
                                                                                     key_ltk_dc: lambda val,needdata: needdata['sheet_name'],
-                                                                                    key_tti_dc: None
+                                                                                    key_tti_dc: None,
+                                                                                    sml:None,
                                                                                 },
                                                                         'karg':{'key_tti':{'tram':'TTI'}},
                                                                         'key':True,
                                                                         'required': True,
                                                                         'xl_title':{all_key_tram:None,
-                                                                                    key_tti_dc:[u'Phân hệ']
+                                                                                    key_tti_dc:[u'Phân hệ'],
+                                                                                    sml:[u'Nhóm']
                                                                             },
                                                                             
                                                                         }
@@ -396,18 +413,20 @@ thiết bị'''
                                 
                                 
                    
-                ('pn_id',{ 'offset_write_xl':{sml:2},'model':'tonkho.pn','string':u'Mã vật tư',
-                                                                  'fields':[
-                                                                            ('name',{'type_allow':[int], 'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)',u'Mã vật tư'],'key':True,
-                                                                                     'required': True,'func':lambda val,needdata: int(val) if isinstance(val,float) else val
-                                                                                     }),
-                                                                            ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True, 'required':True   }),
-#                                                                             ('import_location_id',{'skip_this_field':{sml:True},'set_val':lambda self: self.import_location_id.id}),
-                                                                            ('du_phong_tao',{'skip_this_field':{sml:True},'set_val':lambda self: 'dc' not in self.key_tram}),
-                                                                            ('tram_ltk_tao',{'skip_this_field':{sml:True},'set_val':lambda self: (self.key_tram and 'ltk' in self.key_tram)}),
-                #                                                                             ('tram_tti_tao',{'set_val': (r.key_tram and 'tti' in r.key_tram)}),
-                                                                            ]
-                                                                  }),  
+#                 ('pn_id',{ 'offset_write_xl':{sml:2},'model':'tonkho.pn','string':u'Mã vật tư',
+#                                                                   'fields':[
+#                                                     ('name',{'type_allow':[int], 'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)',u'Mã vật tư'],'key':False,
+#                                                              'required': True,'func':lambda val,needdata: int(val) if isinstance(val,float) else val
+#                                                              }),
+#                                                     
+#                                                     ('name_replace',{'func':name_replace_, 'key':True, 'required':True   }),
+#                                                     ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True, 'required':True   }),
+# #                                                                             ('import_location_id',{'skip_this_field':{sml:True},'set_val':lambda self: self.import_location_id.id}),
+#                                                     ('du_phong_tao',{'skip_this_field':{sml:True},'set_val':lambda self: 'dc' not in self.key_tram}),
+#                                                     ('tram_ltk_tao',{'skip_this_field':{sml:True},'set_val':lambda self: (self.key_tram and 'ltk' in self.key_tram)}),
+#                 #                                                                             ('tram_tti_tao',{'set_val': (r.key_tram and 'tti' in r.key_tram)}),
+#                                                                             ]
+#                                                                   }),  
                  ('location_id_goc', {'model':'stock.location','key':False, 'for_excel_readonly' :True,"required":True,
                                      'func':location_goc_,
                                      'raise_if_False':True, 'skip_this_field':{sml:True}
@@ -519,6 +538,7 @@ thiết bị'''
                                                                    'func':tinh_trang_}),
                     ('ghi_chu',{'xl_title':u'ghi chú', 'skip_this_field_for_mode_no_create':{all_key_tram:False},'skip_this_field_for_mode_no_create':{key_ltk_dc:True},'func': {'sml':ghi_chu_cho_sml_,all_key_tram:None},'skip_field_if_not_found_column_in_some_sheet':True }),
 #                     ('ghi_chu_cho_sml_cate',{'skip_this_field':{sml:True,all_key_tram:False},'func': {all_key_tram:ghi_chu_cho_sml_cate_all_key_tram_} }),
+                   
                     ('prod_lot_id', {'offset_write_xl':{sml:3},'transfer_name':{sml:'lot_id'},'key':True,'string':u'Serial number',
                                       'fields':[
                                                     ('name',{'type_allow':[int],'required':{all_key_tram:True,  sml+ '_not_create':False},'required_not_create':False,
@@ -528,18 +548,20 @@ thiết bị'''
                                                              }),
                 #                                     ('pn',{'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)']}),
                                                     ('barcode_sn',{'skip_this_field':{key_ltk_dc:False,all_key_tram:True},'func':lambda v,n:n['vof_dict']['barcode_for_first_read']['val'] ,'key':True}),
-                                                    ('pn_id',{'model':'tonkho.pn','string':u'Mã vật tư',
-                                                                  'fields':[
-                                                                            ('name',{'type_allow':[int], 'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)',u'Mã vật tư'],'key':True,
-                                                                                     'required': True,'func':lambda val,needdata: int(val) if isinstance(val,float) else val
-                                                                                     }),
-                                                                            ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True, 'required':True   }),
-#                                                                             ('import_location_id',{'skip_this_field':{sml:True},'set_val':lambda self: self.import_location_id.id}),
-                                                                            ('du_phong_tao',{'skip_this_field':{sml:True},'set_val':lambda self: 'dc' not in self.key_tram}),
-                                                                            ('tram_ltk_tao',{'skip_this_field':{sml:True},'set_val':lambda self: (self.key_tram and 'ltk' in self.key_tram)}),
-                #                                                                             ('tram_tti_tao',{'set_val': (r.key_tram and 'tti' in r.key_tram)}),
-                                                                            ]
-                                                                  }),
+                                                   
+#                                                     ('pn_id',{'model':'tonkho.pn','string':u'Mã vật tư','offset_write_xl':{sml:2},
+#                                                                   'fields':[
+#                                                                             ('name',{'type_allow':[int,float], 'empty_val':[u'NA',u'-',u'--'],'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)',u'Mã vật tư'],'key':True,
+#                                                                                      'required': True,'func':lambda val,needdata: int(val) if isinstance(val,float) else val
+#                                                                                      }),
+#                                                                              ('name_replace',{'type_allow':[int,float],'func':name_replace_, 'key':True, 'required':True   }),
+#                                                                             ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'] , 'key':True, 'required':True   }),
+# #                                                                             ('import_location_id',{'skip_this_field':{sml:True},'set_val':lambda self: self.import_location_id.id}),
+#                                                                             ('du_phong_tao',{'skip_this_field':{sml:True},'set_val':lambda self: 'dc' not in self.key_tram}),
+#                                                                             ('tram_ltk_tao',{'skip_this_field':{sml:True},'set_val':lambda self: (self.key_tram and 'ltk' in self.key_tram)}),
+#                 #                                                                             ('tram_tti_tao',{'set_val': (r.key_tram and 'tti' in r.key_tram)}),
+#                                                                             ]
+#                                                                   }),
                                                     ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'],'key': True, 'required':True }),
                                                     ('tinh_trang',{'skip_this_field':{sml:True,all_key_tram:False},'set_val': {all_key_tram:u'tot',  sml:None},'xl_title':  {all_key_tram:None,  sml:[u'T/T',u'Tình trạng']},
                                                                    'skip_field_if_not_found_column_in_some_sheet':True,

@@ -206,6 +206,7 @@
                <field name="gio_ket_thuc" />
                <field name="duration" />
                <field name="is_bc" />
+               <field name="is_giao_ca" />
               <!--  <field name="comments_show" /> -->
                <field name="department_id" />
                <!--  <field name="ctr_ids"  /> -->

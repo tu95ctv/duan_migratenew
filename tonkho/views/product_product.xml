@@ -33,7 +33,8 @@
                 <field name="uom_id" position="after">
                     <field name="thiet_bi_id" />
                     <field name="brand_id" />
-                    <field name="pn_ids"  context="{'product_id_readonly':True}"/> <!-- context="{'form_view_ref':'tonkho.pn_form_simple_not_product_id'}" -->
+                  <!--   <field name="pn_ids"  context="{'product_id_readonly':True}"/> context="{'form_view_ref':'tonkho.pn_form_simple_not_product_id'}" -->
+                   <field name="pn"></field>
                     <field name="quant_ids" />
                 </field>
                 <xpath expr="//header" position="attributes">
@@ -80,8 +81,10 @@
                     <field name="thiet_bi_id" />
                     <field name="brand_id" />
                     <field name="tracking" />
-                    <field name="len_pn" />
+                   <!-- <field name="len_pn" /> -->
                     <field name="location_id" />
+                   <field name="pn"></field>
+                   <field name="pn_replace"></field>
                     <field name="tram_ltk_tao"  groups="base.group_erp_manager"></field>
                     <field name="dang_chay_tao" groups="base.group_erp_manager"></field>
                     <field name="du_phong_tao" groups="base.group_erp_manager"></field>

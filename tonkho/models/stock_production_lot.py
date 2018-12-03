@@ -4,10 +4,16 @@ from odoo.exceptions import UserError,ValidationError
 from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 from odoo.osv import expression
+import re
+
+
 class StockProductionLot(models.Model):
     _inherit = "stock.production.lot"
     _sql_constraints = [
-        ('name_ref_uniq', 'unique (name, product_id,barcode_sn)', 'The combination of serial number and product must be unique !'),
+        ('name_ref_uniq', 'unique (name, product_id)', 'The combination of serial number and product must be unique !'),
+#         ('name_ref_uniq', 'unique (name, product_id,barcode_sn)', 'The combination of serial number and product must be unique !'),
+#         ('name_ref_uniq', 'unique (name)', 'The serial number must be unique !'),
+
     ]
 #     _rec_name = 'complete_name'
     name = fields.Char(
@@ -17,7 +23,7 @@ class StockProductionLot(models.Model):
         required=True, help="Unique Lot/Serial Number")
      
 #     pn = fields.Char(string=u'Part Number')
-    pn_id = fields.Many2one('tonkho.pn',string=u'Part number',domain="[('product_id','=',product_id)]")
+#     pn_id = fields.Many2one('tonkho.pn',string=u'Part number',domain="[('product_id','=',product_id)]")
 #     ghi_chu = fields.Text(string=u'Ghi chú',store=True)
     ghi_chu = fields.Text(string=u'Ghi chú từ dòng điều chuyển',compute='ghi_chu_',store=True)
     ghi_chu_ban_dau =  fields.Text(string=u'Ghi Chú ban đầu')
@@ -28,10 +34,31 @@ class StockProductionLot(models.Model):
 #     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',store=True, string=u'Tình trạng')
     # THÊM VÀO ĐỂ COI DỊCH CHUYỂN KHO, KHÔNG PHẢI KẾ THỪA
     barcode_sn = fields.Char()
-    context = fields.Char(compute='context_')
+#     context = fields.Char(compute='context_')
+    
+    name_replace = fields.Char(compute='name_replace_',store=True)
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        args = args or []
+        if name:
+            name_replace = re.sub('[-_ \s]','',name)
+        else:
+            name_replace = ''
+        recs = self.search(['|',('name', operator, name), ('name_replace', operator, name_replace)] + args, limit=limit)
+        return recs.name_get()
+    
+    
     @api.depends('name')
-    def context_(self):
-        self.context = self._context
+    def name_replace_(self):
+        for r in self:
+            if r.name:
+                r.name_replace = re.sub('[-_ \s]','',r.name)
+                
+                
+                
+#     @api.depends('name')
+#     def context_(self):
+#         self.context = self._context
 #     complete_name = fields.Char(compute='complete_name_',store=True)
 #     trig_field = fields.Boolean()
 #     @api.depends('barcode_sn','name','trig_field')
@@ -66,12 +93,12 @@ class StockProductionLot(models.Model):
                     r.ghi_chu =move_line_ids.ghi_chu
                 
                 
-    @api.constrains('pn_id','product_id')
-    def pn_id_product_id_(self):
-        for r in self:
-            if r.pn_id:
-                if r.pn_id.product_id != r.product_id:
-                    raise ValidationError(u'product_id ở pn_id khác với product_id')
+#     @api.constrains('pn_id','product_id')
+#     def pn_id_product_id_(self):
+#         for r in self:
+#             if r.pn_id:
+#                 if r.pn_id.product_id != r.product_id:
+#                     raise ValidationError(u'product_id ở pn_id khác với product_id')
         
 #     @api.multi
 #     def name_get(self):
@@ -81,22 +108,22 @@ class StockProductionLot(models.Model):
 #             return self.barcode_sn
 #         else:
 #             return self.name
-    @api.model
-    def name_search(self, name, args=None, operator='ilike', limit=100):# cho lot
-        location_id = self._context.get('location_id_for_name_search_exist_in_quants_d4')
-        if location_id:
-            location_id_object = self.env['stock.location'].browse([location_id])
-            if location_id_object.usage == 'internal':
-                def filter_lots(r):
-                    quants = self.env['stock.quant'].search([('location_id','=',location_id),('lot_id','=',r.id),('quantity','>',0)])
-                    if len(quants) >0 :
-                        return True
-                    else:
-                        return False
-                if args ==None:
-                    args = []
-                domain = expression.AND([[('name',operator,name)],args])
-                lots = self.env["stock.production.lot"].search(domain, limit=limit)
-                lots = lots.filtered(filter_lots )
-                return lots.name_get()
-        return super(StockProductionLot,self).name_search( name, args=args, operator=operator, limit=limit)
+#     @api.model
+#     def name_search(self, name, args=None, operator='ilike', limit=100):# cho lot
+#         location_id = self._context.get('location_id_for_name_search_exist_in_quants_d4')
+#         if location_id:
+#             location_id_object = self.env['stock.location'].browse([location_id])
+#             if location_id_object.usage == 'internal':
+#                 def filter_lots(r):
+#                     quants = self.env['stock.quant'].search([('location_id','=',location_id),('lot_id','=',r.id),('quantity','>',0)])
+#                     if len(quants) >0 :
+#                         return True
+#                     else:
+#                         return False
+#                 if args ==None:
+#                     args = []
+#                 domain = expression.AND([[('name',operator,name)],args])
+#                 lots = self.env["stock.production.lot"].search(domain, limit=limit)
+#                 lots = lots.filtered(filter_lots )
+#                 return lots.name_get()
+#         return super(StockProductionLot,self).name_search( name, args=args, operator=operator, limit=limit)

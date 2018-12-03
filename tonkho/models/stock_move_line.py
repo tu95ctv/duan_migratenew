@@ -9,7 +9,7 @@ class StockMoveLine(models.Model):
     _inherit = "stock.move.line"
 
 #     pn_id = fields.Many2one('tonkho.pn',related = 'lot_id.pn_id',string=u'Part number')
-    pn_id = fields.Many2one('tonkho.pn',string=u'Part number')
+#     pn_id = fields.Many2one('tonkho.pn',string=u'Part number')
     stock_quant_id = fields.Many2one('stock.quant', string=u"Lấy vật tư có trong kho")
     tracking = fields.Selection(related='product_id.tracking',string=u'Có SN hay không', store=False)
     categ_id = fields.Many2one('product.category',related='product_id.categ_id', store=False,readonly=True)
@@ -17,6 +17,7 @@ class StockMoveLine(models.Model):
     inventory_id = fields.Many2one('stock.inventory', 'Inventory',related='move_id.inventory_id',readonly=True)
     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')], default='tot', string=u'Tình trạng',required=True)
     ref_picking_id_or_inventory_id = fields.Char(compute='ref_picking_id_or_inventory_id_', store=True,string=u'Phiếu tham chiếu')
+    pn = fields.Char(related='product_id.pn',store = True)
 
     
     move_line_dest_ids = fields.Many2many(
@@ -31,7 +32,7 @@ class StockMoveLine(models.Model):
     returned_move_ids = fields.One2many('stock.move.line', 'origin_returned_move_id', 'All returned moves', help='Optional: all returned moves created from this move')
     stt = fields.Integer()
     inventory_line_id = fields.Many2one('stock.inventory.line')
-    ghi_chu_cate = fields.Text()
+#     ghi_chu_cate = fields.Text()
     def _action_done(self):
         if 'action_done_from_stock_inventory' in self._context:
             self =  self.with_context(update_inventory={'stt':self.stt, 'inventory_line_id':self.inventory_line_id.id})
@@ -42,7 +43,7 @@ class StockMoveLine(models.Model):
     def lot_id_onchange(self):
         if self.lot_id.tinh_trang:
             self.tinh_trang = self.lot_id.tinh_trang
-            self.pn_id = self.lot_id.pn_id
+#             self.pn_id = self.lot_id.pn_id
         
     @api.depends('inventory_id','picking_id.name')
     def ref_picking_id_or_inventory_id_(self):
@@ -54,8 +55,8 @@ class StockMoveLine(models.Model):
         if self.product_id:
             self.qty_done = 1
             self.product_uom_id = self.product_id.uom_id.id
-            if len(self.product_id.pn_ids) ==1:
-                self.pn_id = self.product_id.pn_ids
+#             if len(self.product_id.pn_ids) ==1:
+#                 self.pn_id = self.product_id.pn_ids
 
     @api.onchange('qty_done')
     def _onchange_qty_done(self):# ghi đè để tránh cảnh báo: You can only process 1.0 Card for products with unique serial number.
@@ -79,15 +80,24 @@ class StockMoveLine(models.Model):
             self.product_id = self.stock_quant_id.product_id
             self.lot_id = self.stock_quant_id.lot_id
             self.location_id = self.stock_quant_id.location_id
-    @api.constrains('pn_id','product_id','lot_id')
+#     @api.constrains('pn_id','product_id','lot_id')
+#     def pn_id_product_id_(self):
+#         for r in self:
+#             if r.pn_id:
+#                 if r.pn_id.product_id != r.product_id:
+#                     raise ValidationError(u'product_id ở pn_id khác với product_id')
+#             if r.lot_id:
+#                 if r.lot_id.product_id != r.product_id:
+#                     raise ValidationError(u'product_id ở lot_id khác với product_id')
+
+    @api.constrains('product_id','lot_id')
     def pn_id_product_id_(self):
         for r in self:
-            if r.pn_id:
-                if r.pn_id.product_id != r.product_id:
-                    raise ValidationError(u'product_id ở pn_id khác với product_id')
+   
             if r.lot_id:
                 if r.lot_id.product_id != r.product_id:
                     raise ValidationError(u'product_id ở lot_id khác với product_id')
+                
                 
     @api.constrains('location_id','location_dest_id')
     def location_id_dest_location_id_(self):

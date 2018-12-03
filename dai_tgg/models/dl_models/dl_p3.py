@@ -47,7 +47,10 @@ FIELDNAME_FIELDATTR_cvi =OrderedDict( [
         ('stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_}),
         ('ngay_bat_dau',{'func': lambda v,n: Convert_date_orm_to_str(v),'width':get_width(10)}),
          ('code',{}),('tvcv_id_name',{'width':get_width(40)}),('noi_dung',{'width':get_width(40)}),
-         ('diem_tvi',{}),('so_luong',{}),('so_lan',{}),
+         ('slncl',{}),
+         ('diem_tvi',{}),
+         ('so_luong',{}),
+         ('so_lan',{}),
          ('diemtc',{}),
          ('diemld',{}),    
                     

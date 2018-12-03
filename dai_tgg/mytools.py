@@ -7,6 +7,15 @@ from unidecode import unidecode
 import sys
 import datetime
 from odoo.osv import expression
+
+def pn_replace(pn):
+    if pn:
+        pn_replace =  re.sub('[- _ \s \\\ \/]','',pn)
+        return pn_replace
+    else:
+        pn_replace = pn
+    return pn_replace
+    
 def get_or_create_object_sosanh(self, class_name, search_dict,
                                 write_dict ={},is_must_update=False, noti_dict=None,
                                 inactive_include_search = False):

@@ -32,13 +32,13 @@
 		          			<field name="thiet_bi_id" readonly="1"></field>
 		          			<field name="brand_id" readonly="1"></field>
 		          			<field name="categ_id" readonly="1"></field>
-		          		<!-- 	<field name="pn" readonly="1"></field> -->
-		          			<field name="pn_id" readonly="1"></field>
+		          			<field name="pn" readonly="1"></field> 
+		          			<!-- <field name="pn_id" readonly="1"></field> -->
 		          		</xpath>
 		          		<xpath expr="//field[@name='line_ids']/tree/field[@name='prod_lot_id']" position="after">
 		          			<field name="barcode_sn"></field>
 		          			<field name="ghi_chu"></field>
-		          			<field name="ghi_chu_cate"></field>
+		          			<!-- <field name="ghi_chu_cate"></field> -->
 		          		 </xpath>
 		          		 <xpath expr="//field[@name='line_ids']/tree/field[@name='prod_lot_id']" position="attributes">
 		          			<attribute name="attrs">{'invisible':[('tracking','=','none')]}</attribute>

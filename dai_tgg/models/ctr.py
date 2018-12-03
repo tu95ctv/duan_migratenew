@@ -24,12 +24,23 @@ class CTR(models.Model):
     ton_dong_ca_truoc_ids = fields.Many2many('cvi', compute='ton_dong_ca_truoc_ids_',string=u'Tồn đọng ca trước')
     
     
+    @api.onchange('member_ids')
+    def member_ids_oc(self):
+        print ('self.member_ids***',self.member_ids)
+        print ("self.member_ids.mapped('id')",self.member_ids.mapped('id'))
+        truc_ca_tvcv_id =  self.env['tvcv'].search([('name','=',u'Trực ca')])
+        cvi_ids_tvcv =  self.cvi_ids.mapped('tvcv_id')
+        if  (not cvi_ids_tvcv or truc_ca_tvcv_id == cvi_ids_tvcv) :#and not self.cvi_ids:
+            rt = list(map(lambda m:(0,0,{'user_id':m,'loai_record':u'Công Việc','tvcv_id':truc_ca_tvcv_id.id}),self.member_ids))
+#             self.write({'cvi_ids':rt})
+            return {'value':
+                    {'cvi_ids':rt
+                     }
+                    }
     @api.depends('name')
     def ton_dong_ca_truoc_ids_(self):
         for r in self:
-            domain = []
-            if r.id:
-                domain =['|',('is_giao_ca','=',True),('gio_ket_thuc','=',False)]
+            domain =['|',('is_giao_ca','=',True),('gio_ket_thuc','=',False)]
             ton_dong_ca_truoc_ids = self.env['cvi'].search(domain,limit=20,order='id desc')
             r.ton_dong_ca_truoc_ids = ton_dong_ca_truoc_ids
 #     @api.depends('cvi_ids')

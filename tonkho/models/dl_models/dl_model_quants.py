@@ -41,9 +41,10 @@ def download_quants(dl_obj,append_domain = []):
          ('thiet_bi_id',{'func':lambda v,n: v.name,'width':get_width(20)}),
          ('brand_id',{'func':lambda v,n: v.name}), 
          ('tracking',{'func':tracking_}),
-         ('categ_id',{'func':lambda v,n: v.name,'width':get_width(20) }),
-         ('pn_id',{'func':lambda v,n: v.name,'width':get_width(20)}),
-         ('lot_id',{'func':lambda v,n: v.name,'width':get_width(20)}),
+         ('categ_id',{'func':lambda v,n: v.name }),
+#          ('pn_id',{'func':lambda v,n: v.name,'width':get_width(20)}),
+         ('pn',{'width':get_width(20)}),
+         ('lot_id',{'func':lambda v,n: v.name}),
          ('location_id',{'func':lambda v,n: v.name_get_1_record(),'write_to_excel':False,'split':[
                  ('tram',{'is_not_model_field':True,'string':u'Trạm','func':tu_shelf_,'kargs':{'stock_type':'tram'}}),         
                  ('phong_may',{'is_not_model_field':True,'string':u'Phòng máy','func':tu_shelf_,'kargs':{'stock_type':'phong_may'}}),

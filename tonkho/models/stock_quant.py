@@ -6,6 +6,7 @@ from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 from  odoo.addons.dai_tgg.mytools import name_compute
 from  odoo.addons.tonkho.tonkho_tool import write_to_current_path
+from odoo.addons.dai_tgg.mytools import pn_replace
 
 # import datetime
 # from odoo.addons.tonkho.controllers.controllers import  download_quants,download_product,download_quants_moi_cage_moi_sheet
@@ -27,7 +28,8 @@ class Quant(models.Model):
     """ Quants are the smallest unit of stock physical instances """
     _inherit = "stock.quant"
 #     pn = fields.Char(related='lot_id.pn')
-    pn_id = fields.Many2one('tonkho.pn',related='lot_id.pn_id',store=True)
+#     pn_id = fields.Many2one('tonkho.pn',related='lot_id.pn_id',store=True)
+    pn = fields.Char(related='product_id.pn', store=True)
     categ_id = fields.Many2one('product.category', related='product_id.categ_id',store=True,string=u'Nhóm')
     thiet_bi_id = fields.Many2one('tonkho.thietbi',related='product_id.thiet_bi_id', string = u'Thiết bị',store=True)
     brand_id = fields.Many2one('tonkho.brand',related='product_id.brand_id',string=u'Hãng sản xuất',store=True)
@@ -80,7 +82,7 @@ class Quant(models.Model):
         res = []
         for r in self:
             adict=[
-                                                                 ('product_id',{'pr':None,'func':lambda r: r.name}),
+                                                                 ('product_id',{'pr':None,'func':lambda r: r.name + ' (%s)'%r.pn if r.pn else ''}),
                                                                  ('lot_id',{'pr':None,'func':lambda r: r.name,'skip_if_False':False}),
                                                                  ('quantity',{'pr':None,'func':lambda val:'%s'%val,'skip_if_False':False}),
                                                                ]
@@ -97,8 +99,12 @@ class Quant(models.Model):
         if context.get('kho_da_chon') !=None:
             choosed_list = context.get('kho_da_chon') [0][2]
             args +=[('id','not in',choosed_list)]
-     
-        recs = self.search(['|',('product_id', operator, name),('lot_id.name', operator, name)] + args, limit=limit)
+        if name:
+            pn_replace_str = pn_replace(name)
+        else:
+            pn_replace_str = ''
+            
+        recs = self.search(['|','|',('product_id', operator, name),('product_id.pn_replace', operator, pn_replace_str),('lot_id.name', operator, name)] + args, limit=limit)
         return recs.name_get()
     
     

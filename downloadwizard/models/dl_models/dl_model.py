@@ -82,7 +82,7 @@ bold_style_italic = xlwt.easyxf("font: bold on, name Times New Roman, height 240
 # normal_style = xlwt.easyxf("font:  name Times New Roman, height 240")
 bbbg_normal_style = xlwt.easyxf(generate_easyxf(bold=True,height=HEIGHT, vert = 'center',horiz = 'center'))
 center_nomal_style = xlwt.easyxf(generate_easyxf(height=HEIGHT, vert = 'center',horiz = 'center'))
-
+bold_center_style = xlwt.easyxf(generate_easyxf(height=HEIGHT, vert = 'center',horiz = 'center',bold=True))
 ##font from dl_p3
 
 # header_bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 240")
@@ -101,6 +101,8 @@ vert_center_style = xlwt.easyxf(generate_easyxf(vert = 'center'))#ông bà
 bold_center_style = xlwt.easyxf(generate_easyxf(height=HEIGHT,bold=True,vert = 'center',horiz='center'))# ký tên
 center_style = xlwt.easyxf(generate_easyxf(height=HEIGHT,vert = 'center',horiz='center'))
 center_underline_style = xlwt.easyxf(generate_easyxf(bold=True,underline=True,height=HEIGHT, vert = 'center',horiz = 'center'))
+
+
 bbbg_style = xlwt.easyxf(generate_easyxf(bold=True,height=18, vert = 'center',horiz = 'center'))
 
 

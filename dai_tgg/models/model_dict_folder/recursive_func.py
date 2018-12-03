@@ -15,7 +15,7 @@ TYPES_ATT_DICT = {
             'func' : {'types': ['function', 'NoneType']} ,
             'get_or_create_para' : {'types': ['NoneType','dict'],'default':{}} ,#not_use_key: chưa xài
             'karg' : {'types': ['NoneType','dict']} ,#khong_can_khai_bao_key
-            'key' : {'types': ['bool']} ,
+            'key' : {'types': ['bool','function']} ,
             'key_allow' : {'types': ['bool']} ,
             # 'key_ltk_dc' : {'types': ['list']} ,
             # 'key_tti_dc' : {'types': ['NoneType']} ,

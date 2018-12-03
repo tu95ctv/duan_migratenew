@@ -13,7 +13,7 @@ from odoo.addons.downloadwizard.models.dl_models.dl_model import  write_all_row
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  get_width
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  stt_
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  generate_easyxf
-from odoo.addons.downloadwizard.models.dl_models.dl_model import  bold_style,bold_style_italic,normal_style,bbbg_normal_style,center_nomal_style
+from odoo.addons.downloadwizard.models.dl_models.dl_model import  bold_style,bold_style_italic,normal_style,bbbg_normal_style,center_nomal_style,bbbg_style,bold_center_style
 # def get_width(num_characters):
 #     return int((1+num_characters) * 256)
 
@@ -117,8 +117,8 @@ def table_(worksheet,f_name,fixups,needdata,row_index,dl_obj, **kargs):
     Export_Para_cvi_copy1 = deepcopy(Export_Para_cvi)
     is_show_loai_record = dl_obj.env['ir.config_parameter'].sudo().get_param('dai_tgg.' + 'is_show_loai_record')
     Export_Para_cvi_copy1['FIELDNAME_FIELDATTR']['loai_record']['skip_field'] = not is_show_loai_record
-    
-    cates = request.env['product.category'].search([('stt_for_report','!=',False)],order='stt_for_report asc')
+    Export_Para_cvi_copy1['FIELDNAME_FIELDATTR']['categ_id']['skip_field'] = not is_show_loai_record
+    nhoms = request.env['product.category'].search([('stt_for_report','!=',False)],order='stt_for_report asc')
     row_index_begin = row_index
     needdata_from_table = {}
     for loai_record,attrs in LOAI_REC_.items():
@@ -134,10 +134,10 @@ def table_(worksheet,f_name,fixups,needdata,row_index,dl_obj, **kargs):
                 ) # ghi A. sự cố , B. công việc
             row_index +=2
             if loai_record ==u'Công Việc':
-                domain_loai_record = [('loai_record','in',[u'Công Việc',u'Sự Vụ'])]
+                domain_loai_record = [('loai_record','in',[u'Công Việc',u'Sự Vụ']),('loai_cvi','!=',u'Chia Điểm Con')]
             else:
                 domain_loai_record = [('loai_record','=',loai_record)]
-            for cate in cates:# categ_id # ghi các đầu nhóm 1. IP , 2TRD
+            for cate in nhoms:# categ_id # ghi các đầu nhóm 1. IP , 2TRD
 #                 row_index +=1
                 Export_Para_cvi_copy = deepcopy(Export_Para_cvi_copy1)
                 domain =[('categ_id','=',cate.id),(('is_bc','=',True))] + domain_loai_record
@@ -190,15 +190,15 @@ def dl_bcn(dl_obj,append_domain = []):
                  ('dltdhp',{'range':[1,1,4,7],'val':u'Độc lập - Tự do - Hạnh Phúc', 'style':xlwt.easyxf(generate_easyxf(bold=True,underline=True,height=12, vert = 'center',horiz = 'center'))}),
 #                     ('so',{'range':[2,2,0,2],'val':u'Số: %s/%s-%s'%(dl_obj.stt_trong_bien_ban_in,dl_obj.ban_giao_or_nghiem_thu,dl_obj.department_id.short_name), 'style':xlwt.easyxf(generate_easyxf(height=12, vert = 'center',horiz = 'center'))}),
 #                     ('bbg',{'range':[3,3,0,7],'val':u'BIÊN BẢN BÀN GIAO VẬT TƯ', 'style':bbbg_normal_style,'height':1119,'off_set':1}),
-                 ('bbg',{'range':[3,3,0,7],'val':u'BÁO CÁO THÔNG TIN', 'style':bbbg_normal_style,'height':1119,'off_set':1}),
+                 ('bbg',{'range':[3,3,0,7],'val':u'BÁO CÁO THÔNG TIN', 'style':bbbg_style,'height':1119,'off_set':1}),
                  ('hom_nay',{'range':[4,4,0,7],'val':None, 'val_func': hom_nay_,'style':center_nomal_style }),
                  ('table',{'range':['auto', 0],'val':None,'func':table_ ,'offset':3 }),
                  ('thuebao_title',{'range':['auto', 0],'val':None,'val':u'C. TÌNH HÌNH THUÊ BAO CẬP NHẬT MẠNG DI ĐỘNG (lúc 19h00):','style':bold_style,'offset':1 }),
                  ('thuebaotable',{'range':['auto', 0],'val':None,'func':thuebaotable_ ,'offset':2}),
-                 ('pho_dai_vthcm',{'range':['auto', 1],'val':u'Phó đài VT HCM',}),
-                 ('tphcm',{'range':['auto', 7],'offset':0, 'val':u'Tp. Hồ Chí Minh, Ngày %s'%Convert_date_orm_to_str(dl_obj.date),}),
-                 ('ten_pho_dai_vthcm',{'range':['auto', 1],'offset':5,'val':u'Nguyễn Văn Xuân',}),
-                 ('ten_nguoi_bc',{'range':['auto', 7],'offset':0,'val':dl_obj.env.user.name,}),
+                 ('pho_dai_vthcm',{'range':['auto', 'auto',1,3],'val':u'Phó đài VT HCM','style':bold_center_style}),
+                 ('tphcm',{'range':['auto', 'auto', 7,9],'offset':0, 'val':u'Tp. Hồ Chí Minh, Ngày %s'%Convert_date_orm_to_str(dl_obj.date),'style':bold_center_style}),
+                 ('ten_pho_dai_vthcm',{'range':['auto', 'auto',1,3],'offset':5,'val':u'Nguyễn Văn Xuân','style':bold_center_style}),
+                 ('ten_nguoi_bc',{'range':['auto', 'auto',7,9],'offset':0,'val':dl_obj.env.user.name,'style':bold_center_style}),
                  ]
     wb = write_all_row(fixups,dl_obj,None)
         

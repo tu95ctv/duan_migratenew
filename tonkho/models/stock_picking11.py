@@ -89,6 +89,9 @@ class StockPicking(models.Model):
 #         help="Creation Date, usually the time of the order")
 #     
     
+    
+    
+    
     @api.depends('department_id','ban_giao_or_nghiem_thu')
     def stt_trong_bien_ban_in_(self):
         for r in self:
@@ -514,19 +517,34 @@ class StockPicking(models.Model):
                 domain = "[('is_kho_cha','=',True)]"
             else:
                 domain = "['|',('cho_phep_khac_tram_chon','=', True),'&',('is_kho_cha','=',True),('department_id','=', department_id)]"
-# domain ở form sẽ đè lên domain này
-#             fields = res.get('fields')
-#             fields['location_id']['domain'] = domain
-            
-            # này sẽ đề lên trên  domain ở form
+
             doc = etree.XML(res['arch'])
             nodes =  doc.xpath("//field[@name='location_id']")
             if len(nodes):
-                print ("ok có node")
                 node = nodes[0]
                 node.set('domain',domain )
             res['arch'] = etree.tostring(doc, encoding='unicode')
+            
+        if view_type =='search':
+            doc = etree.fromstring(res['arch'])
+            node =  doc.xpath("//field[@name='location_id']")[0]
+            node.addnext(etree.Element('separator', {}))
+            department_id = self.env.user.department_id.id
+            node.addnext(etree.Element('filter', {'string':'Lọc theo  trạm %s'%self.env.user.department_id.name,'name': 'loc_picking_theo_tram_cua_user', 'domain': "['|',('location_id.department_id','=',%s),('location_dest_id.department_id','=',%s)]"%(department_id,department_id)}))
+            res['arch'] = etree.tostring(doc, encoding='unicode')
         return res
+    
+#     @api.model
+#     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+#         res = super(StockPicking, self).fields_view_get(
+#             view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+#         if view_type =='search':
+#             doc = etree.fromstring(res['arch'])
+#             node =  doc.xpath("//filter[@name='loc_khong_phai_huy']")[0]
+#             node.addnext(etree.Element('separator', {}))
+#             node.addnext(etree.Element('filter', {'string':'Lọc theo  trạm %s'%self.env.user.department_id.name,'name': 'loc_picking_theo_tram_cua_user', 'domain': "['|',('location_id.department_id','=',%s),('location_dest_id.department_id','=',%s)]"%self.env.user.department_id.id}))
+#             res['arch'] = etree.tostring(doc, encoding='unicode')
+#         return res
     
     
 #     @api.model
