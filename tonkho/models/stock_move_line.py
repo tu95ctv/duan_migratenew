@@ -32,7 +32,17 @@ class StockMoveLine(models.Model):
     returned_move_ids = fields.One2many('stock.move.line', 'origin_returned_move_id', 'All returned moves', help='Optional: all returned moves created from this move')
     stt = fields.Integer()
     inventory_line_id = fields.Many2one('stock.inventory.line')
+    sltk = fields.Integer(compute='sltk_',store=True)
 #     ghi_chu_cate = fields.Text()
+    
+    
+    @api.depends('product_id','lot_id','location_id')
+    def sltk_(self):
+        for r in self:
+#             quants = self.env['stock.quant'].search([('product_id','=',r.product_id.id),('lot_id','=',r.lot_id.id),('location_id.usage','=','internal')])
+            quants = self.env['stock.quant'].search([('product_id','=',r.product_id.id),('lot_id','=',r.lot_id.id),('location_id','child_of',r.picking_id.location_id.id),('quantity','>',0)])
+            if quants:
+                r.sltk = quants[0].quantity
     def _action_done(self):
         if 'action_done_from_stock_inventory' in self._context:
             self =  self.with_context(update_inventory={'stt':self.stt, 'inventory_line_id':self.inventory_line_id.id})

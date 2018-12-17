@@ -100,7 +100,7 @@ def check_type_of_val(field_attr,val,field_name,model_name):
 #     check_field_type = field_attr.get('check_field_type',True)
     if field_type:
         type_allow = field_attr.get('type_allow',[])
-        if val != False:
+        if val != False and val != None:
             try:
                 class_or_type_or_tuple = MAP_TYPE[field_type]
             except:
@@ -121,55 +121,130 @@ def check_type_of_val(field_attr,val,field_name,model_name):
                 raise UserError(u'model: %s- field:%s có giá trị: %s, đáng lẽ là field_type:%s nhưng lại có type %s'%(model_name, field_name,val,field_type,type(val)))
 #     else:
 #         raise UserError(u'Không có field_type:%s trong biến MAP_TYPE'%(field_type))      
-def read_val_for_ci(self,set_val,col_index,a_field_vof_dict,MODEL_DICT,field_attr,sheet,row,
-                    merge_tuple_list,not_create,needdata,noti_dict,key_tram,
+def read_val_for_ci(self,set_val,col_index,
+                    a_field_vof_dict,
+#                     MODEL_DICT,
+                    field_attr,
+                    sheet,row,
+                    merge_tuple_list,
+                    not_create,
+                    needdata,
+                    noti_dict,
+                    key_tram,
 #                     workbook_copy,
-                    sheet_of_copy_wb
+                    sheet_of_copy_wb,
+                    setting,
+                    some_dict
                     ):  
     
     ### end  deal skip_field_cause_first_import####
     val = False
-    field_type_of_this_model = MODEL_DICT.get('field_type')
+    obj = False
+#     field_type_of_this_model = MODEL_DICT.get('field_type')
+#     if callable(set_val):
+#         set_val = set_val(self)
+
+#     set_val_instead_loop_fields = field_attr.get('set_val_instead_loop_fields')
+#     if callable(set_val_instead_loop_fields):
+#         set_val_instead_loop_fields = set_val_instead_loop_fields(needdata,self)
+#     if set_val_instead_loop_fields and  not not_create:
+#         val = set_val_instead_loop_fields
     if set_val != None:
         val = set_val
     elif col_index !=None: # đọc file exc
         xl_val = read_excel_cho_field(sheet, row, col_index, merge_tuple_list)
         a_field_vof_dict['excel_val'] = xl_val
         val = empty_string_to_False(xl_val)
-        if val != False and field_type_of_this_model != None and '2many' in field_type_of_this_model and field_attr.get('is_x2m_field'):
+#         if val != False and field_type_of_this_model != None and '2many' in field_type_of_this_model and field_attr.get('is_x2m_field'):
+        if val != False and field_attr.get('is_x2m_field'):
             val = val.split(',')
             val = list(map(lambda i: empty_string_to_False(i.strip()),val))
             for i in val:
                 if i==False:
                     raise UserError(u'Không được = False')
+    
     elif field_attr.get('fields') :
-        val, get_or_create  = create_instance (self, field_attr, sheet, row, merge_tuple_list, needdata, noti_dict,key_tram=key_tram, 
-                                                                   not_create = not_create,
-#                                                                    workbook_copy = workbook_copy,
-                                                                   sheet_of_copy_wb = sheet_of_copy_wb
+        exist_val_before_loop_fields_func = field_attr.get('exist_val_before_loop_fields_func')
+        check_excel_obj_is_exist_func = field_attr.get('check_excel_obj_is_exist_func') 
+        check_excel_obj_is_exist_func =   setting.get('allow_check_excel_obj_is_exist_func') and check_excel_obj_is_exist_func
+        
+#         exist_val_before_loop_fields_func2 =  field_attr.get('exist_val_before_loop_fields_func2')
+        
+#         if exist_val_before_loop_fields_func2:
+#             exist_val = exist_val_before_loop_fields_func2(needdata,self) #1,True ; F,False
+#         else:write_when_val_exist
+#             exist_val = False
+#             
+         
+            
+      
+        if exist_val_before_loop_fields_func:
+            exist_val = exist_val_before_loop_fields_func(needdata,self) #1,True ; F,False
+        else:
+            exist_val = False
+    
+        if exist_val:
+            write_when_val_exist = setting['write_when_val_exist']
+            if write_when_val_exist:
+                not_create2 = False
+#                 exist_val = exist_val
+            else:
+                if check_excel_obj_is_exist_func:
+                    not_create2 = True
+#                     exist_val = False
+        else:
+            not_create2 = False
+#             exist_val = False
+#         some_dict['exist_val'] = exist_val
+#         model = field_attr.get('model')
+        if not exist_val or (exist_val and (check_excel_obj_is_exist_func or write_when_val_exist)) or not_create:
+            search_func_para = {'exist_val':exist_val}
+            obj,val, get_or_create  = create_instance (self, field_attr,sheet, 
+                                                                    row, 
+                                                                    merge_tuple_list,
+                                                                    needdata, 
+                                                                    noti_dict,
+                                                                    key_tram=key_tram, 
+                                                                    not_create = not_create ,
+                                                                    sheet_of_copy_wb = sheet_of_copy_wb,
+                                                                    not_create2 = not_create2,  #not_create2 : just get get_or_create
+                                                                    exist_val = exist_val,
+                                                                    search_func_para=search_func_para,
+                                                                    setting=setting,
+                                                                    
                                                                    )
-#             a_field_vof_dict['fields'] = vof_dict_childrend
+
+        if exist_val:
+            if  check_excel_obj_is_exist_func:# and not get_or_create:,not write_when_val_exist and
+                check_excel_obj_is_exist_func(get_or_create, obj, exist_val)
+            val= exist_val.id
+            obj = exist_val
+            get_or_create = True
         a_field_vof_dict['get_or_create'] = get_or_create
-        vof_dict_childrend = field_attr['fields']
         if not_create:
             offset_write_xl = get_key_allow(field_attr, 'offset_write_xl', key_tram,None)
             if offset_write_xl !=None:
                 if get_or_create:
                     get_or_create_display = u'Đã Có' 
                 else:
-                    if vof_dict_childrend['name']['val'] !=False:
+                    if field_attr['fields']['name']['val'] !=False:
                         get_or_create_display = u'Chưa'
                     else:
                         get_or_create_display = u'empty cell'
                 sheet_of_copy_wb.write(row,sheet.ncols + offset_write_xl , get_or_create_display,not_horiz_center_border_style)
-    return val      
+    return obj,val      
 #F1 
-def get_a_field_val(self,field_name,field_attr,key_tram,needdata,row,sheet,
-                           MODEL_DICT,not_create,
+def get_a_field_val(self,field_name,field_attr,key_tram,
+                            needdata,row,sheet,
+#                            MODEL_DICT,
+                           not_create,
 #                            workbook_copy,
                            sheet_of_copy_wb,
                            merge_tuple_list,model_name,main_call_create_instance_model,noti_dict,
-                           key_search_dict,update_dict,x2m_fields,some_dict):
+                           key_search_dict,update_dict,x2m_fields,
+                           some_dict,
+                           setting
+                           ):
 #     instance_false = False
     skip_this_field = get_key_allow(field_attr, 'skip_this_field', key_tram, False)
     if callable(skip_this_field):
@@ -182,10 +257,17 @@ def get_a_field_val(self,field_name,field_attr,key_tram,needdata,row,sheet,
     set_val = get_key_allow( field_attr,'set_val',key_tram)
     func = get_key_allow( field_attr,'func',key_tram)
     #F11
-    val = read_val_for_ci(self,set_val,col_index,a_field_vof_dict,MODEL_DICT,field_attr,sheet,row,
-                    merge_tuple_list,not_create,needdata,noti_dict,key_tram,
+    obj,val = read_val_for_ci(self,set_val,col_index,
+                    a_field_vof_dict,
+#                     MODEL_DICT,
+                    field_attr,sheet,row,
+                    merge_tuple_list
+                    ,not_create,
+                    needdata,noti_dict,key_tram,
 #                     workbook_copy,
-                    sheet_of_copy_wb
+                    sheet_of_copy_wb,
+                    setting,
+                    some_dict
                     )
     a_field_vof_dict['before_func_val'] = val
     # func
@@ -202,51 +284,52 @@ def get_a_field_val(self,field_name,field_attr,key_tram,needdata,row,sheet,
                 val = func(val,**karg)
     #end func
     val =replace_val_for_ci(field_attr,key_tram,val,needdata)
-    check_type_of_val(field_attr,val,field_name,model_name)
     a_field_vof_dict['val'] = val
+    a_field_vof_dict['obj'] = obj
     print ("row: ", row,'model_name: ',model_name,'-field: ', field_name, '-val: ', val)
+    check_type_of_val(field_attr,val,field_name,model_name)
     
-    
-    bypass_this_field_if_value_equal_False = get_key_allow(field_attr, 'bypass_this_field_if_value_equal_False', key_tram, False)
-    
+  
+        
     
     if not_create:     
-        real_required_for_not_create_mode  = get_key_allow(field_attr, 'required',key_tram, False)   
-        required   = get_key_allow(field_attr, 'required_not_create',key_tram, real_required_for_not_create_mode) 
-            
-        if bypass_this_field_if_value_equal_False:
-            real_required_for_not_create_mode = False
-        else:
-            real_required_for_not_create_mode = real_required_for_not_create_mode
-        if real_required_for_not_create_mode and val==False:
+        required_when_normal  = get_key_allow(field_attr, 'required',key_tram, False)   
+        required   = get_key_allow(field_attr, 'required_not_create',key_tram, required_when_normal) 
+#         required_when_normal = False if bypass_this_field_if_value_equal_False else required_when_normal
+        
+        if (required_when_normal and val==False) and required ==False:
             some_dict['instance_false'] = True
     else:
         required = get_key_allow(field_attr, 'required',key_tram, False)  
-        if bypass_this_field_if_value_equal_False:
-            required = False
-        else:
-            required = required
+#         required = False if bypass_this_field_if_value_equal_False else required
+
 #         required = required and not bypass_this_field_if_value_equal_False
             
     #### !!! deal required #####    
     
     
-    
-    if  bypass_this_field_if_value_equal_False and val==False:
-        return 'continue'
-    elif required and val==False:
+   
+    key_or_not = field_attr.get('key')
+    if callable(key_or_not):
+        key_or_not = key_or_not(needdata)
+    bypass_this_field_if_value_equal_False = get_key_allow(field_attr, 'bypass_this_field_if_value_equal_False', key_tram, None)
+    if bypass_this_field_if_value_equal_False ==None:
+        bypass_this_field_if_value_equal_False = setting['bypass_this_field_if_value_equal_False_default']
+#     if key_or_not ==True or key_or_not =='Both':
+#         bypass_this_field_if_value_equal_False = False
+    if required and val==False:
         if field_attr.get('raise_if_False'):
             raise UserError('raise_if_False field: %s'%field_name)
         if main_call_create_instance_model:
-            print ('skip because required,model %s- field %s'%(model_name,field_name))
+            print (u'skip việc get or create của dòng này because required but,model %s- field %s'%(model_name,field_name))
         this_model_notice = noti_dict.setdefault(model_name,{})
         skip_because_required = this_model_notice.setdefault('skip_because_required',0)
         this_model_notice['skip_because_required'] = skip_because_required + 1
         return 'break_because_required' #sua 5
+    elif bypass_this_field_if_value_equal_False and val==False:
+        return 'continue'
     elif not field_attr.get('for_excel_readonly'):
-        key_or_not = field_attr.get('key')
-        if callable(key_or_not):
-            key_or_not = key_or_not(needdata)
+        
         if key_or_not==True:
             key_search_dict [field_name] = val
         elif key_or_not == 'Both':
@@ -266,82 +349,92 @@ def get_or_create_instance(self,
                            key_search_dict,
                            update_dict,
                            not_create,
-                           instance_false,
+#                            instance_false,
                            noti_dict,
                            inactive_include_search,
                            x2m_fields,
-                           remove_all_or_just_add_one_x2m,MODEL_DICT,key_tram,
-                           mode_no_create_in_main_instance):
-    if key_search_dict:
-        
+                           remove_all_or_just_add_one_x2m,
+                           MODEL_DICT,key_tram,
+                           mode_no_create_in_main_instance,
+                           not_create2=False,
+                           exist_val = False,
+                           search_func_para={},
+                           setting={},
+                           some_dict={}
+                           ):
+    if key_search_dict or MODEL_DICT.get('search_func'):
         if mode_no_create_in_main_instance:
-            return False, False
+            return False,False, False
+        if model_name =='product.product':
+            print ('key_search_dict',key_search_dict)
+            
         
-        if not_create:
-            if instance_false:
-                obj_val = False
-                get_or_create = False
-                return obj_val, get_or_create
-        obj_val, get_or_create = get_or_create_object_has_x2m(self, model_name, key_search_dict, update_dict,
-                                is_must_update = True, 
+        obj,obj_val, get_or_create = get_or_create_object_has_x2m(self, model_name,
+                                                                   key_search_dict, 
+                                                                   update_dict,
+#                                 is_must_update = True, 
                                 noti_dict = noti_dict,
                                 inactive_include_search  = inactive_include_search, 
                                 x2m_field = x2m_fields[0] if x2m_fields else False,
                                 remove_all_or_just_add_one_x2m=remove_all_or_just_add_one_x2m,
-                                is_return_get_or_create = True,
+#                                 is_return_get_or_create = True,
                                 model_dict=MODEL_DICT,
                                 key_tram = key_tram,
-                                not_create = not_create
+                                not_create = not_create or not_create2,
+                                exist_val=exist_val,
+                                search_func_para=search_func_para,
+                                setting=setting,
+                                some_dict=some_dict
                                 )
-        return obj_val, get_or_create 
+        return obj,obj_val, get_or_create 
     else:
-        raise UserError(u'Không có Key search dict')
-        return False,False  
+        raise UserError(u'Không có Key search dict, model_name%s'%model_name)
+#         return False,False,False  
 
 ################# CREATE INSTANCE
-def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, noti_dict, main_call_create_instance_model = False,
+def create_instance (self, MODEL_DICT,
+                    sheet, row,
+                     merge_tuple_list,
+                     needdata, noti_dict, 
+                     main_call_create_instance_model = False,
                     key_tram=None, 
                     not_create = False,
                     sheet_of_copy_wb = False,
-#                     some_var_para = {},
-                    mode_no_create_in_main_instance = False
+                    mode_no_create_in_main_instance = False,
+                    not_create2 = False,
+                    setting={},
+                    exist_val = False,
+                    search_func_para={},
                      ):
     key_search_dict = {}
     update_dict = {}
     model_name = get_key_allow(MODEL_DICT, 'model', key_tram)
-#     if main_call_create_instance_model:
-#         needdata['vof_dict'] = MODEL_DICT.get('fields')   #sua 2   vof_dict
-#     
-    
     x2m_fields = []
-#     remove_all_or_just_add_one_x2m = True
     inactive_include_search = MODEL_DICT.get('inactive_include_search',False)
-    some_dict = {'instance_false':False,'remove_all_or_just_add_one_x2m':True}
+    some_dict = {'remove_all_or_just_add_one_x2m':True}#'instance_false':False,'
     break_condition = False
     for field_name,field_attr  in MODEL_DICT['fields'].items():
-        #F1
         code = get_a_field_val(self,field_name,field_attr,key_tram,needdata,row,sheet,
-                           MODEL_DICT,not_create,
+#                            MODEL_DICT,
+                           not_create,
                            sheet_of_copy_wb,
                            merge_tuple_list,model_name,main_call_create_instance_model,noti_dict,
-                           key_search_dict,update_dict,x2m_fields,some_dict)
+                           key_search_dict,update_dict,x2m_fields,
+                           some_dict,setting)
         if code =='break_because_required':
-#             return obj,get_or_create
-            
             break_condition = True# moi them
             break
     if break_condition:
         if main_call_create_instance_model:
             if  True:#getattr(self, 'allow_cate_for_ghi_chu',False):
-#                 break_condition_func_for_main_instance = some_var_para.get('break_condition_func_for_main_instance',None)
                 break_condition_func_for_main_instance  = get_key_allow(MODEL_DICT,'break_condition_func_for_main_instance',key_tram)
                 if break_condition_func_for_main_instance:
                     break_condition_func_for_main_instance(needdata)
         obj_val = False
         get_or_create = False
-        return obj_val,get_or_create
-    
-    
+        return False, obj_val,get_or_create
+    if some_dict.get('instance_false'):
+        return None,None,False
     
     last_record_function = get_key_allow(MODEL_DICT, 'last_record_function', key_tram)
     if last_record_function:
@@ -351,24 +444,28 @@ def create_instance (self, MODEL_DICT, sheet, row, merge_tuple_list,needdata, no
         pass
         print ('key_search_dict',key_search_dict)
         print ('update_dict',update_dict)
-    #F2
-    obj_val, get_or_create  = get_or_create_instance(
+    obj,obj_val, get_or_create  = get_or_create_instance(
                                                    self,
                                                    model_name,
                                                    key_search_dict,
                                                    update_dict,
                                                    not_create,
-                                                   some_dict['instance_false'],
+#                                                    some_dict['instance_false'],
                                                    noti_dict,
                                                    inactive_include_search,
                                                    x2m_fields,
                                                    some_dict['remove_all_or_just_add_one_x2m'],
                                                    MODEL_DICT,
                                                    key_tram,
-                                                   mode_no_create_in_main_instance)
-     
-    
-    return obj_val, get_or_create 
+                                                   mode_no_create_in_main_instance,
+                                                   not_create2=not_create2,
+                                                   exist_val=exist_val,
+                                                   search_func_para=search_func_para,
+                                                   
+                                                   
+                                                   setting=setting,
+                                                   some_dict=some_dict)
+    return obj,obj_val, get_or_create 
 def check_notice_dict_co_create_or_get(model_name,noti_dict,not_create,mode_no_create_in_main_instance):
     adict = noti_dict.get(model_name,{})
     if not adict.get('create') and not adict.get('update') and not not_create and not mode_no_create_in_main_instance:
@@ -409,7 +506,6 @@ def importthuvien(odoo_or_self_of_wizard,
     #R1
     ordered_a_model_dict( CHOOSED_MODEL_DICT)
     #R2
-#     mode_no_create_in_main_instance = getattr(self,'mode_no_create_in_main_instance',None)
     mode_no_create_in_main_instance = getattr(self,'mode_no_create_in_main_instance',None)
     rut_gon_key(CHOOSED_MODEL_DICT,key_tram,mode_no_create_in_main_instance=mode_no_create_in_main_instance)
     #R3
@@ -426,7 +522,7 @@ def importthuvien(odoo_or_self_of_wizard,
 #     self.test_result_1 = ghom_dac_tinh
 
     #R3 check_xem_att_co_nam_ngoai_khong
-    check_xem_att_co_nam_ngoai_khong(CHOOSED_MODEL_DICT,key_tram)
+#     check_xem_att_co_nam_ngoai_khong(CHOOSED_MODEL_DICT,key_tram)
 
     
     sheet_names = get_key_allow(CHOOSED_MODEL_DICT, 'sheet_names', key_tram)
@@ -444,7 +540,39 @@ def importthuvien(odoo_or_self_of_wizard,
 #     break_condition_func_for_main_instance  = get_key_allow(CHOOSED_MODEL_DICT,'break_condition_func_for_main_instance',key_tram)
 #     some_var_para['break_condition_func_for_main_instance'] = break_condition_func_for_main_instance
     
+    setting = {}
+    
+    if hasattr(self, 'allow_check_excel_obj_is_exist_func'):
+        allow_check_excel_obj_is_exist_func =  self.allow_check_excel_obj_is_exist_func
+    else:
+        allow_check_excel_obj_is_exist_func = CHOOSED_MODEL_DICT.get('allow_check_excel_obj_is_exist_func',True)
+    
+    setting['allow_check_excel_obj_is_exist_func'] = allow_check_excel_obj_is_exist_func
+        
+    if hasattr(self, 'not_update_field_if_instance_exist_default'):
+        not_update_field_if_instance_exist_default =  self.not_update_field_if_instance_exist_default
+    else:
+        not_update_field_if_instance_exist_default = CHOOSED_MODEL_DICT.get('not_update_field_if_instance_exist_default',False)
+    
+    
+    setting['not_update_field_if_instance_exist_default'] = not_update_field_if_instance_exist_default
+    
+    if hasattr(self, 'bypass_this_field_if_value_equal_False_default'):
+        bypass_this_field_if_value_equal_False_default =  self.bypass_this_field_if_value_equal_False_default
+    else:
+        bypass_this_field_if_value_equal_False_default = CHOOSED_MODEL_DICT.get('bypass_this_field_if_value_equal_False_default',True)
+    setting['bypass_this_field_if_value_equal_False_default'] = bypass_this_field_if_value_equal_False_default
+  
+        
+    if hasattr(self, 'write_when_val_exist'):
+        write_when_val_exist =  self.write_when_val_exist
+    else:
+        write_when_val_exist = CHOOSED_MODEL_DICT.get('write_when_val_exist',True)
+    setting['write_when_val_exist'] = write_when_val_exist
+    
+    print ('**setting**',setting)
     for sheet_name in sheet_names:
+        print ('**sheet_name',sheet_name)
         COPY_MODEL_DICT = deepcopy(CHOOSED_MODEL_DICT)
         needdata['vof_dict'] = COPY_MODEL_DICT.get('fields') 
         needdata['sheet_name'] = sheet_name
@@ -482,14 +610,15 @@ def importthuvien(odoo_or_self_of_wizard,
         
         
         row_title_index,largest_map_row = define_col_index(title_rows,sheet,COPY_MODEL_DICT,key_tram)
-        if largest_map_row_choosing:
-            row_title_index = largest_map_row
+#         if largest_map_row_choosing:
+#             row_title_index = largest_map_row
+#         else:
         if row_title_index == None:
             raise UserError(u'row_title_index == None, không có xl_title nào match với excel')
         
         #!R4
         
-       
+        check_col_index_match_xl_title(self,COPY_MODEL_DICT,key_tram,needdata)
       
         
         off_set_row = get_key_allow(CHOOSED_MODEL_DICT, 'begin_data_row_offset_with_title_row', key_tram, 1)
@@ -508,10 +637,8 @@ def importthuvien(odoo_or_self_of_wizard,
         if first_row >  last_row :
             raise UserError(u'first_row >  last_row')
         
-        print ('***COPY_MODEL_DICT',COPY_MODEL_DICT)
-        #R5 check_col_index_match_xl_title
-        check_col_index_match_xl_title(self,COPY_MODEL_DICT,key_tram,needdata)
-        #R6 muon_xuat_dac_tinh_gi
+#         print ('***COPY_MODEL_DICT',COPY_MODEL_DICT)
+        
        
         
         
@@ -528,20 +655,21 @@ def importthuvien(odoo_or_self_of_wizard,
         
         
         merge_tuple_list =  sheet.merged_cells
+        
         for number_row_count,row in enumerate(range(first_row, last_row)):
-            print ('sheet_name',sheet_name,'row',row)
+            print ('sheet_name*******',sheet_name,'row',row)
+#             COPY_MODEL_DICT_old = deepcopy(COPY_MODEL_DICT)
             create_instance (self, COPY_MODEL_DICT, sheet, row, merge_tuple_list, needdata, noti_dict,
                               main_call_create_instance_model=True,
                               key_tram=key_tram,
                               not_create = not_create,
-#                               workbook_copy = workbook_copy,
                               sheet_of_copy_wb = sheet_of_copy_wb,
-#                               some_var_para = some_var_para,
-                              mode_no_create_in_main_instance = mode_no_create_in_main_instance
+                              mode_no_create_in_main_instance = mode_no_create_in_main_instance,
+                              setting=setting
                                )
         model_name = model_name = get_key_allow(COPY_MODEL_DICT, 'model', key_tram)
         
-        check_notice_dict_co_create_or_get(model_name,noti_dict,not_create,mode_no_create_in_main_instance)
+#         check_notice_dict_co_create_or_get(model_name,noti_dict,not_create,mode_no_create_in_main_instance)
     if number_row_count:
         self.imported_number_of_row = number_row_count + 1
         

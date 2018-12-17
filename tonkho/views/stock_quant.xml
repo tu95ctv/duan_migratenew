@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+    
+    
         <record id="view_stock_quant_tree_inherit" model="ir.ui.view">
             <field name="name">stock.quant.tree.inherit</field>
             <field name="model">stock.quant</field>
@@ -32,10 +34,28 @@
                 <field name="quantity" position="after">
                     <field name="write_date" string="Ngày  giờ sửa" />
                     <field name="create_date" string="Ngày giờ tạo" />
-                    <field name="stt"  groups="base.group_erp_manager"/>
+                 <!--    <field name="stt"  groups="base.group_erp_manager"/> -->
                 </field>
             </field>
         </record>
+        
+        
+        
+        
+        <record id="view_stock_quant_form" model="ir.ui.view">
+            <field name="name">stock.quant.form.inherit</field>
+            <field name="model">stock.quant</field>
+            <field name="inherit_id" ref="stock.view_stock_quant_form" />
+            <field name="arch" type="xml">
+             	 <field name="lot_id" position="before">
+             	 	<field name="pn"></field>
+             	 </field>
+                 <field name="in_date"  position="attributes">
+                   	<attribute name="invisible">1</attribute>
+                 </field>
+                </field>
+                </record>
+                
         
         <record id="quant_search_view" model="ir.ui.view">
             <field name="name">stock.quant.search.inherit</field>

@@ -57,14 +57,21 @@ class ProductTemplate(models.Model):
 #         ('lot', 'By Lots'),
         ('none', 'No Tracking')],required=True,string=u'Có SN hay không',default='serial')
     
-    is_co_sn_khong_tinh_barcode = fields.Boolean(string=u'Is có SN không tính Barcode')
-    tram_ltk_tao = fields.Boolean()
-    dang_chay_tao = fields.Boolean()
-    du_phong_tao = fields.Boolean()
-    tram_tti_tao = fields.Boolean()
-    thiet_bi_id_tti = fields.Many2one('tonkho.thietbi', string = u'Thiết bị TTI')
-    thiet_bi_id_ltk = fields.Many2one('tonkho.thietbi', string = u'Thiết bị LTK')
-    brand_id_tti = fields.Many2one('tonkho.brand',string=u'Hãng sản xuất TTI')
+    
+    
+ 
+#     dang_chay_tao = fields.Boolean()
+#     du_phong_tao = fields.Boolean()
+#     tram_ltk_tao = fields.Boolean()
+#     tram_tti_tao = fields.Boolean()
+#     
+    
+#     thiet_bi_id_tti = fields.Many2one('tonkho.thietbi', string = u'Thiết bị TTI')
+#     thiet_bi_id_ltk = fields.Many2one('tonkho.thietbi', string = u'Thiết bị LTK')
+#     brand_id_tti = fields.Many2one('tonkho.brand',string=u'Hãng sản xuất TTI')
+    
+    
+    
     name_khong_dau = fields.Char(compute='name_khong_dau_',store=True)
     name_viet_tat = fields.Char(compute='name_khong_dau_',store=True)
     @api.depends('name')

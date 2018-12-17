@@ -27,7 +27,7 @@ def gen_product_model_dict():
                            ('tram_ltk_tao',{'set_val':True}),
                               
                            ('tracking',{'func':lambda val,needdata: 'serial' if (needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] or needdata['vof_dict']['barcode_for_first_read']['val']) !=False else False,'bypass_this_field_if_value_equal_False':True}),
-                           ('is_co_sn_khong_tinh_barcode',{'func':lambda val,needdata: True if (needdata['vof_dict']['prod_lot_id_excel_readonly']['val']) !=False else False,'bypass_this_field_if_value_equal_False':True}),
+#                            ('is_co_sn_khong_tinh_barcode',{'func':lambda val,needdata: True if (needdata['vof_dict']['prod_lot_id_excel_readonly']['val']) !=False else False,'bypass_this_field_if_value_equal_False':True}),
                            ('thiet_bi_id',{'model':'tonkho.thietbi', 'fields':[('name',{'func':None,'xl_title':u'Tên hệ thống thiết bị', 'key':True,'required': True}),]}),
                            ('categ_id',{'model':'product.category','fields':[('name',{'func':lambda val,needdata: needdata['sheet_name'], 'key':True,'required': True}),]}),
                            ('uom_id',  {'model':'product.uom', 'fields': [ #'func':uom_id_,'default':1,

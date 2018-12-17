@@ -7,7 +7,7 @@ from xlutils.filter import process,XLRDReader,XLWTWriter
 import xlrd, xlwt
 from odoo.addons.dai_tgg.mytools import  convert_odoo_datetime_to_vn_str
 from collections import  OrderedDict
-from odoo.addons.downloadwizard.models.dl_models.dl_model import  write_all_row,generate_easyxf
+from odoo.addons.downloadwizard.models.dl_models.dl_model import  write_all_row,generate_easyxf,wrap_normal_style
 # from odoo.addons.tonkho.controllers.controllers import  download_ml_for_bb
 # from odoo.addons.tonkho.controllers.controllers import  get_width
 
@@ -129,9 +129,9 @@ def write_xl_bb(dl_obj):
 #     cols = []
 #     set_cols_width = ['sl', 'pr', 'pn', 'sl', 'dvt', 'sn', 'tt','gc']
     if  IS_SET_TT_COL and not all_tot_and_ghom_all_tot :
-        set_cols_width = [4,21,16,6,5,16,6,16]
+        set_cols_width = [4,21,16,4,7,16,8,14]
     else:
-        set_cols_width = [4,21,16,6,5,16,22,0]
+        set_cols_width = [4,21,16,4,7,19,19,0]
     set_cols_width = map(get_width,set_cols_width)
     
     fixups =[  
@@ -141,7 +141,7 @@ def write_xl_bb(dl_obj):
                     ('dltdhp',{'range':[1,1,3,7],'val':u'Độc lập - Tự do - Hạnh Phúc', 'style':xlwt.easyxf(generate_easyxf(bold=True,underline=True,height=12, vert = 'center',horiz = 'center'))}),
                     ('so',{'range':[2,2,0,2],'val':u'Số: %s/%s-%s'%(dl_obj.stt_trong_bien_ban_in,dl_obj.ban_giao_or_nghiem_thu,dl_obj.department_id.short_name), 'style':xlwt.easyxf(generate_easyxf(height=12, vert = 'center',horiz = 'center'))}),
                     ('bbg',{'range':[3,3,0,7],'val':u'BIÊN BẢN BÀN GIAO VẬT TƯ', 'style':bbbg_style,'height':1119,'off_set':1}),
-                    ('to_trinh',{'range':[5,5,0,7],'val':None, 'val_func': to_trinh_ ,'height':600}),
+                    ('to_trinh',{'range':[5,5,0,7],'val':None, 'val_func': to_trinh_ ,'height':600,'style':wrap_normal_style}),
                     ('hom_nay',{'range':[6,0],'val':None, 'val_func': hom_nay_ }),
                     ('ddbg',{'range':[8,0],'val':u'Đại diện bên giao (%s)'%(dl_obj.location_id.partner_id_of_stock_for_report.name)}),
                     ('ong_ba',{'range':['auto', 0],'val':None, 'func':ong_ba_}),

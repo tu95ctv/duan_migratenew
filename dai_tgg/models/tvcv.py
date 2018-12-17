@@ -293,7 +293,7 @@ class DonVi(models.Model):
     tvcv_ids = fields.One2many('tvcv','don_vi')
 class DotXuatHayDinhKy(models.Model):
     _name = 'dotxuathaydinhky'
-    name = fields.Char()
+    name = fields.Char(required=True)
     tvcv_ids = fields.One2many('tvcv','dot_xuat_hay_dinh_ky')
 class tvcvCate(models.Model):
     _name = 'tvcvcate'

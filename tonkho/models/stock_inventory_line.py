@@ -19,7 +19,15 @@ class InventoryLine(models.Model):
     ghi_chu = fields.Text(string=u'Ghi chú')
     barcode_sn = fields.Char(related = 'prod_lot_id.barcode_sn',store=True)
     quant_ids =  fields.One2many('stock.quant','inventory_line_id')
-
+    
+    @api.constrains('product_id','prod_lot_id')
+    def product_id_prod_lot_id_(self):
+        for r in self:
+            print ("r.product_id.tracking",r.product_id.tracking, r.prod_lot_id)
+            if r.product_id.tracking =='serial' and  not r.prod_lot_id:
+                raise UserError(u'product (%s,%s) có tracking nhưng INV line lại không có'%(r.product_id.name,r.product_id.pn))
+            
+            
     def _get_move_values(self,*arg,**karg):
         rs = super(InventoryLine, self)._get_move_values(*arg,**karg)
         rs['move_line_ids'][0][2]['stt'] = self.stt#self._context['stt']

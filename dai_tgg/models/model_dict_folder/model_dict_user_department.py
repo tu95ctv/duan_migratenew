@@ -151,7 +151,7 @@ def gen_user_department_model_dict():
                 ('kho_tam_id',{'inactive_include_search':True,'model':'stock.location','fields':[
                         ('name',{'xl_title':u'kho_tam','func':None,'key':True,'required':True}),
                         ('usage',{'xl_title':u'usage','func':None,'key':False,'required':False}),
-                        ('active',{'set_val':False,'key':False,'required':False}),
+                        ('active',{'set_val':True,'key':False,'required':False}),
                         ('is_kho_cha',{'set_val':True}),
                         ('stock_type',{'set_val':'tram'}),
                         ('location_id',{'func':lambda v,needdata:needdata['vof_dict']['default_location_id']['val'] }),

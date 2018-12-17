@@ -107,6 +107,7 @@ class CamSua(models.Model):
             r.cam_sua_do_diff_user =  cam_sua_do_diff_user
     @api.multi
     def write(self,vals):
+        print ('***vals in write',vals)
         res = super(CamSua,self).write(vals)
         return res
     
@@ -754,6 +755,7 @@ class Cvi(models.Model):
     @api.model
     def create(self, vals):
         new_ctx = dict(self._context, **{'write_create_parent_dict':vals})
+        print ('***vals in create',vals)
         cv = super(Cvi, self.with_context(new_ctx)).create(vals)
         return cv
 

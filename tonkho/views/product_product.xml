@@ -75,7 +75,7 @@
                 <field name="barcode" position="replace" />
                 <field name="lst_price" position="replace" />
                 <field name="name" position="after">
-                    <field name="id" />
+                    <!-- <field name="id" /> -->
                     <field name="uom_id" />
                     <field name="categ_id" />
                     <field name="thiet_bi_id" />
@@ -85,9 +85,12 @@
                     <field name="location_id" />
                    <field name="pn"></field>
                    <field name="pn_replace"></field>
+                   
+                   <!-- 
                     <field name="tram_ltk_tao"  groups="base.group_erp_manager"></field>
                     <field name="dang_chay_tao" groups="base.group_erp_manager"></field>
                     <field name="du_phong_tao" groups="base.group_erp_manager"></field>
+                     -->
                     <field name="name_khong_dau" groups="base.group_erp_manager"></field>
                     <field name="name_viet_tat" groups="base.group_erp_manager"></field>
                 </field>

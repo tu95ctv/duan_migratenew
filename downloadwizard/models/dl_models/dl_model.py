@@ -67,6 +67,7 @@ def get_width(num_characters):
 # normal_style = xlwt.easyxf("font:  name Times New Roman, height 240")
 HEIGHT = 12
 normal_style = xlwt.easyxf(generate_easyxf(height=HEIGHT))  # sửa chiều cao
+wrap_normal_style = xlwt.easyxf(generate_easyxf(height=HEIGHT,align_wrap=True))  
 horiz_center_normal_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align:  vert centre, horiz center; borders: left thin,right thin, top thin, bottom thin")
 # normal_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align:  vert centre ; borders: left thin,right thin, top thin, bottom thin")
 normal_border_style = xlwt.easyxf(generate_easyxf(height=HEIGHT,borders='left thin, right thin, top thin, bottom thin',vert = 'center'))

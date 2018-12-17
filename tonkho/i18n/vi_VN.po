@@ -270,6 +270,10 @@ msgstr "Vật tư"
 msgid "Product"
 msgstr "Vật tư"
 
+#: model:ir.model.fields,field_description:stock.field_stock_quant_product_id
+msgid "Product"
+msgstr "Tên vật tư"
+
 
 #. module: stock
 #: model:ir.model.fields,field_description:stock.field_stock_move_line_product_id

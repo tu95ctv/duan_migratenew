@@ -15,7 +15,7 @@ TYPES_ATT_DICT = {
             'func' : {'types': ['function', 'NoneType']} ,
             'get_or_create_para' : {'types': ['NoneType','dict'],'default':{}} ,#not_use_key: chưa xài
             'karg' : {'types': ['NoneType','dict']} ,#khong_can_khai_bao_key
-            'key' : {'types': ['bool','function']} ,
+            'key' : {'types': ['bool','function','str']} ,
             'key_allow' : {'types': ['bool']} ,
             # 'key_ltk_dc' : {'types': ['list']} ,
             # 'key_tti_dc' : {'types': ['NoneType']} ,
@@ -49,10 +49,11 @@ TYPES_ATT_DICT = {
             'required_not_create':{'types':['bool']},
             'write_func':{'types': ['function']},
             'mode_no_create_in_main_instance':{'types': ['bool']},
-            'skip_this_field_for_mode_no_create':{'types': ['bool']},
+            'skip_this_field_for_mode_no_create':{'types': ['bool']}, # no create in main instance
             'required_force':{'types': ['bool']},
             'bypass_check_type':{'types':['bool']},
             'dong_test':{'types':['int']},
+            'set_val_instead_loop_fields':{'types': ['NoneType', 'str', 'function'],'no_need_check_type':True}
             
 #             'skip_field_default':{'types': ['bool']}
 }
@@ -76,7 +77,7 @@ def write_get_or_create_title(model_dict,sheet,sheet_of_copy_wb,title_row,key_tr
         offset_write_xl = get_key_allow(attr, 'offset_write_xl', key_tram,None)
         if offset_write_xl !=None:
             col =  sheet.ncols + offset_write_xl 
-            title = attr.get('string',fname)  + u' Có sẵn hay tạo'
+            title = attr.get('string',fname)  + u' sẵn hay tạo'
             sheet_of_copy_wb.col(col).width =  get_width(len(title))
             sheet_of_copy_wb.write(title_row, col,title ,header_bold_style)
 #R2                   
@@ -86,9 +87,9 @@ def rut_gon_key(MD,key_tram,mode_no_create_in_main_instance=None): # rút gọn 
     for attr,val in MD.items():
         if attr != 'fields':
 #             if attr !='get_or_create_para':
-            adict = TYPES_ATT_DICT.get(attr)
-            if adict == None:
-                raise UserError(u'**None** attr:%s- attr_val:%s- thiếu attr trong TYPES_ATT_DICT'%(attr,val))
+            adict = TYPES_ATT_DICT.get(attr,{})
+#             if adict == None:
+#                 raise UserError(u'**None** attr:%s- attr_val:%s- thiếu attr trong TYPES_ATT_DICT'%(attr,val))
             default = adict.get('default')
             val = get_key_allow_goc(MD, attr, key_tram,default)
             if attr =='skip_this_field' and mode_no_create_in_main_instance:
@@ -125,16 +126,17 @@ def recursive_add_model_name_to_field_attr(self,MODEL_DICT,key_tram=False):
                     field_attr['model'] = field.comodel_name
                 required_from_model = field.required
                 required_force = field_attr.get('required_force',None)
-                bypass_this_field_if_value_equal_False = field_attr.get('bypass_this_field_if_value_equal_False')
-                if bypass_this_field_if_value_equal_False:
-                    required = False
+#                 bypass_this_field_if_value_equal_False = field_attr.get('bypass_this_field_if_value_equal_False')  # nó tự default là gì đó
+#                 if bypass_this_field_if_value_equal_False:
+#                     required = False
+#                 else:
+                if required_force:
+                    required =True
                 else:
-                    if required_force:
-                        required =True
-                    else:
-                        required = required_from_model
-#                 if field_attr.get('required',None)==None:
-#                     field_attr['required'] = field.required
+                    required = required_from_model
+
+
+
                 field_attr['required']= required
             if 'fields' in field_attr:
                     recursive_add_model_name_to_field_attr(self,field_attr,key_tram=key_tram)
@@ -224,6 +226,8 @@ def define_col_index(title_rows,sheet,COPY_MODEL_DICT,key_tram):
     row_title_index =None
     number_map_dict = {}
     for row in title_rows:
+        if row >= sheet.nrows:
+            break
         for col in range(0,sheet.ncols):
             if VERSION_INFO ==2:
                 read_excel_value_may_be_title = unicode(sheet.cell_value(row,col))
@@ -259,9 +263,10 @@ def check_col_index_match_xl_title_for_a_field(field_attr,xl_title,col_index,set
             if  field_attr.get('model'):
                 if not func and not field_attr.get('fields'):
                     raise UserError(u'không có gì hết  nếu có model thì phải có ít nhất func và fields')
-            else:
-                if not func:
-                    raise UserError (u' sao khong có col_index và  không có func luôn field %s attrs %s'%(field_name,u'%s'%field_attr))
+#             else:
+#                 if not func:
+#                     
+#                     raise UserError (u' sao khong có col_index và  không có func luôn field %s attrs %s'%(field_name,u'%s'%field_attr))
                 
                 
 def check_col_index_match_xl_title(self,COPY_MODEL_DICT,key_tram,needdata):

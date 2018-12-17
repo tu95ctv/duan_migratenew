@@ -32,6 +32,7 @@
                         <field name="key_tram" />
                         <field name="dong_test"></field>
                         <field name="begin_row"></field>
+                        <field name="categ_id"></field>
                         <field name="mode_no_create_in_main_instance"></field>
                         <field name="only_xuat_thuoc_tinh"></field>
                         <field name="dac_tinh"></field>

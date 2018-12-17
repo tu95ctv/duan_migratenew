@@ -71,11 +71,11 @@
                 <field name="name" position="after">
                     <field name="tinh_trang"></field>
                     <field name="ghi_chu" />
-                    <!-- 
+                     
                <field name="ghi_chu_ban_dau" />
                <field name="ghi_chu_ngay_nhap" />
                <field name="ghi_chu_ngay_xuat" />
-                -->
+                
                     <!-- <field name="create_date"/> -->
                 </field>
             </field>

@@ -29,7 +29,7 @@ class Quant(models.Model):
     _inherit = "stock.quant"
 #     pn = fields.Char(related='lot_id.pn')
 #     pn_id = fields.Many2one('tonkho.pn',related='lot_id.pn_id',store=True)
-    pn = fields.Char(related='product_id.pn', store=True)
+    pn = fields.Char(related='product_id.pn', store=True,string="Part number")
     categ_id = fields.Many2one('product.category', related='product_id.categ_id',store=True,string=u'Nhóm')
     thiet_bi_id = fields.Many2one('tonkho.thietbi',related='product_id.thiet_bi_id', string = u'Thiết bị',store=True)
     brand_id = fields.Many2one('tonkho.brand',related='product_id.brand_id',string=u'Hãng sản xuất',store=True)

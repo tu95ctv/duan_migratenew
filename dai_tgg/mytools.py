@@ -10,7 +10,7 @@ from odoo.osv import expression
 
 def pn_replace(pn):
     if pn:
-        pn_replace =  re.sub('[- _ \s \\\ \/]','',pn)
+        pn_replace =  re.sub('[- _ \s \\\ \/ |.]','',pn)
         return pn_replace
     else:
         pn_replace = pn

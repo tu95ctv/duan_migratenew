@@ -5,7 +5,10 @@ from openerp.http import request
 # from odoo.addons.tonkho.models.dl_models.dl_model import add_title
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  add_title
 from collections import  OrderedDict
-from odoo.addons.downloadwizard.models.dl_models.dl_model import  not_horiz_center_border_style
+from odoo.addons.downloadwizard.models.dl_models.dl_model import  not_horiz_center_border_style,horiz_center_normal_border_style
+
+
+# not_horiz_center_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align: wrap on , vert centre; borders: left thin,right thin, top thin, bottom thin")
 
 def add_1_row_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, offset_column=0, 
                             needdata=None,save_ndata=False,ml=False,
@@ -64,11 +67,12 @@ def add_1_row_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, offset_col
         one_field_val['val']=val 
         
         if write_to_excel:
+            style = FIELDATTR.get('style',not_horiz_center_border_style)
             if is_same:
                 if ml_index==0:
-                    worksheet.write_merge(row_index, row_index +rowspan-1, col_index,col_index,val,not_horiz_center_border_style)
+                    worksheet.write_merge(row_index, row_index +rowspan-1, col_index,col_index,val,style)
             else:
-                worksheet.write(row_index, col_index, val, not_horiz_center_border_style)
+                worksheet.write(row_index, col_index, val, style)
             writen_column_number +=1
             col_index +=1
         else:
@@ -141,7 +145,9 @@ def stt_ml_(v,needdata,m,ml,is_same,ml_index):
     else:
         return v +1   
 
-def ghi_chu_(val,n,move,ml, all_tot = False, IS_SET_TT_COL=False):
+def ghi_chu_(val,n,move,ml, all_tot = False, IS_SET_TT_COL=False,empty = False):
+    if empty:
+        return False
     tinh_trang = ml.tinh_trang
     
     if not val:
@@ -215,15 +221,16 @@ def download_ml_for_bb(dl_obj,workbook=None,
                        IS_SET_TT_COL=False,
                        all_tot_and_ghom_all_tot=False):
     FIELDNAME_FIELDATTR_ML = [
-         ('move_line_ids.stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_ml_,'is_same':True,'is_use_kargs_co_san':True }),#'is_same':False 
+         ('move_line_ids.stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_ml_,'is_same':True,
+                                         'is_use_kargs_co_san':True,'style':horiz_center_normal_border_style }),#'is_same':False 
          ('product_id',{'func':lambda v,n,m,ml: v.name,'string':u'Tên vật tư' }),
 #          ('move_line_ids.pn_id',{'func':lambda v,n,m,ml: v.name,'string':u'Mã vật tư'}),
          ('product_id_pn',{'transfer_field':'product_id','func':lambda v,n,m,ml: v.pn,'string':u'Mã vật tư'}),
-         ('quantity_done',{'is_same':is_same_,'func':quantity_done_,'string':u'S/L'}),
+         ('quantity_done',{'is_same':is_same_,'func':quantity_done_,'string':u'S/L','style':horiz_center_normal_border_style}),
          ('product_uom',{'func':lambda v,n,m,ml: v.name,'string':u'ĐVT'}),
          ('move_line_ids.lot_id',{'func':lambda v,n,m,ml: v.name,'string':u'Serial Number'}),
          ('move_line_ids.tinh_trang',{'string':u'T/T','func':tinh_trang_, 'skip_field':not IS_SET_TT_COL or  all_tot_and_ghom_all_tot    }),
-         ('move_line_ids.ghi_chu',{'string':u'Ghi chú','func':ghi_chu_,'is_same':is_same_ghi_chu_,'kargs':{'all_tot':all_tot_and_ghom_all_tot, 'IS_SET_TT_COL':IS_SET_TT_COL},'kargs_for_is_same':{'all_tot':all_tot_and_ghom_all_tot, 'IS_SET_TT_COL':IS_SET_TT_COL}}),
+         ('move_line_ids.ghi_chu',{'string':u'Ghi chú','func':ghi_chu_,'is_same':is_same_ghi_chu_,'kargs':{'empty':dl_obj.empty_ghi_chu_in_bb,'all_tot':all_tot_and_ghom_all_tot, 'IS_SET_TT_COL':IS_SET_TT_COL},'kargs_for_is_same':{'all_tot':all_tot_and_ghom_all_tot, 'IS_SET_TT_COL':IS_SET_TT_COL}}),
         ]
     Export_Para_ml = {
         'exported_model':'stock.move',

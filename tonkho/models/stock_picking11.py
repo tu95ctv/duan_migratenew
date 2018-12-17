@@ -75,6 +75,15 @@ class StockPicking(models.Model):
 #     stt_trong_bien_ban_in = fields.Integer(default=lambda self:self.default_get([ 'stt_bien_ban']).get('stt_bien_ban'),string=u'STT trong biên bản')
     stt_trong_bien_ban_in = fields.Integer(string=u'STT trong biên bản',compute='stt_trong_bien_ban_in_',store=True,copy=False)
     file_ids = fields.Many2many('dai_tgg.file','stock_picking_file_relate','stock_picking_id','file_id',string=u'Files đính kèm')
+    
+    allow_check_excel_obj_is_exist_func  = fields.Boolean(default=True,string=u'Cho phép đối chiếu product excel obj với product exist object')
+    write_when_val_exist  = fields.Boolean(default=True,)
+    cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat  = fields.Boolean(default=True)
+    cho_phep_co_pn_cap_nhat_empty_pn  = fields.Boolean(default = True)
+    
+    not_update_field_if_instance_exist_default  = fields.Boolean(default = True)
+
+    
 #     not_loc_kho = fields.Integer()
 #     is_admin = fields.Integer(compute='is_admin_',)
     
@@ -189,6 +198,7 @@ class StockPicking(models.Model):
     is_quyen_chuyen_tiep =  fields.Boolean(compute='is_quyen_chuyen_tiep_')
     is_quyen_huy_bb =  fields.Boolean(compute='is_quyen_huy_bb_')
     allow_cate_for_ghi_chu =  fields.Boolean(string=u"Lấy Tiêu đề làm ghi chú")
+    empty_ghi_chu_in_bb =  fields.Boolean(string=u'Tự ghi chú trong BB excel')
     @api.one
     def is_quyen_huy_bb_(self):
         self.is_quyen_huy_bb = self.user_has_groups('base.group_erp_manager') or (self.env.user == self.create_uid)

@@ -48,9 +48,11 @@
                     <field name="name_replace"></field>
                     <field name="product_id"></field>
                     <field name="sn_ids"></field>
+                   <!-- 
                     <field name="tram_ltk_tao" groups="base.group_erp_manager"></field>
                     <field name="dang_chay_tao" groups="base.group_erp_manager"></field>
                     <field name="du_phong_tao" groups="base.group_erp_manager"></field>
+                 -->
                 </tree>
             </field>
         </record>

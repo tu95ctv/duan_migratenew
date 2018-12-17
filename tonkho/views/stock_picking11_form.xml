@@ -133,6 +133,7 @@
                   
                     <field name="lot_id" invisible="0" attrs="{'column_invisible': [('parent.show_lots_text', '=', True)],                     'invisible': ['|',('lots_visible', '=', False),('tracking', '=', 'none')],                                'readonly': ['|',('in_entire_package', '=', True),                 ('state', 'in', ('done', 'cancel'))]}" groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'product_id_readonly':True,'default_product_id': product_id}" /><!--  'default_pn_id': pn_id,'pn_id_readonly':True -->
                     <field name="tinh_trang" attrs="{'readonly': [('state', 'in', ('done','cancel'))]}"></field>
+                    <field name="sltk"></field>
                     <field name="ghi_chu"></field>
                <!--     <field name="stt"></field> --> 
                     <!-- <field name="ghi_chu_cate"></field> -->
@@ -242,6 +243,12 @@
                         </header>
                         	<group>
                             <field name="allow_cate_for_ghi_chu" groups="base.group_erp_manager" />
+                           
+                            <field name="allow_check_excel_obj_is_exist_func" groups="base.group_erp_manager" />
+                            <field name="write_when_val_exist" groups="base.group_erp_manager" />
+                            <field name="cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat" groups="base.group_erp_manager" />
+                            <field name="cho_phep_co_pn_cap_nhat_empty_pn" groups="base.group_erp_manager" />
+                            <field name="not_update_field_if_instance_exist_default" groups="base.group_erp_manager" />
                             <field name="file" filename="filename" />
                             <field name="filename" invisible="1" />
                             <field name="log" groups="base.group_erp_manager" />
@@ -253,7 +260,7 @@
                             <group>
                                 <field name="is_dl_right_now" />
                                 <field name="is_ghom_tot" />
-                            
+                            	 <field name="empty_ghi_chu_in_bb"/>
                             </group>
                             <group>
                                  <field name="is_set_tt_col" />

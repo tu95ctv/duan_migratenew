@@ -47,6 +47,7 @@ class ImportThuVien(models.Model):
                                    (u'GTGT',u'GTGT'),(u'XFP, SFP các loại',u'XFP, SFP các loại')  ],rejquired=True)
     key_tram =  fields.Selection([('key_ltk','key_ltk'),
                                   ('key_tti','key_tti'),
+                                  ('key_137','key_137'),
                                   ('key_tti_dc','key_tti_dc'),
                                   ('key_ltk_dc','key_ltk_dc'),
                                   
@@ -81,6 +82,8 @@ class ImportThuVien(models.Model):
     line_not_has_quant =  fields.Text()
     only_xuat_thuoc_tinh =  fields.Boolean()
     dac_tinh = fields.Char()
+    
+    categ_id = fields.Many2one('product.category')
     
     def importthuvien(self):
         importthuvien(self)
