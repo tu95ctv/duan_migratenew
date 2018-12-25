@@ -17,3 +17,4 @@ access_dai_tgg_department,dai_tgg.department,hr.model_hr_department,base.group_u
 access_dai_tgg_totrinh,dai_tgg.totrinh,model_dai_tgg_totrinh,base.group_user,1,1,1,0
 access_dai_tgg_thuebaoline,dai_tgg.thuebaoline,model_dai_tgg_thuebaoline,base.group_user,1,1,1,1
 access_dai_tgg_thuebao,dai_tgg.thuebao,model_dai_tgg_thuebao,base.group_user,1,1,1,1
+access_dai_tgg_importcvi,dai_tgg.importcvi,model_dai_tgg_importcvi,base.group_user,1,1,1,1

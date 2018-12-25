@@ -80,19 +80,19 @@ def tinh_trang_vat_tu_(ws,f_name,fixups,needdata,row,dl_obj):
         return u'Tình trạng vật tư : Hỏng'
     return None
 def ky_ten_cac_ben_(ws,f_name,fixups,needdata,row,dl_obj,source_member_ids='source_member_ids',is_not_show = False,type='name'
-                    ,empty_force = False):
+                    ,empty_force = False,fix_name =False):
     if is_not_show:
         return None
     source_member_ids_obj = getattr(dl_obj,source_member_ids)
-    source_member_ids = source_member_ids_obj.mapped(type)
+    source_member_ids = source_member_ids_obj.mapped(type) or (fix_name and [fix_name])
     
     if source_member_ids :
-        source_member_ids = (u' '*10).join(source_member_ids)
+        source_member_ids_txt = (u' '*10).join(source_member_ids)
     else:
         if source_member_ids_obj and empty_force:
             return ' '
-        source_member_ids = None
-    return source_member_ids
+        source_member_ids_txt = None
+    return source_member_ids_txt
 
 
 def dai_dien_ben_t3_(ws,f_name,fixups,needdata,row,dl_obj,title_ben_thu_3='title_ben_thu_3'):
@@ -119,7 +119,10 @@ def xac_nhan_lanh_dao_(ws,f_name,fixups,needdata,row,dl_obj):
         return None
     else:
         return u'XÁC NHẬN CỦA LĐ ĐÀI'
-
+def ddbg_(ws,f_name,fixups,needdata,row,dl_obj):
+    pass
+    
+    
 def write_xl_bb(dl_obj):
     
     all_tot_and_ghom_all_tot = set(dl_obj.move_line_ids.mapped('tinh_trang')) ==set(['tot']) and   dl_obj.is_ghom_tot
@@ -143,12 +146,13 @@ def write_xl_bb(dl_obj):
                     ('bbg',{'range':[3,3,0,7],'val':u'BIÊN BẢN BÀN GIAO VẬT TƯ', 'style':bbbg_style,'height':1119,'off_set':1}),
                     ('to_trinh',{'range':[5,5,0,7],'val':None, 'val_func': to_trinh_ ,'height':600,'style':wrap_normal_style}),
                     ('hom_nay',{'range':[6,0],'val':None, 'val_func': hom_nay_ }),
-                    ('ddbg',{'range':[8,0],'val':u'Đại diện bên giao (%s)'%(dl_obj.location_id.partner_id_of_stock_for_report.name)}),
+                    ('ddbg',{'range':[8,0],'val':u'Đại diện bên giao%s'%(' (%s)'%dl_obj.location_id.partner_id_of_stock_for_report.name if not dl_obj.location_id.not_show_in_bb  else '' )}),
                     ('ong_ba',{'range':['auto', 0],'val':None, 'func':ong_ba_}),
-                    ('ddbn',{'range': ['auto', 0],'val':u'Đại diện bên nhận (%s)'%(dl_obj.location_dest_id.partner_id_of_stock_for_report.name),'offset':2}),
+                    ('ddbn',{'range':['auto',0],'val':u'Đại diện bên nhận%s'%(' (%s)'%dl_obj.location_dest_id.partner_id_of_stock_for_report.name if not dl_obj.location_dest_id.not_show_in_bb  else '' ),'offset':2}),
+#                     ('ddbn',{'range': ['auto', 0],'val':u'Đại diện bên nhận (%s)'%(dl_obj.location_dest_id.partner_id_of_stock_for_report.name),'offset':2}),
                     ('ong_ba2',{'range':['auto', 0], 'val':None,  'func':ong_ba_,'kargs':{'source_member_ids':'dest_member_ids'}}),
                     ('ly_do',{'range': ['auto', 'auto', 0,7],'val':None,'val_func':ly_do_,}),
-                    ('bg',{'range': ['auto', 0],'val':u'Chúng tôi đã tiến hành bàn giao vật tư bên dưới'}),
+                    ('bg',{'range': ['auto', 0],'val':u'Chúng tôi đã tiến hành bàn giao vật tư bên dưới.'}),
                     ('table',{'range':['auto', 0],'val':None,'func':table_ ,'offset':2 ,'kargs': {'IS_SET_TT_COL':IS_SET_TT_COL,'all_tot_and_ghom_all_tot':all_tot_and_ghom_all_tot}}),
                     ('tinh_trang_vat_tu',{'range': ['auto', 0],'val':None,'val_func':tinh_trang_vat_tu_,'offset':2}),
                     ('so_ban_in',{'range': ['auto', 0],'val':u'Biên bản được lập thành %s bản. Bên giao giữ %s bản. Bên nhận giữ %s bản'%(dl_obj.so_ban_in,dl_obj.ben_giao_giu,dl_obj.ben_nhan_giu),'offset':1}),
@@ -175,7 +179,7 @@ def write_xl_bb(dl_obj):
                                         }, ),
                     ('xac_nhan_lanh_dao',{'range': ['auto','auto',0,7],'val':None,'val_func': xac_nhan_lanh_dao_,'offset':2, 'style':bold_center_style}),
                     ('ld_dai_id',{'range': ['auto','auto',0,7],'val':None,'offset':5, 'style':bold_center_style,
-                                   'val_func':ky_ten_cac_ben_, 'style':bold_center_style,'val_kargs':{'source_member_ids':'lanh_dao_id','is_not_show':dl_obj.is_not_show_y_kien_ld}
+                                   'val_func':ky_ten_cac_ben_, 'style':bold_center_style,'val_kargs':{'source_member_ids':'lanh_dao_id','is_not_show':dl_obj.is_not_show_y_kien_ld,'fix_name':u'Nguyễn Văn Xuân'}
                                   }),
              ]
     

@@ -24,6 +24,8 @@ def get_or_create_object_has_x2m (self, class_name, search_dict,
     
     if x2m_field:
         x2m_values = search_dict[x2m_field]
+#         if not x2m_values:
+#             return False,False,False
         result = []
         get_or_create = False
         for val in x2m_values:
@@ -52,9 +54,6 @@ def get_or_create_object_has_x2m (self, class_name, search_dict,
         obj, get_or_create =  get_or_create_object_sosanh(self, class_name, search_dict,
                                     write_dict =write_dict, is_must_update=is_must_update, noti_dict=noti_dict,
                                     inactive_include_search = inactive_include_search,
-#                                      is_return_get_or_create=True,
-#                                     not_update_field_if_instance_exist_list=not_update_field_if_instance_exist_list,
-#                                     dict_get_or_create_para_all_field = dict_get_or_create_para_all_field,
                                     model_dict = model_dict,
                                     key_tram = key_tram,
                                     not_create = not_create,
@@ -125,14 +124,13 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
             
     search_func = model_dict.get('search_func')
     if search_func:
-        searched_object = search_func(model_dict,self,exist_val)
+        searched_object = search_func(model_dict,self,exist_val,setting)
         if not searched_object and is_create:
             for f_name in search_dict:
                 field_attr = model_dict['fields'][f_name]
                 val =  search_dict[f_name]
                 f_name = get_key_allow(field_attr, 'transfer_name', key_tram) or f_name
                 search_dict_new[f_name] =  val
-                
     else:
         if inactive_include_search:
             domain_not_active = ['|',('active','=',True),('active','=',False)]
@@ -172,10 +170,15 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
             created_object = self.env[class_name].create(search_dict_new)
             this_model_noti_dict['create'] = this_model_noti_dict.get('create', 0) + 1
             return_obj =  created_object
+#     if model_dict.get('print_write_dict_new',False):
+#                 print ('***exist_val***',exist_val)
+#                 raise UserError(u'kkaka')
     if is_write:  
         if exist_val:
             searched_object = exist_val
         if searched_object :# write
+            if len(searched_object) > 1:
+                raise UserError (u' len(searched_object) > 1, domain: %s'%(domain))
             for f_name,val in write_dict.items():
                 field_attr = model_dict['fields'][f_name]
                 f_name = get_key_allow(field_attr, 'transfer_name', key_tram) or f_name
@@ -192,8 +195,9 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
     #                 pass
     #             else:
     #                 continue
-                if  not_update_field_if_instance_exist and  ( getattr(searched_object, f_name)) :#update cả khi thuộc tính này = False
-                    continue
+                if  not_update_field_if_instance_exist:
+                    if ( getattr(searched_object, f_name)) :#update cả khi thuộc tính này = False
+                        continue
                 
                 if not is_must_update:
                         orm_field_val = getattr(searched_object, f_name)
@@ -202,6 +206,8 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
                             write_dict_new[f_name] = val
                 else:
                     write_dict_new[f_name] = val
+            if model_dict.get('print_write_dict_new',False):
+                print ('***write_dict_new***',write_dict_new)
             if write_dict_new:
                 searched_object.write(write_dict_new)
                 this_model_noti_dict['update'] = this_model_noti_dict.get('update',0) + 1

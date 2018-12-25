@@ -34,8 +34,10 @@ class StockProductionLot(models.Model):
 #     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')],default='tot',store=True, string=u'Tình trạng')
     # THÊM VÀO ĐỂ COI DỊCH CHUYỂN KHO, KHÔNG PHẢI KẾ THỪA
     barcode_sn = fields.Char()
+    id_ke_toan = fields.Char(string=u'ID kế toán')
+    the_tai_san = fields.Char(string=u'Thẻ tài sản')
 #     context = fields.Char(compute='context_')
-    
+    pn = fields.Char(related='product_id.pn',string=u'Part number',store=True)
     name_replace = fields.Char(compute='name_replace_',store=True)
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):

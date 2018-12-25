@@ -22,9 +22,14 @@
 		        <field name="model">stock.inventory</field>
 		        <field name="inherit_id" ref="stock.view_inventory_form"></field>
 		        <field name="arch" type="xml">
+		        		<xpath expr="//button[4]" position="after">
+		        			<button string="change uom" name="product_uom_id_oc" type="object"></button>
+		        		</xpath>
 		          		<field name="exhausted" position="replace">
 		          			<field name="state"></field>
+		          			<field name="product_uom_id"></field>
 		          		</field>
+		          		
 		          		<xpath expr="//field[@name='line_ids']/tree/field[@name='location_id']" position="after">
 		          			<field name="stt"></field>
 		          			<!-- <field name="id_of_product_id"></field> -->

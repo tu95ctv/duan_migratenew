@@ -84,15 +84,15 @@
                    <!-- <field name="len_pn" /> -->
                     <field name="location_id" />
                    <field name="pn"></field>
-                   <field name="pn_replace"></field>
+                   <field name="pn_replace" groups="tonkho.show_thong_tin_khong_dau" ></field>
                    
                    <!-- 
                     <field name="tram_ltk_tao"  groups="base.group_erp_manager"></field>
                     <field name="dang_chay_tao" groups="base.group_erp_manager"></field>
                     <field name="du_phong_tao" groups="base.group_erp_manager"></field>
                      -->
-                    <field name="name_khong_dau" groups="base.group_erp_manager"></field>
-                    <field name="name_viet_tat" groups="base.group_erp_manager"></field>
+                    <field name="name_khong_dau" groups="tonkho.show_thong_tin_khong_dau"></field>
+                    <field name="name_viet_tat" groups="tonkho.show_thong_tin_khong_dau"></field> <!-- base.group_erp_manager -->
                 </field>
             </field>
         </record>
@@ -103,11 +103,13 @@
             <field name="mode">primary</field>
             <field name="arch" type="xml">
               <search>
-              		<field name="name" string="Tên có dấu hoặc không dấu" filter_domain="['|','|',('name','ilike',self),('name_khong_dau','ilike',self),('name_viet_tat','ilike',self)]"></field>
+              		<field name="name" string="Tên có dấu hoặc không dấu hoặc part number" filter_domain="['|','|','|','|',('name','ilike',self),('name_khong_dau','ilike',self),('name_viet_tat','ilike',self),('pn','ilike',self),('pn_replace','ilike',self)]"></field>
                     <field string="Tìm vật tư có trong kho" name="stock_location_id_selection" filter_domain="[('quant_ids.quantity','&gt;=',1),('quant_ids.location_id','ilike',self)]" />
+              		<field name="pn" filter_domain="['|',('pn','ilike',self),('pn_replace','ilike',self)]"  ></field>
               		<group>
               		 <filter name="group_by_tracking" string="Có SN hay Không" domain="[]" context="{'group_by':'tracking'}" />
                     <filter name="group_by_uom_id" string="Đơn vị tính" domain="[]" context="{'group_by':'uom_id'}" />
+                    <filter name="group_by_categ_id" string="Nhóm" domain="[]" context="{'group_by':'categ_id'}" />
                     <filter string="Vật tư có tồn tại trong bất cứ kho nào" name="quant_ids" domain="[('quant_ids.quantity','&gt;=',1)]" />
                     <filter string="Vật tư không  có số lượng" name="quant_ids" domain="[('quant_ids','=',False)]" />
                     <field string="Tìm vật tư có trong kho này" name="stock_location_id_selection" filter_domain="[('quant_ids.quantity','&gt;=',1),('quant_ids.location_id','ilike',self)]" />

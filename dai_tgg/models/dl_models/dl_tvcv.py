@@ -17,15 +17,22 @@ from odoo.addons.downloadwizard.models.dl_models.dl_model import  stt_
 
 FIELDNAME_FIELDATTR_tvcv = [
          ('stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_}),
+          ('code',{}),
           ('name',{'width':get_width(40)}),
+          ('cong_viec_cate_id',{}),
           ('diem',{'width':get_width(40)}),
-          ('don_vi',{})
+          ('don_vi',{}),
+          ('do_phuc_tap',{}),
+          ('thoi_gian_hoan_thanh',{}),
+          ('dot_xuat_hay_dinh_ky',{}),
                     ]
+
+
 Export_Para_tvcv = {
     'exported_model':'tvcv',
     'FIELDNAME_FIELDATTR':FIELDNAME_FIELDATTR_tvcv,
 #     'gen_domain':gen_domain_stock_quant,
-#     'search_para':{'order': 'stt asc'},#desc
+    'search_para':{'order': 'cong_viec_cate_id asc'},#desc
     }
     
 def download_tvcv(dl_obj,append_domain = []):

@@ -10,11 +10,12 @@
             <form string="Tờ trình ">
                <sheet>
                   <group>
-                    <field name="name" />
                     <field name="so_to_trinh" />
                		<field name="ngay_to_trinh" />
                     <field name="ve_viec" />
+                    <field name="name" />
                		<field name="file_ids"></field>
+               		
                		<!-- 
                		<field name="name_khong_dau" />
                		<field name="name_viet_tat" />

@@ -24,6 +24,12 @@
                 <xpath expr="//button[5]" position="attributes">
                     <attribute name="invisible">True</attribute>
                 </xpath>
+                   <xpath expr="//button[3]" position="attributes">
+                    <attribute name="context">{'skip_overprocessed_check':True}</attribute>
+                </xpath>
+                
+                
+                
                 <xpath expr="//button[@name='action_cancel']" position="attributes">
                     <attribute name="groups">base.group_erp_manager</attribute>
                 </xpath>
@@ -242,16 +248,26 @@
                             <button name="check_file" string="check_file" type="object" class="btn-primary" />
                         </header>
                         	<group>
+                        	 <div>
+                        	   <p>STT,Tên vật tư,Mã vật tư,S/L,ĐVT,Serial Number,Ghi chú
+                        	   </p>
+                        	 </div>
+                        	 <group>
                             <field name="allow_cate_for_ghi_chu" groups="base.group_erp_manager" />
-                           
                             <field name="allow_check_excel_obj_is_exist_func" groups="base.group_erp_manager" />
                             <field name="write_when_val_exist" groups="base.group_erp_manager" />
                             <field name="cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat" groups="base.group_erp_manager" />
+                            
                             <field name="cho_phep_co_pn_cap_nhat_empty_pn" groups="base.group_erp_manager" />
+                            </group>
+                            <group>
                             <field name="not_update_field_if_instance_exist_default" groups="base.group_erp_manager" />
+                            <field name="cho_phep_exist_val_before_loop_fields_func" groups="base.group_erp_manager" />
+                            <field name="skip_stt"  />
                             <field name="file" filename="filename" />
                             <field name="filename" invisible="1" />
                             <field name="log" groups="base.group_erp_manager" />
+                            </group>
                             </group>
                        </page>
                     

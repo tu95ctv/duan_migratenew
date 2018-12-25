@@ -123,7 +123,7 @@ def check_type_of_val(field_attr,val,field_name,model_name):
 #         raise UserError(u'Không có field_type:%s trong biến MAP_TYPE'%(field_type))      
 def read_val_for_ci(self,set_val,col_index,
                     a_field_vof_dict,
-#                     MODEL_DICT,
+                    MODEL_DICT,
                     field_attr,
                     sheet,row,
                     merge_tuple_list,
@@ -151,6 +151,8 @@ def read_val_for_ci(self,set_val,col_index,
 #         val = set_val_instead_loop_fields
     if set_val != None:
         val = set_val
+        if MODEL_DICT.get('print_write_dict_new',False):
+            print ('***set_val',set_val)
     elif col_index !=None: # đọc file exc
         xl_val = read_excel_cho_field(sheet, row, col_index, merge_tuple_list)
         a_field_vof_dict['excel_val'] = xl_val
@@ -162,9 +164,11 @@ def read_val_for_ci(self,set_val,col_index,
             for i in val:
                 if i==False:
                     raise UserError(u'Không được = False')
+                
+            
     
     elif field_attr.get('fields') :
-        exist_val_before_loop_fields_func = field_attr.get('exist_val_before_loop_fields_func')
+        exist_val_before_loop_fields_func = setting.get('cho_phep_exist_val_before_loop_fields_func') and field_attr.get('exist_val_before_loop_fields_func')
         check_excel_obj_is_exist_func = field_attr.get('check_excel_obj_is_exist_func') 
         check_excel_obj_is_exist_func =   setting.get('allow_check_excel_obj_is_exist_func') and check_excel_obj_is_exist_func
         
@@ -175,8 +179,6 @@ def read_val_for_ci(self,set_val,col_index,
 #         else:write_when_val_exist
 #             exist_val = False
 #             
-         
-            
       
         if exist_val_before_loop_fields_func:
             exist_val = exist_val_before_loop_fields_func(needdata,self) #1,True ; F,False
@@ -216,10 +218,21 @@ def read_val_for_ci(self,set_val,col_index,
 
         if exist_val:
             if  check_excel_obj_is_exist_func:# and not get_or_create:,not write_when_val_exist and
-                check_excel_obj_is_exist_func(get_or_create, obj, exist_val)
+                try:
+                    check_excel_obj_is_exist_func(get_or_create, obj, exist_val)
+                except UserError as e:
+                    if setting ['allow_check_excel_obj_is_exist_raise_or_break'] =='break':
+                        return False,False,'break'
+                    else:
+                        raise UserError(e.args)
+                        
+#                         print ('ahahaha')
+#                         raise UserError(e.args)
             val= exist_val.id
             obj = exist_val
             get_or_create = True
+            this_model_notice = noti_dict.setdefault(field_attr.get('model'),{})
+            this_model_notice['exist_val'] = this_model_notice.get('exist_val',0) + 1
         a_field_vof_dict['get_or_create'] = get_or_create
         if not_create:
             offset_write_xl = get_key_allow(field_attr, 'offset_write_xl', key_tram,None)
@@ -232,11 +245,11 @@ def read_val_for_ci(self,set_val,col_index,
                     else:
                         get_or_create_display = u'empty cell'
                 sheet_of_copy_wb.write(row,sheet.ncols + offset_write_xl , get_or_create_display,not_horiz_center_border_style)
-    return obj,val      
+    return obj,val,True      
 #F1 
 def get_a_field_val(self,field_name,field_attr,key_tram,
                             needdata,row,sheet,
-#                            MODEL_DICT,
+                            MODEL_DICT,
                            not_create,
 #                            workbook_copy,
                            sheet_of_copy_wb,
@@ -257,9 +270,9 @@ def get_a_field_val(self,field_name,field_attr,key_tram,
     set_val = get_key_allow( field_attr,'set_val',key_tram)
     func = get_key_allow( field_attr,'func',key_tram)
     #F11
-    obj,val = read_val_for_ci(self,set_val,col_index,
+    obj,val,code = read_val_for_ci(self,set_val,col_index,
                     a_field_vof_dict,
-#                     MODEL_DICT,
+                    MODEL_DICT,
                     field_attr,sheet,row,
                     merge_tuple_list
                     ,not_create,
@@ -269,6 +282,8 @@ def get_a_field_val(self,field_name,field_attr,key_tram,
                     setting,
                     some_dict
                     )
+    if code =='break':
+        return 'break_because_required'
     a_field_vof_dict['before_func_val'] = val
     # func
     karg = get_key_allow( field_attr,'karg',key_tram,{})
@@ -320,7 +335,7 @@ def get_a_field_val(self,field_name,field_attr,key_tram,
     if required and val==False:
         if field_attr.get('raise_if_False'):
             raise UserError('raise_if_False field: %s'%field_name)
-        if main_call_create_instance_model:
+        if main_call_create_instance_model or MODEL_DICT.get('print_write_dict_new',False):
             print (u'skip việc get or create của dòng này because required but,model %s- field %s'%(model_name,field_name))
         this_model_notice = noti_dict.setdefault(model_name,{})
         skip_because_required = this_model_notice.setdefault('skip_because_required',0)
@@ -415,7 +430,7 @@ def create_instance (self, MODEL_DICT,
     break_condition = False
     for field_name,field_attr  in MODEL_DICT['fields'].items():
         code = get_a_field_val(self,field_name,field_attr,key_tram,needdata,row,sheet,
-#                            MODEL_DICT,
+                            MODEL_DICT,
                            not_create,
                            sheet_of_copy_wb,
                            merge_tuple_list,model_name,main_call_create_instance_model,noti_dict,
@@ -498,6 +513,12 @@ def importthuvien(odoo_or_self_of_wizard,
         CHOOSED_MODEL_DICT = ALL_MODELS_DICT[self.type_choose]
     else:
         CHOOSED_MODEL_DICT = ALL_MODELS_DICT[key]
+    context = {'from_import':True} 
+    context_get = CHOOSED_MODEL_DICT.get('context')
+    if context_get:
+        context.update(context_get)
+    self = self.with_context(context)
+    print ('self._context****',self._context)
     key_allow = CHOOSED_MODEL_DICT.get('key_allow',False)
     self_key_tram =  getattr(self,'key_tram',False) or key_tram
     key_tram = key_allow and self_key_tram
@@ -540,14 +561,8 @@ def importthuvien(odoo_or_self_of_wizard,
 #     break_condition_func_for_main_instance  = get_key_allow(CHOOSED_MODEL_DICT,'break_condition_func_for_main_instance',key_tram)
 #     some_var_para['break_condition_func_for_main_instance'] = break_condition_func_for_main_instance
     
-    setting = {}
+    setting = CHOOSED_MODEL_DICT.get('setting',{})
     
-    if hasattr(self, 'allow_check_excel_obj_is_exist_func'):
-        allow_check_excel_obj_is_exist_func =  self.allow_check_excel_obj_is_exist_func
-    else:
-        allow_check_excel_obj_is_exist_func = CHOOSED_MODEL_DICT.get('allow_check_excel_obj_is_exist_func',True)
-    
-    setting['allow_check_excel_obj_is_exist_func'] = allow_check_excel_obj_is_exist_func
         
     if hasattr(self, 'not_update_field_if_instance_exist_default'):
         not_update_field_if_instance_exist_default =  self.not_update_field_if_instance_exist_default
@@ -560,17 +575,32 @@ def importthuvien(odoo_or_self_of_wizard,
     if hasattr(self, 'bypass_this_field_if_value_equal_False_default'):
         bypass_this_field_if_value_equal_False_default =  self.bypass_this_field_if_value_equal_False_default
     else:
-        bypass_this_field_if_value_equal_False_default = CHOOSED_MODEL_DICT.get('bypass_this_field_if_value_equal_False_default',True)
+        bypass_this_field_if_value_equal_False_default = CHOOSED_MODEL_DICT.get('bypass_this_field_if_value_equal_False_default',False)
     setting['bypass_this_field_if_value_equal_False_default'] = bypass_this_field_if_value_equal_False_default
-  
-        
-    if hasattr(self, 'write_when_val_exist'):
-        write_when_val_exist =  self.write_when_val_exist
-    else:
-        write_when_val_exist = CHOOSED_MODEL_DICT.get('write_when_val_exist',True)
-    setting['write_when_val_exist'] = write_when_val_exist
     
-    print ('**setting**',setting)
+    setting2 = CHOOSED_MODEL_DICT.get('setting2',{})
+    if setting2:
+        setting.update(setting2)
+#     if hasattr(self, 'write_when_val_exist'):
+#         write_when_val_exist =  self.write_when_val_exist
+#     else:
+#         write_when_val_exist = CHOOSED_MODEL_DICT.get('write_when_val_exist',True)
+#     setting['write_when_val_exist'] = write_when_val_exist
+#     
+#     
+#     if hasattr(self, 'allow_check_excel_obj_is_exist_func'):
+#         allow_check_excel_obj_is_exist_func =  self.allow_check_excel_obj_is_exist_func
+#     else:
+#         allow_check_excel_obj_is_exist_func = CHOOSED_MODEL_DICT.get('allow_check_excel_obj_is_exist_func',True)
+#     
+#     setting['allow_check_excel_obj_is_exist_func'] = allow_check_excel_obj_is_exist_func
+    
+    
+    
+    
+    
+#     print ('**setting**',setting)
+#     raise UserError(u'%s'%setting)
     for sheet_name in sheet_names:
         print ('**sheet_name',sheet_name)
         COPY_MODEL_DICT = deepcopy(CHOOSED_MODEL_DICT)
@@ -667,7 +697,7 @@ def importthuvien(odoo_or_self_of_wizard,
                               mode_no_create_in_main_instance = mode_no_create_in_main_instance,
                               setting=setting
                                )
-        model_name = model_name = get_key_allow(COPY_MODEL_DICT, 'model', key_tram)
+        model_name = get_key_allow(COPY_MODEL_DICT, 'model', key_tram)
         
 #         check_notice_dict_co_create_or_get(model_name,noti_dict,not_create,mode_no_create_in_main_instance)
     if number_row_count:

@@ -237,10 +237,12 @@ def define_col_index(title_rows,sheet,COPY_MODEL_DICT,key_tram):
 #             read_excel_value_may_be_titles.append(read_excel_value_may_be_title)
             if is_map_xl_title:
                 row_title_index = row
-                number_map_dict.setdefault(row,0)
-                number_map_dict[row] +=1
+#                 number_map_dict.setdefault(row,0)
+                number_map_dict[row] =number_map_dict.get(row,0) + 1
 #                 titles.append(read_excel_value_may_be_title)
-    print ('***number_map_dict',number_map_dict)
+#     print ('***number_map_dict',number_map_dict)
+    if not number_map_dict:
+        raise UserError(u'number_map_dict rỗng')
     largest_map_row = max(number_map_dict.items(), key=operator.itemgetter(1))[0]
     return row_title_index,largest_map_row
 
@@ -248,11 +250,10 @@ def define_col_index(title_rows,sheet,COPY_MODEL_DICT,key_tram):
 
 #R5
 def check_col_index_match_xl_title_for_a_field(field_attr,xl_title,col_index,set_val,key_tram,needdata,field_name,func):
-        if field_attr.get('model'):
-            if (xl_title or col_index):
-                raise UserError(u'có model thì không cần xl title')
-#         if set_val and (xl_title or col_index !=None):
-#             raise UserError(u'sao lai  ton tai 2 cai set_val and (xl_title or col_index !=None) field_name %s - field_attr%s ' %(field_name,field_attr))
+#         if field_attr.get('model'):
+#             if (xl_title or col_index):
+#                 raise UserError(u'có model thì không cần xl title')
+
         if xl_title and col_index==None and set_val==None :
             sheet_allow_this_field_not_has_exel_col =get_key_allow( field_attr,'sheet_allow_this_field_not_has_exel_col',key_tram)
             skip_field_if_not_found_column_in_some_sheet = get_key_allow(field_attr,'skip_field_if_not_found_column_in_some_sheet',key_tram)

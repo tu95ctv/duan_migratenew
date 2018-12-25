@@ -46,11 +46,18 @@ import datetime
 FIELDNAME_FIELDATTR_cvi =OrderedDict( [
         ('stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_}),
         ('ngay_bat_dau',{'func': lambda v,n: Convert_date_orm_to_str(v),'width':get_width(10)}),
+        ('gio_bat_dau',{'func':lambda val,n: convert_odoo_datetime_to_vn_str(val, format='%d/%m/%Y %H:%M:%S' )}),
+        ('gio_ket_thuc',{'func':lambda val,n: convert_odoo_datetime_to_vn_str(val, format='%d/%m/%Y %H:%M:%S' )}),
          ('code',{}),('tvcv_id_name',{'width':get_width(40)}),('noi_dung',{'width':get_width(40)}),
          ('slncl',{}),
+#          ('cd_children_ids',{'func':lambda val,n: ','.join(val.mapped('user_id.id'))}),
+
+         ('cd_children_ids',{'func':lambda val,n: ','.join(map(lambda v:u'%s'%v.login ,val.mapped('user_id')))}),
          ('diem_tvi',{}),
          ('so_luong',{}),
          ('so_lan',{}),
+         ('slncl',{}),
+         ('ti_le_chia_diem',{}),
          ('diemtc',{}),
          ('diemld',{}),    
                     

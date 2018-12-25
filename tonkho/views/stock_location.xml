@@ -18,6 +18,7 @@
 	        		<field name="is_kho_cha"></field>
 	        		<field name="stock_type"></field>
 	        		<field name="complete_name_khong_dau"></field>
+	        		<field name="not_show_in_bb"></field>
 	           </field>
         </field>
     </record>
@@ -43,6 +44,7 @@
         		<field name="cho_phep_khac_tram_chon"></field>
         		<field name="is_kho_cha"></field>
         		<field name="stock_type"></field>
+	        	<field name="not_show_in_bb"></field>
         	</field>
         </field>
         </record>

@@ -9,19 +9,15 @@
          <field name="arch" type="xml">
             <form>
                <header>
-                  <button name="importthuvien" string="import thư viện" type="object" class="btn-primary" />
+                  <button name="importthuvien" string="import" type="object" class="btn-primary" />
                   <button name="import_all" string="import all" type="object" class="btn-primary" />
-                  <!-- 
-                  <button name="import_strect" string="import_strect" type="object" class="btn-primary" />
-                  <button name="map_noc_voi_ltk" string="map_kiemke_voi_noc" type="object" class="btn-primary" />
-                  <button name="map_noc_voi_ltk" string="map NOC voi LTK" type="object" class="btn-primary" />
-                  <button name="map_noc_voi_kiemke" string="map NOC voi KK" type="object" class="btn-primary" />
-                  <button name="get_tram_from_sheet_name" string="get_tram_from_sheet_name" type="object" class="btn-primary" />
-                   -->
+                 
+                 <!-- 
                   <button name="trigger" string="trigger" type="object" class="btn-primary" />
                   <button name="test_code" string="test_code" type="object" class="btn-primary" />
                   <button name="check_stt_inventory_line" string="check_stt_inventory_line" type="object" class="btn-primary" />
                   <button name="check_line_khong_co_quant_va_khong_co_qty" string="check_line_khong_co_quant_va_khong_co_qty" type="object" class="btn-primary" />
+               -->
                </header>
                <sheet>
                   <group>
@@ -49,6 +45,15 @@
                         <field name="name_inventory_suffix"></field>
                      	   <field name="running_or_prepare"></field>
                         	<field name="skip_field_cause_first_import"></field>
+                        	
+                        	<field name="allow_check_excel_obj_is_exist_func" groups="base.group_erp_manager" />
+                            <field name="write_when_val_exist" groups="base.group_erp_manager" />
+                            <field name="cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat" groups="base.group_erp_manager" />
+                            <field name="cho_phep_co_pn_cap_nhat_empty_pn" groups="base.group_erp_manager" />
+                            <field name="not_update_field_if_instance_exist_default" groups="base.group_erp_manager" />
+                            <field name="cho_phep_exist_val_before_loop_fields_func" groups="base.group_erp_manager" />
+                            
+                            
                      </group>
                      <group string="Test">
                         <field name="create_number" />
@@ -83,13 +88,62 @@
             </tree>
          </field>
       </record>
+      
       <record model="ir.actions.act_window" id="importthuvien_action">
          <field name="name">Import thư viện</field>
          <field name="res_model">importthuvien</field>
          <field name="view_mode">tree,form</field>
       </record>
+      
       <!--  END IMPORT THƯ VIỆN -->
       
+      <record model="ir.ui.view" id="importcvi_form">
+         <field name="name">import cvi</field>
+         <field name="model">dai_tgg.importcvi</field>
+         <field name="arch" type="xml">
+            <form>
+               <header>
+                  <button name="importthuvien" string="import" type="object" class="btn-primary" />
+               </header>
+               <sheet>
+                  <group>
+                     <group string="Nhập">
+                     	<field name="filename" invisible ="1" />
+                        <field name="file" filename="filename" />
+                        <field name="type_choose" readonly="1"/>
+                        <field name="user_id"  attrs="{'readonly':[('is_admin','=',False)]}" />
+                        <field name ="is_admin" invisible="1"></field>
+                     </group>
+                  </group>
+               </sheet>
+            </form>
+         </field>
+      </record>
+      
+      
+      <record id="importcvi_list" model="ir.ui.view">
+         <field name="name">import thu vien</field>
+         <field name="model">dai_tgg.importcvi</field>
+         <field name="arch" type="xml">
+            <tree>
+               <field name="id" />
+               <field name="type_choose" />
+               <field name="user_id" />
+               <field name="create_date" />
+               <field name="write_date" />
+            </tree>
+         </field>
+      </record>
+      
+      
+      
+      
+       <record model="ir.actions.act_window" id="importcvi_action">
+         <field name="name">Import CVI</field>
+         <field name="res_model">dai_tgg.importcvi</field>
+         <field name="view_mode">tree,form</field>
+         <field name="target"></field>
+      </record>
       
       
       
@@ -97,5 +151,6 @@
       <menuitem name="Import" id="import_icon" sequence="1" groups="base.group_erp_manager" />
       <menuitem id="import_tvcv_menu" parent="import_icon" action="importthuvien_action" sequence="1" />
       <!-- Công việc/ Ca Trực -->
+      <menuitem id="importcvi_menu" parent="else_more_menu"  action="importcvi_action" sequence="1" />
   </data>
 </openerp>

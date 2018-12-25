@@ -33,10 +33,10 @@ class CviSuCo(models.Model):
                                     ], string = u'Loại Record')
     loai_record_show =  fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record',compute='loai_record_show_')
     ngay_bat_dau =  fields.Date(compute='ngay_bat_dau_',store=True,string=u'Ngày')
-    gio_bat_dau = fields.Datetime(string=u'Giờ bắt đầu ', default=fields.Datetime.now)
+    gio_bat_dau = fields.Datetime(string=u'Giờ bắt đầu', default=fields.Datetime.now)
     gio_ket_thuc = fields.Datetime(string=u'Giờ Kết Thúc',default=fields.Datetime.now)
     duration = fields.Float(digits=(6, 1), help='Duration in Hours',compute = '_get_duration', store = True,string=u'Thời lượng (giờ)')
-    user_id = fields.Many2one('res.users',default =  lambda self: self.env.uid, readonly=True, string=u'Nhân viên tạo')   
+    user_id = fields.Many2one('res.users',default =  lambda self: self.env.uid, readonly=True, string=u'Nhân viên tạo',required=True)   
 #     ctr_ids  = fields.Many2many('ctr','ctr_cvi_relate','cvi_id','ctr_id',string=u'Ca Trực')
     
     ctr_id  = fields.Many2one('ctr',string=u'Ca Trực')

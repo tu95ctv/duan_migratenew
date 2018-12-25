@@ -99,7 +99,7 @@ class CamSua(models.Model):
                 r.ly_do_cam_sua_do_diff_user = u'Ko Cấm do user là admin'
                 cam_sua_do_diff_user =  False
             else:
-                cam_sua_do_diff_user = r.create_uid != self.env.user 
+                cam_sua_do_diff_user = r.create_uid != self.env.user and r.user_id != self.env.user
                 if cam_sua_do_diff_user:
                     r.ly_do_cam_sua_do_diff_user = u'Cấm do khác user'
                 else:
@@ -414,7 +414,7 @@ class Cvi(models.Model):
     def is_sep_(self): 
         cac_linh_ids = self.env.user.cac_linh_ids
         for r in self:
-            if self.env.uid in r.user_id.cac_sep_ids.mapped('id') or self.user_has_groups('dai_tgg.group_cham_diem_cvi') \
+            if self.env.uid in r.user_id.cac_sep_ids.mapped('id') or (self.user_has_groups('dai_tgg.group_cham_diem_cvi') and r.department_id == r.env.user.department_id)\
             or (cac_linh_ids and (r.create_uid == r.env.user or r.user_id == r.env.user)) \
             or  self.user_has_groups('base.group_erp_manager'):# +  r.user_id.cac_sep_ids.cac_sep_ids.mapped('id'):
                 r.is_sep = True
@@ -485,15 +485,13 @@ class Cvi(models.Model):
         for r in self:
                 if r.cd_parent_id:#cv chia diem con
                     r.diemtc = r.cd_parent_id.diem_goc*r.ti_le_chia_diem/100
-#                     r.diemtc = r.cd_parent_id.diem_goc/r.cd_parent_id.slncl
-                elif r.slncl > 1:#CD Cha
-                    r.diemtc = r.diem_goc*r.ti_le_chia_diem/100
-#                     r.diemtc = r.diem_goc/r.slncl
+#                 elif r.slncl > 1:#CD Cha
+#                     r.diemtc = r.diem_goc*r.ti_le_chia_diem/100
                 elif r.len_gd_child:  #giai doan cha
                     r.diemtc =0
-#                     r.user_id = False
                 else: 
-                    r.diemtc = r.diem_goc           
+                    r.diemtc = r.diem_goc*r.ti_le_chia_diem/100
+#                     r.diemtc = r.diem_goc           
 
     
     
@@ -654,7 +652,8 @@ class Cvi(models.Model):
                 update_field_list = ['so_luong','so_lan', 'department_ids']
                 update_dict = self.get_parent_value_for_child(r,update_field_list,'gd_parent_id')
                 r.write(update_dict)
-#                 
+
+    
     ## CONSTRAINS của chia điểm
     @api.constrains('tvcv_id','so_luong','so_lan','gio_ket_thuc','gio_bat_dau','department_ids','noi_dung')
     def cd_parent_constrains(self):
@@ -718,14 +717,20 @@ class Cvi(models.Model):
                 r.user_id = False
             elif r.gd_parent_id:
                 self.constrains_cha_con(r.gd_parent_id)
+   
+    
     @api.constrains('slncl')
+    @skip_depends_if_not_congviec_decorator
     def slncl_constrains(self):
+#         if  self._context['from_import']:
+#             raise UserError(u'kakaka')
         for r in self:
 #             print 'fields.Datetime.from_string(r.write_date)',fields.Datetime.from_string(r.write_date),'fields.Datetime.from_string(r.create_date)',fields.Datetime.from_string(r.create_date)
-#             print "r._context.get('create')",r._context.get('create')
-            if r.slncl > 1 and fields.Datetime.from_string(r.create_date)  == fields.Datetime.from_string(r.write_date):
-                ti_le_chia_diem = 100.0/r.slncl
-                r.ti_le_chia_diem = ti_le_chia_diem
+#             if r.slncl > 1 and fields.Datetime.from_string(r.create_date)  == fields.Datetime.from_string(r.write_date):
+            if  fields.Datetime.from_string(r.create_date)  == fields.Datetime.from_string(r.write_date):
+                if not self._context.get('from_import'):
+                    ti_le_chia_diem = 100.0/r.slncl
+                    r.ti_le_chia_diem = ti_le_chia_diem
                 if r.cd_parent_id:
                     r.cd_parent_id.write({'ti_le_chia_diem':ti_le_chia_diem})
                     r.cd_parent_id.cd_children_ids.write({'ti_le_chia_diem':ti_le_chia_diem})
@@ -761,6 +766,11 @@ class Cvi(models.Model):
 
     @api.multi
     def write(self, vals):
+#         print ('vals in write',vals)
+#         if 'slncl' in vals:
+#             raise UserError(u'kkakaka')
+#         if 'cd_parent_id' in vals:
+#             raise UserError(u'cd_parent_id %s'%vals)
         new_ctx = dict(self._context, **{'write_create_parent_dict':vals})
         res = super(Cvi, self.with_context(new_ctx)).write(vals)
         return res    

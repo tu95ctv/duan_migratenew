@@ -4,6 +4,16 @@ from odoo.exceptions import UserError
 
 class Inventory(models.Model):
     _inherit = "stock.inventory"
+    product_uom_id = fields.Many2one(
+        'product.uom', 'Product Unit of Measure',
+        )
+    
+    @api.multi
+    def product_uom_id_oc(self):
+        for r in self.line_ids:
+            r.product_id.uom_id = self.product_uom_id
+            r.product_uom_id = self.product_uom_id
+    
     #over write origin
     def action_done(self):
         return super(Inventory, self.with_context(action_done_from_stock_inventory=True)).action_done()

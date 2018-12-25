@@ -77,12 +77,13 @@ class StockPicking(models.Model):
     file_ids = fields.Many2many('dai_tgg.file','stock_picking_file_relate','stock_picking_id','file_id',string=u'Files đính kèm')
     
     allow_check_excel_obj_is_exist_func  = fields.Boolean(default=True,string=u'Cho phép đối chiếu product excel obj với product exist object')
-    write_when_val_exist  = fields.Boolean(default=True,)
+    write_when_val_exist  = fields.Boolean(default=True)
     cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat  = fields.Boolean(default=True)
     cho_phep_co_pn_cap_nhat_empty_pn  = fields.Boolean(default = True)
     
-    not_update_field_if_instance_exist_default  = fields.Boolean(default = True)
-
+    not_update_field_if_instance_exist_default  = fields.Boolean()
+    cho_phep_exist_val_before_loop_fields_func = fields.Boolean(default = True)
+    skip_stt = fields.Boolean(u'Bỏ trường STT khi import')
     
 #     not_loc_kho = fields.Integer()
 #     is_admin = fields.Integer(compute='is_admin_',)
@@ -141,7 +142,9 @@ class StockPicking(models.Model):
     picking_type_id = fields.Many2one(
         'stock.picking.type', 'Operation Type',
         required=False,
-        states={'done': [('readonly', True)], 'cancel': [('readonly', True)]},default= lambda self: self.env['stock.picking.type'].search(['|',('name','=',u'Dịch chuyển nội bộ'),('name','=','Internal Transfers')])[0].id)
+        states={'done': [('readonly', True)], 'cancel': [('readonly', True)]},
+        default= lambda self: self.env['stock.picking.type'].search(['|',('name','=',u'Dịch chuyển nội bộ'),('name','=','Internal Transfers')])[0].id
+        )
     ly_do = fields.Text(u'Lý do',copy=False)#Tình trạng vật tư: Vật tư đang sử dụng lỗi, đem SVTECH bảo hành,
     so_ban_in = fields.Integer(u'Số bản in',default=4,copy=False)
     ben_giao_giu = fields.Integer(u'Bên giao giữ', default=3,copy=False)
@@ -190,7 +193,7 @@ class StockPicking(models.Model):
     file_dl_name = fields.Char()
     log = fields.Text()
     is_set_tt_col =  fields.Boolean(string=u'Có cột tình trạng?')
-    is_not_show_y_kien_ld =  fields.Boolean(string=u'Không thêm dòng ý kiến lãnh đạo',default=True)
+    is_not_show_y_kien_ld =  fields.Boolean(string=u'Không thêm dòng ý kiến lãnh đạo')
     title_row_for_import = fields.Integer()
     is_dl_right_now = fields.Boolean(default=True,string=u'Download ngay không cần lưu file')
     

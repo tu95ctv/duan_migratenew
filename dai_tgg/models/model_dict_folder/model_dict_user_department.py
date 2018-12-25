@@ -11,6 +11,19 @@ def convert_vn_datetime_to_utc_datetime_2(v):
         utc_str = utc_v.strftime('%d/%m/%Y %H:%M:%S')
         return utc_str
     return v
+def cd_children_ids_(v,n,self):
+    print ('val *** in ',v)
+    v2 = []
+    if v:
+        for login in v:
+            user = self.env['res.users'].search([('login','=',login)])
+            if user:
+                v2.append(user.id)
+            else:
+                raise UserError(u'Không có user là %s'%login)
+        return v2
+#     v = list( map(lambda i:int(i),v))
+    return v
 def gen_user_department_model_dict():
     user_model_dict = {
         u'Partner': {
@@ -49,6 +62,7 @@ def gen_user_department_model_dict():
                          ('usage',{'set_val':'supplier'}),
                          ('is_kho_cha',{'set_val':True}),
                          ('cho_phep_khac_tram_chon',{'set_val':True}),
+                         ('not_show_in_bb',{'func':lambda v,n: True if v else False,'xl_title':u'not_show_in_bb'}),
                          ('partner_id_of_stock_for_report',{'fields':[('name',{'func': lambda v,n:n['vof_dict']['name']['val'], 'key':True,'required':True}),
                                                        ]
                                             }
@@ -225,27 +239,46 @@ def gen_user_department_model_dict():
     u'cvi': {
                 'title_rows' : [0], 
                 'begin_data_row_offset_with_title_row' :1,
-                'sheet_names': [u'Sheet 1'],
+                'largest_map_row_choosing':True,
+                'sheet_names': lambda self,wb: [wb.sheet_names()[0]],
                 'model':'cvi',
+                'context':{'from_import':True},
                 'fields' : [
+                    
+                     ('user_id',{'key':True,'set_val': lambda self: self.env.uid}),
                       ('department_id',{'fields':[
-                          ('name',{'key':True,'required':True,'xl_title':u'Đơn vị tạo'})
+                          ('name',{'key':True,'required':True,'xl_title':u'Đơn vị tạo','skip_field_if_not_found_column_in_some_sheet':True ,})
                           ]}),
-                      ('loai_record',{'required':True, 'key':True, 'xl_title':u'Loại Record'}),
+                      ('loai_record',{'required':True, 'key':True, 'xl_title':u'Loại Record','skip_field_if_not_found_column_in_some_sheet':True,'replace_val':{'all':[(False,u'Công Việc')]}}),
                       ('categ_id',{'fields':[
-                          ('name',{'key':True,'required':True,'xl_title':u'Nhóm'})
+                          ('name',{'key':True,'required':True,'xl_title':u'Nhóm','skip_field_if_not_found_column_in_some_sheet':True ,})
                           ]}
                        ),
                       ('thiet_bi_id',{'fields':[
-                          ('name',{'key':True,'required':True,'xl_title':u'Thiết bị'})
+                          ('name',{'required':True,'xl_title':u'Thiết bị','skip_field_if_not_found_column_in_some_sheet':True})
                           ]}),
-                      ('tvcv_id',{'key':True,'fields':[
-                          ('name',{'key':True,'required':True,'xl_title':u'TVCV/ Loại sự cố/ Loại sự vụ'})
+                      ('tvcv_id',{'key':True,'only_get':True,'fields':[
+                          ('name',{'key':True,'required':True,'xl_title':[u'TVCV/ Loại sự cố/ Loại sự vụ',u'Thư Viện Công Việc']})
                           ]}
                        ),
-                      ('noi_dung',{'key':True,'xl_title':u'Nội dung'}),
+                      ('noi_dung',{'xl_title':u'Nội dung'}),
                       ('gio_bat_dau',{'key':True,'xl_title':u'Giờ bắt đầu','bypass_check_type':True,'func':convert_vn_datetime_to_utc_datetime_2}),
                       ('gio_ket_thuc',{'key':True,'xl_title':u'Giờ Kết Thúc','bypass_check_type':True,'func':convert_vn_datetime_to_utc_datetime_2}),
+                      ('slncl',{'xl_title':u'Số lượng người chia điểm'}),
+                      ('ti_le_chia_diem',{'xl_title':u'Tỉ lệ chia điểm'}),
+#                       ('cd_children_ids',{'fields':[('user_id',{'fields':[
+#                           ('name',{'xl_title':u'Các CV Chia Điểm Con','required':True,'key':True, 'is_x2m_field':True})]})]})
+
+                       ('cd_children_ids',{'fields':[
+                            ('user_id',{'xl_title':u'Các CV Chia Điểm Con','func':cd_children_ids_,'key':True,'is_x2m_field':True,'required':True }),
+                            ('loai_record',{'set_val':u'Công Việc','key':True})     ,
+                            ('gio_bat_dau',{'key':True,'bypass_check_type':True,'func':lambda v,n: n['vof_dict']['gio_bat_dau']['val']}),
+                            ('gio_ket_thuc',{'key':True,'bypass_check_type':True,'func':lambda v,n: n['vof_dict']['gio_ket_thuc']['val']}),
+                            ('tvcv_id',{'key':True,'func':lambda v,n: n['vof_dict']['tvcv_id']['val']}),
+                                                     ]})
+                            
+                            
+                            
                       ]
                 },#location partner            
         u'thuebaoline': {

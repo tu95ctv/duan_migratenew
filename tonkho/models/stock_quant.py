@@ -57,7 +57,15 @@ class Quant(models.Model):
         locs = self.env['stock.location'].search([('is_kho_cha','=',True)])
         rs = list(map(lambda i:(i.name,i.name),locs))
         return rs
-
+    
+    @api.constrains('lot_id')
+    def check_product_id(self):
+        not_allow_check_lot_id_in_different_location =self.env['ir.config_parameter'].sudo().get_param('tonkho.not_allow_check_lot_id_in_different_location' )
+        if not_allow_check_lot_id_in_different_location ==False:
+            if self.lot_id:
+                rs = self.env['stock.quant'].search([('lot_id','=',self.lot_id.id),('quantity','>',0)])
+                if len(rs)>1:
+                    raise UserError(u'Không được có quants  nội bộ chung lot_id và quantity > 0 product:%s-sn: %s'%(self.product_id.name,self.lot_id.name))
     @api.constrains('location_id','quantity')
     def not_allow_negative_qty(self):
         for r in self:
@@ -122,14 +130,7 @@ class Quant(models.Model):
             if float_compare(quant.quantity, 1, precision_rounding=quant.product_uom_id.rounding) > 0 and quant.lot_id and quant.product_id.tracking == 'serial':
                 raise ValidationError(_('A serial number should only be linked to a single product. %s,%s,%s'%(quant.quantity,quant.product_id.name,quant.lot_id.name)))
     
-    @api.constrains('lot_id')
-    def check_product_id(self):
-#         if any(elem.product_id.type != 'product' for elem in self):
-#             raise ValidationError(_('Quants cannot be created for consumables or services.'))
-        if self.lot_id:
-            rs = self.env['stock.quant'].search([('lot_id','=',self.lot_id.id),('quantity','>',0)])
-            if len(rs)>1:
-                raise UserError(u'Không được có quants  nội bộ chung lot_id và quantity > 0 product:%s-sn: %s'%(self.product_id.name,self.lot_id.name))
+    
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
         res = super(Quant, self).fields_view_get(

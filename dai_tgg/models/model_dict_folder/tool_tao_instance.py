@@ -1,4 +1,5 @@
 import sys
+import xlrd
 VERSION_INFO   = sys.version_info[0]
 import xlwt
 import re
@@ -8,7 +9,7 @@ def get_width(num_characters):
 not_horiz_center_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align: wrap on , vert centre; borders: left thin,right thin, top thin, bottom thin")
 header_bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 240 ; align:  vert centre;  pattern: pattern solid, fore_colour gray25;borders: left thin, right thin, top thin, bottom thin")
 
-EMPTY_CHAR = [u'',u' ',u'\xa0']
+EMPTY_CHAR = [u'',u' ',u'\xa0',u'#N/A',u'N/A']
 def check_is_string_depend_python_version(val):
     if VERSION_INFO==2:
         check_str = isinstance(val,unicode) or isinstance(val,str)
@@ -17,6 +18,8 @@ def check_is_string_depend_python_version(val):
     return check_str
     
 def empty_string_to_False(readed_value):
+    
+    
     if VERSION_INFO==2:
         check_str = isinstance(readed_value,unicode) or isinstance(readed_value,str)
     else:
@@ -38,8 +41,16 @@ def read_merge_cell(sheet,row,col,merge_tuple_list):
             row = rlo
             col = clo
             break
-    val = sheet.cell_value(row,col)
-    return val
+    ctype = sheet.cell(row, col).ctype
+    if  ctype==5:
+        return u'#N/A'
+    if   ctype == xlrd.XL_CELL_EMPTY:
+#         raise ValueError(u'kkaka')
+        print ('row,col',row,col)
+        return u'#N/A'
+    else:
+        val = sheet.cell_value(row,col)
+        return val
 def read_excel_cho_field(sheet, row, col_index,merge_tuple_list):
     #print 'row','col',row, col_index,sheet
     val = read_merge_cell(sheet, row ,col_index,merge_tuple_list)

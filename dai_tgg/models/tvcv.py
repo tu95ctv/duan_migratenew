@@ -289,7 +289,7 @@ class TVCV(models.Model):
   
 class DonVi(models.Model):
     _name = 'donvi'
-    name = fields.Char()
+    name = fields.Char(required=True)
     tvcv_ids = fields.One2many('tvcv','don_vi')
 class DotXuatHayDinhKy(models.Model):
     _name = 'dotxuathaydinhky'
@@ -297,5 +297,5 @@ class DotXuatHayDinhKy(models.Model):
     tvcv_ids = fields.One2many('tvcv','dot_xuat_hay_dinh_ky')
 class tvcvCate(models.Model):
     _name = 'tvcvcate'
-    name = fields.Char()
+    name = fields.Char(required=True)
     tvcv_ids = fields.One2many('tvcv','cong_viec_cate_id')  

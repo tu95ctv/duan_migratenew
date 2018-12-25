@@ -31,6 +31,7 @@
                <!--    <field name="ctr_ids" /> -->
              <!--  <field name="ctr_show" /> --> 
                <field name="slncl" />
+               <field name="ti_le_chia_diem" />
                <field name="diem_tvi" />
                <field name="don_vi" />
                <field name="so_luong" />

@@ -18,7 +18,8 @@ class StockLocation(models.Model):
     stock_type = fields.Selection(KHO_SELECTION
                                 )
     complete_name_khong_dau = fields.Char(compute='complete_name_khong_dau_',store=True)
-    
+    not_show_in_bb =  fields.Boolean()
+
     @api.depends('complete_name','stock_type')
     def complete_name_khong_dau_(self):
         for r in self:

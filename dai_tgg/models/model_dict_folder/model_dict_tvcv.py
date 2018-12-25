@@ -17,14 +17,28 @@ def gen_tvcv_model_dict():
                 'sheet_names':lambda self,wb: wb.sheet_names(),
                 'model':'tvcv',
                 'fields' : [
-                        ('name', {'func':None,'xl_title':u'Công việc', 'required':True,'key':True } ),#'func_de_tranh_empty':lambda r:  len(r) > 2
+                        ('name', {'func':None,'xl_title':u'Công việc',
+                                   'required':True,
+#                                    'key':True 
+                                   } ),#'func_de_tranh_empty':lambda r:  len(r) > 2
                         ( 'loai_record',{'func':None,'set_val':u'Công Việc', 'key':False }),
                         ('department_id',{'key':True,'model':'hr.department', 'set_val': lambda self: self.env['hr.department'].search([('name','=ilike',u'Đài HCM')]).id,'required':True,'raise_if_False':True
                                                                   #'fields':[('name',{'key':True,'set_val':'LTK'})]
                                                                   }),
                         ( 'state',{'set_val':'confirmed'}),
-                        ( 'cong_viec_cate_id',{'func':lambda val,needdata,self:get_or_create_object_sosanh(self, 'tvcvcate', {'name':needdata['sheet_name']}, {} ).id , 'key':False }),
-                        ( 'code',{'func':None,'xl_title':u'Mã CV','key':True ,'required':True}),
+                        ( 'cong_viec_cate_id',
+                          {
+#                               'func':lambda val,needdata,self:get_or_create_object_sosanh(self, 'tvcvcate', {'name':needdata['sheet_name']}, {} ).id ,
+                            'key':False,
+                            'fields':[('name',{
+                                 'key':True,
+                                'required':True,
+                                'replace_string':[('Quan_ly',u'Quản lý'),('Vanhanh',u'Vận hành'),('Van_thu_hanh_chinh',u'Văn thư hành chính'),('Baocao',u'Báo cáo'),('Khac',u'Khác')],
+                                'func': lambda v,n,self:n['sheet_name']})]
+                            
+                             }),
+                        ( 'code',{'func':None,'xl_title':u'Mã CV',
+                                  'key':True ,'required':True}),
                         ('do_phuc_tap',{'func':convert_integer,'xl_title':u'Độ phức tạp','key':False}),
                         ('diem',{'func':None,'xl_title':u'Điểm','key':False}),
                         ('don_vi',{'fields':[

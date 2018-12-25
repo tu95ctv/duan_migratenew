@@ -17,6 +17,7 @@ from odoo.addons.dai_tgg.mytools import pn_replace
  
 all_key_tram = 'all_key_tram'
 key_ltk_dc = 'key_ltk_dc'
+key_ltk_dc2 = 'key_ltk_dc2'
 key_tti_dc = 'key_tti_dc'
 key_137 = 'key_137'
 write_xl = 'write_xl'
@@ -49,12 +50,15 @@ def last_record_function_ltk_vtdc_(n,self=None):
 def gan_inventory_id_vao_needdata(n,self):
     if n['vof_dict']['inventory_id']['val'] and  not n.get('inventory_id'):
         n['inventory_id'] = n['vof_dict']['inventory_id']['val']
-def gan_inventory_id_(n,self):
+def last_import_function_(n,self):
     if not self.mode_no_create_in_main_instance:
         self.inventory_id = n['inventory_id']
 def convert_float_location_(v,n):
+#     return v
     if isinstance(v, float):
         v= str(int(v))
+    if  v != False and isinstance(v, int):
+        v = str(v)
     return v
 def convert_float_to_ghi_chu_cho_sml_ngay_xuat(val):
     if isinstance(val, float):
@@ -259,10 +263,10 @@ def exist_val_before_loop_fields_func_lot_id_(n,self):
     
 def check_excel_obj_is_exist_func_(get_or_create,obj,exist_val):
     if not get_or_create:
-        raise UserError(u'lot_id đã có nhưng lại tạo product_id')
+        raise UserError(u'lot_id: %s đã có nhưng lại tạo product_id')
     else:
         if exist_val not in obj:
-            raise UserError(u'search obj (%s,%s) !=exist_val (%s,%s)'%(obj.name,obj.pn, exist_val.name,exist_val.pn))
+            raise UserError(u'search obj (%s,%s) != exist_val (%s,%s)'%(obj.name,obj.pn, exist_val.name,exist_val.pn))
 # def check_exist_val_before_loop_fields_func(n,self,get_or_create):
 #     if get_or_create:
 #         raise UserError(u'product in excel khách với lot_id.product')
@@ -280,10 +284,10 @@ def product_id_name_(v,n,self):
     v= n['vof_dict']['product_id_name_readonly']['val']
     v = str(int(v)) if  isinstance(v, float) else v
     return v
-def search_func_(model_dict,self,exist_val):
+def search_func_(model_dict,self,exist_val,setting):
 #     exist_val = search_func_para.get('exist_val')
-    cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat = self.cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat
-    cho_phep_co_pn_cap_nhat_empty_pn = self.cho_phep_co_pn_cap_nhat_empty_pn
+    cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat = setting['cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat']
+    cho_phep_co_pn_cap_nhat_empty_pn = setting['cho_phep_co_pn_cap_nhat_empty_pn']
 #     print ('**model_dict',model_dict)
     name =  model_dict['fields']['name']['val']
     pn_replace = model_dict['fields']['pn_replace']['val']
@@ -325,20 +329,27 @@ def search_func_(model_dict,self,exist_val):
 #             return pr
         
         
-    
-
+def location_id5_chua_ro_(v,needdata,self):    
+    v_all = needdata['vof_dict']['location_id5']['val'] \
+                or needdata['vof_dict']['location_id4']['val'] or \
+                needdata['vof_dict']['location_id3']['val'] or \
+                needdata['vof_dict']['location_id2']['val'] or \
+                needdata['vof_dict']['location_id1']['val']
+    if  v_all ==False:
+        return u'Chưa rõ'
+    else:
+        return False
 def gen_model_dict(sml_title_row = False,self=None):                
     ALL_MODELS_DICT = {
      u'stock.inventory.line.tong.hop.ltk.dp.tti.dp': { #tong hop
                     'key_allow':True,
-                    
-                    
                     'largest_map_row_choosing':{sml:True,all_key_tram:False},                      
                     'title_rows':{
                         'key_ltk':[4,5],
                         'key_tti':[3,4],
                         key_ltk_dc:[0],
                         key_tti_dc:[0,1],
+                        key_ltk_dc2:[7,8],
                         sml:sml_title_row or [0],
                         key_137: range(0,10)
                         
@@ -354,16 +365,29 @@ def gen_model_dict(sml_title_row = False,self=None):
                         sml:lambda self,wb: [wb.sheet_names()[0]],
                         key_137:lambda self,wb: [ i for i in wb.sheet_names() if u'000' not in i],#[wb.sheet_names()[0]]
 #                         key_137:lambda self,wb: [wb.sheet_names()[0]]
-                        
+                        key_ltk_dc2:lambda self,wb: [wb.sheet_names()[0]],
                                    } ,#[self.sheet_name],#,#[self.sheet_name],#[u'Chuyển Mạch (IMS, Di Động)'],#xl_workbook.sheet_names(),#[u'Truyền dẫn'],#[u'IP (VN2, VNP)'],[u'Chuyển Mạch (IMS, Di Động)']
                     'model':{all_key_tram: 'stock.inventory.line',sml:'stock.move.line'},## viet lai ben tao_instance_new
                    
-                    'allow_check_excel_obj_is_exist_func':True,
                     'not_update_field_if_instance_exist_default':False,
-                    'bypass_this_field_if_value_equal_False_default':True,
-                    'write_when_val_exist':True,
+                    'bypass_this_field_if_value_equal_False_default':False,
+#                     'write_when_val_exist':True,
+#                     'allow_check_excel_obj_is_exist_func':True,
+                    'setting': {all_key_tram: {
+                                               'write_when_val_exist':getattr(self,'write_when_val_exist',True),
+                                               'allow_check_excel_obj_is_exist_func':getattr(self,'allow_check_excel_obj_is_exist_func',True),
+                                               'cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat':getattr(self,'cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat',True),
+                                               'cho_phep_co_pn_cap_nhat_empty_pn':getattr(self,'cho_phep_co_pn_cap_nhat_empty_pn',True),
+                                               'cho_phep_exist_val_before_loop_fields_func':getattr(self,'cho_phep_exist_val_before_loop_fields_func',False),
+#                                                 'allow_check_excel_obj_is_exist_raise_or_break':'break',
+
+                                               }},
+                                                      
+                    'setting2': {sml: {'allow_check_excel_obj_is_exist_raise_or_break':'break'},
+                                     all_key_tram:{'allow_check_excel_obj_is_exist_raise_or_break':'raise'}
+                                 },
                     
-                    'last_import_function':{all_key_tram:gan_inventory_id_,sml:None},
+                    'last_import_function':{all_key_tram:last_import_function_,sml:None},
                     'last_record_function':{all_key_tram:gan_inventory_id_vao_needdata,
                                                     key_ltk_dc:last_record_function_ltk_vtdc_,
                                                     sml:None},
@@ -422,6 +446,7 @@ S/N'''],
                                                                     'key_tti':[u'TÊN VẬT TƯ'],
                                                                     sml:[u'TÊN VẬT TƯ',u'Tên Vật Tư',u'Danh mục hàng hóa',u'Tên – Qui cách hàng hóa'],
                                                                     key_137:[u'TÊN TIẾNG VIỆT',u'TÊN THIẾT BỊ',u'Tên vật tư'],
+                                                                    key_ltk_dc2:[u'Tên tài sản'],
                                                                     key_tti_dc:u'''Tên
                                                                     
 chi tiết
@@ -442,9 +467,10 @@ thiết bị
                             'key_ltk_dc':u'STT',
                              key_tti_dc: [u'Stt',u'Stt '],
                              sml:u'STT',
-                             key_137:[u'SỐ']
+                             key_137:[u'SỐ'],
+                             key_ltk_dc2:u'STT'
                              },
-                        'skip_this_field':{key_137:True,sml:True},
+                        'skip_this_field':{key_137:True,all_key_tram:getattr(self,'skip_stt',False)},
                         'skip_field_if_not_found_column_in_some_sheet':True ,
                         'key':{all_key_tram:True},
                         'required_force':{all_key_tram:True},
@@ -454,6 +480,7 @@ thiết bị
                                 
                                 
                     ('product_id',{'string':u'Tên Vật tư',
+                                   'print_write_dict_new':True,
                                    'search_func':search_func_,
                                    'offset_write_xl':{sml:1}, 
                                    'key':'Both',
@@ -468,11 +495,10 @@ thiết bị
                                             ('pn',{
                                                 'type_allow':[int,float],
                                                 'func':lambda val,needdata: int(val) if isinstance(val,float) else val,'empty_val':[u'NA',u'-',u'--'],
-                                                'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)',u'Mã vật tư',u'''MÃ 
+                                                'xl_title':[u'Part-Number',u'Part Number',u'Partnumber',u'Mã card (P/N)',u'Mã vật tư',u'''MÃ 
 VẬT TƯ''',u'''MÃ 
 Article Code'''],
 #                                                 'bypass_this_field_if_value_equal_False':True,
-
                                                 'skip_field_if_not_found_column_in_some_sheet':{sml:True,all_key_tram:None},
                                                 'get_or_create_para':{all_key_tram:{'not_update_field_if_instance_exist':True}},
                                                    }
@@ -481,8 +507,9 @@ Article Code'''],
                                                            'func':pn_replace_, 
                                                            'get_or_create_para':{'all_key_tram':{'operator_search':'=ilike'}},
 #                                                             'key':lambda n: True if n['vof_dict']['product_id']['fields']['pn_replace']['val'] else False ,
-                                                            'key':False,
-#                                                             'bypass_this_field_if_value_equal_False':True,
+                                                            'key':True,
+                                                            'bypass_this_field_if_value_equal_False':True,
+                                                             'get_or_create_para':{all_key_tram:{'not_update_field_if_instance_exist':True}},
                                                             }
                                              ),
                                             ('name',{
@@ -492,6 +519,7 @@ Article Code'''],
 #                                                     'key':lambda n: False if n['vof_dict']['product_id']['fields']['pn_replace']['val'] else True ,
 #                                                      'key':False,
                                                      'required':True,
+                                                     'get_or_create_para':{all_key_tram:{'not_update_field_if_instance_exist':True}},
                                                                   }),
                                             ('type',{'set_val':'product'}),
 
@@ -506,23 +534,29 @@ Article Code'''],
                                           
 
                                             ('categ_id',{'skip_this_field':{sml:True,all_key_tram:False},
-                                                         'bypass_this_field_if_value_equal_False':True,
-                                                         'set_val':{key_137: lambda self: self.categ_id.id},
+#                                                          'bypass_this_field_if_value_equal_False':True,
+                                                           'key':False,
+                                                           'set_val':{
+                                                                    key_137: lambda self: self.categ_id.id,
+                                                                    key_ltk_dc2:1
+                                                                    },
                                                 'fields':[('name',{
                                                                         'skip_field_if_not_found_column_in_some_sheet':{sml:True,all_key_tram:False},
                                                                         'replace_string':{all_key_tram:[(u'Chuyển Mạch (IMS, Di Động)',u'Chuyển mạch'),(u'IP (VN2, VNP)',u'IP')]},
                                                                         
-                                                                        'func':{all_key_tram:lambda val,needdata: needdata['sheet_name'],
+                                                                        'func':{ all_key_tram:lambda val,needdata: needdata['sheet_name'],
                                                                                     'key_tti':categ_id_tti_convert_to_ltk_,
                                                                                     key_ltk_dc: lambda val,needdata: needdata['sheet_name'],
                                                                                     key_tti_dc: None,
                                                                                     sml:None,
                                                                                     key_137:None,
+#                                                                                     key_ltk_dc2:lambda v,n:1,
                                                                                 },
                                                                         'karg':{'key_tti':{'tram':'TTI'}},
                                                                         'key':True,
 #                                                                         'required': {all_key_tram:True,key_137:False}},
-                                                                        'required': True,
+                                                                        'required':{all_key_tram:True, 
+                                                                                    },
                                                                         'xl_title':{all_key_tram:None,
                                                                                     key_tti_dc:[u'Phân hệ'],
                                                                                     sml:[u'Nhóm'],
@@ -565,7 +599,7 @@ Article Code'''],
 thiết bị'''
                                                                                            }, 
                                                                                'key':True,'required': True}),
-                                                            ('categ_id',{#'skip_this_field':{key_137:True},
+                                                            ('categ_id',{ #'skip_this_field':{key_ltk_dc2:True},
                                                                                 'key':True,'func': lambda v,n:n['vof_dict']['product_id']['fields']['categ_id']['val']}
                                                              ),
                                                             ('brand_id',{
@@ -580,10 +614,13 @@ thiết bị'''
                                                         ('name',{'set_val':{
                                                                             all_key_tram:None,
                                                                             key_ltk_dc:u'Cái',
+                                                                            key_ltk_dc2:u'Cái',
                                                                             key_tti_dc:u'Cái'
-                                                                            },'func':{all_key_tram:name_of_uom_id_,key_137: uom_id_137_},
+                                                                            },
+                                                                 'func':{all_key_tram:name_of_uom_id_,key_137: uom_id_137_},
                                                                      'get_or_create_para':{'all_key_tram':{'operator_search':'=ilike'},},
-                                                                      'xl_title':[u'Đơn vị tính',u'ĐVT',u'Đơn vị'] ,'key':True,'required':True,
+                                                                      'xl_title':{all_key_tram:[u'Đơn vị tính',u'ĐVT',u'Đơn vị'],key_ltk_dc2:None },
+                                                                      'key':True,'required':True,
                                                                       'replace_string':{'key_ltk':[('Modunle','module'),('CARD','Card'),('module','Module')],
                                                                                                 'key_tti':[('CARD','Card'),('module','Module'),(u'bộ',u'Bộ')]
                                                                                     },
@@ -622,11 +659,14 @@ thiết bị'''
                                      'skip_this_field_for_mode_no_create':{key_ltk_dc:True},
                                      'transfer_name':{sml:'qty_done'},
                                      'func':{all_key_tram:qty_,
-                                             key_137:qty_137_},
+                                             key_137:qty_137_,
+#                                              key_ltk_dc2:1,
+                                             },
                                      'replace_val':{'key_ltk':{u'XFP, SFP các loại':[(False,1)]}},
                                      'set_val':{'all_key_tram':None,
                                                     'key_ltk_dc':1,
                                                     key_tti_dc:1,
+                                                    key_ltk_dc2:1,
 #                                                     key_137:1,
                                                 },
                                      'xl_title':{'key_ltk':[u'Tồn kho cuối kỳ',u'Số lượng',u'Tồn kho cuối kỳ'],
@@ -660,6 +700,7 @@ thiết bị'''
                                                                          'xl_title':{'key_ltk':u'Phòng',
                                                                                      'key_tti':u'Phòng',
                                                                                       key_ltk_dc:[u'Vị trí lắp đặt'],
+                                                                                      key_ltk_dc2:[u'Vị trí lắp đặt'],
                                                                                       key_tti_dc:[u'''Vị trí
 đặt'''],
                                                                                      },
@@ -676,6 +717,7 @@ thiết bị'''
                                                                              'xl_title':{'key_ltk':[u'Tủ/Kệ',u'Tủ'],
                                                                                             'key_tti':[u'Tủ/Kệ',u'Tủ'],
                                                                                              key_ltk_dc:[u'Tên tủ (Cabinet / rack)',u'Tủ'],
+                                                                                             key_ltk_dc2:[u'Tên tủ (Cabinet / rack)',u'Tủ'],
                                                                                              key_tti_dc:None,
                                                                                          },
                                                                               'key':True,'required': True}),
@@ -692,6 +734,7 @@ thiết bị'''
                                                                          'xl_title':{'key_ltk':[u'Ngăn',u'Ngăn/Kệ'],
                                                                                         'key_tti':[u'Ngăn',u'Ngăn/Kệ'],
                                                                                          key_ltk_dc:[u'Ngăn (shelf)',u'Ngăn'],
+                                                                                         key_ltk_dc2:[u'Ngăn (shelf)',u'Ngăn'],
                                                                                          key_tti_dc:None},
                                                                           'key':True,'required': True}),
                                                                 ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id2']['val'] or needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
@@ -707,6 +750,7 @@ thiết bị'''
                                                                          'xl_title':{'key_ltk':[u'Số thùng'],
                                                                                         'key_tti':[u'Số thùng'],
                                                                                          key_ltk_dc:[u'Số thứ tự (trong shelf)'],
+                                                                                         key_ltk_dc2:[u'Số thứ tự (trong shelf)'],
                                                                                          key_tti_dc:None,
                                                                                         },   
                                                                   'key':True,'required': True,'skip_field_if_not_found_column_in_some_sheet':True}),
@@ -718,19 +762,48 @@ thiết bị'''
                                                        }),  
               ('location_id5',{'skip_this_field':{sml:True,key_137:True}, 'skip_this_field_for_mode_no_create':{key_ltk_dc:True},'model':'stock.location', 'for_excel_readonly':True,
                                            'fields':[
-                                                    ('name',{'func':convert_float_location_,
+                                                    ('name',{
+                                                            'func':convert_float_location_,
                                                             'xl_title':{'key_ltk':[u'Hộp'],
                                                                         'key_tti':[u'Hộp'],
                                                                         key_ltk_dc:[u'Khe (Slot)'],
+                                                                        key_ltk_dc2:[u'Khe (Slot)'],
                                                                         key_tti_dc:None,
                                                                         },        
-                                                            'key':True,'required': True,'skip_field_if_not_found_column_in_some_sheet':True}),
+                                                            'key':True,'required': True,
+                                                            'skip_field_if_not_found_column_in_some_sheet':True,
+#                                                             'func':location_id5_chua_ro_,
+                                                            }),
                                                     ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id4']['val'] or needdata['vof_dict']['location_id3']['val'] or needdata['vof_dict']['location_id2']['val'] or needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
-                                                    ('stock_type',{'set_val':'slot'}),
-#                                                         ('department_id',{'key':False,'model':'hr.department', 'set_val':lambda self: self.department_id.id,'required':True}),
-                                                                ('department_id',{'key':False,'model':'hr.department', 'func': lambda v,n:n['vof_dict']['department_id_for_excel_readonly']['val'],'required':True,'raise_if_False':True}),
+                                                    ('stock_type',{'set_val':'slot',
+#                                                                     'func': lambda v,n,self: 'slot' if n['vof_dict']['location_id5']['fields']['name']['val'] != u'Chưa rõ' else False
+                                                                   
+                                                                   }),
+                                                    ('department_id',{'key':False,'model':'hr.department', 'func': lambda v,n:n['vof_dict']['department_id_for_excel_readonly']['val'],'required':True,'raise_if_False':True}),
                                                     ]
-                                           }),                              
+                                           }),     
+                                
+                                
+                ('location_id6',{'skip_this_field':{sml:True,key_137:True}, 'skip_this_field_for_mode_no_create':{key_ltk_dc:True},'model':'stock.location', 'for_excel_readonly':True,
+                                           'fields':[
+                                                    ('name',{
+#                                                             'func':convert_float_location_,
+                                                            'xl_title':{all_key_tram:None,
+                                                                        },        
+                                                            'key':True,
+                                                            'required': True,
+                                                            'func':location_id5_chua_ro_,
+                                                            }),
+                                                    ('location_id',{'func':lambda val,needdata: needdata['vof_dict']['location_id5']['val']  or needdata['vof_dict']['location_id4']['val'] or needdata['vof_dict']['location_id3']['val'] or needdata['vof_dict']['location_id2']['val'] or needdata['vof_dict']['location_id1']['val'] or  needdata['vof_dict']['location_id_goc']['val'], 'key':True}),
+#                                                     ('stock_type',{#'set_val':'slot',
+#                                                                     'func': lambda v,n,self: 'slot' if n['vof_dict']['location_id5']['fields']['name']['val'] != u'Chưa rõ' else False
+#                                                                    }),
+                                                    ('department_id',{'key':False,'model':'hr.department', 'func': lambda v,n:n['vof_dict']['department_id_for_excel_readonly']['val'],'required':True,'raise_if_False':True}),
+                                                    ]
+                                           }),   
+                                
+                                
+                                                         
                
                 ('location_dest_id',{'skip_this_field':{sml:False,all_key_tram:True}, 'skip_this_field_for_mode_no_create':{key_ltk_dc:True},'set_val':{sml:lambda self: self.location_dest_id.id}}),
                 ('picking_id',{'required':True, 'key':True, 'set_val':{sml:lambda self:self.id},'skip_this_field':{sml:False,all_key_tram:True}}),
@@ -766,7 +839,9 @@ thiết bị'''
             #                                     ('pn',{'xl_title':[u'Part Number',u'Partnumber',u'Mã card (P/N)']}),
                                                 ('barcode_sn',{'skip_this_field':{key_ltk_dc:False,all_key_tram:True},'func':lambda v,n:n['vof_dict']['barcode_for_first_read']['val'] ,'key':True}),
                                                
-
+ 
+                                                ('id_ke_toan',{'skip_this_field':{key_ltk_dc2:False,all_key_tram:True}, 'key':False,'xl_title':[u'ID - Không sửa cột này']}),
+                                                ('the_tai_san',{'skip_this_field':{key_ltk_dc2:False,all_key_tram:True}, 'key':False,'xl_title':[u'Số thẻ']}),
                                                 ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'],
                                                                'key': True,
                                                                 'required':True }),
@@ -780,9 +855,10 @@ thiết bị'''
                                       ]
                                   }),
             ('location_id', {'skip_this_field':{all_key_tram:False}, 'skip_this_field_for_mode_no_create':{key_ltk_dc:True},
-                'func':{'sml':location_id_sml_2_,
+                'func':{
+                'sml':location_id_sml_2_,
                 key_137: lambda v,n:n['vof_dict']['location_id_goc']['val'],
-                all_key_tram: lambda v,needdata: needdata['vof_dict']['location_id4']['val'] or \
+                all_key_tram: lambda v,needdata:needdata['vof_dict']['location_id6']['val'] or   needdata['vof_dict']['location_id5']['val'] or  needdata['vof_dict']['location_id4']['val'] or \
                 needdata['vof_dict']['location_id3']['val'] or \
                 needdata['vof_dict']['location_id2']['val'] or \
                 needdata['vof_dict']['location_id1']['val'] or \
