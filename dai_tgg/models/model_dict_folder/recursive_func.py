@@ -81,6 +81,59 @@ def write_get_or_create_title(model_dict,sheet,sheet_of_copy_wb,title_row,key_tr
             sheet_of_copy_wb.col(col).width =  get_width(len(title))
             sheet_of_copy_wb.write(title_row, col,title ,header_bold_style)
 #R2                   
+# def rut_gon_key(MD,key_tram,mode_no_create_in_main_instance=None): # rút gọn key không dùng được vì nó vướn vào cái sml_not_create, required nó khác với sml thường
+# #     if mode_no_create_in_main_instance:
+# #         raise UserError(u'kkakaka 1')
+#     for attr,val in MD.items():
+#         if attr != 'fields':
+# #             if attr !='get_or_create_para':
+#             adict = TYPES_ATT_DICT.get(attr,{})
+# #             if adict == None:
+# #                 raise UserError(u'**None** attr:%s- attr_val:%s- thiếu attr trong TYPES_ATT_DICT'%(attr,val))
+#             default = adict.get('default')
+#             val = get_key_allow_goc(MD, attr, key_tram,default)
+#             if attr =='skip_this_field' and mode_no_create_in_main_instance:
+#                 skip_this_field_for_mode_no_create = get_key_allow_goc(MD, 'skip_this_field_for_mode_no_create', key_tram)
+#                 if skip_this_field_for_mode_no_create==True:
+#                     val = True
+# #             elif attr =='skip_this_field_for_mode_no_create':
+# #                 MD['skip_this_field'] = val
+#             MD[attr] = val
+#         elif MD['fields'] :
+#             for field_name, field_attr_is_MD_child in MD['fields'].items(): 
+#                 rut_gon_key(field_attr_is_MD_child,key_tram,mode_no_create_in_main_instance=mode_no_create_in_main_instance)
+
+
+# def rut_gon_key(MD,key_tram,mode_no_create_in_main_instance=None): # rút gọn key không dùng được vì nó vướn vào cái sml_not_create, required nó khác với sml thường
+# #     if mode_no_create_in_main_instance:
+# #         raise UserError(u'kkakaka 1')
+#     for attr,val in MD.items():
+#         if attr != 'fields':
+# #             if attr !='get_or_create_para':
+#             adict = TYPES_ATT_DICT.get(attr,{})
+# #             if adict == None:
+# #                 raise UserError(u'**None** attr:%s- attr_val:%s- thiếu attr trong TYPES_ATT_DICT'%(attr,val))
+#             default = adict.get('default')
+#             val = get_key_allow_goc(MD, attr, key_tram,default)
+#             if attr =='skip_this_field' and mode_no_create_in_main_instance:
+#                 skip_this_field_for_mode_no_create = get_key_allow_goc(MD, 'skip_this_field_for_mode_no_create', key_tram)
+#                 if skip_this_field_for_mode_no_create==True:
+#                     val = True
+# #             elif attr =='skip_this_field_for_mode_no_create':
+# #                 MD['skip_this_field'] = val
+#             MD[attr] = val
+# #         elif MD['fields'] :
+#         else :
+#             fields = MD['fields']
+#             if isinstance(fields, dict):
+#                 fields = get_key_allow_goc(MD, attr, key_tram,default)
+#                 MD[attr] = fields
+#             if fields != None:
+#                 for field_name, field_attr_is_MD_child in fields.items(): 
+#                     rut_gon_key(field_attr_is_MD_child,key_tram,mode_no_create_in_main_instance=mode_no_create_in_main_instance)
+                    
+
+
 def rut_gon_key(MD,key_tram,mode_no_create_in_main_instance=None): # rút gọn key không dùng được vì nó vướn vào cái sml_not_create, required nó khác với sml thường
 #     if mode_no_create_in_main_instance:
 #         raise UserError(u'kkakaka 1')
@@ -99,11 +152,17 @@ def rut_gon_key(MD,key_tram,mode_no_create_in_main_instance=None): # rút gọn 
 #             elif attr =='skip_this_field_for_mode_no_create':
 #                 MD['skip_this_field'] = val
             MD[attr] = val
-        else:
-            for field_name, field_attr_is_MD_child in MD['fields'].items(): 
-                rut_gon_key(field_attr_is_MD_child,key_tram,mode_no_create_in_main_instance=mode_no_create_in_main_instance)
-                
-                
+#         elif MD['fields'] :
+        else :
+            fields = MD['fields']
+            if isinstance(fields, dict):
+                fields = get_key_allow_goc(MD, attr, key_tram,default)
+                MD[attr] = fields
+            if fields != None:
+                print ('***fields',fields)
+                for field_name, field_attr_is_MD_child in fields: 
+                    rut_gon_key(field_attr_is_MD_child,key_tram,mode_no_create_in_main_instance=mode_no_create_in_main_instance)
+
 #R3
 def recursive_add_model_name_to_field_attr(self,MODEL_DICT,key_tram=False):
     model_name = get_key_allow(MODEL_DICT, 'model', key_tram)
@@ -124,21 +183,20 @@ def recursive_add_model_name_to_field_attr(self,MODEL_DICT,key_tram=False):
                 field_attr['field_type'] = field.type
                 if field.comodel_name:
                     field_attr['model'] = field.comodel_name
-                required_from_model = field.required
-                required_force = field_attr.get('required_force',None)
-#                 bypass_this_field_if_value_equal_False = field_attr.get('bypass_this_field_if_value_equal_False')  # nó tự default là gì đó
-#                 if bypass_this_field_if_value_equal_False:
-#                     required = False
-#                 else:
-                if required_force:
-                    required =True
-                else:
-                    required = required_from_model
-
-
-
-                field_attr['required']= required
-            if 'fields' in field_attr:
+                
+                if 'required' not in field_attr:
+                    required_from_model = field.required
+                    required_force = field_attr.get('required_force',None)
+    #                 bypass_this_field_if_value_equal_False = field_attr.get('bypass_this_field_if_value_equal_False')  # nó tự default là gì đó
+    #                 if bypass_this_field_if_value_equal_False:
+    #                     required = False
+    #                 else:
+                    if required_force:
+                        required =True
+                    else:
+                        required = required_from_model
+                    field_attr['required']= required
+            if field_attr.get('fields'):
                     recursive_add_model_name_to_field_attr(self,field_attr,key_tram=key_tram)
                     
                     
@@ -264,10 +322,10 @@ def check_col_index_match_xl_title_for_a_field(field_attr,xl_title,col_index,set
             if  field_attr.get('model'):
                 if not func and not field_attr.get('fields'):
                     raise UserError(u'không có gì hết  nếu có model thì phải có ít nhất func và fields')
-#             else:
-#                 if not func:
-#                     
-#                     raise UserError (u' sao khong có col_index và  không có func luôn field %s attrs %s'%(field_name,u'%s'%field_attr))
+            else:
+                if not func:
+                     
+                    raise UserError (u' sao khong có col_index và  không có func luôn field %s attrs %s'%(field_name,u'%s'%field_attr))
                 
                 
 def check_col_index_match_xl_title(self,COPY_MODEL_DICT,key_tram,needdata):

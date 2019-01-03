@@ -4,7 +4,10 @@
      <record id="show_thong_tin_khong_dau" model="res.groups">
          <field name="name">Group Show thông tin không dấu</field>
       </record>
-        
+       
+ 
+      
+      
        <!-- 
         <record id="stock.stock_picking_type_menu" model="ir.ui.menu">
         <field name="groups_id" eval="[(6,0, [])]"/>

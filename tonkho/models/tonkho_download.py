@@ -12,6 +12,8 @@ class DownloadQuants(models.TransientModel):
                                                 default=lambda self:self.env.user.department_id.default_location_running_id.id,
                                                  string=u'Kho đang chạy'
                                                  )
+    
+    is_xuat_dc =  fields.Boolean()
 #     test =  fields.Text()
     @api.multi
     def gen_pick_func(self): 

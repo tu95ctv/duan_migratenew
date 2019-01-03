@@ -94,7 +94,7 @@ bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 240;")
 # center_nomal_style = xlwt.easyxf(generate_easyxf(height=12, vert = 'center',horiz = 'center'))
 
 ## font from dl_ml
-not_horiz_center_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align: wrap on ,vert centre; borders: left thin,right thin, top thin, bottom thin")
+# not_horiz_center_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align: wrap on ,vert centre; borders: left thin,right thin, top thin, bottom thin")
 not_horiz_center_border_style = xlwt.easyxf(generate_easyxf(height=HEIGHT,borders='left thin, right thin, top thin, bottom thin',vert = 'center',align_wrap=True))
 #font from xl_bbbg
 
@@ -224,11 +224,8 @@ def download_model(dl_obj,
         ROW_TITLE +=1
         n_row_title+= 1
         write_before_title (kargs_write_before_title)
-    if  recs or write_title_even_not_recs_for_title:
-        add_title(worksheet, FIELDNAME_FIELDATTR, model_fields, ROW_TITLE=ROW_TITLE, offset_column=OFFSET_COLUMN,no_gray=no_gray,is_set_width=is_set_width,needdata_from_table=needdata_from_table)
-        n_row_title += 1
-        
-        
+    
+
     row_index = ROW_TITLE 
     if  recs:
         for r in recs:#request.env['cvi'].search([]):
@@ -244,7 +241,9 @@ def download_model(dl_obj,
     else:
         n_row_recs = 0       
     
-  
+    if  recs or write_title_even_not_recs_for_title:
+        add_title(worksheet, FIELDNAME_FIELDATTR, model_fields, ROW_TITLE=ROW_TITLE, offset_column=OFFSET_COLUMN,no_gray=no_gray,is_set_width=is_set_width,needdata_from_table=needdata_from_table)
+        n_row_title += 1
     if return_more_thing_for_bcn:
         return n_row_recs + n_row_title
     return workbook
@@ -271,10 +270,13 @@ def add_1_row(worksheet,r ,FIELDNAME_FIELDATTR, row_index,
         is_not_model_field = FIELDATTR.get('is_not_model_field')
         split = FIELDATTR.get('split')
         write_to_excel = FIELDATTR.get('write_to_excel',True)
+        transfer_fname = FIELDATTR.get('transfer_fname')
+        f_name_real =transfer_fname or  f_name
         if is_not_model_field:
             val = False
         else:
-            val = getattr(r, f_name)
+            val = getattr(r, f_name_real)
+            
         one_field_val = a_instance_dict.setdefault(f_name,{})
         one_field_val['val_before_func'] = val
         func = FIELDATTR.get('func',None)
@@ -347,7 +349,6 @@ def add_title(worksheet,FIELDNAME_FIELDATTR,model_fields,ROW_TITLE=0, offset_col
             worksheet.write(ROW_TITLE, column_index, f_string, title_style)
             writen_column_number += 1
             if is_set_width:
-                
                 width  = get_width(FIELDATTR.get('max_len_field_val',0) + 6) #or width
                 f_string_width = get_width(len(f_string) + 2)
                 if f_string_width > width:

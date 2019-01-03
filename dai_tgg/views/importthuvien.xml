@@ -24,8 +24,10 @@
                      <group string="Nhập">
                         <field name="file" filename="filename" />
                         <field name="sheet_name" required="0"></field>
+               			<field name="sheet_name_select" />
                         <field name="type_choose" />
                         <field name="key_tram" />
+                     	<field name="mode"></field>
                         <field name="dong_test"></field>
                         <field name="begin_row"></field>
                         <field name="categ_id"></field>
@@ -42,8 +44,10 @@
                      </group>
                      
                      <group string="Chưa Xài">
+                     
                         <field name="name_inventory_suffix"></field>
-                     	   <field name="running_or_prepare"></field>
+                        	<field name="allow_product_qty_dieu_chinh" />
+                     	   <!--  <field name="running_or_prepare"></field>-->
                         	<field name="skip_field_cause_first_import"></field>
                         	
                         	<field name="allow_check_excel_obj_is_exist_func" groups="base.group_erp_manager" />
@@ -83,6 +87,9 @@
             <tree>
                <field name="id" />
                <field name="type_choose" />
+               <field name="key_tram" />
+               <field name="filename" />
+               <field name="sheet_name" />
                <field name="create_date" />
                <field name="write_date" />
             </tree>
@@ -129,6 +136,8 @@
                <field name="id" />
                <field name="type_choose" />
                <field name="user_id" />
+               
+               <field name="filename" />
                <field name="create_date" />
                <field name="write_date" />
             </tree>

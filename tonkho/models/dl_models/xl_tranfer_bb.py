@@ -79,6 +79,10 @@ def tinh_trang_vat_tu_(ws,f_name,fixups,needdata,row,dl_obj):
     if all_hong:
         return u'Tình trạng vật tư : Hỏng'
     return None
+def ddbg_(ws,f_name,fixups,needdata,row,dl_obj):
+    ddbg_name =  dl_obj.location_id.partner_id_of_stock_for_report.name or dl_obj.doi_tac_giao_id.name
+    return u'Đại diện bên giao%s'%(' (%s)'% ddbg_name if ddbg_name  else '' )
+                            
 def ky_ten_cac_ben_(ws,f_name,fixups,needdata,row,dl_obj,source_member_ids='source_member_ids',is_not_show = False,type='name'
                     ,empty_force = False,fix_name =False):
     if is_not_show:
@@ -119,9 +123,9 @@ def xac_nhan_lanh_dao_(ws,f_name,fixups,needdata,row,dl_obj):
         return None
     else:
         return u'XÁC NHẬN CỦA LĐ ĐÀI'
-def ddbg_(ws,f_name,fixups,needdata,row,dl_obj):
-    pass
-    
+# def ddbg_(ws,f_name,fixups,needdata,row,dl_obj):
+#     pass
+#     
     
 def write_xl_bb(dl_obj):
     
@@ -146,9 +150,11 @@ def write_xl_bb(dl_obj):
                     ('bbg',{'range':[3,3,0,7],'val':u'BIÊN BẢN BÀN GIAO VẬT TƯ', 'style':bbbg_style,'height':1119,'off_set':1}),
                     ('to_trinh',{'range':[5,5,0,7],'val':None, 'val_func': to_trinh_ ,'height':600,'style':wrap_normal_style}),
                     ('hom_nay',{'range':[6,0],'val':None, 'val_func': hom_nay_ }),
-                    ('ddbg',{'range':[8,0],'val':u'Đại diện bên giao%s'%(' (%s)'%dl_obj.location_id.partner_id_of_stock_for_report.name if not dl_obj.location_id.not_show_in_bb  else '' )}),
+#                     ('ddbg',{'range':[8,0],'val':u'Đại diện bên giao%s'%(' (%s)'%dl_obj.location_id.partner_id_of_stock_for_report.name if dl_obj.location_id.partner_id_of_stock_for_report  else '' )}),
+                    ('ddbg',{'range':[8,0],'val':None, 'val_func':ddbg_}),
                     ('ong_ba',{'range':['auto', 0],'val':None, 'func':ong_ba_}),
-                    ('ddbn',{'range':['auto',0],'val':u'Đại diện bên nhận%s'%(' (%s)'%dl_obj.location_dest_id.partner_id_of_stock_for_report.name if not dl_obj.location_dest_id.not_show_in_bb  else '' ),'offset':2}),
+#                     ('ddbn',{'range':['auto',0],'val':u'Đại diện bên nhận%s'%(' (%s)'%dl_obj.location_dest_id.partner_id_of_stock_for_report.name if not dl_obj.location_dest_id.not_show_in_bb  else '' ),'offset':2}),
+                    ('ddbn',{'range':['auto',0],'val':u'Đại diện bên nhận%s'%(' (%s)'%dl_obj.location_dest_id.partner_id_of_stock_for_report.name if dl_obj.location_dest_id.partner_id_of_stock_for_report  else '' ),'offset':2}),
 #                     ('ddbn',{'range': ['auto', 0],'val':u'Đại diện bên nhận (%s)'%(dl_obj.location_dest_id.partner_id_of_stock_for_report.name),'offset':2}),
                     ('ong_ba2',{'range':['auto', 0], 'val':None,  'func':ong_ba_,'kargs':{'source_member_ids':'dest_member_ids'}}),
                     ('ly_do',{'range': ['auto', 'auto', 0,7],'val':None,'val_func':ly_do_,}),

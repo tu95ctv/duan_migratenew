@@ -31,7 +31,8 @@
             <field name="arch" type="xml">
                 <search string="Picking Lists">
                     <field name="name" string="tên" filter_domain="['|',('name','ilike', self),('origin','ilike',self)]"/>
-                    <field name="product_id" string ="Tên vật tư hoặc Part number" filter_domain="['|',('move_lines.product_id.name','ilike', self),('move_lines.product_id.pn','ilike',self)]"/>
+                    <field name="product_id" />
+                 <!--  <field name="product_id" string ="Tên vật tư hoặc Part number" filter_domain="['|',('move_lines.product_id.name','ilike', self),('move_lines.product_id.pn','ilike',self)]"/> -->  
                      <field name="location_id" />
                     <filter name="draft" string="Bản thảo" domain="[('state','=','draft')]" help="Draft Moves"/>
                     <filter name="done" string="Hoàn thành" domain="[('state','=','done')]" help="Pickings already processed"/>

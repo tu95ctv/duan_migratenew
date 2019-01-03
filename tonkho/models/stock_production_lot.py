@@ -36,6 +36,7 @@ class StockProductionLot(models.Model):
     barcode_sn = fields.Char()
     id_ke_toan = fields.Char(string=u'ID kế toán')
     the_tai_san = fields.Char(string=u'Thẻ tài sản')
+    ngay_su_dung = fields.Date()
 #     context = fields.Char(compute='context_')
     pn = fields.Char(related='product_id.pn',string=u'Part number',store=True)
     name_replace = fields.Char(compute='name_replace_',store=True)

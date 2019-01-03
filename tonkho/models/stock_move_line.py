@@ -33,14 +33,30 @@ class StockMoveLine(models.Model):
     stt = fields.Integer()
     inventory_line_id = fields.Many2one('stock.inventory.line')
     sltk = fields.Integer(compute='sltk_',store=True)
+    decoration_danger = fields.Boolean(compute='decoration_danger_')
 #     ghi_chu_cate = fields.Text()
-    
+    thiet_bi_id = fields.Many2one('tonkho.thietbi',related='product_id.thiet_bi_id' ,string = u'Thiết bị')
+    @api.depends('sltk','decoration_danger','location_id')
+    def decoration_danger_(self):
+        for r in self:
+            r.decoration_danger = (not r.location_id.cho_phep_khac_tram_chon) and (r.qty_done > r.sltk)
+    @api.onchange('lot_id','product_id')
+    def location_id_oc_(self):
+        qs = self.env['stock.quant'].search([('lot_id','=',self.lot_id.id),('product_id','=',self.product_id.id),('quantity','>',0)])
+#         print (qs.ids)
+        lc_ids= qs.mapped('location_id.id')
+        lc_ids.append(self.picking_id.location_id.id)
+        return {
+            'domain': {
+                    'location_id': [('id', 'in',lc_ids)],
+            }
+                }
     
     @api.depends('product_id','lot_id','location_id')
     def sltk_(self):
         for r in self:
 #             quants = self.env['stock.quant'].search([('product_id','=',r.product_id.id),('lot_id','=',r.lot_id.id),('location_id.usage','=','internal')])
-            quants = self.env['stock.quant'].search([('product_id','=',r.product_id.id),('lot_id','=',r.lot_id.id),('location_id','child_of',r.picking_id.location_id.id),('quantity','>',0)])
+            quants = self.env['stock.quant'].search([('product_id','=',r.product_id.id),('lot_id','=',r.lot_id.id),('location_id','=',r.location_id.id),('quantity','>',0)])
             if quants:
                 r.sltk = quants[0].quantity
     def _action_done(self):

@@ -28,12 +28,13 @@ class ImportThuVien(models.Model):
          ,(u'thuebaoline',u'Thuê bao'),
          (u'Loại sự cố, sự vụ', u'Loại sự cố, sự vụ')
                                     ],required = True)
-    sheet_name = fields.Selection([
+    sheet_name_select = fields.Selection([
                                     (u'Vô tuyến',u'Vô tuyến'),
                                   (u'TRUYỀN DẪN',u'TRUYỀN DẪN'),
                                    (u'Chuyển Mạch (IMS, Di Động)',u'Chuyển Mạch (IMS, Di Động)'),
                                    (u'Truyền dẫn',u'Truyền dẫn'),(u'IP (VN2, VNP)',u'IP (VN2, VNP)'),
                                    (u'GTGT',u'GTGT'),(u'XFP, SFP các loại',u'XFP, SFP các loại')  ],rejquired=True)
+    sheet_name =  fields.Char()
     key_tram =  fields.Selection([('key_ltk','key_ltk'),
                                   ('key_tti','key_tti'),
                                   ('key_137','key_137'),
@@ -83,7 +84,12 @@ class ImportThuVien(models.Model):
     cho_phep_exist_val_before_loop_fields_func = fields.Boolean(default = True)
     
     is_admin = fields.Boolean(compute='is_admin_')
-    
+    allow_product_qty_dieu_chinh = fields.Boolean()
+    mode = fields.Selection([(u'1',u'mode 1 (tim location goc bằng key)'),(u'2',u'mode 2 ( tìm location góc bằng cột trạm)')])
+    @api.onchange('sheet_name_select')
+    def sheet_name_select_oc_(self):
+        if self.sheet_name_select:
+            self.sheet_name = self.sheet_name_select
     @api.depends('type_choose')
     def is_admin_(self):
         for r in self:

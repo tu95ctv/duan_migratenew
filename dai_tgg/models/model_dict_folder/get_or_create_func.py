@@ -203,6 +203,9 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
                         orm_field_val = getattr(searched_object, f_name)
                         is_write_this_field = check_diff_write_val_with_exist_obj(orm_field_val,val)
                         if is_write_this_field:
+                            if orm_field_val != False:
+                                if field_attr.get('raise_if_diff'):
+                                    raise UserError(u'raise_if_diff, f_name:%s - orm_field_val: %s -  val:%s '%(f_name,orm_field_val,val))
                             write_dict_new[f_name] = val
                 else:
                     write_dict_new[f_name] = val

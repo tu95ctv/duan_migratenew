@@ -301,8 +301,9 @@ def get_a_field_val(self,field_name,field_attr,key_tram,
     val =replace_val_for_ci(field_attr,key_tram,val,needdata)
     a_field_vof_dict['val'] = val
     a_field_vof_dict['obj'] = obj
-    print ("row: ", row,'model_name: ',model_name,'-field: ', field_name, '-val: ', val)
-    check_type_of_val(field_attr,val,field_name,model_name)
+    
+    
+    
     
   
         
@@ -332,11 +333,13 @@ def get_a_field_val(self,field_name,field_attr,key_tram,
         bypass_this_field_if_value_equal_False = setting['bypass_this_field_if_value_equal_False_default']
 #     if key_or_not ==True or key_or_not =='Both':
 #         bypass_this_field_if_value_equal_False = False
-    if required and val==False:
+#     print ('**val !=0.0',val !=0.0,val)
+#     print (val, type(val))
+    if required and (val==False and isinstance(val, bool)):# val ==False <==> val ==0, val ==0 <==> val =False
         if field_attr.get('raise_if_False'):
             raise UserError('raise_if_False field: %s'%field_name)
         if main_call_create_instance_model or MODEL_DICT.get('print_write_dict_new',False):
-            print (u'skip việc get or create của dòng này because required but,model %s- field %s'%(model_name,field_name))
+            print (u'skip việc get or create của dòng này because required but,model %s- field %s, val:%s'%(model_name,field_name,val))
         this_model_notice = noti_dict.setdefault(model_name,{})
         skip_because_required = this_model_notice.setdefault('skip_because_required',0)
         this_model_notice['skip_because_required'] = skip_because_required + 1
@@ -353,6 +356,16 @@ def get_a_field_val(self,field_name,field_attr,key_tram,
         else:
             update_dict [field_name] = val
 #         print ('4',count)
+
+
+    valid_field_func = field_attr.get('valid_field_func')
+    if valid_field_func:
+        valid_field_func(val,obj,needdata,self)
+        
+        
+    print ("row: ", row,'model_name: ',model_name,'-field: ', field_name, '-val: ', val)
+    check_type_of_val(field_attr,val,field_name,model_name)
+    
     if field_attr.get('is_x2m_field'):
             x2m_fields.append(field_name)
             some_dict['remove_all_or_just_add_one_x2m'] &= field_attr.get('remove_all_or_just_add_one_x2m',True)
@@ -493,8 +506,15 @@ def importthuvien(odoo_or_self_of_wizard,
                   key_tram=False,
                   not_create = False):
     self = odoo_or_self_of_wizard
+    
+    
+    
+    self_key_tram =  getattr(self,'key_tram',False) or key_tram
+
+    
     if not model_dict:
-        ALL_MODELS_DICT = gen_model_dict(self=self)
+        ALL_MODELS_DICT = gen_model_dict(self=self, 
+                                         key_tram = self_key_tram)
     else:
         ALL_MODELS_DICT =  model_dict
     
@@ -518,17 +538,20 @@ def importthuvien(odoo_or_self_of_wizard,
     if context_get:
         context.update(context_get)
     self = self.with_context(context)
-    print ('self._context****',self._context)
+   
+    
     key_allow = CHOOSED_MODEL_DICT.get('key_allow',False)
-    self_key_tram =  getattr(self,'key_tram',False) or key_tram
     key_tram = key_allow and self_key_tram
     if key_allow and not key_tram:
         raise UserError(u'ban phai chon key_tram')
-    #R1
-    ordered_a_model_dict( CHOOSED_MODEL_DICT)
     #R2
     mode_no_create_in_main_instance = getattr(self,'mode_no_create_in_main_instance',None)
     rut_gon_key(CHOOSED_MODEL_DICT,key_tram,mode_no_create_in_main_instance=mode_no_create_in_main_instance)
+    print ('***CHOOSED_MODEL_DICT***',CHOOSED_MODEL_DICT)
+    
+    #R1
+    ordered_a_model_dict( CHOOSED_MODEL_DICT)
+    
     #R3
     recursive_add_model_name_to_field_attr(self,CHOOSED_MODEL_DICT,key_tram=key_tram)
 #     dac_tinhs = {}
@@ -601,6 +624,9 @@ def importthuvien(odoo_or_self_of_wizard,
     
 #     print ('**setting**',setting)
 #     raise UserError(u'%s'%setting)
+    prepare_func = CHOOSED_MODEL_DICT.get('prepare_func')
+    if prepare_func:
+        prepare_func(needdata,self)
     for sheet_name in sheet_names:
         print ('**sheet_name',sheet_name)
         COPY_MODEL_DICT = deepcopy(CHOOSED_MODEL_DICT)
@@ -608,7 +634,6 @@ def importthuvien(odoo_or_self_of_wizard,
         needdata['sheet_name'] = sheet_name
 #         if key_tram:
 #             rut_gon_key(COPY_MODEL_DICT,key_tram)
-        
         sheet = xl_workbook.sheet_by_name(sheet_name)
         #R3 xuat dac tinh
         if getattr(self,'dac_tinh',None):
@@ -628,7 +653,11 @@ def importthuvien(odoo_or_self_of_wizard,
         largest_map_row_choosing = get_key_allow(CHOOSED_MODEL_DICT, 'largest_map_row_choosing', key_tram)#largest_map_row_choosing  is boolean
       
         if largest_map_row_choosing:
-            title_rows = range(0,sheet.nrows)
+            range_1 = getattr(self, 'range_1',None)
+            range_2 = getattr(self, 'range_2',None)
+            range_1 = range_1 or 0
+            range_2 = range_2 or sheet.nrows
+            title_rows = range(range_1,range_2)
         else:
             title_rows_some_sheets = CHOOSED_MODEL_DICT.get('title_rows_some_sheets',{})
             if title_rows_some_sheets:
@@ -640,6 +669,9 @@ def importthuvien(odoo_or_self_of_wizard,
         
         
         row_title_index,largest_map_row = define_col_index(title_rows,sheet,COPY_MODEL_DICT,key_tram)
+        if largest_map_row_choosing:
+            row_title_index = largest_map_row
+            
 #         if largest_map_row_choosing:
 #             row_title_index = largest_map_row
 #         else:

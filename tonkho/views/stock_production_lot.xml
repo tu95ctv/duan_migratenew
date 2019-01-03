@@ -33,6 +33,7 @@
                         <field name="the_tai_san" />
                         <field name="tinh_trang"></field>
                         <field name="ghi_chu" />
+                        <field name="ngay_su_dung" />
                      <!--    <field name="context"></field> -->
                     </field>
                 </data>
@@ -52,6 +53,7 @@
                    <!--  <field name="barcode_sn" /> -->
                     <field name="tinh_trang"></field>
                     <field name="ghi_chu" />
+                    <field name="ngay_su_dung" />
                 </field>
                 <field name="product_id" position="attributes">
                 	<attribute name="readonly">context.get('pn_id_readonly')</attribute>
@@ -80,6 +82,7 @@
                     <field name="ghi_chu" />
                      
                <field name="ghi_chu_ban_dau" />
+               <field name="ngay_su_dung" />
                <field name="ghi_chu_ngay_nhap" />
                <field name="ghi_chu_ngay_xuat" />
                 

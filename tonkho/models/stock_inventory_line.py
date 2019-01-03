@@ -25,7 +25,7 @@ class InventoryLine(models.Model):
         for r in self:
             print ("r.product_id.tracking",r.product_id.tracking, r.prod_lot_id)
             if r.product_id.tracking =='serial' and  not r.prod_lot_id:
-                raise UserError(u'product (%s,%s) có tracking nhưng INV line lại không có'%(r.product_id.name,r.product_id.pn))
+                raise UserError(u'product (%s,%s) có tracking nhưng INV line lại không có lot_id'%(r.product_id.name,r.product_id.pn))
             
             
     def _get_move_values(self,*arg,**karg):

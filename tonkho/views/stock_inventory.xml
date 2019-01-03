@@ -23,11 +23,12 @@
 		        <field name="inherit_id" ref="stock.view_inventory_form"></field>
 		        <field name="arch" type="xml">
 		        		<xpath expr="//button[4]" position="after">
-		        			<button string="change uom" name="product_uom_id_oc" type="object"></button>
+		        			<button string="change uom" name="product_uom_id_oc" type="object" groups="base.group_erp_manager"></button>
 		        		</xpath>
-		          		<field name="exhausted" position="replace">
+		          		<field name="exhausted" position="after">
 		          			<field name="state"></field>
-		          			<field name="product_uom_id"></field>
+		          			<field name="product_uom_id" groups="base.group_erp_manager"></field>
+		          			<field name="negative_product_select"></field>
 		          		</field>
 		          		
 		          		<xpath expr="//field[@name='line_ids']/tree/field[@name='location_id']" position="after">
@@ -40,10 +41,17 @@
 		          			<field name="pn" readonly="1"></field> 
 		          			<!-- <field name="pn_id" readonly="1"></field> -->
 		          		</xpath>
+		          	
+		          	
+		          		<!-- 
+		          		<xpath expr="//field[@name='line_ids']" position="attributes">
+		          			<attribute name="domain">[('theoretical_qty','&lt;',0)]</attribute>
+		          		 </xpath>
+		          		  -->
+		          		  
 		          		<xpath expr="//field[@name='line_ids']/tree/field[@name='prod_lot_id']" position="after">
 		          			<field name="barcode_sn"></field>
 		          			<field name="ghi_chu"></field>
-		          			<!-- <field name="ghi_chu_cate"></field> -->
 		          		 </xpath>
 		          		 <xpath expr="//field[@name='line_ids']/tree/field[@name='prod_lot_id']" position="attributes">
 		          			<attribute name="attrs">{'invisible':[('tracking','=','none')]}</attribute>

@@ -11,8 +11,8 @@
                
                
                <tree position="attributes">
-                    <attribute name="decoration-danger">ban_giao_or_nghiem_thu=='HUY'</attribute>
-                    <attribute name="decoration-info">ban_giao_or_nghiem_thu=='TRA_DO_HUY'</attribute>
+                    <attribute name="decoration-danger">(state not in ('cancel', 'done') and scheduled_date &lt; current_date) or ban_giao_or_nghiem_thu=='HUY'</attribute>
+                   <!--  <attribute name="decoration-info">ban_giao_or_nghiem_thu=='TRA_DO_HUY'</attribute> -->
                 </tree>
                 
                 

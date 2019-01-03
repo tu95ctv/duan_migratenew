@@ -61,9 +61,10 @@ def gen_user_department_model_dict():
                          ('name',{'func':None,'xl_title':u'Name','key':True,'required':True}),
                          ('usage',{'set_val':'supplier'}),
                          ('is_kho_cha',{'set_val':True}),
+                         ('department_id',{'set_val':False}),
                          ('cho_phep_khac_tram_chon',{'set_val':True}),
                          ('not_show_in_bb',{'func':lambda v,n: True if v else False,'xl_title':u'not_show_in_bb'}),
-                         ('partner_id_of_stock_for_report',{'fields':[('name',{'func': lambda v,n:n['vof_dict']['name']['val'], 'key':True,'required':True}),
+                         ('partner_id_of_stock_for_report',{'fields':[('name',{'func': lambda v,n:not n['vof_dict']['not_show_in_bb']['val'] and n['vof_dict']['name']['val'], 'key':True,'required':True}),
                                                        ]
                                             }
                          ),

@@ -156,6 +156,8 @@ class StockPicking(models.Model):
     ben_thu_4_ids = fields.Many2many('res.partner','ben_thu_4_stock_picking_relate','picking_id','partner_id',string=u'Bên thứ 4',copy=False)
     texttemplate_id = fields.Many2one('tonkho.texttemplate',string=u"Mẫu lý do",domain=[('field_context','=','tonkho.stock.picking.field.ly_do')],copy=False)
     show_validate_ben_giao = fields.Boolean(compute='show_validate_ben_giao_')
+
+
 #     is_diff_department = fields.Boolean(compute='is_diff_department_')
     is_same_department = fields.Boolean(compute='is_same_department_')# location_id = location_dest_id
     is_validate_mode = fields.Boolean(compute='is_validate_mode_')
@@ -202,6 +204,17 @@ class StockPicking(models.Model):
     is_quyen_huy_bb =  fields.Boolean(compute='is_quyen_huy_bb_')
     allow_cate_for_ghi_chu =  fields.Boolean(string=u"Lấy Tiêu đề làm ghi chú")
     empty_ghi_chu_in_bb =  fields.Boolean(string=u'Tự ghi chú trong BB excel')
+    
+    range_1 = fields.Integer()
+    range_2 = fields.Integer()
+    
+    doi_tac_giao_id = fields.Many2one('res.partner',u'Đơn vị  giao')
+    location_id_partner_id =  fields.Many2one('res.partner',related='location_id.partner_id_of_stock_for_report',store=False,readonly=True)
+    location_dest_id_partner_id =  fields.Many2one('res.partner',related='location_dest_id.partner_id_of_stock_for_report',store=False,readonly=True)
+    doi_tac_nhan_id = fields.Many2one('res.partner',u'Đơn vị nhận')
+    allow_product_qty_dieu_chinh = fields.Boolean()
+    
+    
     @api.one
     def is_quyen_huy_bb_(self):
         self.is_quyen_huy_bb = self.user_has_groups('base.group_erp_manager') or (self.env.user == self.create_uid)
@@ -247,9 +260,12 @@ class StockPicking(models.Model):
         
     @api.multi
     def import_file(self):
-        title_row_for_import = [self.title_row_for_import or 0]
-        md = gen_model_dict(title_row_for_import,self)
-        importthuvien(self,model_dict = md, key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',key_tram='sml')
+#         title_row_for_import = [self.title_row_for_import or 0]
+#         md = gen_model_dict(title_row_for_import,self)
+        importthuvien(self,
+#                         model_dict = md,
+                       key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp'
+                       ,key_tram='sml')
 
     @api.multi
     def validate_cua_ben_giao(self):
@@ -304,7 +320,7 @@ class StockPicking(models.Model):
                 else:
                     is_ban_la_ben_nhan = self.env.user.department_id == picking.location_dest_id.department_id
                     show_validate = False
-                    if is_ban_la_ben_nhan:
+                    if is_ban_la_ben_nhan or self.user_has_groups('base.group_erp_manager'):
                         if picking.state =='done_ben_giao':
                             show_validate = True
                         else:

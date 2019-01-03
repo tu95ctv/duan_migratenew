@@ -37,14 +37,15 @@ def download_quants(dl_obj,append_domain = []):
     FIELDNAME_FIELDATTR_quants = [
          ('stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_}),
          ('stt',{'skip_field':not dl_obj.is_not_skip_field_stt}),
-         ('product_id',{'func':lambda v,n: v.name,'width':get_width(50)}),
-         ('thiet_bi_id',{'func':lambda v,n: v.name,'width':get_width(20)}),
+         ('product_id',{'func':lambda v,n: v.name,'string':u'Tên Vật Tư'}),
+         ('thiet_bi_id',{'func':lambda v,n: v.name,}),
          ('brand_id',{'func':lambda v,n: v.name}), 
+         ('product_uom_id',{'string':u'ĐVT'}), 
          ('tracking',{'func':tracking_}),
          ('categ_id',{'func':lambda v,n: v.name }),
 #          ('pn_id',{'func':lambda v,n: v.name,'width':get_width(20)}),
-         ('pn',{'width':get_width(20)}),
-         ('lot_id',{'func':lambda v,n: v.name}),
+         ('pn',{}),
+         ('lot_id',{'func':lambda v,n: v.name,'string':u'Serial number'}),
          ('location_id',{'func':lambda v,n: v.name_get_1_record(),'write_to_excel':False,'split':[
                  ('tram',{'is_not_model_field':True,'string':u'Trạm','func':tu_shelf_,'kargs':{'stock_type':'tram'}}),         
                  ('phong_may',{'is_not_model_field':True,'string':u'Phòng máy','func':tu_shelf_,'kargs':{'stock_type':'phong_may'}}),
@@ -53,7 +54,16 @@ def download_quants(dl_obj,append_domain = []):
                  ('stt_trong_self',{'is_not_model_field':True,'string':u'STT trong shelf','func':tu_shelf_,'kargs':{'stock_type':'stt_trong_self'}}),
                  ('slot',{'is_not_model_field':True,'string':u'Slot','func':tu_shelf_,'kargs':{'stock_type':'slot'}})     
              ]}),
-          ('quantity',{'width':get_width(40)}),
+          ('quantity',{'string':u'Số lượng'}),
+          ('qty_dieu_chinh',{'transfer_fname':'quantity','string':u'Số lượng điểu chỉnh','skip_field':not dl_obj.is_xuat_dc}),
+         ('tram_dc',{'is_not_model_field':True,'string':u'Trạm điều chuyển','skip_field':not dl_obj.is_xuat_dc}),         
+         ('phong_may_dc',{'is_not_model_field':True,'string':u'Phòng máy điều chuyển','skip_field':not dl_obj.is_xuat_dc}),
+         ('tu_dc',{'is_not_model_field':True,'string':u'Tủ điều chuyển','skip_field':not dl_obj.is_xuat_dc}),
+         ('shelf_dc',{'is_not_model_field':True,'string':u'Shelf điều chuyển','skip_field':not dl_obj.is_xuat_dc}),
+         ('stt_trong_self_dc',{'is_not_model_field':True,'string':u'STT trong shelf điều chuyển','skip_field':not dl_obj.is_xuat_dc}),
+         ('slot_dc',{'is_not_model_field':True,'string':u'Slot điều chuyển','skip_field':not dl_obj.is_xuat_dc})     
+                 
+                 
                     ]
     Export_Para_quants = {
         'exported_model':'stock.quant',

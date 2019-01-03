@@ -65,7 +65,7 @@ class Quant(models.Model):
             if self.lot_id:
                 rs = self.env['stock.quant'].search([('lot_id','=',self.lot_id.id),('quantity','>',0)])
                 if len(rs)>1:
-                    raise UserError(u'Không được có quants  nội bộ chung lot_id và quantity > 0 product:%s-sn: %s'%(self.product_id.name,self.lot_id.name))
+                    raise UserError(u'Không được có quants nội bộ chung lot_id và quantity > 0 product:%s-sn: %s'%(self.product_id.name,self.lot_id.name))
     @api.constrains('location_id','quantity')
     def not_allow_negative_qty(self):
         for r in self:
