@@ -212,7 +212,7 @@ class StockPicking(models.Model):
     location_id_partner_id =  fields.Many2one('res.partner',related='location_id.partner_id_of_stock_for_report',store=False,readonly=True)
     location_dest_id_partner_id =  fields.Many2one('res.partner',related='location_dest_id.partner_id_of_stock_for_report',store=False,readonly=True)
     doi_tac_nhan_id = fields.Many2one('res.partner',u'Đơn vị nhận')
-    allow_product_qty_dieu_chinh = fields.Boolean()
+#     allow_product_qty_dieu_chinh = fields.Boolean()
     
     
     @api.one
@@ -260,10 +260,7 @@ class StockPicking(models.Model):
         
     @api.multi
     def import_file(self):
-#         title_row_for_import = [self.title_row_for_import or 0]
-#         md = gen_model_dict(title_row_for_import,self)
         importthuvien(self,
-#                         model_dict = md,
                        key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp'
                        ,key_tram='sml')
 

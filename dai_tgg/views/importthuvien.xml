@@ -46,8 +46,8 @@
                      <group string="Chưa Xài">
                      
                         <field name="name_inventory_suffix"></field>
-                        	<field name="allow_product_qty_dieu_chinh" />
-                     	   <!--  <field name="running_or_prepare"></field>-->
+                        	<!--<field name="allow_product_qty_dieu_chinh" />
+                     	     <field name="running_or_prepare"></field>-->
                         	<field name="skip_field_cause_first_import"></field>
                         	
                         	<field name="allow_check_excel_obj_is_exist_func" groups="base.group_erp_manager" />

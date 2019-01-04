@@ -270,7 +270,8 @@ def add_col_index(MODEL_DICT, read_excel_value_may_be_title, col,key_tram):
             for xl_title in xl_title_s:
                 xl_title_partern = u'^%s$'%xl_title
 #                 xl_title_partern = xl_title
-                xl_title_partern = xl_title_partern.replace('/','//').replace('(','/(').replace(')','/)')
+#                 xl_title_partern = xl_title_partern.replace('/','//').replace('(','/(').replace(')','/)')
+                xl_title_partern = xl_title_partern.replace('\\','\\\\').replace('(','\(').replace(')','\)')
                 is_map = re.search(xl_title_partern,read_excel_value_may_be_title,re.IGNORECASE)
                 is_map = is_map or (xl_title==read_excel_value_may_be_title)
                 if is_map:

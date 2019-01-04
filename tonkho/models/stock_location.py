@@ -42,7 +42,7 @@ class StockLocation(models.Model):
         if self.name:
             stock_type = KHO_SELECTION_DICT.get(self.stock_type)
             if stock_type:
-                name = stock_type + ': '  + self.name 
+                name = stock_type + ':'  + self.name 
                 return name
         return self.name
      
@@ -53,7 +53,7 @@ class StockLocation(models.Model):
             location = location.location_id
             if not name:
                 raise UserError(_('You have to set a name for this location.'))
-            name = location.get_name_with_type() + "/" + name
+            name = location.get_name_with_type() + "/ " + name
         return name
 #     
     def name_get(self):

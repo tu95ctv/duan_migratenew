@@ -13,7 +13,8 @@ class DownloadQuants(models.TransientModel):
                                                  string=u'Kho đang chạy'
                                                  )
     
-    is_xuat_dc =  fields.Boolean()
+    is_xuat_dc =  fields.Boolean(u'Xuất cột số lượng điều chỉnh',default=True)
+    is_xuat_kho_dc =  fields.Boolean(u'Xuất cột kho điều chỉnh',default=True)
 #     test =  fields.Text()
     @api.multi
     def gen_pick_func(self): 

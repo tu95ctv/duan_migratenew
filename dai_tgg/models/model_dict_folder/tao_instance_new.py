@@ -88,7 +88,7 @@ def replace_val_for_ci(field_attr,key_tram,val,needdata):
     #### !!!deal  replace val#####
                 
     ### deal defautl ###
-    if val == False and  field_attr.get('default'):
+    if val == False and  field_attr.get('default') !=None:
         val = field_attr.get('default')
     
     ### !!!!deal defautl ###
@@ -298,6 +298,8 @@ def get_a_field_val(self,field_name,field_attr,key_tram,
             except TypeError:
                 val = func(val,**karg)
     #end func
+    
+    
     val =replace_val_for_ci(field_attr,key_tram,val,needdata)
     a_field_vof_dict['val'] = val
     a_field_vof_dict['obj'] = obj
@@ -335,7 +337,13 @@ def get_a_field_val(self,field_name,field_attr,key_tram,
 #         bypass_this_field_if_value_equal_False = False
 #     print ('**val !=0.0',val !=0.0,val)
 #     print (val, type(val))
-    if required and (val==False and isinstance(val, bool)):# val ==False <==> val ==0, val ==0 <==> val =False
+
+
+    if bypass_this_field_if_value_equal_False and val==False: 
+#         if required and not field_attr.get('ready_declare_default'):
+#             raise UserError(u'bypass_this_field_if_value_equal_False, không  được vì required và ko có ready_declare_default, fields:%s'%field_name)
+        return 'continue'
+    elif required and (val==False and isinstance(val, bool)):# val ==False <==> val ==0, val ==0 <==> val =False
         if field_attr.get('raise_if_False'):
             raise UserError('raise_if_False field: %s'%field_name)
         if main_call_create_instance_model or MODEL_DICT.get('print_write_dict_new',False):
@@ -344,8 +352,7 @@ def get_a_field_val(self,field_name,field_attr,key_tram,
         skip_because_required = this_model_notice.setdefault('skip_because_required',0)
         this_model_notice['skip_because_required'] = skip_because_required + 1
         return 'break_because_required' #sua 5
-    elif bypass_this_field_if_value_equal_False and val==False:
-        return 'continue'
+    
     elif not field_attr.get('for_excel_readonly'):
         
         if key_or_not==True:
@@ -504,7 +511,8 @@ def importthuvien(odoo_or_self_of_wizard,
                   model_dict = False,
                   key=False,
                   key_tram=False,
-                  not_create = False):
+                  not_create = False,
+                  mode=u'1'):
     self = odoo_or_self_of_wizard
     
     
@@ -514,12 +522,12 @@ def importthuvien(odoo_or_self_of_wizard,
     
     if not model_dict:
         ALL_MODELS_DICT = gen_model_dict(self=self, 
-                                         key_tram = self_key_tram)
+                                         key_tram = self_key_tram,mode=mode)
     else:
         ALL_MODELS_DICT =  model_dict
     
 #     for r in self:
-    if self.file ==False:
+    if not self.file:
         raise UserError(u'Bạn phải upload file để import')
     file_content = base64.decodestring(self.file)
     if '.xlsx' in self.filename:
@@ -573,8 +581,17 @@ def importthuvien(odoo_or_self_of_wizard,
     if callable(sheet_names):
         try:
             sheet_names = sheet_names(self)
-        except TypeError:
-            sheet_names = sheet_names(self,xl_workbook)
+        except TypeError as e:
+            if 'required positional argument' in u'%s'%e:
+                try:
+                    sheet_names = sheet_names(self,xl_workbook)
+                except TypeError as e:
+                    if 'required positional argument' in u'%s'%e:
+                        sheet_names = sheet_names(self,xl_workbook,mode)
+                    else:
+                        raise UserError(u'có 1 lỗi ở hàm sheet_names: %s '%e)
+            else:
+                        raise UserError(u'có 1 lỗi ở hàm sheet_names: %s '%e)    
     needdata = {}
     needdata['sheet_names'] = sheet_names
     needdata['key_tram'] = key_tram
@@ -602,8 +619,16 @@ def importthuvien(odoo_or_self_of_wizard,
     setting['bypass_this_field_if_value_equal_False_default'] = bypass_this_field_if_value_equal_False_default
     
     setting2 = CHOOSED_MODEL_DICT.get('setting2',{})
+    
+    
     if setting2:
         setting.update(setting2)
+    setting.setdefault('allow_write',True)
+#     if hasattr(self, 'not_allow_write'):
+#         not_allow_write = getattr(self,'not_allow_write')
+#     else:
+#         not_allow_write = CHOOSED_MODEL_DICT.get('not_allow_write',False)
+#     setting['allow_write'] = not not_allow_write
 #     if hasattr(self, 'write_when_val_exist'):
 #         write_when_val_exist =  self.write_when_val_exist
 #     else:
@@ -627,6 +652,7 @@ def importthuvien(odoo_or_self_of_wizard,
     prepare_func = CHOOSED_MODEL_DICT.get('prepare_func')
     if prepare_func:
         prepare_func(needdata,self)
+    print ('sheet_names',sheet_names)
     for sheet_name in sheet_names:
         print ('**sheet_name',sheet_name)
         COPY_MODEL_DICT = deepcopy(CHOOSED_MODEL_DICT)

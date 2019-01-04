@@ -8,6 +8,7 @@
             <field name="arch" type="xml">
             	<field name="is_moi_sheet_moi_loai" position="after">
             		   <field name="is_xuat_dc"  attrs="{'invisible':[('model_name','!=','stock.quant')]}" ></field>
+            		   <field name="is_xuat_kho_dc"  attrs="{'invisible':[('model_name','!=','stock.quant')]}" ></field>
             		   <field name="parent_location_id"  domain="[('is_kho_cha','=',True)]" attrs="{'invisible':[('model_name','!=','stock.quant'),('model_name','!=','product.product'),('model_name','!=','product.template')]}" ></field>
                        <field name="parent_location_runing_id" domain="[('is_kho_cha','=',True)]"  attrs="{'invisible':[('model_name','!=','product.product'),('model_name','!=','product.template')]}"></field>
             	</field>

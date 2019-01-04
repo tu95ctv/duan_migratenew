@@ -49,19 +49,19 @@ def download_quants(dl_obj,append_domain = []):
          ('location_id',{'func':lambda v,n: v.name_get_1_record(),'write_to_excel':False,'split':[
                  ('tram',{'is_not_model_field':True,'string':u'Trạm','func':tu_shelf_,'kargs':{'stock_type':'tram'}}),         
                  ('phong_may',{'is_not_model_field':True,'string':u'Phòng máy','func':tu_shelf_,'kargs':{'stock_type':'phong_may'}}),
-                 ('tu',{'is_not_model_field':True,'string':u'Tủ','func':tu_shelf_,'kargs':{'stock_type':'tu'}}),
-                 ('shelf',{'is_not_model_field':True,'string':u'Shelf','func':tu_shelf_,'kargs':{'stock_type':'shelf'}}),
-                 ('stt_trong_self',{'is_not_model_field':True,'string':u'STT trong shelf','func':tu_shelf_,'kargs':{'stock_type':'stt_trong_self'}}),
+                 ('tu',{'is_not_model_field':True,'string':u'Tủ/cabinet','func':tu_shelf_,'kargs':{'stock_type':'tu'}}),
+                 ('shelf',{'is_not_model_field':True,'string':u'Shelf/ngăn/kệ','func':tu_shelf_,'kargs':{'stock_type':'shelf'}}),
+                 ('stt_trong_self',{'is_not_model_field':True,'string':u'STT trong shelf/số thùng','func':tu_shelf_,'kargs':{'stock_type':'stt_trong_self'}}),
                  ('slot',{'is_not_model_field':True,'string':u'Slot','func':tu_shelf_,'kargs':{'stock_type':'slot'}})     
              ]}),
           ('quantity',{'string':u'Số lượng'}),
-          ('qty_dieu_chinh',{'transfer_fname':'quantity','string':u'Số lượng điểu chỉnh','skip_field':not dl_obj.is_xuat_dc}),
-         ('tram_dc',{'is_not_model_field':True,'string':u'Trạm điều chuyển','skip_field':not dl_obj.is_xuat_dc}),         
-         ('phong_may_dc',{'is_not_model_field':True,'string':u'Phòng máy điều chuyển','skip_field':not dl_obj.is_xuat_dc}),
-         ('tu_dc',{'is_not_model_field':True,'string':u'Tủ điều chuyển','skip_field':not dl_obj.is_xuat_dc}),
-         ('shelf_dc',{'is_not_model_field':True,'string':u'Shelf điều chuyển','skip_field':not dl_obj.is_xuat_dc}),
-         ('stt_trong_self_dc',{'is_not_model_field':True,'string':u'STT trong shelf điều chuyển','skip_field':not dl_obj.is_xuat_dc}),
-         ('slot_dc',{'is_not_model_field':True,'string':u'Slot điều chuyển','skip_field':not dl_obj.is_xuat_dc})     
+          ('qty_dieu_chinh',{'transfer_fname':'quantity','string':u'Số lượng điều chỉnh','skip_field':not dl_obj.is_xuat_dc}),
+         ('tram_dc',{'is_not_model_field':True,'string':u'Trạm điều chuyển','skip_field':not dl_obj.is_xuat_kho_dc}),         
+         ('phong_may_dc',{'is_not_model_field':True,'string':u'Phòng máy điều chuyển','skip_field':not dl_obj.is_xuat_kho_dc}),
+         ('tu_dc',{'is_not_model_field':True,'string':u'Tủ điều chuyển','skip_field':not dl_obj.is_xuat_kho_dc}),
+         ('shelf_dc',{'is_not_model_field':True,'string':u'Shelf điều chuyển','skip_field':not dl_obj.is_xuat_kho_dc}),
+         ('stt_trong_self_dc',{'is_not_model_field':True,'string':u'STT trong shelf điều chuyển','skip_field':not dl_obj.is_xuat_kho_dc}),
+         ('slot_dc',{'is_not_model_field':True,'string':u'Slot điều chuyển','skip_field':not dl_obj.is_xuat_kho_dc})     
                  
                  
                     ]

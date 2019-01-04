@@ -84,7 +84,7 @@ class ImportThuVien(models.Model):
     cho_phep_exist_val_before_loop_fields_func = fields.Boolean(default = True)
     
     is_admin = fields.Boolean(compute='is_admin_')
-    allow_product_qty_dieu_chinh = fields.Boolean()
+#     allow_product_qty_dieu_chinh = fields.Boolean()
     mode = fields.Selection([(u'1',u'mode 1 (tim location goc bằng key)'),(u'2',u'mode 2 ( tìm location góc bằng cột trạm)')])
     @api.onchange('sheet_name_select')
     def sheet_name_select_oc_(self):

@@ -170,10 +170,13 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
             created_object = self.env[class_name].create(search_dict_new)
             this_model_noti_dict['create'] = this_model_noti_dict.get('create', 0) + 1
             return_obj =  created_object
+            return return_obj,get_or_create
 #     if model_dict.get('print_write_dict_new',False):
 #                 print ('***exist_val***',exist_val)
 #                 raise UserError(u'kkaka')
-    if is_write:  
+    
+    
+    if is_write  and setting['allow_write']:  
         if exist_val:
             searched_object = exist_val
         if searched_object :# write

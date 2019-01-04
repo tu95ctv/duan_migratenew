@@ -26,6 +26,14 @@
 		        			<button string="change uom" name="product_uom_id_oc" type="object" groups="base.group_erp_manager"></button>
 		        		</xpath>
 		          		<field name="exhausted" position="after">
+		          			<!-- <field name="allow_product_qty_dieu_chinh"></field> -->
+		          			<field name="file" filename="filename" />
+							<field name="filename" invisible="1" />
+							<field name="sheet_name"></field>
+		        			<button class="btn btn-primary"  name="import_file" string="import_file" type="object" context="{'not_last_import_function':True,'import_from_inventory':True}" />
+							<field name="log"/>
+							
+							
 		          			<field name="state"></field>
 		          			<field name="product_uom_id" groups="base.group_erp_manager"></field>
 		          			<field name="negative_product_select"></field>
@@ -49,10 +57,14 @@
 		          		 </xpath>
 		          		  -->
 		          		  
+		          		  
+		          		  <!-- 
 		          		<xpath expr="//field[@name='line_ids']/tree/field[@name='prod_lot_id']" position="after">
 		          			<field name="barcode_sn"></field>
 		          			<field name="ghi_chu"></field>
 		          		 </xpath>
+		          		  -->
+		          		 
 		          		 <xpath expr="//field[@name='line_ids']/tree/field[@name='prod_lot_id']" position="attributes">
 		          			<attribute name="attrs">{'invisible':[('tracking','=','none')]}</attribute>
 		          		 </xpath>

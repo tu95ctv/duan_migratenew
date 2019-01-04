@@ -1,14 +1,40 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api,_
 from odoo.exceptions import UserError
-
+from odoo.addons.dai_tgg.models.model_dict_folder.tao_instance_new import importthuvien
 class Inventory(models.Model):
     _inherit = "stock.inventory"
     product_uom_id = fields.Many2one(
         'product.uom', 'Product Unit of Measure',
         )
     negative_product_select =  fields.Boolean()
+    file = fields.Binary(string='File Import')
+    filename = fields.Char()
+    log = fields.Text(string=u'Log import file')
+    sheet_name = fields.Char()
+#     allow_product_qty_dieu_chinh = fields.Boolean(default=True)
+
+    
+    
+    
+    
+    @api.multi
+    def import_file(self):
+#         for inventory in self.filtered(lambda x: x.state not in ('done','cancel')):
+            
+            importthuvien(self,
+                           key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',
+                           key_tram='key_ltk',mode=u'2')
+            if self.state not in ('done','cancel'):
+                vals = {'state': 'confirm', 'date': fields.Datetime.now()}
+                self.write(vals)
+        
+        
+        
     @api.onchange('negative_product_select')
+    
+    
+    
     def negative_product_select_(self):
         return {'domain':{'line_ids':[('theoretical_qty','<',0)]}}
 #         if self.negative_product_select:
