@@ -5,7 +5,12 @@
          <field name="name">Group Show thông tin không dấu</field>
       </record>
        
- 
+ 		
+ 	<record id="group_write_field_when_import_excel" model="res.groups">
+         <field name="name">Group cho phép write field</field>
+      </record>
+      
+      
       
       
        <!-- 

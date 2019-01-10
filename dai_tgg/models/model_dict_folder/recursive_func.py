@@ -1,9 +1,10 @@
  # -*- coding: utf-8 -*-
-from odoo.addons.dai_tgg.models.model_dict_folder.tool_tao_instance import get_key_allow,get_width,header_bold_style,VERSION_INFO,get_key_allow_goc
+from odoo.addons.dai_tgg.models.model_dict_folder.tool_tao_instance import get_key,get_width,header_bold_style,VERSION_INFO,get_by_key_tram
 from collections import  OrderedDict
 from odoo.exceptions import UserError
 import re
 import operator
+from odoo import _
 STRING_TYPE_DICT = {str:'str',bool:'bool',list:'list',dict:'dict',int:'int'}                 
 TYPES_ATT_DICT = {
             'begin_data_row_offset_with_title_row' : {'types': ['int']} ,
@@ -13,7 +14,7 @@ TYPES_ATT_DICT = {
             'field_type' : {'types': ['str']} ,
             'for_excel_readonly' : {'types': ['bool']} ,
             'func' : {'types': ['function', 'NoneType']} ,
-            'get_or_create_para' : {'types': ['NoneType','dict'],'default':{}} ,#not_use_key: chưa xài
+#             'get_or_create_para' : {'types': ['NoneType','dict'],'default':{}} ,#not_use_key: chưa xài
             'karg' : {'types': ['NoneType','dict']} ,#khong_can_khai_bao_key
             'key' : {'types': ['bool','function','str']} ,
             'key_allow' : {'types': ['bool']} ,
@@ -23,7 +24,7 @@ TYPES_ATT_DICT = {
             'last_import_function' : {'types': ['function']} ,
             'last_record_function' : {'types': ['function']} ,
             'model' : {'types': ['str']} ,
-            'not_create' : {'types': ['bool']} ,
+#             'not_create' : {'types': ['bool']} ,
             'offset_write_xl' : {'types': ['NoneType','int']} ,
             'raise_if_False' : {'types': ['bool']} ,
             'replace_string' : {'types': ['list']} ,
@@ -74,68 +75,15 @@ def write_get_or_create_title(model_dict,sheet,sheet_of_copy_wb,title_row,key_tr
 #         childrend_fields = attr.get('fields')
         if attr.get('fields'):
             write_get_or_create_title(attr,sheet,sheet_of_copy_wb,title_row,key_tram)
-        offset_write_xl = get_key_allow(attr, 'offset_write_xl', key_tram,None)
+        offset_write_xl = get_key(attr, 'offset_write_xl')
         if offset_write_xl !=None:
             col =  sheet.ncols + offset_write_xl 
             title = attr.get('string',fname)  + u' sẵn hay tạo'
             sheet_of_copy_wb.col(col).width =  get_width(len(title))
             sheet_of_copy_wb.write(title_row, col,title ,header_bold_style)
-#R2                   
-# def rut_gon_key(MD,key_tram,mode_no_create_in_main_instance=None): # rút gọn key không dùng được vì nó vướn vào cái sml_not_create, required nó khác với sml thường
-# #     if mode_no_create_in_main_instance:
-# #         raise UserError(u'kkakaka 1')
-#     for attr,val in MD.items():
-#         if attr != 'fields':
-# #             if attr !='get_or_create_para':
-#             adict = TYPES_ATT_DICT.get(attr,{})
-# #             if adict == None:
-# #                 raise UserError(u'**None** attr:%s- attr_val:%s- thiếu attr trong TYPES_ATT_DICT'%(attr,val))
-#             default = adict.get('default')
-#             val = get_key_allow_goc(MD, attr, key_tram,default)
-#             if attr =='skip_this_field' and mode_no_create_in_main_instance:
-#                 skip_this_field_for_mode_no_create = get_key_allow_goc(MD, 'skip_this_field_for_mode_no_create', key_tram)
-#                 if skip_this_field_for_mode_no_create==True:
-#                     val = True
-# #             elif attr =='skip_this_field_for_mode_no_create':
-# #                 MD['skip_this_field'] = val
-#             MD[attr] = val
-#         elif MD['fields'] :
-#             for field_name, field_attr_is_MD_child in MD['fields'].items(): 
-#                 rut_gon_key(field_attr_is_MD_child,key_tram,mode_no_create_in_main_instance=mode_no_create_in_main_instance)
 
 
-# def rut_gon_key(MD,key_tram,mode_no_create_in_main_instance=None): # rút gọn key không dùng được vì nó vướn vào cái sml_not_create, required nó khác với sml thường
-# #     if mode_no_create_in_main_instance:
-# #         raise UserError(u'kkakaka 1')
-#     for attr,val in MD.items():
-#         if attr != 'fields':
-# #             if attr !='get_or_create_para':
-#             adict = TYPES_ATT_DICT.get(attr,{})
-# #             if adict == None:
-# #                 raise UserError(u'**None** attr:%s- attr_val:%s- thiếu attr trong TYPES_ATT_DICT'%(attr,val))
-#             default = adict.get('default')
-#             val = get_key_allow_goc(MD, attr, key_tram,default)
-#             if attr =='skip_this_field' and mode_no_create_in_main_instance:
-#                 skip_this_field_for_mode_no_create = get_key_allow_goc(MD, 'skip_this_field_for_mode_no_create', key_tram)
-#                 if skip_this_field_for_mode_no_create==True:
-#                     val = True
-# #             elif attr =='skip_this_field_for_mode_no_create':
-# #                 MD['skip_this_field'] = val
-#             MD[attr] = val
-# #         elif MD['fields'] :
-#         else :
-#             fields = MD['fields']
-#             if isinstance(fields, dict):
-#                 fields = get_key_allow_goc(MD, attr, key_tram,default)
-#                 MD[attr] = fields
-#             if fields != None:
-#                 for field_name, field_attr_is_MD_child in fields.items(): 
-#                     rut_gon_key(field_attr_is_MD_child,key_tram,mode_no_create_in_main_instance=mode_no_create_in_main_instance)
-                    
-
-
-def rut_gon_key(MD,key_tram,mode_no_create_in_main_instance=None): # rút gọn key không dùng được vì nó vướn vào cái sml_not_create, required nó khác với sml thường
-#     if mode_no_create_in_main_instance:
+def rut_gon_key(MD,key_tram,mode_no_create_in_main_instance=None): 
 #         raise UserError(u'kkakaka 1')
     for attr,val in MD.items():
         if attr != 'fields':
@@ -144,9 +92,9 @@ def rut_gon_key(MD,key_tram,mode_no_create_in_main_instance=None): # rút gọn 
 #             if adict == None:
 #                 raise UserError(u'**None** attr:%s- attr_val:%s- thiếu attr trong TYPES_ATT_DICT'%(attr,val))
             default = adict.get('default')
-            val = get_key_allow_goc(MD, attr, key_tram,default)
+            val = get_by_key_tram(MD, attr, key_tram,default)
             if attr =='skip_this_field' and mode_no_create_in_main_instance:
-                skip_this_field_for_mode_no_create = get_key_allow_goc(MD, 'skip_this_field_for_mode_no_create', key_tram)
+                skip_this_field_for_mode_no_create = get_by_key_tram(MD, 'skip_this_field_for_mode_no_create', key_tram)
                 if skip_this_field_for_mode_no_create==True:
                     val = True
 #             elif attr =='skip_this_field_for_mode_no_create':
@@ -156,7 +104,7 @@ def rut_gon_key(MD,key_tram,mode_no_create_in_main_instance=None): # rút gọn 
         else :
             fields = MD['fields']
             if isinstance(fields, dict):
-                fields = get_key_allow_goc(MD, attr, key_tram,default)
+                fields = get_by_key_tram(MD, attr, key_tram,default)
                 MD[attr] = fields
             if fields != None:
                 print ('***fields',fields)
@@ -165,11 +113,11 @@ def rut_gon_key(MD,key_tram,mode_no_create_in_main_instance=None): # rút gọn 
 
 #R3
 def recursive_add_model_name_to_field_attr(self,MODEL_DICT,key_tram=False):
-    model_name = get_key_allow(MODEL_DICT, 'model', key_tram)
+    model_name = get_key(MODEL_DICT, 'model')
     fields= self.env[model_name]._fields
     for f_name,field_attr in MODEL_DICT.get('fields').items():
-        f_name = get_key_allow(field_attr, 'transfer_name', key_tram) or  f_name
-        skip_this_field = get_key_allow(field_attr, 'skip_this_field', key_tram,False)
+        f_name = get_key(field_attr, 'transfer_name') or  f_name
+        skip_this_field = get_key(field_attr, 'skip_this_field',False)
         if callable(skip_this_field):
             skip_this_field = skip_this_field(self)
         if not skip_this_field:
@@ -231,14 +179,15 @@ def check_set_val_is_true_type(val, attr):
 def check_xem_att_co_nam_ngoai_khong(COPY_MODEL_DICT,key_tram):
     for attr,valg in COPY_MODEL_DICT.items():
         if attr != 'fields':
-            val = get_key_allow(COPY_MODEL_DICT, attr, key_tram)
+            val = COPY_MODEL_DICT.get(attr)
             if not check_set_val_is_true_type(val,attr):
                 raise UserError (u'attr %s val %s không thỏa hàm check_set_val_is_true_type'%(attr,valg))
         elif attr =='fields' : 
             for field,field_attr in COPY_MODEL_DICT['fields'].items():
                 for attr,valg in field_attr.items():
+#                     if attr != 'fields' and attr !='get_or_create_para':
                     if attr != 'fields' and attr !='get_or_create_para':
-                        val = get_key_allow(field_attr, attr, key_tram)
+                        val = field_attr.get(attr)
                         if not check_set_val_is_true_type(val,attr):
                             raise UserError (u'Thuộc tính nằm ngoài danh sách cho phép: attr %s val %s'%(attr,valg))
                 if 'fields' in field_attr:
@@ -255,10 +204,10 @@ def add_col_index(MODEL_DICT, read_excel_value_may_be_title, col,key_tram):
     is_map_xl_title = False
     for field,field_attr in MODEL_DICT.get('fields').items():
         is_real_xl_match_with_xl_excel = False
-        xl_title = get_key_allow(field_attr,'xl_title',key_tram,None)
-        if get_key_allow(field_attr,'set_val',key_tram,None) != None:
+        xl_title = get_key(field_attr,'xl_title')
+        if get_key(field_attr,'set_val') != None:
             continue
-        if xl_title ==None and get_key_allow(field_attr,'col_index',key_tram,None) !=None:
+        if xl_title ==None and get_key(field_attr,'col_index') !=None:
             continue# cos col_index
         elif field_attr.get('fields'):
             is_real_xl_match_with_xl_excel = add_col_index(field_attr, read_excel_value_may_be_title, col,key_tram)
@@ -314,35 +263,35 @@ def check_col_index_match_xl_title_for_a_field(field_attr,xl_title,col_index,set
 #                 raise UserError(u'có model thì không cần xl title')
 
         if xl_title and col_index==None and set_val==None :
-            sheet_allow_this_field_not_has_exel_col =get_key_allow( field_attr,'sheet_allow_this_field_not_has_exel_col',key_tram)
-            skip_field_if_not_found_column_in_some_sheet = get_key_allow(field_attr,'skip_field_if_not_found_column_in_some_sheet',key_tram)
+            sheet_allow_this_field_not_has_exel_col =get_key( field_attr,'sheet_allow_this_field_not_has_exel_col')
+            skip_field_if_not_found_column_in_some_sheet = get_key(field_attr,'skip_field_if_not_found_column_in_some_sheet')
             skip_if_not_match =  skip_field_if_not_found_column_in_some_sheet or (sheet_allow_this_field_not_has_exel_col and needdata['sheet_name'] in sheet_allow_this_field_not_has_exel_col)
             if not skip_if_not_match:
-                raise UserError(u'có khai báo xl_title nhưng không match với file excel, field: %s, xl_title: %s -- attr%s' %(field_name,xl_title,field_attr))
+#                 raise UserError(u'có khai báo xl_title nhưng không match với file excel, field: %s, xl_title: %s -- attr%s' %(field_name,xl_title,field_attr))
+                raise UserError(_(u'Excel not has column one in %s of %s, please change column name match with them') %(xl_title,field_name))
         if xl_title == None and col_index==None and set_val ==None:
             if  field_attr.get('model'):
                 if not func and not field_attr.get('fields'):
-                    raise UserError(u'không có gì hết  nếu có model thì phải có ít nhất func và fields')
+                    raise UserError(u'model thì phải có ít nhất func và fields')
             else:
                 if not func:
-                     
                     raise UserError (u' sao khong có col_index và  không có func luôn field %s attrs %s'%(field_name,u'%s'%field_attr))
                 
                 
 def check_col_index_match_xl_title(self,COPY_MODEL_DICT,key_tram,needdata):
     for field_name,field_attr in COPY_MODEL_DICT.get('fields').items():
-        skip_this_field = get_key_allow(field_attr, 'skip_this_field', key_tram, False)
+        skip_this_field = get_key(field_attr, 'skip_this_field', False)
         if callable(skip_this_field):
                 skip_this_field = skip_this_field(self)
         if not skip_this_field: 
-            col_index = get_key_allow(field_attr, 'col_index', key_tram, None)
-            xl_title = get_key_allow(field_attr, 'xl_title', key_tram)#moi them , moi bo field_attr.get('xl_title')
+            col_index = get_key(field_attr, 'col_index', None)
+            xl_title = get_key(field_attr, 'xl_title')#moi them , moi bo field_attr.get('xl_title')
             ###  deal set_val ########
-            set_val = get_key_allow( field_attr,'set_val',key_tram)
+            set_val = get_key( field_attr,'set_val')
             if callable(set_val):
                     set_val = set_val(self)
             field_attr['set_val'] =set_val
-            func = get_key_allow( field_attr,'func',key_tram)
+            func = get_key( field_attr,'func')
             check_col_index_match_xl_title_for_a_field(field_attr,xl_title,col_index,set_val,key_tram,needdata,field_name,func)
             child_fields =  field_attr.get('fields')
             if child_fields:
@@ -378,97 +327,10 @@ def xuat_het_dac_tinh(COPY_MODEL_DICT,key_tram,dac_tinhs = {}):
     for field,field_attr in fields.items():
         for attr,val in field_attr.items():
             a_dt_list = dac_tinhs.setdefault(attr,[])
-            val = get_key_allow(field_attr, attr, key_tram)
+            val = get_key(field_attr, attr)
             if val not in a_dt_list :
                 a_dt_list.append(val)
         if 'fields' in field_attr:
             xuat_het_dac_tinh(field_attr,key_tram,dac_tinhs)
-# #                 
-# def rut_gon_key1(MD,key_tram): # rút gọn key không dùng được vì nó vướn vào cái sml_not_create, required nó khác với sml thường
-#     for attr,val in MD.items():
-#         if attr != 'fields':
-#             val = get_key_allow(MD, attr, key_tram)
-#             MD[attr] = val
-#         elif attr =='fields' : 
-#             for field_name, field_attr_is_MD_child in MD['fields'].items():
-#                 for attr, val in field_attr_is_MD_child.items():
-#                     if attr !='get_or_create_para' and attr !='fields':
-#                         val = get_key_allow(field_attr_is_MD_child, attr, key_tram)
-#                         field_attr_is_MD_child[attr] = val
-#                 if 'fields' in field_attr_is_MD_child:
-#                     rut_gon_key1(field_attr_is_MD_child,key_tram)
-                    
- 
-                
-            
-#         elif attr =='fields' : 
-#             for field_name, field_attr_is_MD_child in MD['fields'].items():
-#                 for attr, val in field_attr_is_MD_child.items():
-#                     if attr !='get_or_create_para' and attr !='fields':
-#                         val = get_key_allow(field_attr_is_MD_child, attr, key_tram)
-#                         field_attr_is_MD_child[attr] = val
-#                 if 'fields' in field_attr_is_MD_child:
-#                     rut_gon_key(field_attr_is_MD_child,key_tram)
-                    
-# # check có khai bao key              
-# def check_key_allow(field_attr, attr, key_tram,default_if_not_attr=None):
-#     value = field_attr.get(attr,default_if_not_attr)
-#     check_rs = True
-#     if isinstance(value, dict) and key_tram:
-#         check_rs = key_tram in value  or 'all_key_tram' in value
-#     return check_rs
-# 
-# 
-# 
-# 
-# def check_co_key_chua(COPY_MODEL_DICT,key_tram): 
-#     fields = COPY_MODEL_DICT['fields']
-#       
-#     for attr,val in COPY_MODEL_DICT.items():
-#         if attr != 'fields':
-#             val = get_key_allow(COPY_MODEL_DICT, attr, key_tram)
-#             COPY_MODEL_DICT[attr] = val
-#         elif attr =='fields' : 
-#             for field,field_attr in fields.items():
-#                 for attr,val in field_attr.items():
-#                     if attr != 'fields' and attr !='get_or_create_para' :
-#                         khong_can_khai_bao_key = TYPES_ATT_DICT.get(attr).get('khong_can_khai_bao_key',False)
-#                         if not khong_can_khai_bao_key:
-#                             check_rs = check_key_allow(field_attr, attr, key_tram)
-#                             if not check_rs:
-#                                 raise UserError(u'field:%s-attr:%s-field_attr%s'%(field,attr,field_attr))
-#                 if 'fields' in field_attr:
-#                     check_co_key_chua(field_attr,key_tram)
-        
-# def add_type_of_val_vao_1_list(type_cua_attr,val,attr):
-#     a_dict =  type_cua_attr.setdefault(attr,{})
-#     a_type_list = a_dict.setdefault('types',[])
-#     tv = type(val)#type of val
-#     if  callable(val):
-#         tv = 'function'
-#     elif val == None:
-#         tv = 'NoneType'
-#     else:
-#         tv = STRING_TYPE_DICT.get(tv,tv)
-#     if tv not in a_type_list:
-#         a_type_list.append(tv)
-#             
-# def tim_type_cua_attr(COPY_MODEL_DICT,key_tram, type_cua_attr ={}):
-#     fields = COPY_MODEL_DICT['fields']
-#     for attr,val in COPY_MODEL_DICT.items():
-#         if attr != 'fields':
-#             val = get_key_allow(COPY_MODEL_DICT, attr, key_tram)
-# #             COPY_MODEL_DICT[attr] = val
-#             add_type_of_val_vao_1_list(type_cua_attr,val,attr)
-#         elif attr =='fields' : 
-#             for field,field_attr in fields.items():
-#                 for attr,val in field_attr.items():
-#                     if attr != 'fields' and attr !='get_or_create_para':
-#                         val = get_key_allow(field_attr, attr, key_tram)
-#                         add_type_of_val_vao_1_list(type_cua_attr,val,attr)
-#                         
-#                 if 'fields' in field_attr:
-#                     tim_type_cua_attr(field_attr,key_tram,type_cua_attr)
-
 
 

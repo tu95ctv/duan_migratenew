@@ -18,8 +18,6 @@ def check_is_string_depend_python_version(val):
     return check_str
     
 def empty_string_to_False(readed_value):
-    
-    
     if VERSION_INFO==2:
         check_str = isinstance(readed_value,unicode) or isinstance(readed_value,str)
     else:
@@ -43,11 +41,11 @@ def read_merge_cell(sheet,row,col,merge_tuple_list):
             break
     ctype = sheet.cell(row, col).ctype
     if  ctype==5:
-        return u'#N/A'
+        return False
     if   ctype == xlrd.XL_CELL_EMPTY:
 #         raise ValueError(u'kkaka')
         print ('row,col',row,col)
-        return u'#N/A'
+        return False
     else:
         val = sheet.cell_value(row,col)
         return val
@@ -59,20 +57,18 @@ def read_excel_cho_field(sheet, row, col_index,merge_tuple_list):
     else:
         check_str =  isinstance(val,str)
     if check_str:
-        #sai roi
         val = val.strip()
-    #print 'val',val
-#     val = empty_string_to_False(val)
+    val = empty_string_to_False(val)
     return val
 ### Xong khai bao
-def get_key_allow(field_attr, attr, key_tram,default_if_not_attr=None):
+def get_key(field_attr, attr,default_if_not_attr=None):
     return field_attr.get(attr,default_if_not_attr)
 #     value = field_attr.get(attr,default_if_not_attr)
 #     if isinstance(value, dict) and key_tram:
 #         value =  value.get(key_tram,default_if_not_attr) if key_tram in value else value.get('all_key_tram',default_if_not_attr)
 #     return value
 
-def get_key_allow_goc(field_attr, attr, key_tram,default_if_not_attr=None):
+def get_by_key_tram(field_attr, attr, key_tram,default_if_not_attr=None):
     value = field_attr.get(attr,default_if_not_attr)
     if isinstance(value, dict) and key_tram:
         value =  value.get(key_tram,default_if_not_attr) if key_tram in value else value.get('all_key_tram',default_if_not_attr)

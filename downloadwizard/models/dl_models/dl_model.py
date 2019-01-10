@@ -6,12 +6,16 @@ from odoo.exceptions import UserError
 from collections import  OrderedDict
 
 
-def generate_easyxf (font='Times New Roman', bold = False,underline=False, height=12, 
+def generate_easyxf (font='Times New Roman', 
+                     bold = False,
+                     underline=False,
+                     height=12, 
                      align_wrap = False,
                      vert = False,
                      horiz = False,
                      borders = False,
-                     pattern = False
+                     pattern = False,
+                     italic= False
                      ):
     fonts = []
     fonts.append('name %s'%font)
@@ -19,6 +23,10 @@ def generate_easyxf (font='Times New Roman', bold = False,underline=False, heigh
         fonts.append('underline on')
     if bold:
         fonts.append('bold on')
+        
+    if italic:
+        fonts.append('italic on')
+        
     fonts.append('height %s'%(height*20))
     sums = []
     font = 'font: ' + ','.join(fonts)
@@ -68,36 +76,33 @@ def get_width(num_characters):
 HEIGHT = 12
 normal_style = xlwt.easyxf(generate_easyxf(height=HEIGHT))  # sửa chiều cao
 wrap_normal_style = xlwt.easyxf(generate_easyxf(height=HEIGHT,align_wrap=True))  
+
 horiz_center_normal_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align:  vert centre, horiz center; borders: left thin,right thin, top thin, bottom thin")
-# normal_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align:  vert centre ; borders: left thin,right thin, top thin, bottom thin")
+horiz_center_normal_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align:  vert centre, horiz center; borders: left thin,right thin, top thin, bottom thin")
+
 normal_border_style = xlwt.easyxf(generate_easyxf(height=HEIGHT,borders='left thin, right thin, top thin, bottom thin',vert = 'center'))
+
 not_horiz_center_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align: wrap on , vert centre; borders: left thin,right thin, top thin, bottom thin")
-# header_bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 240 ; align:  vert centre, horiz center ;  pattern: pattern solid, fore_colour gray25;borders: left thin, right thin, top thin, bottom thin")
-# header_bold_style_no_gray = xlwt.easyxf("font: bold on, name Times New Roman, height 240 ; align:  vert centre, horiz center ; borders: left thin, right thin, top thin, bottom thin")
+# đã truyền para
+not_horiz_center_border_style = xlwt.easyxf(generate_easyxf(height=HEIGHT,vert = 'center',borders='left thin, right thin, top thin, bottom thin',align_wrap=True))
+
+
 header_bold_style = xlwt.easyxf(generate_easyxf(height=HEIGHT,bold=True,vert = 'center',horiz='center',borders='left thin, right thin, top thin, bottom thin',pattern = 'pattern solid, fore_colour gray25'))
 header_bold_style_no_gray =xlwt.easyxf(generate_easyxf(bold=True,vert = 'center',horiz='center',borders='left thin, right thin, top thin, bottom thin'))
 
 #font from dl_BCN
-# header_bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 240")
 bold_style_italic = xlwt.easyxf("font: bold on, name Times New Roman, height 240,italic on;")
-# normal_style = xlwt.easyxf("font:  name Times New Roman, height 240")
+bold_style_italic = xlwt.easyxf(generate_easyxf(bold=True,height=HEIGHT,italic=True))
 bbbg_normal_style = xlwt.easyxf(generate_easyxf(bold=True,height=HEIGHT, vert = 'center',horiz = 'center'))
 center_nomal_style = xlwt.easyxf(generate_easyxf(height=HEIGHT, vert = 'center',horiz = 'center'))
 bold_center_style = xlwt.easyxf(generate_easyxf(height=HEIGHT, vert = 'center',horiz = 'center',bold=True))
 ##font from dl_p3
 
-# header_bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 240")
-# bold_style_italic = xlwt.easyxf("font: bold on, name Times New Roman, height 240,italic on;")
 bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 240;")
-# normal_style = xlwt.easyxf("font:  name Times New Roman, height 240")
-# bbbg_normal_style = xlwt.easyxf(generate_easyxf(bold=True,height=16, vert = 'center',horiz = 'center'))
-# center_nomal_style = xlwt.easyxf(generate_easyxf(height=12, vert = 'center',horiz = 'center'))
+
 
 ## font from dl_ml
-# not_horiz_center_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align: wrap on ,vert centre; borders: left thin,right thin, top thin, bottom thin")
-not_horiz_center_border_style = xlwt.easyxf(generate_easyxf(height=HEIGHT,borders='left thin, right thin, top thin, bottom thin',vert = 'center',align_wrap=True))
 #font from xl_bbbg
-
 vert_center_style = xlwt.easyxf(generate_easyxf(vert = 'center'))#ông bà
 bold_center_style = xlwt.easyxf(generate_easyxf(height=HEIGHT,bold=True,vert = 'center',horiz='center'))# ký tên
 center_style = xlwt.easyxf(generate_easyxf(height=HEIGHT,vert = 'center',horiz='center'))
@@ -107,13 +112,22 @@ center_underline_style = xlwt.easyxf(generate_easyxf(bold=True,underline=True,he
 bbbg_style = xlwt.easyxf(generate_easyxf(bold=True,height=18, vert = 'center',horiz = 'center'))
 
 
-def write_all_row(fixups,dl_obj,set_cols_width,wb=None,ws_name=None):
+def write_all_row(fixups,dl_obj,set_cols_width,wb=None,ws_name=None,font_height=12):
+    normal_style = xlwt.easyxf(generate_easyxf(height=font_height))
     needdata = {}
     if not ws_name:
         ws_name = u'First'
     if not wb:
         wb = xlwt.Workbook()
     ws = wb.add_sheet(ws_name)#cell_overwrite_ok=True
+    
+#     ws.header_str = 0
+#     ws.footer_str = 0
+#     
+#     ws.__header_str = 'adfdfdf'
+#     ws.__footer_str = 'adfdfdf'
+#     worksheet.PageSetup.CenterHeader = ''
+#     worksheet.PageSetup.CenterFooter = ''
     if set_cols_width:
         for col,width in enumerate(set_cols_width):
             ws.col(col).width =  width
@@ -127,7 +141,12 @@ def write_all_row(fixups,dl_obj,set_cols_width,wb=None,ws_name=None):
         if callable(offset):
             offset_kargs = field_attr.get('offset_kargs',{})
             offset = offset(needdata,**offset_kargs)
+        
+        
+        
         style = field_attr.get('style',normal_style)
+        
+        
         if xrange[0]=='auto':
             row = needdata['cr'] + offset
             xrange[0] = row
@@ -317,9 +336,15 @@ def add_title(worksheet,FIELDNAME_FIELDATTR,model_fields,ROW_TITLE=0, offset_col
                no_gray = False,
 #               is_auto_width = True,
 #                for_len_adj = False
-                needdata_from_table=None
+                needdata_from_table=None,
+                font_height = 12,
 
                ):
+    
+    header_bold_style = xlwt.easyxf(generate_easyxf(height=font_height,bold=True,vert = 'center',horiz='center',borders='left thin, right thin, top thin, bottom thin',pattern = 'pattern solid, fore_colour gray25'))
+    header_bold_style_no_gray =xlwt.easyxf(generate_easyxf(height=font_height,bold=True,vert = 'center',horiz='center',borders='left thin, right thin, top thin, bottom thin'))
+    
+    
     writen_column_number = 0
     column_index = offset_column
     for f_name, FIELDATTR in  FIELDNAME_FIELDATTR.items():
@@ -346,6 +371,7 @@ def add_title(worksheet,FIELDNAME_FIELDATTR,model_fields,ROW_TITLE=0, offset_col
                 title_style = header_bold_style_no_gray
             else:
                 title_style = header_bold_style
+                
             worksheet.write(ROW_TITLE, column_index, f_string, title_style)
             writen_column_number += 1
             if is_set_width:

@@ -84,7 +84,8 @@ def download_quants(dl_obj,append_domain = []):
         name = "%s%s" % (filename, '.xls')
         Quant = request.env['stock.quant']#.search([])
         tram_domain = gen_domain_stock_quant(dl_obj)
-        cates = Quant.search(append_domain + tram_domain).mapped('categ_id')
+#         cates = Quant.search(append_domain + tram_domain).mapped('categ_id')
+        cates = Quant.search(append_domain + tram_domain).sorted(key=lambda r: r.categ_id.stt_for_report).mapped('categ_id')
         workbook = xlwt.Workbook()
         for cate in cates:
             Export_Para_quants_copy = deepcopy(Export_Para_quants)

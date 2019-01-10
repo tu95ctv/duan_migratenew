@@ -44,6 +44,7 @@ from odoo.addons.dai_tgg.mytools import name_khong_dau_compute
 class ProductTemplate(models.Model):
     """ Quants are the smallest unit of stock physical instances """
     _inherit = 'product.template'
+    name = fields.Char('Name', index=True, required=True, translate=False)
     type = fields.Selection(selection_add=[],default = 'product')
     thiet_bi_id = fields.Many2one('tonkho.thietbi', string = u'Thiết bị',ondelete="restrict")
     brand_id = fields.Many2one('tonkho.brand',string=u'Hãng sản xuất')
@@ -52,12 +53,33 @@ class ProductTemplate(models.Model):
     ghi_chu_ngay_xuat = fields.Text(string=u'Ghi chú ngày xuất')
     quant_ids = fields.One2many('stock.quant', 'product_id',domain=[('location_id.usage','=','internal')],string=u'Trong kho')#domain=[('location_id.usage','=','internal')]
     stock_location_id_selection = fields.Selection('get_stock_for_selection_field_', store=False)
-    tracking = fields.Selection([
-        ('serial', 'By Unique Serial Number'),
-#         ('lot', 'By Lots'),
-        ('none', 'No Tracking')],required=True,string=u'Có SN hay không',default='serial')
     
     
+    @api.model
+    def default_get(self, fields):
+        res = super(ProductTemplate,self).default_get(fields)
+        uom_id= self.env['product.uom'].search([('name','=',u'Cái')]).id
+#         print ('**uom_id',uom_id)
+        res['uom_id'] = uom_id
+        return res
+
+
+
+#     sn_ids = fields.One2many('stock.production.lot','lot_id',string='Serial numbers')
+#     tracking = fields.Selection([
+#         ('serial', 'By Unique Serial Number'),
+# #         ('lot', 'By Lots'),
+#         ('none', 'No Tracking')],required=True,
+#                                 compute='tracking_',
+#                                 string=u'Có SN hay không',
+# #                                 default='serial'
+#                                 )
+#     @api.depends('sn_ids')
+#     def tracking_(self):
+#         print ('in tracking_')
+#         for r in self:
+#             r.tracking = 'serial'
+            
     
  
 #     dang_chay_tao = fields.Boolean()

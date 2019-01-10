@@ -27,7 +27,7 @@ class ImportThuVien(models.Model):
         ,(u'cvi',u'Công việc')
          ,(u'thuebaoline',u'Thuê bao'),
          (u'Loại sự cố, sự vụ', u'Loại sự cố, sự vụ')
-                                    ],required = True)
+                                    ],required = True,default=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp')
     sheet_name_select = fields.Selection([
                                     (u'Vô tuyến',u'Vô tuyến'),
                                   (u'TRUYỀN DẪN',u'TRUYỀN DẪN'),
@@ -41,7 +41,7 @@ class ImportThuVien(models.Model):
                                   ('key_tti_dc','key_tti_dc'),
                                   ('key_ltk_dc','key_ltk_dc'),
                                   ('key_ltk_dc2','key_ltk_dc2'),
-                                  ])
+                                  ],default='key_ltk')
     mode_no_create_in_main_instance = fields.Boolean()
     file = fields.Binary()
     filename = fields.Char()
@@ -75,12 +75,12 @@ class ImportThuVien(models.Model):
     
     categ_id = fields.Many2one('product.category')
     
-    allow_check_excel_obj_is_exist_func  = fields.Boolean(default=True,string=u'Cho phép đối chiếu product excel obj với product exist object')
-    write_when_val_exist  = fields.Boolean(default=True,)
+    allow_check_excel_obj_is_exist_func  = fields.Boolean(string=u'Cho phép đối chiếu product excel obj với product exist object')
+    write_when_val_exist  = fields.Boolean()
     cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat  = fields.Boolean(default=True)
     cho_phep_co_pn_cap_nhat_empty_pn  = fields.Boolean(default = True)
     
-    not_update_field_if_instance_exist_default  = fields.Boolean()
+#     not_update_field_if_instance_exist_default  = fields.Boolean()
     cho_phep_exist_val_before_loop_fields_func = fields.Boolean(default = True)
     
     is_admin = fields.Boolean(compute='is_admin_')

@@ -2,16 +2,18 @@
 from odoo import models, fields, api,_
 from odoo.exceptions import UserError
 from odoo.addons.dai_tgg.models.model_dict_folder.tao_instance_new import importthuvien
+from lxml import etree
+
 class Inventory(models.Model):
     _inherit = "stock.inventory"
     product_uom_id = fields.Many2one(
         'product.uom', 'Product Unit of Measure',
         )
     negative_product_select =  fields.Boolean()
-    file = fields.Binary(string='File Import')
+    file = fields.Binary(string=u'File để import')
     filename = fields.Char()
     log = fields.Text(string=u'Log import file')
-    sheet_name = fields.Char()
+    sheet_name = fields.Char(u'Tên sheet(Nếu bỏ trống lấy sheet đầu, all => tất cả các sheets)',help=u'Nếu bỏ trống lấy sheet đầu, all => tất cả các sheets')
 #     allow_product_qty_dieu_chinh = fields.Boolean(default=True)
 
     
@@ -172,6 +174,8 @@ class Inventory(models.Model):
     #over write origin
     def action_done(self):
         return super(Inventory, self.with_context(action_done_from_stock_inventory=True)).action_done()
+    
+    
     @api.model
     def _default_location_id_d4_write(self):
         department_id = self.env.user.department_id
@@ -189,5 +193,19 @@ class Inventory(models.Model):
         return res
 
     
-    
+    @api.model
+    def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
+        res = super(Inventory, self).fields_view_get(
+            view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        if view_type =='form':
+            doc = etree.XML(res['arch'])
+            nodes =  doc.xpath("//field[@name='location_id']")
+            if len(nodes):
+                domain = "[('is_kho_cha','=',True)]"
+                node = nodes[0]
+                node.set('domain',domain )
+                res['arch'] = etree.tostring(doc, encoding='unicode')
+#             res['fields']['location_id']['domain'] = [('is_kho_cha','=',True)]
+#             res['fields']['location_id']['string'] = u'Kho để kiểm'
+        return res
     

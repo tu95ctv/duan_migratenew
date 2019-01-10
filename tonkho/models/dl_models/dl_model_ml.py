@@ -5,14 +5,18 @@ from openerp.http import request
 # from odoo.addons.tonkho.models.dl_models.dl_model import add_title
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  add_title
 from collections import  OrderedDict
-from odoo.addons.downloadwizard.models.dl_models.dl_model import  not_horiz_center_border_style,horiz_center_normal_border_style
+from odoo.addons.downloadwizard.models.dl_models.dl_model import generate_easyxf, not_horiz_center_border_style,\
+horiz_center_normal_border_style
 
 
 # not_horiz_center_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align: wrap on , vert centre; borders: left thin,right thin, top thin, bottom thin")
 
 def add_1_row_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, offset_column=0, 
                             needdata=None,save_ndata=False,ml=False,
-                            ml_index=False,rowspan=False):
+                            ml_index=False,rowspan=False,font_height=12):
+    
+    
+    NOT_HORIZ_CENTER_BORDER_STYLE = xlwt.easyxf(generate_easyxf(height=font_height,vert = 'center',borders='left thin, right thin, top thin, bottom thin',align_wrap=True))
     if save_ndata:
         a_instance_dict =  needdata.get('a_instance_dict', {})
     else:
@@ -67,7 +71,7 @@ def add_1_row_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, offset_col
         one_field_val['val']=val 
         
         if write_to_excel:
-            style = FIELDATTR.get('style',not_horiz_center_border_style)
+            style = FIELDATTR.get('style',NOT_HORIZ_CENTER_BORDER_STYLE)
             if is_same:
                 if ml_index==0:
                     worksheet.write_merge(row_index, row_index +rowspan-1, col_index,col_index,val,style)
@@ -87,7 +91,7 @@ def add_1_row_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, offset_col
 
 def download_model_new_ml(dl_obj, Export_Para=None,workbook=None,
                           append_domain=None,sheet_name=None,worksheet=None,
-                          row_index=15):
+                          row_index=15,font_height=12):
     exported_model= Export_Para['exported_model']
     FIELDNAME_FIELDATTR= Export_Para['FIELDNAME_FIELDATTR']
     FIELDNAME_FIELDATTR = OrderedDict(FIELDNAME_FIELDATTR)
@@ -97,6 +101,10 @@ def download_model_new_ml(dl_obj, Export_Para=None,workbook=None,
             workbook = xlwt.Workbook()
         sheet_name =  u'Sheet 1' if sheet_name ==None else sheet_name
         worksheet = workbook.add_sheet(sheet_name,cell_overwrite_ok=True)
+        worksheet.header_str = 'not thing'
+        worksheet.footer_str = 'not thing'
+#         worksheet.PageSetup.CenterHeader = ''
+#         worksheet.PageSetup.CenterFooter = ''
     needdata = {'a_instance_dict':{'move_line_ids.stt_not_model':{'val':0}}}
     needdata['dl_obj'] = dl_obj
     if gen_domain:
@@ -119,6 +127,7 @@ def download_model_new_ml(dl_obj, Export_Para=None,workbook=None,
               model_fields, ROW_TITLE=row_index,
                offset_column=0,
                is_set_width = False,
+               font_height=font_height
 #                is_auto_width = False
                )
     nrow = 0
@@ -127,17 +136,16 @@ def download_model_new_ml(dl_obj, Export_Para=None,workbook=None,
         rowspan = len(move.move_line_ids)
         for ml_index, ml in enumerate(move.move_line_ids):
             nrow +=1
-            add_1_row_new_ml(worksheet, move , FIELDNAME_FIELDATTR, row_index, offset_column=0,needdata=needdata,save_ndata=True, ml=ml, ml_index=ml_index,rowspan=rowspan)
+            add_1_row_new_ml(worksheet, move , FIELDNAME_FIELDATTR, 
+                             row_index, offset_column=0,
+                             needdata=needdata,
+                             save_ndata=True, ml=ml, ml_index=ml_index,rowspan=rowspan,
+                             font_height=font_height)
             row_index +=1
     return nrow
 
 
 
-# def ghi_chu_(val,n,move,ml):
-#     if not val:
-#         return move.ghi_chu
-#     else:
-#         return val
 def stt_ml_(v,needdata,m,ml,is_same,ml_index): 
     v = needdata['a_instance_dict']['move_line_ids.stt_not_model']['val']
     if is_same and ml_index:
@@ -154,7 +162,6 @@ def ghi_chu_(val,n,move,ml, all_tot = False, IS_SET_TT_COL=False,empty = False):
         ghi_chu =  move.ghi_chu
     else:
         ghi_chu =  val
-#     tt = n['a_instance_dict']['tinh_trang']['val']
     if not (IS_SET_TT_COL or  all_tot):# ghop tinh trang vao #not IS_SET_TT_COL and  not all_tot, not (IS_SET_TT_COL or all_tot)
         
         tinh_trang_show = TINH_TRANG[tinh_trang]
@@ -163,11 +170,7 @@ def ghi_chu_(val,n,move,ml, all_tot = False, IS_SET_TT_COL=False,empty = False):
         else:
             ghi_chu = u'%s'%tinh_trang_show
     return ghi_chu
-# def is_same_ghi_chu_(m,ml, all_tot = False, IS_SET_TT_COL=False):
-#     is_same_tt = len(set(m.move_line_ids.mapped('tinh_trang'))) <=1
-#     is_same_gc = len(set(m.move_line_ids.mapped('ghi_chu'))) <=1
-#     is_same_gc = is_same_gc and is_same_tt
-#     return is_same_gc
+
 def is_same_ghi_chu_(m,ml, all_tot = False, IS_SET_TT_COL=False):
     is_same_tt = len(set(m.move_line_ids.mapped('tinh_trang'))) <=1
     is_same_gc = len(set(m.move_line_ids.mapped('ghi_chu'))) <=1
@@ -194,21 +197,6 @@ def quantity_done_(v,n,m,l):
 TINH_TRANG = {'tot':u'Tốt','hong':u'Hỏng'}
 def tinh_trang_(v,n,m,l):
     return TINH_TRANG[v]
-    
-# FIELDNAME_FIELDATTR_ML = [
-#          ('move_line_ids.stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_ml_,'is_same':False }),
-#          ('product_id',{'func':lambda v,n,m,ml: v.name,'width':get_width(50),'string':u'Tên vật tư' }),
-#          ('move_line_ids.pn_id',{'func':lambda v,n,m,ml: v.name,'width':get_width(20),'string':u'Mã vật tư'}),
-#          ('quantity_done',{'width':get_width(40),'is_same':is_same_,'func':quantity_done_,'string':u'Số lượng'}),
-#          ('product_uom',{'func':lambda v,n,m,ml: v.name,'width':get_width(40),'string':u'ĐVT'}),
-#          ('move_line_ids.lot_id',{'func':lambda v,n,m,ml: v.name,'width':get_width(20),'string':u'Serial Number'}),
-#          ('move_line_ids.tinh_trang',{'string':u'Tình trạng','func':tinh_trang_,'skip_field':False}),
-#          ('move_line_ids.ghi_chu',{'string':u'Ghi chú','func':ghi_chu_}),
-#         ]
-
-
-# def download_ml(dl_obj,workbook=None,append_domain=None,sheet_name=None,row_index=0):
-#     return download_model_new_ml(dl_obj,Export_Para=Export_Para_ml,append_domain=append_domain,workbook=workbook,sheet_name=sheet_name,row_index=row_index)
 def gen_domain_sml(dl_obj):
     domain = []
     domain.append(('picking_id','=',dl_obj.id))
@@ -219,18 +207,26 @@ def download_ml_for_bb(dl_obj,workbook=None,
                        worksheet=None,
                        row_index=0,
                        IS_SET_TT_COL=False,
-                       all_tot_and_ghom_all_tot=False):
+                       all_tot_and_ghom_all_tot=False,
+                       font_height=12):
+    
     FIELDNAME_FIELDATTR_ML = [
          ('move_line_ids.stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_ml_,'is_same':True,
                                          'is_use_kargs_co_san':True,'style':horiz_center_normal_border_style }),#'is_same':False 
          ('product_id',{'func':lambda v,n,m,ml: v.name,'string':u'Tên vật tư' }),
-#          ('move_line_ids.pn_id',{'func':lambda v,n,m,ml: v.name,'string':u'Mã vật tư'}),
          ('product_id_pn',{'transfer_field':'product_id','func':lambda v,n,m,ml: v.pn,'string':u'Mã vật tư'}),
          ('quantity_done',{'is_same':is_same_,'func':quantity_done_,'string':u'S/L','style':horiz_center_normal_border_style}),
          ('product_uom',{'func':lambda v,n,m,ml: v.name,'string':u'ĐVT'}),
          ('move_line_ids.lot_id',{'func':lambda v,n,m,ml: v.name,'string':u'Serial Number'}),
          ('move_line_ids.tinh_trang',{'string':u'T/T','func':tinh_trang_, 'skip_field':not IS_SET_TT_COL or  all_tot_and_ghom_all_tot    }),
-         ('move_line_ids.ghi_chu',{'string':u'Ghi chú','func':ghi_chu_,'is_same':is_same_ghi_chu_,'kargs':{'empty':dl_obj.empty_ghi_chu_in_bb,'all_tot':all_tot_and_ghom_all_tot, 'IS_SET_TT_COL':IS_SET_TT_COL},'kargs_for_is_same':{'all_tot':all_tot_and_ghom_all_tot, 'IS_SET_TT_COL':IS_SET_TT_COL}}),
+         ('move_line_ids.ghi_chu',{'string':u'Ghi chú',
+                                   'is_same':is_same_ghi_chu_,
+                                   'kargs_for_is_same':{'all_tot':all_tot_and_ghom_all_tot, 'IS_SET_TT_COL':IS_SET_TT_COL},
+                                   'func':ghi_chu_,
+                                   'kargs':{'empty':dl_obj.empty_ghi_chu_in_bb,
+                                            'all_tot':all_tot_and_ghom_all_tot,
+                                             'IS_SET_TT_COL':IS_SET_TT_COL},
+                                             }),
         ]
     Export_Para_ml = {
         'exported_model':'stock.move',
@@ -243,4 +239,5 @@ def download_ml_for_bb(dl_obj,workbook=None,
                                  workbook=workbook,
                                  sheet_name=sheet_name,
                                  worksheet=worksheet,
-                                 row_index=row_index) + 1
+                                 row_index=row_index,
+                                 font_height = font_height) + 1

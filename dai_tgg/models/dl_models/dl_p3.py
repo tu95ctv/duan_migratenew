@@ -11,7 +11,7 @@ from collections import  OrderedDict
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  write_all_row,generate_easyxf
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  get_width
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  stt_
-from odoo.addons.downloadwizard.models.dl_models.dl_model import  header_bold_style,bold_style_italic,bold_style,normal_style,bbbg_normal_style,center_nomal_style
+from odoo.addons.downloadwizard.models.dl_models.dl_model import  header_bold_style,bold_style,normal_style,bbbg_normal_style,center_nomal_style
 from dateutil.relativedelta import relativedelta
 
 from odoo.addons.dai_tgg.mytools import  convert_date_odoo_to_str_vn_date, convert_utc_to_gmt_7

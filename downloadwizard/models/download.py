@@ -21,7 +21,7 @@ class DownloadQuants(models.TransientModel):
     file_name = fields.Char(string=u'File name')
     data = fields.Binary('File', readonly=True)
     is_moi_sheet_moi_loai = fields.Boolean(string=u' Chia nhóm vật tư')
-    is_not_skip_field_stt = fields.Boolean(string=u'Không bỏ trường STT')
+    is_not_skip_field_stt = fields.Boolean(string=u'Không xuất trường STT')
 #     is_dl_right_now = fields.Boolean(string=u'Download ngay(phải cho phép pop up)')
 #     domain_text = fields.Text(default = lambda self: self._context)
     

@@ -7,23 +7,22 @@ from xlutils.filter import process,XLRDReader,XLWTWriter
 import xlrd, xlwt
 from odoo.addons.dai_tgg.mytools import  convert_odoo_datetime_to_vn_str
 from collections import  OrderedDict
-from odoo.addons.downloadwizard.models.dl_models.dl_model import  write_all_row,generate_easyxf,wrap_normal_style
+from odoo.addons.downloadwizard.models.dl_models.dl_model import  write_all_row,generate_easyxf
 # from odoo.addons.tonkho.controllers.controllers import  download_ml_for_bb
 # from odoo.addons.tonkho.controllers.controllers import  get_width
 
 from odoo.addons.tonkho.models.dl_models.dl_model_ml import  download_ml_for_bb
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  get_width
-from odoo.addons.downloadwizard.models.dl_models.dl_model import  vert_center_style,bold_center_style,center_style,center_underline_style,bbbg_style
+from odoo.addons.downloadwizard.models.dl_models.dl_model import\
+vert_center_style,\
+bold_center_style,\
+center_style,\
+center_underline_style,\
+bbbg_style,\
+wrap_normal_style
 
 
 
-# generate_easyxf (font='Times New Roman', bold = False, height=240, vert = 'center',horiz = 'center')
-
-# vert_center_style = xlwt.easyxf(generate_easyxf(vert = 'center'))
-# bold_center_style = xlwt.easyxf(generate_easyxf(bold=True,vert = 'center',horiz='center'))
-# center_style = xlwt.easyxf(generate_easyxf(vert = 'center',horiz='center'))
-# center_underline_style = xlwt.easyxf(generate_easyxf(bold=True,underline=True,height=12, vert = 'center',horiz = 'center'))
-# bbbg_style = xlwt.easyxf(generate_easyxf(bold=True,height=16, vert = 'center',horiz = 'center'))
 
 def write_merge_cell(row,col,merge_tuple_list):
     for crange in merge_tuple_list:
@@ -40,27 +39,14 @@ def write_merge_cell(row,col,merge_tuple_list):
 #         w
 #         )
 #     return w.output[0][1], w.style_list
-def ong_ba_(ws,f_name,fixups,needdata,row,dl_obj,source_member_ids='source_member_ids'):
-#     alist = [(u'Ông: Nguyễn Đức Tứ',u'CV: Nhân viên'),(u'Ông: Nguyễn Đức Tính',u'CV: Sếp')]
-#     row = fixups['ddbg']['range'][0] + 1
-#     row = needdata['cr'] + offset
-    nrow = 0
-    for c,i in enumerate(getattr(dl_obj,source_member_ids)):
-        nrow +=1
-        ws.write_merge(row + c,row + c,1,2,u'Ông/bà: %s'%i.name,vert_center_style)
-        chuc_vu_don_vis =[]
-        if i.job_id.name:
-            chuc_vu_don_vis.append(i.job_id.name)
-        if i.parent_id.name:
-            chuc_vu_don_vis.append(i.parent_id.name)
-        if chuc_vu_don_vis: 
-            ws.write_merge(row + c,row + c,3,7,u'C/v: %s'%(u' '.join(chuc_vu_don_vis)),vert_center_style)
-#         ws.write_merge(row + c,row + c,5,7,u'                 Đ/v: %s'%i.parent_id.name,vert_center_style)
-    return nrow
-def table_(ws,f_name,fixups,needdata,row,dl_obj,IS_SET_TT_COL=False,all_tot_and_ghom_all_tot=False):
-#     row = needdata['cr'] + offset
-    nrow = download_ml_for_bb(dl_obj, worksheet=ws,row_index=row, IS_SET_TT_COL = IS_SET_TT_COL, all_tot_and_ghom_all_tot=all_tot_and_ghom_all_tot)
-#     needdata['cr'] = row + nrow - 1
+
+def table_(ws,f_name,fixups,needdata,row,dl_obj,IS_SET_TT_COL=False,all_tot_and_ghom_all_tot=False,font_height=12):
+    nrow = download_ml_for_bb(dl_obj, 
+                               worksheet=ws,
+                               row_index=row,
+                               IS_SET_TT_COL = IS_SET_TT_COL, 
+                               all_tot_and_ghom_all_tot=all_tot_and_ghom_all_tot,
+                               font_height=font_height)
     return nrow
 
 def to_trinh_(ws,f_name,fixups,needdata,row,dl_obj):
@@ -80,10 +66,11 @@ def tinh_trang_vat_tu_(ws,f_name,fixups,needdata,row,dl_obj):
         return u'Tình trạng vật tư : Hỏng'
     return None
 def ddbg_(ws,f_name,fixups,needdata,row,dl_obj,location_id='location_id',doi_tac_giao_id='doi_tac_giao_id'):
-    location_id = getattr(dl_obj, location_id)
+    location = getattr(dl_obj, location_id)
     doi_tac_giao_id = getattr(dl_obj,doi_tac_giao_id)
-    ddbg_name =  location_id.partner_id_of_stock_for_report.name or doi_tac_giao_id.name
-    if location_id=='location_id':
+    ddbg_name =  location.partner_id_of_stock_for_report.name or doi_tac_giao_id.name
+   
+    if location_id == 'location_id':
         prefix = u'Đại diện bên giao%s'
     else:
         prefix = u'Đại diện bên nhận%s'
@@ -134,7 +121,27 @@ def xac_nhan_lanh_dao_(ws,f_name,fixups,needdata,row,dl_obj):
 #     
     
 def write_xl_bb(dl_obj):
-    
+    font_height = dl_obj.font_height
+    wrap_normal_style = xlwt.easyxf(generate_easyxf(height=font_height,align_wrap=True))  
+    bold_center_style = xlwt.easyxf(generate_easyxf(height=font_height, vert = 'center',horiz = 'center',bold=True))
+    bbbg_style = xlwt.easyxf(generate_easyxf(bold=True,height=18 + (font_height-12) , vert = 'center',horiz = 'center'))
+    font_height_table =dl_obj.font_height_table
+
+    def ong_ba_(ws,f_name,fixups,needdata,row,dl_obj,source_member_ids='source_member_ids'):
+        vert_center_style = xlwt.easyxf(generate_easyxf(vert = 'center',height=font_height))
+        nrow = 0
+        for c,i in enumerate(getattr(dl_obj,source_member_ids)):
+            nrow +=1
+            ws.write_merge(row + c,row + c,1,2,u'Ông/bà: %s'%i.name,vert_center_style)
+            chuc_vu_don_vis =[]
+            if i.job_id.name:
+                chuc_vu_don_vis.append(i.job_id.name)
+            if i.parent_id.name:
+                chuc_vu_don_vis.append(i.parent_id.name)
+            if chuc_vu_don_vis: 
+                ws.write_merge(row + c,row + c,3,7,u'C/v: %s'%(u' '.join(chuc_vu_don_vis)),vert_center_style)
+        return nrow
+
     all_tot_and_ghom_all_tot = set(dl_obj.move_line_ids.mapped('tinh_trang')) ==set(['tot']) and   dl_obj.is_ghom_tot
     IS_SET_TT_COL = dl_obj.is_set_tt_col
 #     IS_SET_TT_COL and not all_tot_and_ghom_all_tot
@@ -160,12 +167,19 @@ def write_xl_bb(dl_obj):
                     ('ddbg',{'range':[8,0],'val':None, 'val_func':ddbg_}),
                     ('ong_ba',{'range':['auto', 0],'val':None, 'func':ong_ba_}),
 #                     ('ddbn',{'range':['auto',0],'val':u'Đại diện bên nhận%s'%(' (%s)'%dl_obj.location_dest_id.partner_id_of_stock_for_report.name if dl_obj.location_dest_id.partner_id_of_stock_for_report  else '' ),'offset':2}),
-                    ('ddbn',{'range':[8,0],'val':None, 'val_func':ddbg_,'val_kargs':{'location_id':'location_dest_id','doi_tac_giao_id':'doi_tac_nhan_id'}}),
+                    ('ddbn',{'range':['auto',0],'val':None, 'val_func':ddbg_,'val_kargs':{'location_id':'location_dest_id','doi_tac_giao_id':'doi_tac_nhan_id'}}),
                     
                     ('ong_ba2',{'range':['auto', 0], 'val':None,  'func':ong_ba_,'kargs':{'source_member_ids':'dest_member_ids'}}),
                     ('ly_do',{'range': ['auto', 'auto', 0,7],'val':None,'val_func':ly_do_,}),
                     ('bg',{'range': ['auto', 0],'val':u'Chúng tôi đã tiến hành bàn giao vật tư bên dưới.'}),
-                    ('table',{'range':['auto', 0],'val':None,'func':table_ ,'offset':2 ,'kargs': {'IS_SET_TT_COL':IS_SET_TT_COL,'all_tot_and_ghom_all_tot':all_tot_and_ghom_all_tot}}),
+                    
+                    
+                    
+                    ('table',{'range':['auto', 0],'val':None,'func':table_ ,'offset':2 ,
+                              'kargs': {'IS_SET_TT_COL':IS_SET_TT_COL,'all_tot_and_ghom_all_tot':all_tot_and_ghom_all_tot,'font_height':font_height_table}}),
+                    
+                    
+                    
                     ('tinh_trang_vat_tu',{'range': ['auto', 0],'val':None,'val_func':tinh_trang_vat_tu_,'offset':2}),
                     ('so_ban_in',{'range': ['auto', 0],'val':u'Biên bản được lập thành %s bản. Bên giao giữ %s bản. Bên nhận giữ %s bản'%(dl_obj.so_ban_in,dl_obj.ben_giao_giu,dl_obj.ben_nhan_giu),'offset':1}),
                   
@@ -195,7 +209,9 @@ def write_xl_bb(dl_obj):
                                   }),
              ]
     
-    wb = write_all_row(fixups,dl_obj,set_cols_width)
+    
+    
+    wb = write_all_row(fixups,dl_obj,set_cols_width,font_height=font_height)
     filename = '%s_%s_%s'%(dl_obj.department_id.short_name,dl_obj.ban_giao_or_nghiem_thu,dl_obj.stt_trong_bien_ban_in)
     name = "%s%s" % (filename, '.xls')
     return wb,name

@@ -11,13 +11,30 @@ class StockMoveLine(models.Model):
 #     pn_id = fields.Many2one('tonkho.pn',related = 'lot_id.pn_id',string=u'Part number')
 #     pn_id = fields.Many2one('tonkho.pn',string=u'Part number')
     stock_quant_id = fields.Many2one('stock.quant', string=u"Lấy vật tư có trong kho")
-    tracking = fields.Selection(related='product_id.tracking',string=u'Có SN hay không', store=False)
+
+
+
+#     tracking = fields.Selection(related='product_id.tracking',string=u'Có SN hay không', store=False)
+    tracking = fields.Boolean(string=u'Có SN hay không', store=False,compute='tracking_')
+    
+    @api.depends('product_id.tracking')
+    def tracking_(self):
+        for r in self:
+            r.tracking = r.product_id.tracking == 'serial'
+            
+            
     categ_id = fields.Many2one('product.category',related='product_id.categ_id', store=False,readonly=True)
+    thiet_bi_id = fields.Many2one('tonkho.thietbi',related='product_id.thiet_bi_id' ,string = u'Thiết bị',readonly=True)
     ghi_chu = fields.Text(string=u'Ghi chú vật tư')
-    inventory_id = fields.Many2one('stock.inventory', 'Inventory',related='move_id.inventory_id',readonly=True)
+    inventory_line_id = fields.Many2one('stock.inventory.line')
+#     inventory_id = fields.Many2one('stock.inventory', 'Inventory',related='inventory_line_id.inventory_id')
+    inventory_id = fields.Many2one('stock.inventory', 'Inventory',related='move_id.inventory_id')
+    
     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')], default='tot', string=u'Tình trạng',required=True)
+    
+    
     ref_picking_id_or_inventory_id = fields.Char(compute='ref_picking_id_or_inventory_id_', store=True,string=u'Phiếu tham chiếu')
-    pn = fields.Char(related='product_id.pn',store = True)
+    pn = fields.Char(related='product_id.pn',store = True,readonly="1")
 
     
     move_line_dest_ids = fields.Many2many(
@@ -31,26 +48,35 @@ class StockMoveLine(models.Model):
     origin_returned_move_id = fields.Many2one('stock.move.line', 'Origin return move', copy=False, help='Move that created the return move')
     returned_move_ids = fields.One2many('stock.move.line', 'origin_returned_move_id', 'All returned moves', help='Optional: all returned moves created from this move')
     stt = fields.Integer()
-    inventory_line_id = fields.Many2one('stock.inventory.line')
     sltk = fields.Integer(compute='sltk_',store=True)
     decoration_danger = fields.Boolean(compute='decoration_danger_')
+    
 #     ghi_chu_cate = fields.Text()
-    thiet_bi_id = fields.Many2one('tonkho.thietbi',related='product_id.thiet_bi_id' ,string = u'Thiết bị')
-    @api.depends('sltk','decoration_danger','location_id')
+    @api.depends('sltk','location_id')
     def decoration_danger_(self):
         for r in self:
             r.decoration_danger = (not r.location_id.cho_phep_khac_tram_chon) and (r.qty_done > r.sltk)
-    @api.onchange('lot_id','product_id')
-    def location_id_oc_(self):
-        qs = self.env['stock.quant'].search([('lot_id','=',self.lot_id.id),('product_id','=',self.product_id.id),('quantity','>',0)])
-#         print (qs.ids)
-        lc_ids= qs.mapped('location_id.id')
-        lc_ids.append(self.picking_id.location_id.id)
-        return {
-            'domain': {
-                    'location_id': [('id', 'in',lc_ids)],
-            }
-                }
+#     @api.onchange('lot_id','product_id')
+#     def location_id_oc_(self):
+#         qs = self.env['stock.quant'].search([('lot_id','=',self.lot_id.id),('product_id','=',self.product_id.id),('quantity','>',0)])
+# #         print (qs.ids)
+#         lc_ids= qs.mapped('location_id.id')
+#         lc_ids.append(self.picking_id.location_id.id)
+#         return {
+#             'domain': {
+#                     'location_id': [('id', 'in',lc_ids)],
+#             }
+#                 }
+
+    @api.one
+    @api.depends('picking_id.picking_type_id', 'product_id.tracking')
+    def _compute_lots_visible(self):
+        self.lots_visible =True
+#         picking = self.picking_id
+#         if picking.picking_type_id and self.product_id.tracking != 'none':  # TDE FIXME: not sure correctly migrated
+#             self.lots_visible = picking.picking_type_id.use_existing_lots or picking.picking_type_id.use_create_lots
+#         else:
+#             self.lots_visible = self.product_id.tracking != 'none'
     
     @api.depends('product_id','lot_id','location_id')
     def sltk_(self):
@@ -130,8 +156,30 @@ class StockMoveLine(models.Model):
         for r in self:
             if r.location_id ==r.location_dest_id:
                 raise UserError(u'Địa điểm đích và địa điểm nguồn không được giống nhau')
+    
+    
+    @api.constrains('state','tinh_trang','ghi_chu')
+    def state_tinh_trang_(self):
+        for r in self:
+            if r.state =='done':
+                if r.lot_id:
+                    if r.tinh_trang:
+                        r.lot_id.tinh_trang = r.tinh_trang
+                    if r.ghi_chu:
+                        r.lot_id.ghi_chu = r.ghi_chu
+            
+            
+            
         
-        
-                        
-                
+#     def write(self, vals):
+#         """ Through the interface, we allow users to change the charateristics of a move line. If a
+#         quantity has been reserved for this move line, we impact the reservation directly to free
+#         the old quants and allocate the new ones.
+#         """
+# #         if self.env.context.get('bypass_reservation_update'):
+#         if self.state =='done':
+#             self = self.with_context(bypass_reservation_update=True)
+#         
+#         return super(StockMoveLine, self).write(vals)
+#                 
                 

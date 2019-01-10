@@ -271,6 +271,7 @@ msgid "Product"
 msgstr "Vật tư"
 
 #: model:ir.model.fields,field_description:stock.field_stock_quant_product_id
+#: model:ir.model.fields,field_description:stock.field_stock_inventory_line_product_id
 msgid "Product"
 msgstr "Tên vật tư"
 
@@ -278,7 +279,7 @@ msgstr "Tên vật tư"
 #. module: stock
 #: model:ir.model.fields,field_description:stock.field_stock_move_line_product_id
 msgid "Product"
-msgstr "Vật tư điều chuyển"
+msgstr "Vật tư"
 
 
 
@@ -360,5 +361,42 @@ msgstr "Serial number"
 msgid "Creation Date"
 msgstr "Ngày giờ tạo"
 
+#. module: stock
+#: code:addons/stock/models/stock_move_line.py:398
+#: code:addons/stock/models/stock_picking.py:704
+#, python-format
+msgid "You need to supply a lot/serial number for %s."
+msgstr "Bạn cần cung cấp Serial number cho %s."
 
 
+#. module: tonkho
+#: code:addons/stock/models/model_dict_folder/recursive_func.py:398
+#, python-format
+msgid "Excel not has column one in %s of %s, please change column name match with them"
+msgstr "File excel không có cột có tên một trong những tên dưới %s của field %s, vui lòng đổi tên cột trong file excel"
+
+#. module: stock
+#: model:ir.model.fields,field_description:stock.field_stock_return_picking_location_id
+msgid "Return Location"
+msgstr "Kho trả về"
+
+#. module: stock
+#: model:ir.model.fields,field_description:stock.field_stock_move_line_product_uom_id
+#: model:ir.model.fields,field_description:stock.field_stock_move_product_uom
+#: model:ir.model.fields,field_description:stock.field_stock_production_lot_product_uom_id
+#: model:ir.model.fields,field_description:stock.field_stock_quant_product_uom_id
+#: model:ir.model.fields,field_description:stock.field_stock_return_picking_line_uom_id
+#: model:ir.model.fields,field_description:stock.field_stock_scrap_product_uom_id
+#: model:ir.ui.view,arch_db:stock.stock_move_tree
+#: model:ir.ui.view,arch_db:stock.view_inventory_form
+#: model:ir.ui.view,arch_db:stock.view_move_line_form
+#: model:ir.ui.view,arch_db:stock.view_move_line_tree
+#: model:ir.ui.view,arch_db:stock.view_move_picking_tree
+#: model:ir.ui.view,arch_db:stock.view_move_tree
+#: model:ir.ui.view,arch_db:stock.view_move_tree_receipt_picking
+#: model:ir.ui.view,arch_db:stock.view_move_tree_receipt_picking_board
+#: model:ir.ui.view,arch_db:stock.view_picking_form
+#: model:ir.ui.view,arch_db:stock.view_stock_move_line_kanban
+#: model:ir.ui.view,arch_db:stock.view_stock_move_line_operation_tree
+msgid "Unit of Measure"
+msgstr "Đơn vị tính"

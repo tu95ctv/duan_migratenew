@@ -7,15 +7,44 @@ import datetime
 from odoo.osv.orm import setup_modifiers
 import re
 from odoo.addons.dai_tgg.mytools import pn_replace
+
+
+
 class Product(models.Model):
     
     _sql_constraints = [
         ('name_ref_uniq', 'unique (name,pn)', 'The serial number must be unique !'),
     ]
     _inherit = "product.product"
+    
+    
+    
     lot_ids = fields.One2many('stock.production.lot','product_id')
     pn = fields.Char(string='Part number')
     pn_replace = fields.Char(compute='pn_replace_',store=True)
+    
+    
+    
+
+    sn_ids = fields.One2many('stock.production.lot','product_id',string='Serial numbers')
+    tracking = fields.Selection([
+        ('serial', 'By Unique Serial Number'),
+#         ('lot', 'By Lots'),
+        ('none', 'No Tracking')],required=True,
+                                compute='tracking_',
+                                store=True,
+                                string=u'Có SN hay không',
+                                default='none'
+                                )
+    
+    
+    @api.depends('sn_ids')
+    def tracking_(self):
+        print ('in tracking_')
+        for r in self:
+            rs = self.env['stock.production.lot'].search([('product_id','=',r.id)], limit=1)
+            r.tracking = 'serial' if rs else 'none'
+            
     @api.depends('name')
     def pn_replace_(self):
         for r in self:
@@ -66,6 +95,8 @@ class Product(models.Model):
             return super(Product,self.with_context(location=default_location_name))._get_domain_locations()
         else:
                 raise UserError (u'default_location_name Không Có')
+            
+            
 #     @api.model
 #     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
 #         res = super(Product, self).fields_view_get(

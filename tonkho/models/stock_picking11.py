@@ -65,7 +65,12 @@ class StockPicking(models.Model):
         readonly=True, required=True,
         states={'draft': [('readonly', False)]})
     noi_ban_giao = fields.Many2one('res.partner',default= lambda self: self.env.user.department_id.partner_id, string=u'Nơi bàn giao',copy=False)
-    department_id = fields.Many2one('hr.department',default=lambda self:self.env.user.department_id, readonly=True, string=u'Đơn vị', required=True,copy=False)
+    department_id = fields.Many2one('hr.department',
+#                                     compute='department_id_',
+                                    default=lambda self:self.env.user.department_id,
+#                                     readonly=True,
+                                    string=u'Đơn vị',
+                                    required=True,copy=False)
 #     stt_bien_ban = fields.Integer(default=lambda self:self.env.user.department_id.sequence_id.number_next_actual,readonly=True, string=u'STT điều chuyển')
     source_member_ids = fields.Many2many('res.partner','source_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân viên giao',copy=False)
     dest_member_ids = fields.Many2many('res.partner','dest_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân viên nhận',copy=False)
@@ -76,30 +81,33 @@ class StockPicking(models.Model):
     stt_trong_bien_ban_in = fields.Integer(string=u'STT trong biên bản',compute='stt_trong_bien_ban_in_',store=True,copy=False)
     file_ids = fields.Many2many('dai_tgg.file','stock_picking_file_relate','stock_picking_id','file_id',string=u'Files đính kèm')
     
-    allow_check_excel_obj_is_exist_func  = fields.Boolean(default=True,string=u'Cho phép đối chiếu product excel obj với product exist object')
-    write_when_val_exist  = fields.Boolean(default=True)
+    allow_check_excel_obj_is_exist_func  = fields.Boolean(string=u'Cho phép đối chiếu product excel obj với product exist object')
+    write_when_val_exist  = fields.Boolean()
     cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat  = fields.Boolean(default=True)
     cho_phep_co_pn_cap_nhat_empty_pn  = fields.Boolean(default = True)
     
-    not_update_field_if_instance_exist_default  = fields.Boolean()
+#     not_update_field_if_instance_exist_default  = fields.Boolean()
     cho_phep_exist_val_before_loop_fields_func = fields.Boolean(default = True)
-    skip_stt = fields.Boolean(u'Bỏ trường STT khi import')
+    skip_stt = fields.Boolean(u'Skip (bỏ qua) trường STT khi import')
     
-#     not_loc_kho = fields.Integer()
-#     is_admin = fields.Integer(compute='is_admin_',)
+    is_admin = fields.Boolean(compute='is_admin_')
     
-#     @api.depends('name')
-#     def is_admin_(self):
-#         self.is_admin = 1 if self.user_has_groups('base.grou_erp_manager') else 0
-    
-#     date = fields.Datetime(
-#         'Creation Date',
-#         default=fields.Datetime.now, index=True, track_visibility='onchange',
-#         states={'done': [('readonly', True)], 'cancel': [('readonly', True)]},
-#         help="Creation Date, usually the time of the order")
-#     
+    font_height_table =fields.Integer(default=12)
+    font_height =fields.Integer(default=13)
+
     
     
+#     @api.multi
+#     def department_id_(self):
+#         for r in self:
+#             r.department_id =  self.env.user.department_id
+    
+    @api.depends('name')
+    def is_admin_(self):
+        for r in self:
+            if self.user_has_groups('base.group_erp_manager'):
+                r.is_admin = True
+                
     
     
     @api.depends('department_id','ban_giao_or_nghiem_thu')
@@ -109,10 +117,8 @@ class StockPicking(models.Model):
                                                         ('ban_giao_or_nghiem_thu','=',r.ban_giao_or_nghiem_thu),
                                                         ('stt_trong_bien_ban_in','!=', 0),
                                                         ]
-            print ('r.id***',r.id)
             if isinstance(r.id, int):
                 domain.append(('id','!=',r.id))
-#                 raise UserError(u'không thể có r.id được')
             picking = self.env['stock.picking'].search(domain, limit=1, order='stt_trong_bien_ban_in desc')
             if picking:
     #             self.env.cr.execute('select stt_trong_bien_ban_in from stock_picking where id =%s'%picking.id)
@@ -205,16 +211,16 @@ class StockPicking(models.Model):
     allow_cate_for_ghi_chu =  fields.Boolean(string=u"Lấy Tiêu đề làm ghi chú")
     empty_ghi_chu_in_bb =  fields.Boolean(string=u'Tự ghi chú trong BB excel')
     
-    range_1 = fields.Integer()
-    range_2 = fields.Integer()
+    range_1 = fields.Integer(string=u'stt dòng tiêu đề đầu')
+    range_2 = fields.Integer(string=u'stt dòng tiêu đề cuối')
     
-    doi_tac_giao_id = fields.Many2one('res.partner',u'Đơn vị  giao')
+    doi_tac_giao_id = fields.Many2one('res.partner',u'Đơn vị  giao',copy=False)
     location_id_partner_id =  fields.Many2one('res.partner',related='location_id.partner_id_of_stock_for_report',store=False,readonly=True)
     location_dest_id_partner_id =  fields.Many2one('res.partner',related='location_dest_id.partner_id_of_stock_for_report',store=False,readonly=True)
-    doi_tac_nhan_id = fields.Many2one('res.partner',u'Đơn vị nhận')
+    doi_tac_nhan_id = fields.Many2one('res.partner',u'Đơn vị nhận', copy=False)
 #     allow_product_qty_dieu_chinh = fields.Boolean()
     
-    
+    product_id_for_search =  fields.Many2one('product.product',related='move_line_ids.product_id')
     @api.one
     def is_quyen_huy_bb_(self):
         self.is_quyen_huy_bb = self.user_has_groups('base.group_erp_manager') or (self.env.user == self.create_uid)
@@ -257,12 +263,11 @@ class StockPicking(models.Model):
             workbook.save(buf)
             out = base64.encodestring(buf.getvalue())
         self.write({ 'file_dl': out, 'file_dl_name': name})
-        
     @api.multi
     def import_file(self):
         importthuvien(self,
-                       key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp'
-                       ,key_tram='sml')
+                       key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',
+                       key_tram='sml')
 
     @api.multi
     def validate_cua_ben_giao(self):
@@ -388,12 +393,10 @@ class StockPicking(models.Model):
 
     @api.depends('department_id','ban_giao_or_nghiem_thu','stt_trong_bien_ban_in')
     def name_(self):
-        
-        ### sua lai 
         name = self.department_id.short_name + '/' + '%s'%BG_dict[self.ban_giao_or_nghiem_thu] + '/%s'%self.stt_trong_bien_ban_in
         self.name = name
           
-        
+    
         
     @api.onchange('picking_type_id')
     def onchange_picking_type_New(self):
@@ -433,17 +436,31 @@ class StockPicking(models.Model):
    
 
         
-    @api.multi
-    def write(self,vals):
-        print ('**vals***',vals)
-        super(StockPicking, self).write(vals)
-        
+#     @api.multi
+#     def write(self,vals):
+#         print ('**vals***',vals)
+#         super(StockPicking, self).write(vals)
+#         
     @api.model
     def create(self,vals):
         print ('**vals***',vals)
         obj = super(StockPicking, self).create(vals)
         return obj
         
+    
+    @api.multi
+    def write(self, vals):
+        print ('_____________vals***',vals.get('move_lines'),vals)
+        if self.state =='done':
+            move_line_ids =  vals.get('move_line_ids')
+            if move_line_ids:
+                for ml in move_line_ids:
+                    if ml[0]==0:
+                        raise UserError (u'Bạn không được tạo mới dòng điều chuyển khi đã hoàn tất biên bản')
+        res = super(StockPicking, self).write(vals)
+     
+        
+        return res
     
     
     @api.multi

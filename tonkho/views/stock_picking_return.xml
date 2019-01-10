@@ -25,7 +25,9 @@
                     <attribute name="attrs">{'readonly':[('loai_tra_hay_chuyen_tiep','!=','chuyen_tiep')]}</attribute>
                 </field>
                 <field name="location_id" position="replace">
-                    <field name="location_id" domain="[('is_kho_cha','=',True)]"></field>
+                	
+                    <field name="location_id_show" attrs="{'invisible':[('loai_tra_hay_chuyen_tiep','=','chuyen_tiep')]}" ></field>
+                    <field name="location_id" domain="[('is_kho_cha','=',True)]" attrs="{'invisible':[('loai_tra_hay_chuyen_tiep','!=','chuyen_tiep')]}"></field>
                 </field>
                 <field name="parent_location_id" position="after">
                     <field name="loai_tra_hay_chuyen_tiep" readonly="1"></field>

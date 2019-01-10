@@ -43,16 +43,15 @@ def lot_name_key_ltk_dc_(val,needdata,self):
 
 
 def last_record_function_ltk_vtdc_(n,self=None):
-    if not self.mode_no_create_in_main_instance:
-        if n['vof_dict']['product_id']['get_or_create']== False:
-            raise UserError(u'Product %s  phải được tạo từ trước'%n['vof_dict']['product_id']['fields']['name']['val'])
+#     if not self.mode_no_create_in_main_instance:
+    if n['vof_dict']['product_id']['get_or_create']== False:
+        raise UserError(u'Product %s  phải được tạo từ trước'%n['vof_dict']['product_id']['fields']['name']['val'])
     gan_inventory_id_vao_needdata(n,self)
 def gan_inventory_id_vao_needdata(n,self):
     if n['vof_dict']['inventory_id']['val'] and  not n.get('inventory_id'):
         n['inventory_id'] = n['vof_dict']['inventory_id']['val']
 def last_import_function_(n,self):
-    if not self.mode_no_create_in_main_instance:
-        self.inventory_id = n['inventory_id']
+    self.inventory_id = n['inventory_id']
 def convert_float_location_(v,n):
 #     return v
     if isinstance(v, float):
@@ -134,16 +133,17 @@ def check_location_id_goc_for_user_(val,obj,needdata,self):
 #     location_id_goc = n['vof_dict']['location_id_goc']['obj']
     if obj:
         if obj != self.location_id:
-            print ('aaaa',obj,self.location_id,obj.name,self.location_id.name)
-            raise UserError(u'xl Trạm Location different with stock picking location')
-        
+#             print ('aaaa',obj,self.location_id,obj.name,self.location_id.name)
+#             raise UserError(u'xl Trạm Location different with stock picking location')
+            raise UserError(u'Kho nguồn ở file excel khác với kho nguồn ở biên bản ')
 def check_location_id_goc_for_user_2_(val,obj,needdata,self):
-    if obj.department_id != self.env.user.department_id:
-            raise UserError(u'xl Trạm Location different with stock picking location')
+    if obj:
+        if obj.department_id != self.env.user.department_id:
+                raise UserError(u'Kho kiểm kê không thuộc đơn vị của bạn')
 def valid_field_func_department_id_(v,o,n,self):
-    if not self.user_has_groups('base.group_erp_manager'):
+#     if not self.user_has_groups('base.group_erp_manager'):
         if v != n['department_id']:
-            raise UserError (u'với users role, location con của location gốc, thì department_id phải giống với user.department_id')
+            raise UserError (u'với users role,Muốn tạo  hay get địa điểm điều chuyển con của địa điểm gốc, thì department_id phải giống với user.department_id')
 def prepare_func_(n,self):
 #     raise UserError(u'kkaka')
     n['department_id'] =  self.env.user.department_id.id
@@ -201,12 +201,20 @@ def qty_137_(val,n):
     if val !=0:
         val =1
     return val
+
+
 def stt_(v,n):
-    try:
-        v = int(v)
+#     if v == False:
+#         return v
+    if isinstance(v, str):
+        try:
+            v = int(v)
+            return v
+        except :
+            return False
+    else:
         return v
-    except :
-        return False
+    
 def tinh_trang_(v,n):
     if v ==None or v ==u'Tốt' or v==u'tot' or v ==False:
         return u'tot'
@@ -294,14 +302,12 @@ def prod_lot_id_excel_readonly_for_search_(v,n,self):
 def exist_val_before_loop_fields_func_pr_id_(n,self): 
     prod_lot_id_excel_readonly_for_search = n['vof_dict']['prod_lot_id_excel_readonly_for_search']['val']
     if prod_lot_id_excel_readonly_for_search:
-#         not_create2 = True
         return prod_lot_id_excel_readonly_for_search.product_id
     else:
         return False
 def exist_val_before_loop_fields_func_pr_id_2_(n,self):
     product_id_excel_readonly_for_search = n['vof_dict']['product_id_excel_readonly_for_search']['val']
     if product_id_excel_readonly_for_search:
-#         not_create2 = True
         return product_id_excel_readonly_for_search
     else:
         return False
@@ -331,7 +337,6 @@ def check_excel_obj_is_exist_func_(get_or_create,obj,exist_val):
 def product_uom_id_(v,n,self):
     pr_id = n['vof_dict']['product_id']['val']
     uom_id = self.env['product.product'].browse(pr_id ).uom_id.id
-    print ('pr_id','uom_id',pr_id,uom_id)
     return uom_id
         
 def product_id_name_(v,n,self):
@@ -445,6 +450,12 @@ def sheet_for_ltk_(self,wb,mode):
         else:
             return [wb.sheet_names()[0]]
             
+def if_self_sheet_name(sheet_name,wb):
+    if sheet_name ==u'all' or sheet_name ==u'All':
+        return wb.sheet_names()
+    return [sheet_name]
+
+        
         
     
 def gen_model_dict(
@@ -453,7 +464,40 @@ def gen_model_dict(
                    mode=u'1',
                    key_tram=u'sklsklskl'):     
     mode =       getattr(self, 'mode',None)     or mode
+    
+    write_field_categ_id = self.env['ir.config_parameter'].sudo().get_param('tonkho.' + 'write_field_categ_id')
+    not_use_default_excel_import_setting = self.env['ir.config_parameter'].sudo().get_param('tonkho.' + 'not_use_default_excel_import_setting')
+    
+    use_default = not not_use_default_excel_import_setting
+    default_write_when_val_exist = True
+    default_allow_check_excel_obj_is_exist_func = False
+    default_cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat = False
+    default_cho_phep_co_pn_cap_nhat_empty_pn = False
+    default_cho_phep_exist_val_before_loop_fields_func = False
+    
+    
+    
+    
 #     raise UserError(key_tram)
+#     write_field_categ_id = getattr(self,'write_field_categ_id',False)
+    admin_to_user = False
+    user_to_admin = self.user_has_groups('tonkho.group_write_field_when_import_excel')
+#     raise UserError( user_to_admin)
+    is_admin = self.user_has_groups('base.group_erp_manager')
+    is_user = not self.user_has_groups('base.group_erp_manager')
+    is_admin_cal = False
+    if is_user:
+        if user_to_admin:
+            is_admin_cal = True
+    if is_admin:
+        if admin_to_user:
+            is_admin_cal = False
+        else:
+            is_admin_cal = True
+#     raise UserError(u'kakak%s'%is_admin_cal)
+#     is_user_cal = not is_admin_cal
+    
+   
     if key_tram =='sml':
         is_sml = True
     else:
@@ -462,6 +506,10 @@ def gen_model_dict(
         sml_or_mode_2 = True
     else:
         sml_or_mode_2 = False
+    if key_tram == 'key_ltk_dc':
+        mode_no_create_in_main_instance = getattr(self,'mode_no_create_in_main_instance',None)
+    else:
+        mode_no_create_in_main_instance = None
     import_from_inventory =self._context.get('import_from_inventory') # ở đây thì get context được vào trong fields thì mất
 #     raise UserError("self._context.get('not_last_import_function') %s"%self._context.get('not_last_import_function'))
     ALL_MODELS_DICT = {
@@ -487,7 +535,7 @@ def gen_model_dict(
 #                         'key_ltk':lambda self: [u'Truyền dẫn',u'IP (VN2, VNP)',u'GTGT',u'Chuyển Mạch (IMS, Di Động)',u'Vô tuyến']if not self.sheet_name else [self.sheet_name],
 #                         'key_ltk':lambda self,wb: [wb.sheet_names()[0]],
                         'key_ltk':sheet_for_ltk_,
-                        'key_tti':lambda self,wb: wb.sheet_names() if not self.sheet_name else [self.sheet_name],
+                        'key_tti':lambda self,wb: wb.sheet_names() if not self.sheet_name else if_self_sheet_name(self.sheet_name,wb),
                         'key_ltk_dc':lambda self:[u'Tổng hợp'] if not self.sheet_name else [self.sheet_name],
                         key_tti_dc:lambda self:[u'TTI-TS co'],
                         sml:lambda self,wb: [wb.sheet_names()[0]],
@@ -497,27 +545,29 @@ def gen_model_dict(
                                    } ,#[self.sheet_name],#,#[self.sheet_name],#[u'Chuyển Mạch (IMS, Di Động)'],#xl_workbook.sheet_names(),#[u'Truyền dẫn'],#[u'IP (VN2, VNP)'],[u'Chuyển Mạch (IMS, Di Động)']
                     'model':{all_key_tram: 'stock.inventory.line',sml:'stock.move.line'},## viet lai ben tao_instance_new
                    
-                    'not_update_field_if_instance_exist_default':False,
+#                     'not_update_field_if_instance_exist_default':False,
                     'bypass_this_field_if_value_equal_False_default':False,
 #                     'write_when_val_exist':True,
 #                     'allow_check_excel_obj_is_exist_func':True,
                     'setting': {all_key_tram: {
-                                               'write_when_val_exist':getattr(self,'write_when_val_exist',True),
-                                               'allow_check_excel_obj_is_exist_func':getattr(self,'allow_check_excel_obj_is_exist_func',True),
-                                               'cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat':getattr(self,'cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat',True),
-                                               'cho_phep_co_pn_cap_nhat_empty_pn':getattr(self,'cho_phep_co_pn_cap_nhat_empty_pn',True),
-                                               'cho_phep_exist_val_before_loop_fields_func':getattr(self,'cho_phep_exist_val_before_loop_fields_func',False),
+                                               'allow_write_from_False_to_not_false':True,
+                                               'write_when_val_exist':default_write_when_val_exist if use_default else getattr(self,'write_when_val_exist',default_write_when_val_exist),
+                                               'allow_check_excel_obj_is_exist_func':default_allow_check_excel_obj_is_exist_func if use_default else getattr(self,'allow_check_excel_obj_is_exist_func',default_allow_check_excel_obj_is_exist_func),
+                                               'cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat':default_cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat if use_default else  getattr(self,'cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat',default_cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat),
+                                               'cho_phep_co_pn_cap_nhat_empty_pn':default_cho_phep_co_pn_cap_nhat_empty_pn if use_default else  getattr(self,'cho_phep_co_pn_cap_nhat_empty_pn',default_cho_phep_co_pn_cap_nhat_empty_pn),
+                                               'cho_phep_exist_val_before_loop_fields_func':default_cho_phep_exist_val_before_loop_fields_func if use_default else getattr(self,'cho_phep_exist_val_before_loop_fields_func',default_cho_phep_exist_val_before_loop_fields_func),
 #                                                 'allow_check_excel_obj_is_exist_raise_or_break':'break',
 
                                                }},
                                                       
-                    'setting2': {sml: {'allow_check_excel_obj_is_exist_raise_or_break':'break', 'allow_write':True if  self.user_has_groups('base.group_erp_manager') else False},
-                                     all_key_tram:{'allow_check_excel_obj_is_exist_raise_or_break':'raise', 'allow_write': True if  self.user_has_groups('base.group_erp_manager') else False}
+                    'setting2': {sml: {'allow_check_excel_obj_is_exist_raise_or_break':'break', 'allow_write':True if  is_admin_cal else False},
+                                     all_key_tram:{'allow_check_excel_obj_is_exist_raise_or_break':'raise', 'allow_write': True if is_admin_cal else False}
                                  },
+                    'not_get_or_create':{key_ltk_dc: mode_no_create_in_main_instance} ,                                 
                     'prepare_func': {sml: prepare_func_},
-                    'last_import_function':{all_key_tram:last_import_function_ if not self._context.get('not_last_import_function') else None,sml:None},
+                    'last_import_function':{all_key_tram:last_import_function_ if not (self._context.get('not_last_import_function') or mode_no_create_in_main_instance) else None,sml:None},
                     'last_record_function':{all_key_tram:gan_inventory_id_vao_needdata,
-                                                    key_ltk_dc:last_record_function_ltk_vtdc_,
+                                                    key_ltk_dc:last_record_function_ltk_vtdc_ if not mode_no_create_in_main_instance else None,
                                                     sml:None},
                     'break_condition_func_for_main_instance':{#all_key_tram:None,
                                                               all_key_tram:break_condition_func_for_main_instance_,
@@ -590,7 +640,9 @@ thiết bị
                      ('stt',{
 #                         'func':lambda v,n:n['vof_dict']['stt_readonly']['val'],
                         'func':stt_, 
-                        'xl_title': {'key_ltk':[u'STT'] if mode==u'2' else [u'STT new'],
+                        'xl_title': {
+#                             'key_ltk':[u'STT'] if mode==u'2' else [u'STT new'],
+                            'key_ltk':[u'STT'],
                             'key_tti':u'STT',
                             'key_ltk_dc':u'STT',
                              key_tti_dc: [u'Stt',u'Stt '],
@@ -628,60 +680,79 @@ VẬT TƯ''',u'''MÃ
 Article Code'''],
                                                 'bypass_this_field_if_value_equal_False':True,
                                                 'skip_field_if_not_found_column_in_some_sheet':{sml:True,all_key_tram:None},
-                                                'get_or_create_para':{all_key_tram:{'not_update_field_if_instance_exist':True}},
+#                                                 'get_or_create_para':{all_key_tram:{'not_update_field_if_instance_exist':True}},
+                                                'write_field':None if is_admin_cal else False,
                                                    }
                                              ),
                                             ('pn_replace',{'type_allow':[int,float],
                                                            'func':pn_replace_, 
-                                                           'get_or_create_para':{'all_key_tram':{'operator_search':'=ilike'}},
+#                                                            'get_or_create_para':{'all_key_tram':{'operator_search':'=ilike'}},
 #                                                             'key':lambda n: True if n['vof_dict']['product_id']['fields']['pn_replace']['val'] else False ,
-                                                            'key':True,
+#                                                             'key':True,
 #                                                             'bypass_this_field_if_value_equal_False':True,
-                                                             'get_or_create_para':{all_key_tram:{'not_update_field_if_instance_exist':True}},
+#                                                              'get_or_create_para':{all_key_tram:{'not_update_field_if_instance_exist':True}},
+#                                                             'write_field':False,
+                                                            'for_excel_readonly':True,
                                                             }
                                              ),
                                             ('name',{
-                                                     'get_or_create_para':{'all_key_tram':{'operator_search':'=ilike'}},
+#                                                      'get_or_create_para':{'all_key_tram':{'operator_search':'=ilike'}},
                                                      'func': product_id_name_,
                                                      'key':False,
 #                                                     'key':lambda n: False if n['vof_dict']['product_id']['fields']['pn_replace']['val'] else True ,
 #                                                      'key':False,
                                                      'required':True,
-                                                     'get_or_create_para':{all_key_tram:{'not_update_field_if_instance_exist':True}},
+#                                                      'get_or_create_para':{all_key_tram:{'not_update_field_if_instance_exist':True}},
+#                                                       'write_field':False,
+                                                     'write_field':True if is_admin_cal else False,
                                                                   }),
                                             ('type',{'set_val':'product'}),
 
-                                            ('tracking',{'func':{all_key_tram:lambda val,needdata: 'serial' if needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] !=False else 'none',
-                                                                        key_ltk_dc:lambda val,needdata: 'serial' if (needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] or needdata['vof_dict']['barcode_for_first_read']['val']) !=False else 'none',
-                                                                        key_137: lambda v,n:'serial'
-                                                                 }, 
-                                                            'write_func': tracking_write_func_,
-                                                         }),
-                                             
+#                                             ('tracking',{'func':{all_key_tram:lambda val,needdata: 'serial' if needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] !=False else 'none',
+#                                                                         key_ltk_dc:lambda val,needdata: 'serial' if (needdata['vof_dict']['prod_lot_id_excel_readonly']['val'] or needdata['vof_dict']['barcode_for_first_read']['val']) !=False else 'none',
+#                                                                         key_137: lambda v,n:'serial'
+#                                                                  }, 
+#                                                             'write_func': tracking_write_func_,
+#                                                          }),
+#                                              
                                           
                                           
 
-                                            ('categ_id',{
+                                            ('categ_id',{##cua product_id
                                                             'skip_this_field':{all_key_tram:False},
                                                             'bypass_this_field_if_value_equal_False':True,
+#                                                             'write_field':write_field_categ_id if self.user_has_groups('base.group_erp_manager') else False,
+                                                             'write_field':{all_key_tram:write_field_categ_id if is_admin_cal else False,
+                                                                            sml:False,},
+
+#                                                             'write_field':False,
 #                                                             'default': self.env['product.category'].search([('name','=','All')]).id,
                                                             'ready_declare_default':True,
                                                             'key':False,
+#                                                             'only_get':{all_key_tram:True if  sml_or_mode_2 else False},
+                                                            'only_get':{all_key_tram:True if  not is_admin_cal else False},
+
 #                                                            'required':False,
-#                                                            'raise_if_diff':True,
-                                                            'get_or_create_para':{key_ltk_dc2:{'not_update_field_if_instance_exist':True}},
-#                                                             'default':{'sml'},
+                                                            'raise_if_diff_only_write':True,
+                                                            'raise_if_diff':True,
+#                                                             'raise_if_diff':{all_key_tram:not(write_field_categ_id if self.user_has_groups('base.group_erp_manager') else False),
+
+#                                                                                   },
+#                                                             'get_or_create_para':{key_ltk_dc2:{'not_update_field_if_instance_exist':True}},
+                                                            
+#                                                             'get_or_create_para':{all_key_tram:{'not_update_field_if_instance_exist':True}},
                                                             'set_val':{
                                                                     key_137: lambda self: self.categ_id.id,
-                                                                    key_ltk_dc2:1
+                                                                    key_ltk_dc2:1,
+                                                                    key_ltk_dc: 1,
                                                                     },
                                                 'fields':[('name',{
                                                                         'skip_field_if_not_found_column_in_some_sheet':{sml:True,all_key_tram:False},
                                                                         'replace_string':{all_key_tram:[(u'Chuyển Mạch (IMS, Di Động)',u'Chuyển mạch'),(u'IP (VN2, VNP)',u'IP')]},
                                                                         'func':{ 
-                                                                                    all_key_tram:lambda val,needdata: needdata['sheet_name'],
+                                                                                    all_key_tram:(lambda val,needdata: needdata['sheet_name']) if mode!=u'2' else None,
                                                                                     'key_tti':categ_id_tti_convert_to_ltk_,
-                                                                                    key_ltk_dc: lambda val,needdata: needdata['sheet_name'],
+#                                                                                     key_ltk_dc: lambda val,needdata: needdata['sheet_name'],
                                                                                     key_tti_dc: None,
                                                                                     sml:None,
                                                                                     key_137:None,
@@ -692,10 +763,12 @@ Article Code'''],
 #                                                                         'required': {all_key_tram:True,key_137:False}},
                                                                         'required':{all_key_tram:True, 
                                                                                     },
-                                                                        'xl_title':{all_key_tram:None,
+                                                                        'xl_title':{
+                                                                                    all_key_tram:None,
                                                                                     key_tti_dc:[u'Phân hệ'],
                                                                                     sml:[u'Nhóm'],
-                                                                                    key_137:None
+                                                                                    key_137:None,
+                                                                                    'key_ltk':[u'Nhóm'] if mode ==u'2' else None
                                                                             },
                                                                             
                                                                         }
@@ -721,8 +794,8 @@ Article Code'''],
                                             ('thiet_bi_id',{
                                                 'skip_this_field':{key_137:True},
                                                 'bypass_this_field_if_value_equal_False':True,
-                                                'get_or_create_para':{'key_tti':{'not_update_field_if_instance_exist':True},
-                                                                        },
+#                                                 'get_or_create_para':{'key_tti':{'not_update_field_if_instance_exist':True},
+                                                'write_field':None if is_admin_cal else False,
                                                 'fields':[('name',{
                                                                 'func':{all_key_tram:lambda v,n: str(int(v)) if isinstance(v,float) else v,
                                                                          key_137: lambda v,n:n['sheet_name'],
@@ -737,11 +810,23 @@ Article Code'''],
 thiết bị'''
                                                                                            }, 
                                                                                'key':True,'required': True}),
-                                                            ('categ_id',{ #'skip_this_field':{key_ltk_dc2:True},
+                                                            
+                                                            
+                                                            ('categ_id',{ 
+                                                                                
+                                                                                'requried':True,
+                                                                                'raise_if_False':True,
+                                                                                'write_field':write_field_categ_id if is_admin_cal else False,
+                                                                                'raise_if_diff_only_write':True,
+#                                                                                 'raise_if_diff':{all_key_tram:not(write_field_categ_id if self.user_has_groups('base.group_erp_manager') else False)},
+                                                                                'raise_if_diff':True,
                                                                                 'bypass_this_field_if_value_equal_False':True,
-                                                                                'key':True,'func': lambda v,n:n['vof_dict']['product_id']['fields']['categ_id']['val']}
+                                                                                'print_if_write':True,
+                                                                                'key':False,
+                                                                                'func': lambda v,n:n['vof_dict']['product_id']['fields']['categ_id']['val']}
                                                              ),
                                                             ('brand_id',{
+                                                                         'write_field':None if is_admin_cal else False,
                                                                          'skip_this_field':{key_137:True},
                                                                          'key':False,
                                                                          'bypass_this_field_if_value_equal_False':True,
@@ -750,6 +835,7 @@ thiết bị'''
                                              
                                             
                                             ('uom_id',  {
+                                                        'write_field':None if is_admin_cal else False,
                                                          'ready_declare_default':True,
                                                         'bypass_this_field_if_value_equal_False':True, 'fields': [ #'func':uom_id_,'default':1,
                                                         ('name',{'set_val':{
@@ -759,7 +845,8 @@ thiết bị'''
                                                                             key_tti_dc:u'Cái'
                                                                             },
                                                                  'func':{all_key_tram:name_of_uom_id_,key_137: uom_id_137_},
-                                                                     'get_or_create_para':{'all_key_tram':{'operator_search':'=ilike'},},
+#                                                                      'get_or_create_para':{'all_key_tram':{'operator_search':'=ilike'},},
+                                                                      'operator_search':'=ilike',
                                                                       'xl_title':{all_key_tram:[u'Đơn vị tính',u'ĐVT',u'Đơn vị'],key_ltk_dc2:None },
                                                                       'key':True,'required':True,
                                                                       'replace_string':{'key_ltk':[('Modunle','module'),('CARD','Card'),('module','Module')],
@@ -820,7 +907,7 @@ thiết bị'''
                                                 },
                                      'xl_title':{'key_ltk':[u'Tồn kho cuối kỳ',u'Số lượng',u'Tồn kho cuối kỳ',u'Quantity',u'Số lượng',u'Số lượng điều chỉnh'],
                                                    'key_tti':[u'Tồn kho cuối kỳ',u'Số lượng',u'Tồn kho cuối kỳ'],
-                                                   sml:[u'Số lượng',u'Số lượng',u'S/L',u'Tồn kho cuối kỳ',u'Quantity'],
+                                                   sml:[u'Số lượng',u'Số lượng',u'S/L',u'Tồn kho cuối kỳ',u'Quantity',u'Số lượng điều chỉnh'],
                                                    key_137:[u'CUỐI',u'TỒN',u'Số lượng',u'SL']
                                                  },
                                      'key':False,
@@ -840,19 +927,19 @@ thiết bị'''
                     'model':'stock.location',
                                      'key':False, 
                                      'for_excel_readonly' :True,
-                                     "required":{all_key_tram:True,sml:False},
+                                     "required":{all_key_tram:True if mode !=u'2' else False,sml:False},
                                      'only_get': sml_or_mode_2,
                                     'valid_field_func':{
-#                                                          sml:check_location_id_goc_for_user_,
+                                                        sml:None if not is_admin_cal else check_location_id_goc_for_user_,
 #                                                         'key_ltk':check_location_id_goc_for_user_2_,
 #                                                         
-                                                        all_key_tram: (check_location_id_goc_for_user_2_ if sml_or_mode_2 else None) if not self.user_has_groups('base.group_erp_manager') else None
-                                                        
+#                                                         all_key_tram:  None if  is_admin_cal else (check_location_id_goc_for_user_2_ if sml_or_mode_2 else None)
+                                                        all_key_tram:  check_location_id_goc_for_user_2_ if (mode==u'2' and not is_admin_cal) else None
                                                         
                                                         },
                                      'func':{
 #                                              sml: None,
-                                             all_key_tram:location_goc_ if not sml_or_mode_2  else None},
+                                             all_key_tram:None if  sml_or_mode_2  else location_goc_},
                                      
                                      'fields': [('name',{'xl_title':u'Trạm',
                                                          'skip_field_if_not_found_column_in_some_sheet':True,
@@ -881,6 +968,8 @@ thiết bị'''
                      
                                                       }),
                 ('inventory_id', {
+#                                         'write_field':True,
+                                        'key':True,
                                         'func': inv_id_,
                                         'karg':{'key_ltk':{'import_from_inventory':import_from_inventory}},
                                         'fields':[
@@ -891,7 +980,7 @@ thiết bị'''
                                                  }),
                                         ('location_id',{
                                             'func':lambda val,needdata: needdata['vof_dict']['location_id_goc']['val'],
-                                            'get_or_create_para':{all_key_tram:{'not_update_field_if_instance_exist':True}},
+#                                             'get_or_create_para':{all_key_tram:{'not_update_field_if_instance_exist':True}},
                                             })
                                         ,] if not import_from_inventory  else None,
                                    'skip_this_field':{sml:True}
@@ -1080,7 +1169,9 @@ thiết bị'''
                                      }),  
                 
                
-                ('location_id1_dc',{'skip_this_field':{sml:False, all_key_tram:False}, 
+                ('location_id1_dc',{'skip_this_field':{sml:False, all_key_tram:True
+                                                       
+                                                       }, 
                                     'skip_this_field_for_mode_no_create':{key_ltk_dc:True},
                                     'model':'stock.location', 
                                     'for_excel_readonly':True, 
@@ -1107,7 +1198,7 @@ thiết bị'''
                                                                                  'key':True}),
                                                                 
                                                                 ('department_id',{
-                                                                                  'valid_field_func':valid_field_func_department_id_,
+                                                                                  'valid_field_func':None if is_admin_cal else valid_field_func_department_id_ ,
                                                                                   'key':True,
                                                                                   'model':'hr.department', 
                                                                                   'func':lambda v,n,self: n['vof_dict']['location_id_goc_dc']['obj'].department_id.id,
@@ -1117,7 +1208,7 @@ thiết bị'''
                                                                 ('stock_type',{'set_val':'phong_may'}),
                                                                 ]
                                                        }), 
-                ('location_id2_dc',{'skip_this_field':{sml:False, all_key_tram:False}, 'skip_this_field_for_mode_no_create':{key_ltk_dc:True},'model':'stock.location', 'for_excel_readonly':True,
+                ('location_id2_dc',{'skip_this_field':{sml:False, all_key_tram:True}, 'skip_this_field_for_mode_no_create':{key_ltk_dc:True},'model':'stock.location', 'for_excel_readonly':True,
                                                            'fields':[
                                                                     ('name',{'func':convert_float_location_,
                                                                              'xl_title':{'key_ltk':[u'Tủ/Kệ',u'Tủ'],
@@ -1132,6 +1223,7 @@ thiết bị'''
     #                                                                    ('department_id',{'key':False,'model':'hr.department', 'set_val':lambda self: self.department_id.id,'required':True,'raise_if_False':True, }),
                                                                    
                                                                     ('department_id',{
+                                                                                  'valid_field_func':None if is_admin_cal else valid_field_func_department_id_,
                                                                                   'key':True,
                                                                                   'model':'hr.department', 
                                                                                   'func':lambda v,n,self: n['vof_dict']['location_id_goc_dc']['obj'].department_id.id,
@@ -1141,7 +1233,7 @@ thiết bị'''
                                                                     
                                                                     ]
                                                            }),                                           
-                ('location_id3_dc',{'skip_this_field':{sml:False, all_key_tram:False}, 'skip_this_field_for_mode_no_create':{key_ltk_dc:True},'model':'stock.location', 'for_excel_readonly':True,
+                ('location_id3_dc',{'skip_this_field':{sml:False, all_key_tram:True}, 'skip_this_field_for_mode_no_create':{key_ltk_dc:True},'model':'stock.location', 'for_excel_readonly':True,
                                                        'fields':[
                                                                 ('name',{'func':convert_float_location_,
                                                                          'xl_title':{'key_ltk':[u'Ngăn',u'Ngăn/Kệ',u'Shelf'],
@@ -1152,9 +1244,11 @@ thiết bị'''
                                                                                          sml:[u'Shelf điều chuyển']
                                                                                          },
                                                                           'key':True,'required': True,'skip_field_if_not_found_column_in_some_sheet':True,}),
-                                                                ('location_id',{'required':True,'func':lambda val,needdata: needdata['vof_dict']['location_id2_dc']['val'] or needdata['vof_dict']['location_id1_dc']['val'] or  needdata['vof_dict']['location_id_goc_dc']['val'], 'key':True}),
+                                                                ('location_id',{'required':True,
+                                                                                'func':lambda val,needdata: needdata['vof_dict']['location_id2_dc']['val'] or needdata['vof_dict']['location_id1_dc']['val'] or  needdata['vof_dict']['location_id_goc_dc']['val'], 'key':True}),
 #                                                                     ('department_id',{'key':False,'model':'hr.department', 'set_val':lambda self: self.department_id.id,'required':True }),
                                                                 ('department_id',{
+                                                                                   'valid_field_func':None if is_admin_cal else valid_field_func_department_id_,
                                                                                   'key':True,
                                                                                   'model':'hr.department', 
                                                                                   'func':lambda v,n,self: n['vof_dict']['location_id_goc_dc']['obj'].department_id.id,
@@ -1179,6 +1273,7 @@ thiết bị'''
 #                                                                 ('department_id',{'required':True,'key':True,'model':'hr.department', 'func': lambda v,n:n['vof_dict']['department_id_for_excel_readonly']['val'],'required':True,'raise_if_False':True}),
                                                                 
                                                                 ('department_id',{
+                                                                                   'valid_field_func':None if is_admin_cal else valid_field_func_department_id_,
                                                                                   'key':True,
                                                                                   'model':'hr.department', 
                                                                                   'func':lambda v,n,self: n['vof_dict']['location_id_goc_dc']['obj'].department_id.id,
@@ -1204,7 +1299,9 @@ thiết bị'''
                                                             'skip_field_if_not_found_column_in_some_sheet':True,
 #                                                             'func':location_id5_chua_ro_,
                                                             }),
-                                                    ('location_id',{'required':True,'func':lambda val,needdata: needdata['vof_dict']['location_id4_dc']['val'] or needdata['vof_dict']['location_id3_dc']['val'] or needdata['vof_dict']['location_id2_dc']['val'] or needdata['vof_dict']['location_id1_dc']['val'] or  needdata['vof_dict']['location_id_goc_dc']['val'], 'key':True}),
+                                                    ('location_id',{'required':True,
+                                                                     'valid_field_func':None if is_admin_cal else valid_field_func_department_id_,
+                                                                    'func':lambda val,needdata: needdata['vof_dict']['location_id4_dc']['val'] or needdata['vof_dict']['location_id3_dc']['val'] or needdata['vof_dict']['location_id2_dc']['val'] or needdata['vof_dict']['location_id1_dc']['val'] or  needdata['vof_dict']['location_id_goc_dc']['val'], 'key':True}),
                                                     ('stock_type',{'set_val':'slot',
 #                                                                     'func': lambda v,n,self: 'slot' if n['vof_dict']['location_id5']['fields']['name']['val'] != u'Chưa rõ' else False
                                                                    
@@ -1245,7 +1342,11 @@ thiết bị'''
 #                                      'set_val':{sml:lambda self: self.location_dest_id.id}
                                      'func': lambda v,n,self: n['vof_dict']['location_id_dc']['val'] or  self.location_dest_id.id
                                      }),
-                ('picking_id',{'required':True, 'key':True, 'set_val':{sml:lambda self:self.id},'skip_this_field':{sml:False,all_key_tram:True}}),
+                                
+                                
+                ('picking_id',{'required':True,
+                                'key':True, 'set_val':{sml:lambda self:self.id},
+                                'skip_this_field':{sml:False,all_key_tram:True}}),
                
                 ('product_uom_id',{'skip_this_field':{sml:False,all_key_tram:True}, 
                                    'skip_this_field_for_mode_no_create':{key_ltk_dc:True},
@@ -1260,12 +1361,15 @@ thiết bị'''
                 ('ghi_chu',{
                             'xl_title':u'ghi chú',
                             'skip_this_field_for_mode_no_create':{key_ltk_dc:True},
-                            'func': {'sml':ghi_chu_cho_sml_,all_key_tram:None},
-                            'skip_field_if_not_found_column_in_some_sheet':True
+                            'func': {'sml':ghi_chu_cho_sml_,
+                                     all_key_tram:convert_float_to_ghi_chu_cho_sml_ngay_xuat,
+                                     },
+                            'skip_field_if_not_found_column_in_some_sheet':True,
                              }),
 #                     ('ghi_chu_cho_sml_cate',{'skip_this_field':{sml:True,all_key_tram:False},'func': {all_key_tram:ghi_chu_cho_sml_cate_all_key_tram_} }),
                
                 ('prod_lot_id', {
+                                  'print_write_dict_new':True,
                                  'offset_write_xl':{sml:2},
                                  'required_force':{all_key_tram:False,key_137:True},
                                  'transfer_name':{sml:'lot_id'},'key':True,'string':u'Serial number',
@@ -1273,9 +1377,12 @@ thiết bị'''
 #                                      'set_val_instead_loop_fields':{sml:set_val_instead_loop_fields_prod_lot_id_},
                                  
                                   'fields':[
-                                                ('name',{'type_allow':[int],'required':{all_key_tram:True,  sml+ '_not_create':False},
+                                                ('name',{'type_allow':[int],
+                                                         'required':{all_key_tram:True, 
+                                                                                         },
                                                          'required_not_create':False,
-                                                         'get_or_create_para':{'all_key_tram':{'operator_search':'=ilike'}},
+#                                                          'get_or_create_para':{'all_key_tram':{'operator_search':'=ilike'}},
+                                                        'operator_search':'=ilike',
                                                          'func':{all_key_tram:lambda val,needdata: needdata['vof_dict']['prod_lot_id_excel_readonly']['val'],
                                                                     key_ltk_dc:lot_name_key_ltk_dc_,
                                                                  },'key':True
@@ -1288,8 +1395,12 @@ thiết bị'''
                                                 ('the_tai_san',{'skip_this_field':{key_ltk_dc2:False,all_key_tram:True}, 'key':False,'xl_title':[u'Số thẻ']}),
                                                 ('product_id',{'func':lambda v,n:n['vof_dict']['product_id']['val'],
                                                                'key': True,
-                                                                'required':True }),
-                                                ('tinh_trang',{'skip_this_field':{sml:True,all_key_tram:False},'set_val': {all_key_tram:u'tot',  sml:None},'xl_title':  {all_key_tram:None,  sml:[u'T/T',u'Tình trạng']},
+                                                                'required':False
+                                                                 }),
+                                                ('tinh_trang',{
+                                                               'skip_this_field':{sml:True,all_key_tram:False},
+                                                               'set_val': {all_key_tram:u'tot',  sml:None},
+                                                               'xl_title':  {all_key_tram:None,  sml:[u'T/T',u'Tình trạng']},
                                                                'skip_field_if_not_found_column_in_some_sheet':True,
                                                                'func': tinh_trang_}),
                                             
@@ -1311,7 +1422,7 @@ thiết bị'''
                 'func':{
                 'sml':location_id_for_sml_,
                 key_137: lambda v,n:n['vof_dict']['location_id_goc']['val'],
-                all_key_tram: or_7_location_id_}
+                all_key_tram: or_7_location_id_ if mode !=u'2' else location_id_for_sml_}
                 , 'key':False}),
                                                  ]
                     },#End stock.inventory.line'

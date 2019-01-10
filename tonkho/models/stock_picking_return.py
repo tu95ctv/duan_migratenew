@@ -11,12 +11,17 @@ class ReturnPickingLine(models.TransientModel):
     _rec_name = 'product_id'
     ml_id = fields.Many2one('stock.move.line')
 #     lot_id = fields.Many2one('stock.production.lot',related='ml_id.lot_id',store=True)
-    lot_id = fields.Many2one('stock.production.lot')
+    lot_id = fields.Many2one('stock.production.lot',string=u'Serial number')
 
 
 class ReturnPicking(models.TransientModel):
     _inherit = 'stock.return.picking'
 #     is_chuyen_tiep = fields.Boolean()
+    location_id_show = fields.Many2one('stock.location',compute='location_id_show_',string=u'Kho trả về')
+    
+    @api.depends('location_id')
+    def location_id_show_(self):
+        self.location_id_show = self.location_id
     loai_tra_hay_chuyen_tiep = fields.Selection([('tra_do_huy',u'Trả do hủy'),('tra_do_muon',u'Trả do mượn'),('chuyen_tiep',u'Chuyển tiếp')],string=u'Loại trả vật tư')
 #     location_id = fields.Many2one(
 #         'stock.location', 'Return Location'
@@ -25,13 +30,13 @@ class ReturnPicking(models.TransientModel):
 #     location_id2 = fields.Many2one(
 #         'stock.location', 'Return Location'
 #         )
-    @api.onchange('loai_tra_hay_chuyen_tiep')
-    def loai_tra_hay_chuyen_tiep_(self):
-        if  self.loai_tra_hay_chuyen_tiep =='chuyen_tiep': # return
-            rt  ={'domain':{'location_id':"[]"}}
-        else:
-            rt  ={}
-        return rt
+#     @api.onchange('loai_tra_hay_chuyen_tiep')
+#     def loai_tra_hay_chuyen_tiep_(self):
+#         if  self.loai_tra_hay_chuyen_tiep =='chuyen_tiep': # return
+#             rt  ={'domain':{'location_id':"[]"}}
+#         else:
+#             rt  ={}
+#         return rt
     @api.model
     def default_get(self, fields):
         if len(self.env.context.get('active_ids', list())) > 1:
@@ -68,7 +73,8 @@ class ReturnPicking(models.TransientModel):
         picking = self.env['stock.picking'].browse(self.env.context.get('active_id'))
         picking_type_id = self.picking_id.picking_type_id.return_picking_type_id.id or self.picking_id.picking_type_id.id
         
-        loai_tra_hay_chuyen_tiep = self._context.get('default_loai_tra_hay_chuyen_tiep','tra_do_muon')
+#         loai_tra_hay_chuyen_tiep = self._context.get('default_loai_tra_hay_chuyen_tiep','tra_do_muon')
+        loai_tra_hay_chuyen_tiep = self.loai_tra_hay_chuyen_tiep
         if loai_tra_hay_chuyen_tiep == 'tra_do_huy':
             ban_giao_or_nghiem_thu = u'TRA_DO_HUY'
         else:
@@ -125,9 +131,7 @@ class ReturnPicking(models.TransientModel):
                     picking.ten_truoc_huy = picking.name
                     picking.ban_giao_or_nghiem_thu = 'HUY'
                     
-        print ('ban_giao_or_nghiem_thu***',ban_giao_or_nghiem_thu)
         if ban_giao_or_nghiem_thu == u'TRA_DO_HUY':
-            print ('**button_validate')
             new_picking.button_validate()
         return new_picking.id, picking_type_id
     
@@ -148,8 +152,6 @@ class ReturnPicking(models.TransientModel):
             'origin_returned_move_id': return_line.ml_id.id,
         }
         return vals
-    
-    
     
         
     @api.model

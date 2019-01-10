@@ -60,7 +60,8 @@
                    <field name="location_id" domain="['|',(1,'=',1),'&amp;',('is_kho_cha','=',True),('department_id','=', department_id)]" /> -->
                     <field name="location_id_partner_id"></field>
                     <field name="doi_tac_giao_id" attrs="{'invisible':[('location_id_partner_id','!=',False)],'required':[('location_id_partner_id','=',False)]}" />
-                    <field name="department_id" />
+                    <field name="is_admin"></field>
+                    <field name="department_id"  attrs="{'readonly':[('is_admin','=',False)]}"/>
                     <field name="noi_ban_giao" />
                     <field name="stt_trong_bien_ban_in" readonly="0" />
                     <field name="texttemplate_id" context="{'default_field_context':'tonkho.stock.picking.field.ly_do'}" />
@@ -80,6 +81,13 @@
                         </tree>
                     </field>
                 </field>
+               <!-- 
+                <field name="name" position="attributes">
+                 	<attribute name="readonly">0</attribute>
+                 	<attribute name="attrs">{'readonly':[('state','in',[('some')])]}</attribute>
+                </field>
+                 -->
+                
                 <field name="location_dest_id" position="replace" />
                 <field name="origin" position="before">
                     <field name="show_validate_ben_giao" invisible="1"></field>
@@ -93,6 +101,12 @@
                     <field name="is_quyen_chuyen_tiep" invisible="1" />
                     <field name="is_quyen_huy_bb" invisible="1" />
                 </field>
+                
+                <xpath expr="//page[1]" position="inside">
+                	<p>sltk:Số lượng trong kho</p>
+                </xpath>
+                
+                
                 <xpath expr="//page[1]" position="attributes">
                     <attribute name="attrs">{'invisible': False}</attribute>
                 </xpath>
@@ -101,10 +115,8 @@
                     <attribute name="context">{'default_picking_id': id, 'default_location_id': location_id, 'default_location_dest_id': location_dest_id,'ban_giao_or_nghiem_thu':ban_giao_or_nghiem_thu}</attribute>
                 </xpath>
                 <xpath expr="//page[1]/field[@name='move_line_ids']/tree" position="attributes">
-                    <attribute name="decoration-warning">qty_done&gt;product_uom_qty and state!='done'</attribute>
-                    <!--  <attribute name="decoration-danger">qty_done&gt;sltk</attribute> -->
+                    <!-- <attribute name="decoration-warning">qty_done&gt;product_uom_qty and state!='done'</attribute> -->
                     <attribute name="decoration-danger">decoration_danger</attribute>
-                    <!--   decoration-danger="qty_done&gt;product_uom_qty and state!='done'" decoration-success="qty_done==product_uom_qty and state!='done' and not result_package_id"> -->
                 </xpath>
                 <xpath expr="//page[1]/field/tree" position="attributes">
                     <attribute name="class">d4tree</attribute>
@@ -124,6 +136,12 @@
                 <xpath expr="//page[1]/field/tree/field[@name='location_id']" position="attributes">
                     <attribute name="attrs">{}</attribute>
                 </xpath>
+                
+                 <xpath expr="//page[1]/field/tree/field[@name='product_uom_qty']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                
+                
                 <xpath expr="//page[1]/field/tree/field[@name='location_dest_id']" position="attributes">
                     <attribute name="attrs">{'readonly': ['|',('in_entire_package', '=', True),('state', 'in', ('done', 'cancel'))]}</attribute>
                 </xpath>
@@ -135,6 +153,18 @@
                 <xpath expr="//page[1]/field/tree/field[@name='qty_done']" position="attributes">
                     <attribute name="attrs">{'readonly': [('state', 'in', ('done', 'cancel'))]}</attribute>
                 </xpath>
+                
+                <xpath expr="//page[1]/field/tree/field[@name='state']" position="replace">
+                </xpath>
+                
+                <xpath expr="//page[1]/field/tree/field[@name='qty_done']" position="after">
+                    <field name="ghi_chu"></field>
+                	<field name="sltk"></field>
+                	<field name="state"></field>
+                </xpath>
+                
+                
+                
                 <xpath expr="//page[1]/field/tree/field[@name='product_id']" position="before">
                     <field name="stock_quant_id" domain="[('location_id','child_of',parent.location_id),('quantity','&gt;',0)]" context="{'kho_da_chon':parent.choosed_stock_quants_ids}" attrs="{'readonly': [('state', 'in', ('done', 'cancel'))]}" />
                 </xpath>
@@ -144,15 +174,9 @@
                     <field name="categ_id" string="Nhóm"></field>
                     <field name="thiet_bi_id"></field>
                     <field name="tracking"></field>
-                    <!--    <field name="lot_id" invisible="0" attrs="{'column_invisible': [('parent.show_lots_text', '=', True)],                     'invisible': ['|',('lots_visible', '=', False),('tracking', '=', 'none')],                                'readonly': ['|',('in_entire_package', '=', True),                 ('state', 'in', ('done', 'cancel'))]}" groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'product_id_readonly':True,'default_product_id': product_id, 'default_pn_id': pn_id,'pn_id_readonly':True}" /> -->
-                    <field name="lot_id" invisible="0" attrs="{'column_invisible': [('parent.show_lots_text', '=', True)],                     'invisible': ['|',('lots_visible', '=', False),('tracking', '=', 'none')],                                'readonly': ['|',('in_entire_package', '=', True),                 ('state', 'in', ('done', 'cancel'))]}" groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'product_id_readonly':True,'default_product_id': product_id}" />
-                    <!--  'default_pn_id': pn_id,'pn_id_readonly':True -->
+                    <field name="lot_id" invisible="0" attrs="{'column_invisible': [('parent.show_lots_text', '=', True)],                     'invisible': [('lots_visible', '=', False)],                                'readonly': ['|',('in_entire_package', '=', True),                 ('state', 'in', ('done', 'cancel'))]}" groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'product_id_readonly':True,'default_product_id': product_id}" />
                     <field name="tinh_trang" attrs="{'readonly': [('state', 'in', ('done','cancel'))]}"></field>
-                    <field name="sltk"></field>
-                    <field name="ghi_chu"></field>
-                    <field name="decoration_danger"></field>
-                    <!--     <field name="stt"></field> -->
-                    <!-- <field name="ghi_chu_cate"></field> -->
+                    <field name="decoration_danger" invisible="1"></field>
                 </xpath>
                 <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="attributes">
                     <attribute name="string">Serial number</attribute>
@@ -256,13 +280,23 @@
                             <button  name="check_file" string="check_file" type="object" class="btn" />
                         </header>
                         <group>
-                            <div>
-                                <p>STT,Tên vật tư,Mã vật tư,S/L,ĐVT,Serial Number,Ghi chú
-                        	   </p>
-                            </div>
+                            
                             <group>
+                            	<div>
+                                STT, Tên vật tư, Mã vật tư, S/L, ĐVT, Serial Number,Ghi chú
+                            	</div>
                                 <field name="range_1" />
                                 <field name="range_2" />
+                                
+         
+                                
+                                <field name="is_dl_right_now" />
+                                <field name="file_dl" readonly="1" filename="file_dl_name" />
+                                <field name="file_dl_name" invisible="1" />
+                                
+                                
+                                
+                                
                                 <!-- <field name="allow_product_qty_dieu_chinh"></field> -->
                                 <field name="allow_cate_for_ghi_chu" groups="base.group_erp_manager" />
                                 <field name="allow_check_excel_obj_is_exist_func" groups="base.group_erp_manager" />
@@ -271,11 +305,13 @@
                                 <field name="cho_phep_co_pn_cap_nhat_empty_pn" groups="base.group_erp_manager" />
                             </group>
                             <group>
+                            	
                                 <field name="file" filename="filename" />
-                                <field name="not_update_field_if_instance_exist_default" groups="base.group_erp_manager" />
+                              <!--   <field name="not_update_field_if_instance_exist_default" groups="base.group_erp_manager" /> -->
                                 <field name="cho_phep_exist_val_before_loop_fields_func" groups="base.group_erp_manager" />
                                 <field name="skip_stt" />
                                 <field name="filename" invisible="1" />
+                              
                                 <field name="log" groups="base.group_erp_manager" />
                             </group>
                         </group>
@@ -283,15 +319,17 @@
                     <page string="Biên bản">
                         <group>
                             <group>
-                                <field name="is_dl_right_now" />
+                                <field name="font_height" />
+                                <field name="font_height_table" />
+                                
+                                
                                 <field name="is_ghom_tot" />
                                 <field name="empty_ghi_chu_in_bb" />
                             </group>
                             <group>
                                 <field name="is_set_tt_col" />
                                 <field name="is_not_show_y_kien_ld" />
-                                <field name="file_dl" readonly="1" filename="file_dl_name" />
-                                <field name="file_dl_name" invisible="1" />
+                        
                             </group>
                         </group>
                         <!-- 

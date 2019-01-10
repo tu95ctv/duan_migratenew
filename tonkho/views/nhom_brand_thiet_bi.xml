@@ -27,8 +27,7 @@
             <field name="domain"></field>
             <field name="view_type">form</field>
         </record>
-        <menuitem id="menu_stock_quant_action_product" action="brand_action" 
-        parent="stock.menu_stock_inventory_control" sequence="6" />
+        
         
         
         
@@ -68,8 +67,7 @@
             <field name="view_type">form</field>
         </record>
         
-          <menuitem id="thietbi_menu" action="thiet_bi_action" 
-        parent="stock.menu_stock_inventory_control" sequence="7" />
+         
         
         
         <!-- categ -->
@@ -107,6 +105,15 @@
             <field name="view_id" ref="tonkho.categ_tree"></field>
             <field name="search_view_id" ref="categ_search"></field>
         </record>
+        
+        
+        <menuitem id="menu_stock_quant_action_product" action="brand_action" 
+        parent="stock.menu_stock_inventory_control" sequence="6" />
+        
+        
+        
+         <menuitem id="thietbi_menu" action="thiet_bi_action" 
+        parent="stock.menu_stock_inventory_control" sequence="6" />
         
          <menuitem id="categ_menu" action="categ_action" 
         parent="stock.menu_stock_inventory_control" sequence="5" />

@@ -58,14 +58,14 @@ class Quant(models.Model):
         rs = list(map(lambda i:(i.name,i.name),locs))
         return rs
     
-    @api.constrains('lot_id')
-    def check_product_id(self):
-        not_allow_check_lot_id_in_different_location =self.env['ir.config_parameter'].sudo().get_param('tonkho.not_allow_check_lot_id_in_different_location' )
-        if not_allow_check_lot_id_in_different_location ==False:
-            if self.lot_id:
-                rs = self.env['stock.quant'].search([('lot_id','=',self.lot_id.id),('quantity','>',0)])
-                if len(rs)>1:
-                    raise UserError(u'Không được có quants nội bộ chung lot_id và quantity > 0 product:%s-sn: %s'%(self.product_id.name,self.lot_id.name))
+#     @api.constrains('lot_id')
+#     def check_product_id(self):
+#         not_allow_check_lot_id_in_different_location =self.env['ir.config_parameter'].sudo().get_param('tonkho.not_allow_check_lot_id_in_different_location' )
+#         if not_allow_check_lot_id_in_different_location ==False:
+#             if self.lot_id:
+#                 rs = self.env['stock.quant'].search([('lot_id','=',self.lot_id.id),('quantity','>',0)])
+#                 if len(rs)>1:
+#                     raise UserError(u'Không được có quants nội bộ chung lot_id và quantity > 0 product:%s-sn: %s'%(self.product_id.name,self.lot_id.name))
     @api.constrains('location_id','quantity')
     def not_allow_negative_qty(self):
         for r in self:

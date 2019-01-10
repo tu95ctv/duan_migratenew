@@ -27,6 +27,7 @@
                     <attribute name="invisible">1</attribute>
                 </field>
                 <field name="type" position="after">
+                	<field name="pn"></field>
                     <field name="tracking" />
                 </field>
                 <field name="default_code" position="replace" />
@@ -34,9 +35,11 @@
                     <field name="thiet_bi_id" />
                     <field name="brand_id" />
                   <!--   <field name="pn_ids"  context="{'product_id_readonly':True}"/> context="{'form_view_ref':'tonkho.pn_form_simple_not_product_id'}" -->
-                   <field name="pn"></field>
+                   
                     <field name="quant_ids" />
                 </field>
+                <field name="uom_po_id" position="replace"></field>
+                <field name="barcode" position="replace"></field>
                 <xpath expr="//header" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
@@ -70,29 +73,38 @@
             <field name="model">product.product</field>
             <field name="inherit_id" ref="product.product_product_tree_view" />
             <field name="arch" type="xml">
+            
+            
+                 <tree position="attributes">
+                    <attribute name="decoration-info"></attribute>
+                </tree>
+                
+               
+               
+               
                 <field name="uom_id" position="replace" />
                 <field name="default_code" position="replace" />
                 <field name="barcode" position="replace" />
                 <field name="lst_price" position="replace" />
                 <field name="name" position="after">
                     <!-- <field name="id" /> -->
-                    <field name="uom_id" />
+                   <field name="pn"></field>
                     <field name="categ_id" />
                     <field name="thiet_bi_id" />
                     <field name="brand_id" />
+                    <field name="uom_id" />
                     <field name="tracking" />
-                   <!-- <field name="len_pn" /> -->
-                    <field name="location_id" />
-                   <field name="pn"></field>
                    <field name="pn_replace" groups="tonkho.show_thong_tin_khong_dau" ></field>
-                   
-                   <!-- 
-                    <field name="tram_ltk_tao"  groups="base.group_erp_manager"></field>
-                    <field name="dang_chay_tao" groups="base.group_erp_manager"></field>
-                    <field name="du_phong_tao" groups="base.group_erp_manager"></field>
-                     -->
                     <field name="name_khong_dau" groups="tonkho.show_thong_tin_khong_dau"></field>
                     <field name="name_viet_tat" groups="tonkho.show_thong_tin_khong_dau"></field> <!-- base.group_erp_manager -->
+                    
+                    
+                 
+                    
+                </field>
+                <field name="virtual_available" position="after">
+                	   <field name="write_date"></field>
+                    <field name="create_date"></field>
                 </field>
             </field>
         </record>
