@@ -17,8 +17,8 @@
         			<field name="cho_phep_khac_tram_chon"></field>
 	        		<field name="is_kho_cha"></field>
 	        		<field name="stock_type"></field>
-	        		<field name="complete_name_khong_dau"></field>
-	        		<field name="not_show_in_bb"></field>
+	        		<!-- <field name="complete_name_khong_dau"></field> -->
+	        		<!-- <field name="not_show_in_bb"></field> -->
 	           </field>
         </field>
     </record>
@@ -35,16 +35,21 @@
         		<attribute name="options"></attribute><!-- {'no_create': False} -->
         	<!-- 	<attribute name="context">{'show_loc_type':False}</attribute> -->
         	</field>
+        	<xpath expr="//group[1]/group[2]" position="replace">
+        	   <group>
+        	   <field name="cho_phep_khac_tram_chon"></field>
+        		<field name="is_kho_cha"></field>
+        		<field name="stock_type"></field>
+        	   </group>
+        	</xpath>
         	<field name="company_id" position="before">
 	           		<field name="complete_name">
 	           		</field>
         		<field name="department_id"></field>
         		<field name="partner_id_of_stock_for_report"></field>
         		<field name="cho_phep_am"></field>
-        		<field name="cho_phep_khac_tram_chon"></field>
-        		<field name="is_kho_cha"></field>
-        		<field name="stock_type"></field>
-	        	<field name="not_show_in_bb"></field>
+        		
+	        	<!-- <field name="not_show_in_bb"></field> -->
         	</field>
         </field>
         </record>

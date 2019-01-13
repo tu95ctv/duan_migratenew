@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api,exceptions,tools,_
 from odoo.exceptions import UserError
+
+
 class Cvi(models.Model):
     _inherit = 'cvi'
     thiet_bi_id = fields.Many2one('tonkho.thietbi', string = u'Thiết bị')

@@ -56,6 +56,9 @@ class StockProductionLot(models.Model):
 #     context = fields.Char(compute='context_')
     pn = fields.Char(related='product_id.pn',string=u'Part number',store=True)
     name_replace = fields.Char(compute='name_replace_',store=True)
+    quant_ids = fields.One2many('stock.quant', 'lot_id',domain=[('location_id.usage','=','internal')],string=u'Trong kho')#domain=[('location_id.usage','=','internal')]
+
+    
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
         args = args or []

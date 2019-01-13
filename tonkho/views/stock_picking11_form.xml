@@ -11,10 +11,12 @@
                     <attribute name="attrs">{'invisible': ['|','|','|',('state', '!=', 'done'), ('is_locked', '=', False), ('ban_giao_or_nghiem_thu', '=', 'HUY'),('is_quyen_chuyen_tiep','=',False)]}</attribute>
                 </xpath>
                 <xpath expr="//button[5]" position="after">
-                    <button name="validate_cua_ben_giao" attrs="{'invisible': [('show_validate_ben_giao', '=', False)]}" string="Xác nhận ben giao" groups="stock.group_stock_user" type="object" class="oe_highlight" />
+                    <button name="validate_cua_ben_giao" attrs="{'invisible': [('show_validate_ben_giao', '=', False)]}" string="Xác nhận bên giao" groups="stock.group_stock_user" type="object" class="oe_highlight" />
                     <button name="%(stock.act_stock_return_picking)d" string="Hủy biên bản" context="{'default_loai_tra_hay_chuyen_tiep':'tra_do_huy','tra_do_huy_for_readonly':True}" attrs="{'invisible': ['|','|','|', ('state', '!=', 'done'), ('is_locked', '=', False),('ban_giao_or_nghiem_thu', '=', 'HUY'),('is_quyen_huy_bb','=',False)]}" type="action" groups="base.group_user" class="btn-danger" />
                     <button name="%(stock.act_stock_return_picking)d" string="Chuyển tiếp" context="{'default_loai_tra_hay_chuyen_tiep':'chuyen_tiep'}" attrs="{'invisible': ['|','|','|',('state', '!=', 'done'), ('is_locked', '=', False), ('ban_giao_or_nghiem_thu', '=', 'HUY'),('is_quyen_chuyen_tiep','=',False)]}" type="action" groups="base.group_user" class="btn-primary" />
                 </xpath>
+                
+                
                 <xpath expr="//button[@name='action_confirm']" position="attributes">
                     <attribute name="groups">base.group_erp_manager</attribute>
                 </xpath>
@@ -58,14 +60,15 @@
                     <!--   <field name="location_id" domain="['|',('cho_phep_khac_tram_chon','=', True),'&amp;',('is_kho_cha','=',True),('department_id','=', department_id)]" />
                  
                    <field name="location_id" domain="['|',(1,'=',1),'&amp;',('is_kho_cha','=',True),('department_id','=', department_id)]" /> -->
-                    <field name="location_id_partner_id"></field>
-                    <field name="doi_tac_giao_id" attrs="{'invisible':[('location_id_partner_id','!=',False)],'required':[('location_id_partner_id','=',False)]}" />
-                    <field name="is_admin"></field>
+                    <field name="location_id_partner_id" invisible="1"></field>
+                    <!-- <field name="doi_tac_giao_id" attrs="{'invisible':[('location_id_partner_id','!=',False)],'required':[('location_id_partner_id','=',False)]}" /> -->
+                    <field name="doi_tac_giao_id"   attrs="{'required':[('location_id_partner_id','=',False)],'readonly':[('location_id_partner_id','!=',False)]}" force_save="1"/> 
+                    <field name="is_admin" invisible="1"></field>
                     <field name="department_id"  attrs="{'readonly':[('is_admin','=',False)]}"/>
                     <field name="noi_ban_giao" />
                     <field name="stt_trong_bien_ban_in" readonly="0" />
-                    <field name="texttemplate_id" context="{'default_field_context':'tonkho.stock.picking.field.ly_do'}" />
                 </field>
+                
                 <field name="origin" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </field>
@@ -92,12 +95,13 @@
                 <field name="origin" position="before">
                     <field name="show_validate_ben_giao" invisible="1"></field>
                     <field name="location_dest_id" domain="['|',('cho_phep_khac_tram_chon','=', True), '&amp;',('is_kho_cha','=',True),'&amp;',('usage','=','internal'),'|',('name','not ilike','Đang chạy'),('department_id','=', department_id)]" />
-                    <field name="location_dest_id_partner_id"></field>
-                    <field name="doi_tac_nhan_id" attrs="{'invisible':[('location_dest_id_partner_id','!=',False)],'required':[('location_dest_id_partner_id','=',False)]}" />
+                    <field name="location_dest_id_partner_id" invisible="1"></field>
+                    <!-- <field name="doi_tac_nhan_id" attrs="{'invisible':[('location_dest_id_partner_id','!=',False)],'required':[('location_dest_id_partner_id','=',False)]}" /> -->
+                    <field name="doi_tac_nhan_id" attrs="{'readonly':[('location_dest_id_partner_id','!=',False)],'required':[('location_dest_id_partner_id','=',False)]}" force_save="1" />
                     <field name="ban_giao_or_nghiem_thu" />
-                    <!-- <field name="ma_bien_ban" readonly="0" /> -->
-                    <field name="ly_do" />
                     <field name="totrinh_id" />
+                    <field name="texttemplate_id" context="{'default_field_context':'tonkho.stock.picking.field.ly_do'}" />
+                    <field name="ly_do" />
                     <field name="is_quyen_chuyen_tiep" invisible="1" />
                     <field name="is_quyen_huy_bb" invisible="1" />
                 </field>
@@ -131,10 +135,12 @@
                 </xpath>
                 <xpath expr="//page[1]/field/tree/field[@name='product_id']" position="attributes">
                     <attribute name="attrs">{'readonly': [('parent.state', 'in', ('cancel','done'))]}</attribute>
-                    <attribute name="context">{'show_pn_in_lot_id_name_get':True}</attribute>
+                    <!-- <attribute name="context">{'show_pn_in_lot_id_name_get':True}</attribute> -->
+                    <attribute name="required">0</attribute>
                 </xpath>
                 <xpath expr="//page[1]/field/tree/field[@name='location_id']" position="attributes">
                     <attribute name="attrs">{}</attribute>
+                    <attribute name="context">{'parent_location_id':parent.location_id}</attribute>
                 </xpath>
                 
                  <xpath expr="//page[1]/field/tree/field[@name='product_uom_qty']" position="attributes">
@@ -170,13 +176,18 @@
                 </xpath>
                 <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="replace"></xpath>
                 <field name="product_uom_id" force_save="1" readonly="1" groups="product.group_uom" />
+                
+                <xpath expr="//page[1]/field/tree/field[@name='product_uom_id']" position="attributes">
+                			<attribute name="required">0</attribute>
+                </xpath>
+                
                 <xpath expr="//page[1]/field/tree/field[@name='product_uom_id']" position="after">
                     <field name="categ_id" string="Nhóm"></field>
                     <field name="thiet_bi_id"></field>
                     <field name="tracking"></field>
                     <field name="lot_id" invisible="0" attrs="{'column_invisible': [('parent.show_lots_text', '=', True)],                     'invisible': [('lots_visible', '=', False)],                                'readonly': ['|',('in_entire_package', '=', True),                 ('state', 'in', ('done', 'cancel'))]}" groups="stock.group_production_lot" domain="[('product_id', '=', product_id)]" context="{'product_id_readonly':True,'default_product_id': product_id}" />
                     <field name="tinh_trang" attrs="{'readonly': [('state', 'in', ('done','cancel'))]}"></field>
-                    <field name="decoration_danger" invisible="1"></field>
+                    <field name="decoration_danger" ></field>
                 </xpath>
                 <xpath expr="//page[1]/field/tree/field[@name='lot_id']" position="attributes">
                     <attribute name="string">Serial number</attribute>
@@ -185,6 +196,8 @@
                 <xpath expr="//page[2]" position="attributes">
                     <attribute name="groups">base.group_erp_manager</attribute>
                 </xpath>
+                
+                
                 <xpath expr="//page[3]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>

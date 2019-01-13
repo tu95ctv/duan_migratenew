@@ -56,7 +56,11 @@
                 <xpath expr="//button[8]" position="attributes">
                     <attribute name="groups">base.group_erp_manager</attribute>
                 </xpath>
+            		
+               
             
+            		
+            		
                 <xpath expr="//page[2]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
@@ -66,7 +70,24 @@
                 <xpath expr="//page[4]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+                
+                 <xpath expr="//page[4]" position="after">
+            		<page string="lot_ids">
+                        <group>
+                        	<field name="lot_ids">
+                        </field>
+                        
+                        </group>
+                        
+                        </page>
+            
+            </xpath>
+            
             </field>
+            
+            
+            
+            
         </record>
         <record id="product_product_tree_view_ỉnherit" model="ir.ui.view">
             <field name="name">product.template.stock.tree.inherit</field>
@@ -97,7 +118,7 @@
                    <field name="pn_replace" groups="tonkho.show_thong_tin_khong_dau" ></field>
                     <field name="name_khong_dau" groups="tonkho.show_thong_tin_khong_dau"></field>
                     <field name="name_viet_tat" groups="tonkho.show_thong_tin_khong_dau"></field> <!-- base.group_erp_manager -->
-                    
+                    <field name="lot_ids"></field>
                     
                  
                     

@@ -15,27 +15,20 @@ class StockLocation(models.Model):
     cho_phep_am =  fields.Boolean(default=True,string=u'Cho phép số lượng âm')
     cho_phep_khac_tram_chon =  fields.Boolean(string=u'Cho phép khác trạm chọn')
     is_kho_cha =  fields.Boolean(string=u'Kho cha')
-    stock_type = fields.Selection(KHO_SELECTION
-                                )
-    complete_name_khong_dau = fields.Char(compute='complete_name_khong_dau_',store=True)
-    not_show_in_bb =  fields.Boolean()
+    stock_type = fields.Selection(KHO_SELECTION,string=u'Loại kho')
+                                
+    complete_name_khong_dau = fields.Char(compute='complete_name_khong_dau_',store=True, string=u'Tên đầy đủ không dấu')
+#     not_show_in_bb =  fields.Boolean()
 
     @api.depends('complete_name','stock_type')
     def complete_name_khong_dau_(self):
         for r in self:
             r.complete_name_khong_dau = unidecode(r.complete_name)
     
+
     
     
-    
-#     @api.one
-#     @api.depends('name', 'location_id.complete_name','stock_type')
-#     def _compute_complete_name(self):
-#         """ Forms complete name of location from parent location to child location. """
-#         if self.location_id.complete_name:
-#             self.complete_name = '%s/%s' % (self.location_id.complete_name, self.get_name_with_type())
-#         else:
-#             self.complete_name = self.get_name_with_type()
+
             
             
     def get_name_with_type(self):
@@ -66,9 +59,7 @@ class StockLocation(models.Model):
                 name = location.complete_name
             ret_list.append((location.id, name))
         return ret_list
-   
-    def get_stock_location_name_for_report_(self):
-        return self.partner_id_of_stock_for_report.name
+
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
         limit = 100
@@ -85,10 +76,12 @@ class StockLocation(models.Model):
             recs = self.search(['|','|',('complete_name_khong_dau', operator, name), ('barcode', operator, name), ('complete_name', operator, name)] + args, limit=limit)
             recs = recs.filtered(filter_lots )
             return recs.name_get()
-#         print ('args**********',args)
-#         args  = [ tuple(i) for i in args if isinstance(i, list)]
-#         print ('args2**********',args)
         recs = self.search(['|', ('complete_name_khong_dau', operator, name), ('complete_name', operator, name)] + args, limit=limit)
         return recs.name_get()
-#         return super(StockLocation, self).name_search( name, args=args, operator=operator, limit=limit)
     
+    
+    #Hàm mới
+    
+    #PDF
+    def get_stock_location_name_for_report_(self):
+        return self.partner_id_of_stock_for_report.name

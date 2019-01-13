@@ -6,7 +6,7 @@ from odoo.exceptions import UserError
 from unidecode import unidecode
 class CTR(models.Model):
     _name = 'ctr'
-    
+#     test_id = fields.Many2one('res.partner')
     name = fields.Char(compute = '_name_truc_ca_compute', store=True)
     name_khong_dau = fields.Char(compute = '_name_truc_ca_compute', store=True)
     ca = fields.Selection([(u'Sáng',u'Sáng'), (u'Chiều',u'Chiều'), (u'Đêm',u'Đêm')],string=u'Buổi ca',default = lambda self: self.buoi_ca_now_default_())

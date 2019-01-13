@@ -374,7 +374,9 @@ def add_title(worksheet,FIELDNAME_FIELDATTR,model_fields,ROW_TITLE=0, offset_col
                 
             worksheet.write(ROW_TITLE, column_index, f_string, title_style)
             writen_column_number += 1
-            if is_set_width:
+#             if is_set_width:
+            width =FIELDATTR.get('width')
+            if not width:
                 width  = get_width(FIELDATTR.get('max_len_field_val',0) + 6) #or width
                 f_string_width = get_width(len(f_string) + 2)
                 if f_string_width > width:

@@ -20,7 +20,7 @@ class ResConfigSettings(models.TransientModel):
     group_write_field = fields.Selection([
         (0, u'Không Cho phép users ghi trường khi import excel'),
         (1, u'Cho phép users ghi trường khi import excel')
-        ], u"Show thông tin name không dấu", implied_group='tonkho.group_write_field_when_import_excel')
+        ], u"Cho phép user ghi field khi import excel", implied_group='tonkho.group_write_field_when_import_excel')
     
     not_use_default_excel_import_setting = fields.Boolean()
     

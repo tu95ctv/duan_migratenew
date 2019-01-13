@@ -14,35 +14,31 @@ class Inventory(models.Model):
     filename = fields.Char()
     log = fields.Text(string=u'Log import file')
     sheet_name = fields.Char(u'Tên sheet(Nếu bỏ trống lấy sheet đầu, all => tất cả các sheets)',help=u'Nếu bỏ trống lấy sheet đầu, all => tất cả các sheets')
-#     allow_product_qty_dieu_chinh = fields.Boolean(default=True)
 
     
-    
-    
-    
-    @api.multi
-    def import_file(self):
-#         for inventory in self.filtered(lambda x: x.state not in ('done','cancel')):
-            
-            importthuvien(self,
-                           key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',
-                           key_tram='key_ltk',mode=u'2')
-            if self.state not in ('done','cancel'):
-                vals = {'state': 'confirm', 'date': fields.Datetime.now()}
-                self.write(vals)
+    # Hàm ghi đè
+    @api.model
+    def _default_location_id_d4_write(self):
+        department_id = self.env.user.department_id
+        if not department_id:
+            raise UserError(_(u'You must define a department_id for you') )
+        default_location_id = department_id.default_location_id
+        if default_location_id:
+            return default_location_id.id
+        else:
+            raise UserError(_('You must define a default_location_id of department_id.') )
+    @api.model
+    def default_get(self, fields):
+        res = super(Inventory, self).default_get(fields)
+        res['location_id'] = self._default_location_id_d4_write()
+        return res
+   
         
         
         
     @api.onchange('negative_product_select')
-    
-    
-    
     def negative_product_select_(self):
         return {'domain':{'line_ids':[('theoretical_qty','<',0)]}}
-#         if self.negative_product_select:
-#             return {'domain':{'line_ids':[('theoretical_qty','<',0)]}}
-#         else:
-#             return {'domain':{'line_ids':[]}}
             
     @api.onchange('filter')
     def onchange_filter(self):
@@ -65,13 +61,7 @@ class Inventory(models.Model):
        
             
             
-#     @api.onchange('filter')
-#     def onchange_filter2(self):
-#         if self.filter == 'vat_tu_am':
-#             self.negative_product_select = True
-#         else:
-#             self.negative_product_select = False
-            
+
             
         
         
@@ -146,24 +136,9 @@ class Inventory(models.Model):
     
     @api.model
     def _selection_filter(self):
-#         """ Get the list of filter allowed according to the options checked
-#         in 'Settings\Warehouse'. """
-#         res_filter = [
-#             ('none', _('All products')),
-#             ('category', _('One product category')),
-#             ('product', _('One product only')),
-#             ('partial', _('Select products manually'))]
-# 
-#         if self.user_has_groups('stock.group_tracking_owner'):
-#             res_filter += [('owner', _('One owner only')), ('product_owner', _('One product for a specific owner'))]
-#         if self.user_has_groups('stock.group_production_lot'):
-#             res_filter.append(('lot', _('One Lot/Serial Number')))
-#         if self.user_has_groups('stock.group_tracking_lot'):
-#             res_filter.append(('pack', _('A Pack')))
         res_filter = super(Inventory, self)._selection_filter()
         res_filter.append( ('vat_tu_am', _(u'vật tư có số lượng âm')))
         return res_filter
-    
     
     @api.multi
     def product_uom_id_oc(self):
@@ -176,21 +151,7 @@ class Inventory(models.Model):
         return super(Inventory, self.with_context(action_done_from_stock_inventory=True)).action_done()
     
     
-    @api.model
-    def _default_location_id_d4_write(self):
-        department_id = self.env.user.department_id
-        if not department_id:
-            raise UserError(_(u'You must define a department_id for you') )
-        default_location_id = department_id.default_location_id
-        if default_location_id:
-            return default_location_id.id
-        else:
-            raise UserError(_('You must define a default_location_id of department_id.') )
-    @api.model
-    def default_get(self, fields):
-        res = super(Inventory, self).default_get(fields)
-        res['location_id'] = self._default_location_id_d4_write()
-        return res
+
 
     
     @api.model
@@ -205,7 +166,16 @@ class Inventory(models.Model):
                 node = nodes[0]
                 node.set('domain',domain )
                 res['arch'] = etree.tostring(doc, encoding='unicode')
-#             res['fields']['location_id']['domain'] = [('is_kho_cha','=',True)]
-#             res['fields']['location_id']['string'] = u'Kho để kiểm'
+
         return res
+    # Hàm mới
+    @api.multi
+    def import_file(self):
+            
+            importthuvien(self,
+                           key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',
+                           key_tram='key_ltk',mode=u'2')
+            if self.state not in ('done','cancel'):
+                vals = {'state': 'confirm', 'date': fields.Datetime.now()}
+                self.write(vals)
     

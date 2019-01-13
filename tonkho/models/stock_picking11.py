@@ -7,7 +7,6 @@ from odoo.tools.float_utils import float_compare
 from datetime import timedelta
 from odoo.addons.dai_tgg.models.model_dict_folder.tao_instance_new import importthuvien
 from odoo.addons.dai_tgg.models.model_dict_folder.model_dict import gen_model_dict
-# from odoo.addons.tonkho.controllers.controllers import download_ml
 from odoo.addons.tonkho.models.dl_models.xl_tranfer_bb import write_xl_bb
 from odoo.addons.tonkho.models.check_file import check_imported_file_sml
 
@@ -51,65 +50,63 @@ class StockPicking(models.Model):
         ('name_uniq', 'unique(name, company_id)', 'Reference must be unique per company!'),
         ('name_ma_bb', 'unique(stt_trong_bien_ban_in,department_id,ban_giao_or_nghiem_thu)', u'Mã BBBG và số TT trong bản phải là duy nhất trên mỗi phòng ban!'),
     ]
+    
+    
+    # field ghi đè
+    state = fields.Selection([
+        ('draft', 'Draft'),
+        ('waiting', 'Waiting Another Operation'),
+        ('confirmed', 'Waiting'),
+        ('assigned', 'Ready'),
+        ('done_ben_giao', u'Xác nhận bên giao'),
+        ('done', 'Done'),
+        ('cancel', 'Cancelled'),
+    ], string='Status', compute='_compute_state',
+        copy=False, index=True, readonly=True, store=True, track_visibility='onchange',
+        help=" * Draft: not confirmed yet and will not be scheduled until confirmed.\n"
+             " * Waiting Another Operation: waiting for another move to proceed before it becomes automatically available (e.g. in Make-To-Order flows).\n"
+             " * Waiting: if it is not ready to be sent because the required products could not be reserved.\n"
+             " * Ready: products are reserved and ready to be sent. If the shipping policy is 'As soon as possible' this happens as soon as anything is reserved.\n"
+             " * Done: has been processed, can't be modified or cancelled anymore.\n"
+             " * Cancelled: has been cancelled, can't be confirmed anymore.")
+    
+    # Công cụ
     categ_id = fields.Many2one('product.category',string=u'Thay đổi nhóm cho các dòng điều chuyển')
     
-    @api.onchange('categ_id')
-    def categ_id_(self):
-            for c,ml in enumerate(self.move_line_ids):
-                ml.categ_id = self.categ_id
-                
-    choosed_stock_quants_ids = fields.Many2many('stock.quant',compute='choosed_stock_quants_ids_',store=False)
-    location_id = fields.Many2one(
-        'stock.location', "Source Location",
-        default=lambda self: self.env['hr.department'].browse(self.default_get([ 'department_id']).get('department_id')).default_location_id,
-        readonly=True, required=True,
-        states={'draft': [('readonly', False)]})
+    
+   
+    # Field chính trong biên bản
+
+    name = fields.Char(
+        compute='name_',store=True,
+        string='Reference',
+        copy=False,  index=True,
+        )
+    @api.depends('department_id','ban_giao_or_nghiem_thu','stt_trong_bien_ban_in')
+    def name_(self):
+        name = self.department_id.short_name + '/' + '%s'%BG_dict[self.ban_giao_or_nghiem_thu] + '/%s'%self.stt_trong_bien_ban_in
+        self.name = name
+        
+    # xem lại
+    picking_type_id = fields.Many2one(
+        'stock.picking.type', 'Operation Type',
+        required=False,
+        states={'done': [('readonly', True)], 'cancel': [('readonly', True)]},
+        default= lambda self: self.env['stock.picking.type'].search(['|',('name','=',u'Dịch chuyển nội bộ'),('name','=','Internal Transfers')])[0].id
+        )
+    
+    texttemplate_id = fields.Many2one('tonkho.texttemplate',string=u"Mẫu lý do",domain=[('field_context','=','tonkho.stock.picking.field.ly_do')],copy=False)
+    ly_do = fields.Text(u'Lý do',copy=False)#Tình trạng vật tư: Vật tư đang sử dụng lỗi, đem SVTECH bảo hành,
+    
+    totrinh_id = fields.Many2one('dai_tgg.totrinh', string=u'Tờ trình',copy=False)
     noi_ban_giao = fields.Many2one('res.partner',default= lambda self: self.env.user.department_id.partner_id, string=u'Nơi bàn giao',copy=False)
     department_id = fields.Many2one('hr.department',
-#                                     compute='department_id_',
                                     default=lambda self:self.env.user.department_id,
-#                                     readonly=True,
                                     string=u'Đơn vị',
                                     required=True,copy=False)
-#     stt_bien_ban = fields.Integer(default=lambda self:self.env.user.department_id.sequence_id.number_next_actual,readonly=True, string=u'STT điều chuyển')
-    source_member_ids = fields.Many2many('res.partner','source_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân viên giao',copy=False)
-    dest_member_ids = fields.Many2many('res.partner','dest_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân viên nhận',copy=False)
-    ban_giao_or_nghiem_thu = fields.Selection(BG_lst,default=u'BBBG', string=u'B/giao hay N/thu',copy=False)
-    file = fields.Binary(string='File Import')
-    filename = fields.Char()
-#     stt_trong_bien_ban_in = fields.Integer(default=lambda self:self.default_get([ 'stt_bien_ban']).get('stt_bien_ban'),string=u'STT trong biên bản')
+    
+    
     stt_trong_bien_ban_in = fields.Integer(string=u'STT trong biên bản',compute='stt_trong_bien_ban_in_',store=True,copy=False)
-    file_ids = fields.Many2many('dai_tgg.file','stock_picking_file_relate','stock_picking_id','file_id',string=u'Files đính kèm')
-    
-    allow_check_excel_obj_is_exist_func  = fields.Boolean(string=u'Cho phép đối chiếu product excel obj với product exist object')
-    write_when_val_exist  = fields.Boolean()
-    cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat  = fields.Boolean(default=True)
-    cho_phep_co_pn_cap_nhat_empty_pn  = fields.Boolean(default = True)
-    
-#     not_update_field_if_instance_exist_default  = fields.Boolean()
-    cho_phep_exist_val_before_loop_fields_func = fields.Boolean(default = True)
-    skip_stt = fields.Boolean(u'Skip (bỏ qua) trường STT khi import')
-    
-    is_admin = fields.Boolean(compute='is_admin_')
-    
-    font_height_table =fields.Integer(default=12)
-    font_height =fields.Integer(default=13)
-
-    
-    
-#     @api.multi
-#     def department_id_(self):
-#         for r in self:
-#             r.department_id =  self.env.user.department_id
-    
-    @api.depends('name')
-    def is_admin_(self):
-        for r in self:
-            if self.user_has_groups('base.group_erp_manager'):
-                r.is_admin = True
-                
-    
-    
     @api.depends('department_id','ban_giao_or_nghiem_thu')
     def stt_trong_bien_ban_in_(self):
         for r in self:
@@ -130,158 +127,52 @@ class StockPicking(models.Model):
                 r.stt_trong_bien_ban_in = stt_trong_bien_ban_in
             else:
                 r.stt_trong_bien_ban_in = 1
-            
-            
-#     stt_trong_bien_ban_in = fields.Integer(string=u'STT trong biên bản',copy=False)
-#     ma_bien_ban = fields.Char(string=u'Mã biên bản',compute='ma_bien_ban_',store=True,copy=False)#default=lambda self:self.default_get([ 'ban_giao_or_nghiem_thu']).get('ban_giao_or_nghiem_thu'),
-#     @api.depends('ban_giao_or_nghiem_thu')
-#     def ma_bien_ban_(self):
-#         self.ma_bien_ban = self.ban_giao_or_nghiem_thu
-        
-    name = fields.Char(
-        compute='name_',store=True,
-        string='Reference',
-#         default=lambda self:self.default_name(),
-        copy=False,  index=True,
-#         states={'done': [('readonly', True)], 'cancel': [('readonly', True)]}
-        )
-    picking_type_id = fields.Many2one(
-        'stock.picking.type', 'Operation Type',
-        required=False,
-        states={'done': [('readonly', True)], 'cancel': [('readonly', True)]},
-        default= lambda self: self.env['stock.picking.type'].search(['|',('name','=',u'Dịch chuyển nội bộ'),('name','=','Internal Transfers')])[0].id
-        )
-    ly_do = fields.Text(u'Lý do',copy=False)#Tình trạng vật tư: Vật tư đang sử dụng lỗi, đem SVTECH bảo hành,
-    so_ban_in = fields.Integer(u'Số bản in',default=4,copy=False)
-    ben_giao_giu = fields.Integer(u'Bên giao giữ', default=3,copy=False)
-    ben_nhan_giu = fields.Integer(u'Bên nhận giữ',default=1,copy=False)
-    totrinh_id = fields.Many2one('dai_tgg.totrinh', string=u'Tờ trình',copy=False)
-    title_ben_thu_3 = fields.Many2one('tonkho.title_cac_ben',string=u'Tiêu đề bên thứ 3',copy=False)
-    ben_thu_3_ids = fields.Many2many('res.partner','ben_thu_3_stock_picking_relate','picking_id','partner_id',string=u'Bên thứ 3',copy=False)
-    title_ben_thu_4 = fields.Many2one('tonkho.title_cac_ben',string=u'Tiêu đề bên thứ 4',copy=False)
-    ben_thu_4_ids = fields.Many2many('res.partner','ben_thu_4_stock_picking_relate','picking_id','partner_id',string=u'Bên thứ 4',copy=False)
-    texttemplate_id = fields.Many2one('tonkho.texttemplate',string=u"Mẫu lý do",domain=[('field_context','=','tonkho.stock.picking.field.ly_do')],copy=False)
-    show_validate_ben_giao = fields.Boolean(compute='show_validate_ben_giao_')
-
-
-#     is_diff_department = fields.Boolean(compute='is_diff_department_')
-    is_same_department = fields.Boolean(compute='is_same_department_')# location_id = location_dest_id
-    is_validate_mode = fields.Boolean(compute='is_validate_mode_')
-    ten_truoc_huy = fields.Char(string=u'Tên trước  hủy',copy=False)
-#     lot_id = fields.Many2one('stock.production.lot')
-    state = fields.Selection([
-        ('draft', 'Draft'),
-        ('waiting', 'Waiting Another Operation'),
-        ('confirmed', 'Waiting'),
-        ('assigned', 'Ready'),
-        ('done_ben_giao', u'Xác nhận bên giao'),
-        ('done', 'Done'),
-        ('cancel', 'Cancelled'),
-    ], string='Status', compute='_compute_state',
-        copy=False, index=True, readonly=True, store=True, track_visibility='onchange',
-        help=" * Draft: not confirmed yet and will not be scheduled until confirmed.\n"
-             " * Waiting Another Operation: waiting for another move to proceed before it becomes automatically available (e.g. in Make-To-Order flows).\n"
-             " * Waiting: if it is not ready to be sent because the required products could not be reserved.\n"
-             " * Ready: products are reserved and ready to be sent. If the shipping policy is 'As soon as possible' this happens as soon as anything is reserved.\n"
-             " * Done: has been processed, can't be modified or cancelled anymore.\n"
-             " * Cancelled: has been cancelled, can't be confirmed anymore.")
-    origin_pick_id = fields.Many2one('stock.picking',string=u'Điều chuyển nguồn')
-#     origin = fields.Char(
-#         'Source Document', index=True,
-#         states={'done': [('readonly', True)], 'cancel': [('readonly', True)]},
-#         help="Reference of the document", compute='origin_',store=True)
-#     
-    loai_tra_hay_chuyen_tiep = fields.Selection([('tra_do_huy',u'Trả do hủy'),('tra_do_muon',u'Trả do mượn'),('chuyen_tiep',u'Chuyển tiếp')],string=u'Loại trả hay chuyển tiếp')
-    
-    lanh_dao_id = fields.Many2one('res.partner',string=u'Lãnh Đạo')
-    is_chia_2_dong =  fields.Boolean(string=u'Có chia hai dòng không?')
-
-    is_ghom_tot = fields.Boolean(string=u'Nếu tình trạng vật tư tốt hết thì ko cần ghi trong cột',default = True)
-    file_dl = fields.Binary('File', readonly=True)
-    file_dl_name = fields.Char()
-    log = fields.Text()
-    is_set_tt_col =  fields.Boolean(string=u'Có cột tình trạng?')
-    is_not_show_y_kien_ld =  fields.Boolean(string=u'Không thêm dòng ý kiến lãnh đạo')
-    title_row_for_import = fields.Integer()
-    is_dl_right_now = fields.Boolean(default=True,string=u'Download ngay không cần lưu file')
-    
-    
-    is_quyen_chuyen_tiep =  fields.Boolean(compute='is_quyen_chuyen_tiep_')
-    is_quyen_huy_bb =  fields.Boolean(compute='is_quyen_huy_bb_')
-    allow_cate_for_ghi_chu =  fields.Boolean(string=u"Lấy Tiêu đề làm ghi chú")
-    empty_ghi_chu_in_bb =  fields.Boolean(string=u'Tự ghi chú trong BB excel')
-    
-    range_1 = fields.Integer(string=u'stt dòng tiêu đề đầu')
-    range_2 = fields.Integer(string=u'stt dòng tiêu đề cuối')
-    
-    doi_tac_giao_id = fields.Many2one('res.partner',u'Đơn vị  giao',copy=False)
+                
+    ban_giao_or_nghiem_thu = fields.Selection(BG_lst,default=u'BBBG', string=u'B/giao hay N/thu',copy=False)
     location_id_partner_id =  fields.Many2one('res.partner',related='location_id.partner_id_of_stock_for_report',store=False,readonly=True)
     location_dest_id_partner_id =  fields.Many2one('res.partner',related='location_dest_id.partner_id_of_stock_for_report',store=False,readonly=True)
+    doi_tac_giao_id = fields.Many2one('res.partner',u'Đơn vị  giao',copy=False)
     doi_tac_nhan_id = fields.Many2one('res.partner',u'Đơn vị nhận', copy=False)
-#     allow_product_qty_dieu_chinh = fields.Boolean()
+    # Field thêm để lọc         
+    choosed_stock_quants_ids = fields.Many2many('stock.quant',compute='choosed_stock_quants_ids_',store=False)
+    @api.depends('move_line_ids.stock_quant_id')
+    def choosed_stock_quants_ids_(self):
+        for r in self:
+            r.choosed_stock_quants_ids =  r.move_line_ids.mapped('stock_quant_id')
+            
+            
+    is_admin = fields.Boolean(compute='is_admin_')
+    @api.depends('name')
+    def is_admin_(self):
+        for r in self:
+            if self.user_has_groups('base.group_erp_manager'):
+                r.is_admin = True
     
-    product_id_for_search =  fields.Many2one('product.product',related='move_line_ids.product_id')
-    @api.one
-    def is_quyen_huy_bb_(self):
-        self.is_quyen_huy_bb = self.user_has_groups('base.group_erp_manager') or (self.env.user == self.create_uid)
-        
-    @api.one
-    def is_quyen_chuyen_tiep_(self):
-        self.is_quyen_chuyen_tiep = self.user_has_groups('base.group_erp_manager') or (self.env.user.department_id == self.location_dest_id.department_id)
-    #### Button ###########
-    @api.multi
-    def download_xl_bbbg(self):
-        self.ghom_stock_move_lines()
-        if self.is_dl_right_now:
-            return {
-             'type' : 'ir.actions.act_url',
-             'url': '/web/binary/download_xl_bbbg?model=stock.picking&id=%s'%(self.id),
-             'target': 'new',
-             }
-        
-        dl_obj = self
-        workbook,name = write_xl_bb (dl_obj)
-        
-        with contextlib.closing(io.BytesIO()) as buf:
-            workbook.save(buf)
-            out = base64.encodestring(buf.getvalue())
-        self.write({ 'file_dl': out, 'file_dl_name': name})
-        
-
-
-    @api.multi
-    def check_file(self):
-        if self.is_dl_right_now:
-            return {
-             'type' : 'ir.actions.act_url',
-             'url': '/web/binary/download_checked_import_sml_file?model=stock.picking&id=%s'%(self.id),
-             'target': 'new',
-             }
-        dl_obj = self
-        workbook,name = check_imported_file_sml(dl_obj)
-        with contextlib.closing(io.BytesIO()) as buf:
-            workbook.save(buf)
-            out = base64.encodestring(buf.getvalue())
-        self.write({ 'file_dl': out, 'file_dl_name': name})
-    @api.multi
-    def import_file(self):
-        importthuvien(self,
-                       key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',
-                       key_tram='sml')
-
-    @api.multi
-    def validate_cua_ben_giao(self):
-        self.state = 'done_ben_giao'
-        
-    ####  ! End button #####
-
+    # valid mode
+    show_validate_ben_giao = fields.Boolean(compute='show_validate_ben_giao_')
+    @api.depends('location_id','location_dest_id')
+    def show_validate_ben_giao_(self):
+        for r in self:
+            if r.is_validate_mode:
+                if r.is_admin:
+                    r.show_validate_ben_giao = True
+                    return True
+                ban_la_ben_giao = self.env.user.department_id == r.location_id.department_id 
+                if ban_la_ben_giao and not r.is_same_department and r.state not in ('done','done_ben_giao') :
+                    show_validate_ben_giao = True
+                else:
+                    show_validate_ben_giao = False
+            else:
+                show_validate_ben_giao = False
+            r.show_validate_ben_giao = show_validate_ben_giao
+            
+    is_validate_mode = fields.Boolean(compute='is_validate_mode_')
     @api.multi
     def is_validate_mode_(self):
         for r in self:
             r.is_validate_mode = self.env['ir.config_parameter'].sudo().get_param('tonkho.is_validate_mode')
         
-  
-    
+    is_same_department = fields.Boolean(compute='is_same_department_')
     @api.depends('location_id','location_dest_id')
     def is_same_department_(self):
         for r in self:
@@ -290,20 +181,76 @@ class StockPicking(models.Model):
                 is_same_department = not r.location_id.department_id and r.location_id.cho_phep_khac_tram_chon
                 is_same_department =  is_same_department or  (not r.location_dest_id.department_id and r.location_dest_id.cho_phep_khac_tram_chon)
             r.is_same_department = is_same_department
-
-    @api.depends('location_id','location_dest_id')
-    def show_validate_ben_giao_(self):
-        for r in self:
-            if r.is_validate_mode:
-                ban_la_ben_giao = self.env.user.department_id == r.location_id.department_id 
-                if ban_la_ben_giao and not r.is_same_department and r.state not in ('done','done_ben_giao') :
-                    r.show_validate_ben_giao = True
-                else:
-                    r.show_validate_ben_giao = False
-            else:
-                r.show_validate_ben_giao = False
-
+            
+    # thông tin thêm
+    source_member_ids = fields.Many2many('res.partner','source_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân viên giao',copy=False)
+    dest_member_ids = fields.Many2many('res.partner','dest_member_stock_picking_relate','picking_id','partner_id',string=u'Nhân viên nhận',copy=False)
+    file_ids = fields.Many2many('dai_tgg.file','stock_picking_file_relate','stock_picking_id','file_id',string=u'Files đính kèm')
+    title_ben_thu_3 = fields.Many2one('tonkho.title_cac_ben',string=u'Tiêu đề bên thứ 3',copy=False)
+    ben_thu_3_ids = fields.Many2many('res.partner','ben_thu_3_stock_picking_relate','picking_id','partner_id',string=u'Bên thứ 3',copy=False)
+    title_ben_thu_4 = fields.Many2one('tonkho.title_cac_ben',string=u'Tiêu đề bên thứ 4',copy=False)
+    ben_thu_4_ids = fields.Many2many('res.partner','ben_thu_4_stock_picking_relate','picking_id','partner_id',string=u'Bên thứ 4',copy=False)
+    lanh_dao_id = fields.Many2one('res.partner',string=u'Lãnh Đạo')
+    so_ban_in = fields.Integer(u'Số bản in',default=4,copy=False)
+    ben_giao_giu = fields.Integer(u'Bên giao giữ', default=3,copy=False)
+    ben_nhan_giu = fields.Integer(u'Bên nhận giữ',default=1,copy=False)
+    # import file
+    file = fields.Binary(string='File Import')
+    filename = fields.Char()
+    allow_check_excel_obj_is_exist_func  = fields.Boolean(string=u'Cho phép đối chiếu product excel obj với product exist object')
+    write_when_val_exist  = fields.Boolean()
+    cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat  = fields.Boolean(default=True)
+    cho_phep_co_pn_cap_nhat_empty_pn  = fields.Boolean(default = True)
+    cho_phep_exist_val_before_loop_fields_func = fields.Boolean(default = True)
+    skip_stt = fields.Boolean(u'Skip (bỏ qua) trường STT khi import')
+    allow_cate_for_ghi_chu =  fields.Boolean(string=u"Lấy Tiêu đề làm ghi chú")
+    range_1 = fields.Integer(string=u'stt dòng tiêu đề đầu')
+    range_2 = fields.Integer(string=u'stt dòng tiêu đề cuối')
+    log = fields.Text()
+    # check file
+    is_ghom_tot = fields.Boolean(string=u'Nếu tình trạng vật tư tốt hết thì ko cần ghi trong cột',default = True)
+    file_dl = fields.Binary('File', readonly=True)
+    file_dl_name = fields.Char()
+    is_dl_right_now = fields.Boolean(default=True,string=u'Download check file ngay không cần lưu file')
+    # có thể xóa
+    title_row_for_import = fields.Integer()
+    # Download biên bản
+    font_height_table =fields.Integer(default=12)
+    font_height =fields.Integer(default=13)
+    is_set_tt_col =  fields.Boolean(string=u'Có cột tình trạng?')
+    is_not_show_y_kien_ld =  fields.Boolean(string=u'Không thêm dòng ý kiến lãnh đạo')
+    empty_ghi_chu_in_bb =  fields.Boolean(string=u'Tự ghi chú trong BB excel')
     
+    # Return
+    ten_truoc_huy = fields.Char(string=u'Tên trước  hủy',copy=False)
+    origin_pick_id = fields.Many2one('stock.picking',string=u'Điều chuyển nguồn')
+    loai_tra_hay_chuyen_tiep = fields.Selection([('tra_do_huy',u'Trả do hủy'),('tra_do_muon',u'Trả do mượn'),('chuyen_tiep',u'Chuyển tiếp')],string=u'Loại trả hay chuyển tiếp')
+    is_quyen_chuyen_tiep =  fields.Boolean(compute='is_quyen_chuyen_tiep_')
+    @api.one
+    def is_quyen_huy_bb_(self):
+        self.is_quyen_huy_bb = self.user_has_groups('base.group_erp_manager') or (self.env.user == self.create_uid)
+        
+    
+    is_quyen_huy_bb =  fields.Boolean(compute='is_quyen_huy_bb_')
+    @api.one
+    def is_quyen_chuyen_tiep_(self):
+        self.is_quyen_chuyen_tiep = self.user_has_groups('base.group_erp_manager') or (self.env.user.department_id == self.location_dest_id.department_id)
+    
+    #pdf
+    is_chia_2_dong =  fields.Boolean(string=u'Có chia hai dòng không?')
+    # filter
+    product_id_for_search =  fields.Many2one('product.product',related='move_line_ids.product_id')
+    
+    #Những hàm ghi đè
+    #default, #default_get
+    @api.model
+    def default_get(self,fields):
+        default_location_id = self.env.user.department_id.default_location_id.id
+        rs = super(StockPicking, self).default_get(fields)
+        rs['location_id'] = default_location_id
+        rs['location_dest_id'] =default_location_id
+        return rs
+    #depends
     #  compute show_validate theo is_validate_mode
     @api.multi
     @api.depends('state', 'is_locked','location_id','location_dest_id')
@@ -335,18 +282,229 @@ class StockPicking(models.Model):
                 else:
                     show_validate = True
             picking.show_validate = show_validate
+            
+    #onchange
+    @api.onchange('picking_type_id')
+    def onchange_picking_type(self):
+        pass
+    #button
+    @api.multi
+    def action_confirm(self):
+        self.ghom_stock_move_lines()
+        self.mapped('move_lines')\
+            .filtered(lambda move: move.state == 'draft' or move.state == 'cancel')\
+            ._action_confirm()
+        # call `_action_assign` on every confirmed move which location_id bypasses the reservation
+        self.filtered(lambda picking: picking.location_id.usage in ('supplier', 'inventory', 'production') and picking.state == 'confirmed')\
+            .mapped('move_lines')._action_assign()
+        if self.env.context.get('planned_picking') and len(self) == 1:
+            action = self.env.ref('stock.action_picking_form')
+            result = action.read()[0]
+            result['res_id'] = self.id
+            result['context'] = {
+                'search_default_picking_type_id': [self.picking_type_id.id],
+                'default_picking_type_id': self.picking_type_id.id,
+                'contact_display': 'partner_address',
+                'planned_picking': False,
+            }
+            return result
+        else:
+            return True
+    #create,write,
+    
+    @api.model
+    def create(self,vals):
+        print ('**vals***',vals)
+        obj = super(StockPicking, self).create(vals)
+        return obj
+    @api.multi
+    def write(self, vals):
+        print ('_____________vals***',vals.get('move_lines'),vals)
+        if self.state =='done':
+            self = self.with_context(bypass_reservation_update=True)
+            move_line_ids =  vals.get('move_line_ids')
+            if move_line_ids:
+                for ml in move_line_ids:
+                    if ml[0]==0:
+                        raise UserError (u'Bạn không được tạo mới dòng điều chuyển khi đã hoàn tất biên bản')
+        res = super(StockPicking, self).write(vals)
+        return res
+    #field_view_get
+    
+    @api.model
+    def fields_view_get(self, view_id=None, view_type=False, toolbar=False, submenu=False):
+        res = super(StockPicking, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
+        if view_type in ['form']:
+            fields = res.get('fields')# không được
+            if self.user_has_groups('base.group_erp_manager'):
+                domain = "[('is_kho_cha','=',True)]"
+            else:
+                domain = "['|',('cho_phep_khac_tram_chon','=', True),'&',('is_kho_cha','=',True),('department_id','=', department_id)]"
 
-                
-                
+            doc = etree.XML(res['arch'])
+            nodes =  doc.xpath("//field[@name='location_id']")
+            if len(nodes):
+                node = nodes[0]
+                node.set('domain',domain )
+            res['arch'] = etree.tostring(doc, encoding='unicode')
+            
+        if view_type =='search':
+            doc = etree.fromstring(res['arch'])
+            nodes =  doc.xpath("//field[@name='location_id']")
+            if nodes:
+                node = nodes[0]
+                node.addnext(etree.Element('separator', {}))
+                department_id = self.env.user.department_id.id
+                node.addnext(etree.Element('filter', {'string':'Lọc theo  trạm %s'%self.env.user.department_id.name,'name': 'loc_picking_theo_tram_cua_user', 'domain': "['|',('location_id.department_id','=',%s),('location_dest_id.department_id','=',%s)]"%(department_id,department_id)}))
+                res['arch'] = etree.tostring(doc, encoding='unicode')
+        return res
+    
+    
+    # Hàm phục vụ cho việc ghi đè
+    
+    @api.multi
+    def ghom_stock_move_lines(self):
+        """Changes picking state to done by processing the Stock Moves of the Picking
+        Normally that happens when the button "Done" is pressed on a Picking view.
+        @return: True
+        """
+        # TDE FIXME: remove decorator when migration the remaining
+        # TDE FIXME: draft -> automatically done, if waiting ?? CLEAR ME
+#         todo_moves = self.mapped('move_lines').filtered(lambda self: self.state in ['draft', 'partially_available', 'assigned', 'confirmed'])
+        # Check if there are ops not linked to moves yet
+        for pick in self:
+            print ('**pick.move_line_ids',pick.move_line_ids)
+             
+            for ops in pick.move_line_ids.filtered(lambda x: not x.move_id):
+                moves = pick.move_lines.filtered(lambda x: x.product_id == ops.product_id) 
+                print ('moves',moves,'ops',ops)
+#                 raise ValueError('kakaka')
+                if moves: #could search move that needs it the most (that has some quantities left)
+                    ops.move_id = moves[0].id
+                else:
+                    new_move = self.env['stock.move'].create({
+                                                    'name': _('New Move:') + ops.product_id.display_name,
+                                                    'product_id': ops.product_id.id,
+                                                    'product_uom_qty': ops.qty_done,
+                                                    'product_uom': ops.product_uom_id.id,
+                                                    'location_id': pick.location_id.id,
+                                                    'location_dest_id': pick.location_dest_id.id,
+                                                    'picking_id': pick.id,
+                                                   })
+                    ops.move_id = new_move.id
+    
+    # Những hàm mới
+    
+    
+    
+    
+    #for test
+    @api.onchange('categ_id')  
+    def categ_id_(self):
+            for c,ml in enumerate(self.move_line_ids):
+                ml.categ_id = self.categ_id
+    
+    @api.onchange('location_id')
+    def doi_tac_giao_id_(self):
+        self.doi_tac_giao_id = self.location_id.partner_id_of_stock_for_report
+    @api.onchange('location_dest_id')
+    def doi_tac_nhan_id_(self):
+        self.doi_tac_nhan_id = self.location_dest_id.partner_id_of_stock_for_report
+    
+    
+    @api.onchange('location_dest_id')
+    def location_dest_id_oc_(self):
+        print ('self.move_line_ids',self.move_line_ids)
+        for ml in self.move_line_ids:
+            ml.location_dest_id= self.location_dest_id
   
-    
-   
-    
     @api.onchange('texttemplate_id')
     def onchage_for_ly_do(self):
         if self.texttemplate_id:
-            self.ly_do = self.texttemplate_id.name
+            self.ly_do = self.texttemplate_id.name   
+    
+    #### Button ###########
+    @api.multi
+    def download_xl_bbbg(self):
+        self.ghom_stock_move_lines()
+        if self.is_dl_right_now:
+            return {
+             'type' : 'ir.actions.act_url',
+             'url': '/web/binary/download_xl_bbbg?model=stock.picking&id=%s'%(self.id),
+             'target': 'new',
+             }
+        dl_obj = self
+        workbook,name = write_xl_bb (dl_obj)
+        
+        with contextlib.closing(io.BytesIO()) as buf:
+            workbook.save(buf)
+            out = base64.encodestring(buf.getvalue())
+        self.write({ 'file_dl': out, 'file_dl_name': name})
+    
+    @api.multi
+    def import_file(self):
+        importthuvien(self,
+                       key=u'stock.inventory.line.tong.hop.ltk.dp.tti.dp',
+                       key_tram='sml')
+
+
+    @api.multi
+    def check_file(self):
+        if self.is_dl_right_now:
+            return {
+             'type' : 'ir.actions.act_url',
+             'url': '/web/binary/download_checked_import_sml_file?model=stock.picking&id=%s'%(self.id),
+             'target': 'new',
+             }
+        dl_obj = self
+        workbook,name = check_imported_file_sml(dl_obj)
+        with contextlib.closing(io.BytesIO()) as buf:
+            workbook.save(buf)
+            out = base64.encodestring(buf.getvalue())
+        self.write({ 'file_dl': out, 'file_dl_name': name})
+    
+    @api.multi
+    def validate_cua_ben_giao(self):
+        self.state = 'done_ben_giao'
+        
+    ####  ! End button #####
    
+    
+    # PDF
+    @api.multi
+    def xem_print(self):
+        return {
+             'type' : 'ir.actions.act_url',
+             'url':'/report/html/tonkho.bao_cao_dieu_chuyen/%s'%self.id,
+             'target': 'new',
+        }
+        
+        
+    @api.multi
+    def xem_print_theo_move_line(self):
+        return {
+             'type' : 'ir.actions.act_url',
+             'url':'/report/html/tonkho.bcdc/%s'%self.id,
+             'target': 'new',
+        }
+    @api.multi
+    def xem_print_pdf(self):
+        return {
+            'type' : 'ir.actions.act_url',
+            'url':'/report/pdf/tonkho.bcdc/%s'%self.id,
+            'target': 'new',
+        }
+    def ban_giao_or_nghiem_thu_show(self):
+        adict = {u'BBBG':u'Bàn Giao',u'BBNT':u'Nghiệm Thu'}
+        if self.ban_giao_or_nghiem_thu != False:
+            return adict[self.ban_giao_or_nghiem_thu]
+        else:
+            return False
+    
+    
+  
+   
+    
     def generate_partner_bootstrap_ti_le_old(self):
         is_chia_2_dong = True
         row_3_dong = []
@@ -384,233 +542,12 @@ class StockPicking(models.Model):
         if self.lanh_dao_id:
             row_3_dong.append(alist_3rd_row)
         return row_3_dong
-   
-    @api.depends('move_line_ids.stock_quant_id')
-    def choosed_stock_quants_ids_(self):
-        for r in self:
-            r.choosed_stock_quants_ids =  r.move_line_ids.mapped('stock_quant_id')
-        
+    
+    
+    
+               
+                
+    
+    
 
-    @api.depends('department_id','ban_giao_or_nghiem_thu','stt_trong_bien_ban_in')
-    def name_(self):
-        name = self.department_id.short_name + '/' + '%s'%BG_dict[self.ban_giao_or_nghiem_thu] + '/%s'%self.stt_trong_bien_ban_in
-        self.name = name
-          
-    
-        
-    @api.onchange('picking_type_id')
-    def onchange_picking_type_New(self):
-        if self.picking_type_id:
-            default_location_id = self.env.user.department_id.default_location_id.id
-            if self.picking_type_id.code in  [ 'internal']:
-                self.location_id = default_location_id
-                self.location_dest_id = default_location_id
-#                 self.location_dest_id = False
-#                 return {
-#                     'domain':{
-#                         'location_id': [('usage','=',u'internal')],
-#                         'location_dest_id': [('usage','=',u'internal')]
-#                         }
-#                     }
-
-            ## chưa xài đoạn code dưới
-            elif self.picking_type_id.code in  [ 'outgoing']:
-                self.location_id = default_location_id
-#                 self.location_dest_id = False
-#                 return {
-#                     'domain':{
-#                         'location_id': [('usage','=',u'internal')],
-# #                         'location_dest_id': [('usage','=','view')]                      
-#                        }
-#                     }
-            elif self.picking_type_id.code == 'incoming':
-#                 self.location_id = False
-                self.location_dest_id = default_location_id
-#                 return {
-#                     'domain':{
-# #                         'location_id': [('usage','=','view')],                      
-#                         'location_dest_id': [('usage','=',u'internal')]
-#                        }
-#                     }
-                 
-   
-
-        
-#     @api.multi
-#     def write(self,vals):
-#         print ('**vals***',vals)
-#         super(StockPicking, self).write(vals)
-#         
-    @api.model
-    def create(self,vals):
-        print ('**vals***',vals)
-        obj = super(StockPicking, self).create(vals)
-        return obj
-        
-    
-    @api.multi
-    def write(self, vals):
-        print ('_____________vals***',vals.get('move_lines'),vals)
-        if self.state =='done':
-            move_line_ids =  vals.get('move_line_ids')
-            if move_line_ids:
-                for ml in move_line_ids:
-                    if ml[0]==0:
-                        raise UserError (u'Bạn không được tạo mới dòng điều chuyển khi đã hoàn tất biên bản')
-        res = super(StockPicking, self).write(vals)
-     
-        
-        return res
-    
-    
-    @api.multi
-    def action_confirm(self):
-        self.ghom_stock_move_lines()
-        self.mapped('move_lines')\
-            .filtered(lambda move: move.state == 'draft' or move.state == 'cancel')\
-            ._action_confirm()
-        # call `_action_assign` on every confirmed move which location_id bypasses the reservation
-        self.filtered(lambda picking: picking.location_id.usage in ('supplier', 'inventory', 'production') and picking.state == 'confirmed')\
-            .mapped('move_lines')._action_assign()
-        if self.env.context.get('planned_picking') and len(self) == 1:
-            action = self.env.ref('stock.action_picking_form')
-            result = action.read()[0]
-            result['res_id'] = self.id
-            result['context'] = {
-                'search_default_picking_type_id': [self.picking_type_id.id],
-                'default_picking_type_id': self.picking_type_id.id,
-                'contact_display': 'partner_address',
-                'planned_picking': False,
-            }
-            return result
-        else:
-            return True
-         
-         
-         
-    @api.multi
-    def ghom_stock_move_lines(self):
-        """Changes picking state to done by processing the Stock Moves of the Picking
-        Normally that happens when the button "Done" is pressed on a Picking view.
-        @return: True
-        """
-        # TDE FIXME: remove decorator when migration the remaining
-        # TDE FIXME: draft -> automatically done, if waiting ?? CLEAR ME
-#         todo_moves = self.mapped('move_lines').filtered(lambda self: self.state in ['draft', 'partially_available', 'assigned', 'confirmed'])
-        # Check if there are ops not linked to moves yet
-        for pick in self:
-            print ('**pick.move_line_ids',pick.move_line_ids)
-             
-            for ops in pick.move_line_ids.filtered(lambda x: not x.move_id):
-                moves = pick.move_lines.filtered(lambda x: x.product_id == ops.product_id) 
-                print ('moves',moves,'ops',ops)
-#                 raise ValueError('kakaka')
-                if moves: #could search move that needs it the most (that has some quantities left)
-                    ops.move_id = moves[0].id
-                else:
-                    new_move = self.env['stock.move'].create({
-                                                    'name': _('New Move:') + ops.product_id.display_name,
-                                                    'product_id': ops.product_id.id,
-                                                    'product_uom_qty': ops.qty_done,
-                                                    'product_uom': ops.product_uom_id.id,
-                                                    'location_id': pick.location_id.id,
-                                                    'location_dest_id': pick.location_dest_id.id,
-                                                    'picking_id': pick.id,
-                                                   })
-                    ops.move_id = new_move.id
-
-
-    
-    
-    @api.multi
-    def xem_print(self):
-        return {
-             'type' : 'ir.actions.act_url',
-             'url':'/report/html/tonkho.bao_cao_dieu_chuyen/%s'%self.id,
-             'target': 'new',
-        }
-        
-        
-    @api.multi
-    def xem_print_theo_move_line(self):
-        return {
-             'type' : 'ir.actions.act_url',
-             'url':'/report/html/tonkho.bcdc/%s'%self.id,
-             'target': 'new',
-        }
-    @api.multi
-    def xem_print_pdf(self):
-        return {
-            'type' : 'ir.actions.act_url',
-            'url':'/report/pdf/tonkho.bcdc/%s'%self.id,
-            'target': 'new',
-        }
-    def ban_giao_or_nghiem_thu_show(self):
-        adict = {u'BBBG':u'Bàn Giao',u'BBNT':u'Nghiệm Thu'}
-        if self.ban_giao_or_nghiem_thu != False:
-            return adict[self.ban_giao_or_nghiem_thu]
-        else:
-            return False
-    @api.model
-    def fields_view_get(self, view_id=None, view_type=False, toolbar=False, submenu=False):
-        res = super(StockPicking, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
-        if view_type in ['form']:
-            fields = res.get('fields')# không được
-            if self.user_has_groups('base.group_erp_manager'):
-                domain = "[('is_kho_cha','=',True)]"
-            else:
-                domain = "['|',('cho_phep_khac_tram_chon','=', True),'&',('is_kho_cha','=',True),('department_id','=', department_id)]"
-
-            doc = etree.XML(res['arch'])
-            nodes =  doc.xpath("//field[@name='location_id']")
-            if len(nodes):
-                node = nodes[0]
-                node.set('domain',domain )
-            res['arch'] = etree.tostring(doc, encoding='unicode')
-            
-        if view_type =='search':
-            doc = etree.fromstring(res['arch'])
-            node =  doc.xpath("//field[@name='location_id']")[0]
-            node.addnext(etree.Element('separator', {}))
-            department_id = self.env.user.department_id.id
-            node.addnext(etree.Element('filter', {'string':'Lọc theo  trạm %s'%self.env.user.department_id.name,'name': 'loc_picking_theo_tram_cua_user', 'domain': "['|',('location_id.department_id','=',%s),('location_dest_id.department_id','=',%s)]"%(department_id,department_id)}))
-            res['arch'] = etree.tostring(doc, encoding='unicode')
-        return res
-    
-#     @api.model
-#     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
-#         res = super(StockPicking, self).fields_view_get(
-#             view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
-#         if view_type =='search':
-#             doc = etree.fromstring(res['arch'])
-#             node =  doc.xpath("//filter[@name='loc_khong_phai_huy']")[0]
-#             node.addnext(etree.Element('separator', {}))
-#             node.addnext(etree.Element('filter', {'string':'Lọc theo  trạm %s'%self.env.user.department_id.name,'name': 'loc_picking_theo_tram_cua_user', 'domain': "['|',('location_id.department_id','=',%s),('location_dest_id.department_id','=',%s)]"%self.env.user.department_id.id}))
-#             res['arch'] = etree.tostring(doc, encoding='unicode')
-#         return res
-    
-    
-#     @api.model
-#     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
-#         res = super(StockPicking, self).fields_view_get(
-#             view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
-#         doc = etree.XML(res['arch'])
-#         if view_type =='form':
-#             nodes =  doc.xpath("//field[@name='location_id']")
-#             if len(nodes):
-#                 node = nodes[0]
-#                 node.set('string', "Download  nhanh")
-#                 if self.user_has_groups('base.group_erp_manager'):
-#                     node.set('domain', "[('is_kho_cha','=',True)]")
-#         res['arch'] = etree.tostring(doc, encoding='unicode')
-#         return res
-#     
-        
-#     @api.multi
-#     def unlink(self):
-#         for r in self:
-#             mode_cancel = False
-#             if mode_cancel and r.state !='cancel':
-#                 raise UserError(u'Chỉ được xóa những biên bản có trạng thái Hủy')
-#         return super(StockPicking, self).unlink()
     

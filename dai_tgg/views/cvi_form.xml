@@ -65,7 +65,7 @@
                      <group>
                         <field name="ngay_bat_dau" invisible="1" />
                         <field name="duration" invisible="context.get('giao_ca_context')" />
-
+					     <!-- <field name="test_id" context=""></field> -->
                         <field name="tvcv_id" 
                         attrs="{'readonly':['|',('loai_record','=',False),'|','&amp;',('cam_sua','=',True),('is_sep','=',False),'&amp;',('id','&gt;',0),'|',('gd_parent_id','!=',False),('cd_parent_id','!=',False)],
                         'required':[('loai_record','!=','Comment')]}"

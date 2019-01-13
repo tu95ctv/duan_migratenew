@@ -11,6 +11,8 @@
        -->
       
       
+
+      
 <record id="stock_picking_rule_1" model="ir.rule">
         <field name="name">Biên bản bị hủy thì không được sửa</field>
         <field ref="model_stock_picking" name="model_id"/>
@@ -19,7 +21,7 @@
         <field name="perm_read" eval="False" />
   </record>
   
-  
+  <!--  
   <record id="stock_picking_rule_2" model="ir.rule">
         <field name="name">Biên bản trả do hủy thì không được sửa</field>
         <field ref="model_stock_picking" name="model_id"/>
@@ -27,7 +29,18 @@
         <field name="groups" eval="[(4, ref('base.group_user'))]"/>
         <field name="perm_read" eval="False" />
   </record>
+     
   
+    <record id="stock_picking_rule_3" model="ir.rule">
+        <field name="name">Chỉ được sửa bb của đơn vị mình</field>
+        <field ref="model_stock_picking" name="model_id"/>
+        <field name="domain_force">['|',('department_id','=',user.department_id.id),('location_dest_id.department_id','=',user.department_id.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="perm_read" eval="False" />
+  </record>
+  
+  
+   -->  
   
     <record id="location_rule_1" model="ir.rule">
         <field name="name">User Chỉ được tạo kho cho riêng mình</field>

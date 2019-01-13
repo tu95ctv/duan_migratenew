@@ -37,7 +37,7 @@ def download_quants(dl_obj,append_domain = []):
     FIELDNAME_FIELDATTR_quants = [
          ('stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_}),
          ('stt',{'skip_field':not dl_obj.is_not_skip_field_stt}),
-         ('product_id',{'func':lambda v,n: v.name,'string':u'Tên Vật Tư'}),
+         ('product_id',{'func':lambda v,n: v.name,'string':u'Tên Vật Tư','width':get_width(30)}),
          ('thiet_bi_id',{'func':lambda v,n: v.name,}),
          ('brand_id',{'func':lambda v,n: v.name}), 
          ('product_uom_id',{'string':u'ĐVT'}), 

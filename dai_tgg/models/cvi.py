@@ -221,7 +221,7 @@ class Cvi(models.Model):
 #                 raise UserError(u'Bạn không có quyền aprroved')
 
     
-
+#     test_id = fields.Many2one('res.partner')
 
     
     @api.multi

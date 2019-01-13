@@ -16,27 +16,13 @@ class ReturnPickingLine(models.TransientModel):
 
 class ReturnPicking(models.TransientModel):
     _inherit = 'stock.return.picking'
-#     is_chuyen_tiep = fields.Boolean()
     location_id_show = fields.Many2one('stock.location',compute='location_id_show_',string=u'Kho trả về')
     
     @api.depends('location_id')
     def location_id_show_(self):
         self.location_id_show = self.location_id
     loai_tra_hay_chuyen_tiep = fields.Selection([('tra_do_huy',u'Trả do hủy'),('tra_do_muon',u'Trả do mượn'),('chuyen_tiep',u'Chuyển tiếp')],string=u'Loại trả vật tư')
-#     location_id = fields.Many2one(
-#         'stock.location', 'Return Location'
-#         )#domain="['|', ('id', '=', original_location_id), '&', ('return_location', '=', True), ('id', 'child_of', parent_location_id)]"
-#     
-#     location_id2 = fields.Many2one(
-#         'stock.location', 'Return Location'
-#         )
-#     @api.onchange('loai_tra_hay_chuyen_tiep')
-#     def loai_tra_hay_chuyen_tiep_(self):
-#         if  self.loai_tra_hay_chuyen_tiep =='chuyen_tiep': # return
-#             rt  ={'domain':{'location_id':"[]"}}
-#         else:
-#             rt  ={}
-#         return rt
+
     @api.model
     def default_get(self, fields):
         if len(self.env.context.get('active_ids', list())) > 1:
@@ -66,14 +52,17 @@ class ReturnPicking(models.TransientModel):
             if 'move_dest_exists' in fields:
                 res.update({'move_dest_exists': move_dest_exists})
         return res
+    
+    
+    
+    
     def _create_returns(self):
         # TODO sle: the unreserve of the next moves could be less brutal
         for return_move in self.product_return_moves.mapped('move_id'):
             return_move.move_dest_ids.filtered(lambda m: m.state not in ('done', 'cancel'))._do_unreserve()
-        picking = self.env['stock.picking'].browse(self.env.context.get('active_id'))
+#         picking = self.env['stock.picking'].browse(self.env.context.get('active_id'))
+        picking = self.picking_id
         picking_type_id = self.picking_id.picking_type_id.return_picking_type_id.id or self.picking_id.picking_type_id.id
-        
-#         loai_tra_hay_chuyen_tiep = self._context.get('default_loai_tra_hay_chuyen_tiep','tra_do_muon')
         loai_tra_hay_chuyen_tiep = self.loai_tra_hay_chuyen_tiep
         if loai_tra_hay_chuyen_tiep == 'tra_do_huy':
             ban_giao_or_nghiem_thu = u'TRA_DO_HUY'
@@ -87,12 +76,23 @@ class ReturnPicking(models.TransientModel):
             else:
                 ban_giao_or_nghiem_thu = u'BBBG'
         
+        if loai_tra_hay_chuyen_tiep != u'CHUYEN_TIEP':
+            doi_tac_nhan_id = picking.location_id.partner_id_of_stock_for_report.id
+        else:
+            doi_tac_nhan_id = picking.doi_tac_giao_id.id
+            
+            
+            
         new_picking = self.picking_id.copy({
             'move_lines': [],
             'picking_type_id': picking_type_id,
             'state': 'draft',
-            'location_id': self.picking_id.location_dest_id.id,
+#             'location_id': self.picking_id.location_dest_id.id,
+            'location_id': picking.location_dest_id.id,
+            'doi_tac_giao_id':picking.doi_tac_nhan_id.id,
+            
             'location_dest_id': self.location_id.id,
+            'doi_tac_nhan_id':doi_tac_nhan_id,
             #moi them
             'origin_pick_id':self.picking_id.id,
             'ban_giao_or_nghiem_thu':ban_giao_or_nghiem_thu,
@@ -133,6 +133,20 @@ class ReturnPicking(models.TransientModel):
                     
         if ban_giao_or_nghiem_thu == u'TRA_DO_HUY':
             new_picking.button_validate()
+            
+#             
+#         return {
+#                 'type': 'ir.actions.act_window',
+#                 'res_model': 'downloadwizard.download',
+#                 'view_mode': 'form',
+#                 'view_type': 'form',
+#                 'res_id': dl_obj.id,
+#                 'context':{'active_model':model},
+#                 'views': [(False, 'form')],
+#                 'target': 'new',
+#             }
+        
+        print ('new_picking.name',new_picking.name)
         return new_picking.id, picking_type_id
     
     
@@ -153,6 +167,35 @@ class ReturnPicking(models.TransientModel):
         }
         return vals
     
+#     def create_returns(self):
+#         rs = super(ReturnPicking, self).create_returns()
+#         print ('**rs',rs)
+#         return rs
+#         for wizard in self:
+#             new_picking_id, pick_type_id = wizard._create_returns()
+#         # Override the context to disable all the potential filters that could have been set previously
+#         ctx = dict(self.env.context)
+#         ctx.update({
+#             'search_default_picking_type_id': pick_type_id,
+#             'search_default_draft': False,
+#             'search_default_assigned': False,
+#             'search_default_confirmed': False,
+#             'search_default_ready': False,
+#             'search_default_late': False,
+#             'search_default_available': False,
+#         })
+#         return {
+#             'name': _('Returned Picking'),
+#             'view_type': 'form',
+#             'view_mode': 'form,tree,calendar',
+#             'res_model': 'stock.picking',
+#             'res_id': new_picking_id,
+#             'type': 'ir.actions.act_window',
+#             'context': ctx,
+#         }
+        
+        
+        
         
     @api.model
     def fields_view_get(self, view_id=None, view_type='form', toolbar=False, submenu=False):
