@@ -16,6 +16,15 @@ class InventoryLine(models.Model):
     ghi_chu = fields.Text(string=u'Ghi chú')
     barcode_sn = fields.Char(related = 'prod_lot_id.barcode_sn',store=True)
     quant_ids =  fields.One2many('stock.quant','inventory_line_id')
+    stock_quant_id = fields.Many2one('stock.quant', string=u"Lấy vật tư có trong kho")
+    @api.onchange('stock_quant_id')
+    def stock_quant_id_change_(self):
+        if self.stock_quant_id:
+            self.product_id = self.stock_quant_id.product_id
+            self.prod_lot_id = self.stock_quant_id.lot_id
+            self.location_id = self.stock_quant_id.location_id
+            
+            
     @api.constrains('product_id','prod_lot_id')
     def product_id_prod_lot_id_(self):
         for r in self:

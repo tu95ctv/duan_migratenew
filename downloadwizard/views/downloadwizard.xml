@@ -1,6 +1,6 @@
 <odoo>
     <data>
-        <record id="downloadquants_form" model="ir.ui.view">
+        <record id="download_all_model_form" model="ir.ui.view">
             <field name="name">downloadwizard.download.form</field>
             <field name="model">downloadwizard.download</field>
             <field name="arch" type="xml">
@@ -13,6 +13,8 @@
                          <field name="model_name" readonly="1" invisible="1"></field> 
                          <field name="verbal_model_name" ></field> 
                          <field name="is_not_skip_field_stt"  attrs="{'invisible':[('model_name','!=','stock.quant')]}"></field> 
+                         <field name="is_cho_phep_dl_right_now" groups="base.group_erp_manager" ></field> 
+                         <field name="font_height" ></field>
                         </group>
                     </sheet>
                     <footer>

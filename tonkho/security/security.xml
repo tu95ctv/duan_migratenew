@@ -11,7 +11,7 @@
        -->
       
       
-
+  <!--  
       
 <record id="stock_picking_rule_1" model="ir.rule">
         <field name="name">Biên bản bị hủy thì không được sửa</field>
@@ -21,7 +21,7 @@
         <field name="perm_read" eval="False" />
   </record>
   
-  <!--  
+
   <record id="stock_picking_rule_2" model="ir.rule">
         <field name="name">Biên bản trả do hủy thì không được sửa</field>
         <field ref="model_stock_picking" name="model_id"/>
@@ -41,7 +41,8 @@
   
   
    -->  
-  
+    
+<!-- 
     <record id="location_rule_1" model="ir.rule">
         <field name="name">User Chỉ được tạo kho cho riêng mình</field>
         <field ref="model_stock_location" name="model_id"/>
@@ -53,8 +54,7 @@
   
   
   
-  
-<!-- 
+
 <record id="user_edit_themself" model="ir.rule">
         <field name="name">Only user edit themself</field>
         <field ref="model_stock_picking" name="model_id"/>

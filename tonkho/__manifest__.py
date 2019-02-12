@@ -41,7 +41,7 @@
         'views/stock_picking11_search.xml',
         'views/delete_menu.xml',
         'views/xoakho.xml',
-        'views/warehouse.xml',
+#         'views/warehouse.xml',
         'views/mau_ly_do.xml',
         'views/stock_picking_return.xml',
 #         'views/pn.xml',
@@ -50,10 +50,10 @@
         'views/insert_style.xml',
         'views/stock_inventory_line.xml',
         'views/uom.xml',
-        'views/tonkho_download.xml',
-        'views/sequence_menu.xml',
-        'views/tonkho_cvi.xml',
+        'views/download_tk.xml',
+        'views/cvi_tk.xml',
         'views/nhom_brand_thiet_bi.xml',
+        'views/statistics.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

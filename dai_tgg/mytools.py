@@ -148,14 +148,28 @@ def convert_date_odoo_to_str_vn_date(odoo_date):
     return Convert_date_orm_to_str(odoo_date,format_date = '%d/%m/%Y')
     
     
+    
+    
+# adict=[
+#                                                                 ('code',{}),
+#                                                                 ('name',{'func': lambda x:name}),
+#                                                                 ('diem',{'pr':u'Điểm'}),
+#                                                                 ('don_vi',{'pr':u'Đơn Vị','func':lambda r: r.name}),
+#                                                                ]
+
 def name_compute(r,adict=None,join_char = u' - ',junc_char=u':'):
     names = []
     for fname,attr_dict in adict:
+#         not_use_val = attr_dict.get('attr_dict')
         val = getattr(r,fname)
         func = attr_dict.get('func',None)
         karg = attr_dict.get('karg',{})
+        
         if func:
             val = func(val,**karg)
+        else:
+            if hasattr(val, 'name'):
+                val = val.name
         if  val ==False or (not val and  fname=='id' ):# Cho có trường hợp New ID
             if attr_dict.get('skip_if_False',True):
                 continue

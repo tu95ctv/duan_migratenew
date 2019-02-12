@@ -32,6 +32,7 @@ class StockMoveLine(models.Model):
     inventory_id = fields.Many2one('stock.inventory', 'Inventory',related='move_id.inventory_id')
     tinh_trang = fields.Selection([('tot',u'Tốt'),('hong',u'Hỏng')], default='tot', string=u'Tình trạng',required=True)
     ref_picking_id_or_inventory_id = fields.Char(compute='ref_picking_id_or_inventory_id_', store=True,string=u'Phiếu tham chiếu')
+    
     @api.depends('inventory_id','picking_id.name')
     def ref_picking_id_or_inventory_id_(self):
         for r in self:

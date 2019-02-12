@@ -5,18 +5,18 @@ from openerp.http import request
 # from odoo.addons.tonkho.models.dl_models.dl_model import add_title
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  add_title
 from collections import  OrderedDict
-from odoo.addons.downloadwizard.models.dl_models.dl_model import generate_easyxf, not_horiz_center_border_style,\
-horiz_center_normal_border_style
+from odoo.addons.downloadwizard.models.dl_models.dl_model import generate_easyxf, wrap_center_vert_border_style,\
+center_border_style
 
 
-# not_horiz_center_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align: wrap on , vert centre; borders: left thin,right thin, top thin, bottom thin")
-
+# wrap_center_vert_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align: wrap on , vert centre; borders: left thin,right thin, top thin, bottom thin")
+wrap_center_vert_border_style = xlwt.easyxf(generate_easyxf(height=12,vert = 'center',borders='left thin, right thin, top thin, bottom thin',align_wrap=True))
 def add_1_row_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, offset_column=0, 
                             needdata=None,save_ndata=False,ml=False,
-                            ml_index=False,rowspan=False,font_height=12):
+                            ml_index=False,rowspan=False,
+                            font_height=12,wrap_center_vert_border_style=wrap_center_vert_border_style):
     
     
-    NOT_HORIZ_CENTER_BORDER_STYLE = xlwt.easyxf(generate_easyxf(height=font_height,vert = 'center',borders='left thin, right thin, top thin, bottom thin',align_wrap=True))
     if save_ndata:
         a_instance_dict =  needdata.get('a_instance_dict', {})
     else:
@@ -71,7 +71,7 @@ def add_1_row_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, offset_col
         one_field_val['val']=val 
         
         if write_to_excel:
-            style = FIELDATTR.get('style',NOT_HORIZ_CENTER_BORDER_STYLE)
+            style = FIELDATTR.get('style',wrap_center_vert_border_style)
             if is_same:
                 if ml_index==0:
                     worksheet.write_merge(row_index, row_index +rowspan-1, col_index,col_index,val,style)
@@ -91,7 +91,8 @@ def add_1_row_new_ml(worksheet, move ,FIELDNAME_FIELDATTR, row_index, offset_col
 
 def download_model_new_ml(dl_obj, Export_Para=None,workbook=None,
                           append_domain=None,sheet_name=None,worksheet=None,
-                          row_index=15,font_height=12):
+                          row_index=15,
+                          font_height=12):
     exported_model= Export_Para['exported_model']
     FIELDNAME_FIELDATTR= Export_Para['FIELDNAME_FIELDATTR']
     FIELDNAME_FIELDATTR = OrderedDict(FIELDNAME_FIELDATTR)
@@ -132,6 +133,7 @@ def download_model_new_ml(dl_obj, Export_Para=None,workbook=None,
                )
     nrow = 0
     row_index +=1
+    wrap_center_vert_border_style = xlwt.easyxf(generate_easyxf(height=font_height,vert = 'center',borders='left thin, right thin, top thin, bottom thin',align_wrap=True))
     for move in all_objs:#request.env['cvi'].search([]):
         rowspan = len(move.move_line_ids)
         for ml_index, ml in enumerate(move.move_line_ids):
@@ -140,7 +142,10 @@ def download_model_new_ml(dl_obj, Export_Para=None,workbook=None,
                              row_index, offset_column=0,
                              needdata=needdata,
                              save_ndata=True, ml=ml, ml_index=ml_index,rowspan=rowspan,
-                             font_height=font_height)
+                             font_height=font_height,
+                             wrap_center_vert_border_style = wrap_center_vert_border_style
+
+                             )
             row_index +=1
     return nrow
 
@@ -209,13 +214,13 @@ def download_ml_for_bb(dl_obj,workbook=None,
                        IS_SET_TT_COL=False,
                        all_tot_and_ghom_all_tot=False,
                        font_height=12):
-    
+    center_border_style = xlwt.easyxf(generate_easyxf(height=font_height,borders='left thin, right thin, top thin, bottom thin',vert = 'center',horiz = 'center'))
     FIELDNAME_FIELDATTR_ML = [
          ('move_line_ids.stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_ml_,'is_same':True,
-                                         'is_use_kargs_co_san':True,'style':horiz_center_normal_border_style }),#'is_same':False 
+                                         'is_use_kargs_co_san':True,'style':center_border_style }),#'is_same':False 
          ('product_id',{'func':lambda v,n,m,ml: v.name,'string':u'Tên vật tư' }),
          ('product_id_pn',{'transfer_field':'product_id','func':lambda v,n,m,ml: v.pn,'string':u'Mã vật tư'}),
-         ('quantity_done',{'is_same':is_same_,'func':quantity_done_,'string':u'S/L','style':horiz_center_normal_border_style}),
+         ('quantity_done',{'is_same':is_same_,'func':quantity_done_,'string':u'S/L','style':center_border_style}),
          ('product_uom',{'func':lambda v,n,m,ml: v.name,'string':u'ĐVT'}),
          ('move_line_ids.lot_id',{'func':lambda v,n,m,ml: v.name,'string':u'Serial Number'}),
          ('move_line_ids.tinh_trang',{'string':u'T/T','func':tinh_trang_, 'skip_field':not IS_SET_TT_COL or  all_tot_and_ghom_all_tot    }),

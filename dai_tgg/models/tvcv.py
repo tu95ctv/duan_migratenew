@@ -52,9 +52,18 @@ class TVCV(models.Model):
     loai_record = fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record')
     code = fields.Char(string=u'Mã công việc')
     don_vi = fields.Many2one('donvi',string=u'Đơn vị tính')
+    
     do_phuc_tap = fields.Integer(string=u'Độ Phức Tạp')
     thoi_gian_hoan_thanh = fields.Integer(string=u'Thời Gian Hoàn Thành')
     diem = fields.Float(digits=(6, 2),string=u'Điểm',implied_group='base.group_erp_manager')
+    
+    @api.onchange('do_phuc_tap','thoi_gian_hoan_thanh')
+    def  to_diem_oc_(self):
+        if  self.do_phuc_tap and self.thoi_gian_hoan_thanh:
+            self.diem = self.do_phuc_tap*self.thoi_gian_hoan_thanh/60 
+
+        
+    
     dot_xuat_hay_dinh_ky = fields.Many2one('dotxuathaydinhky',string=u'Đột xuất hay định kỳ')
     cong_viec_cate_id = fields.Many2one('tvcvcate',string=u'Phân loại TVCV')
     diem_percent = fields.Integer(string=u'Phần trăm điểm so với TVCV cha')
@@ -64,9 +73,6 @@ class TVCV(models.Model):
     active = fields.Boolean(default=True)
     state = fields.Selection([('draft',u'Bản Nháp'),('confirmed',u'Xác Nhận')],default='draft')
     is_bc =  fields.Boolean(u'Có báo cáo',default=True)
-   
-   
-   
    
     is_has_children = fields.Boolean(string=u'Có TVCV Giai Đoạn Con',compute='is_has_children_',store=True)
     co_cong_viec_cha = fields.Boolean(string=u'Có TVCV Giai Đoạn Cha',compute='co_cong_viec_cha_',store=True)
@@ -86,10 +92,8 @@ class TVCV(models.Model):
                 fields = res.get('fields')
                 fields['name']['string'] =u'Tên TVCV'
         return res
-    @api.depends('loai_record')
-    def loai_record_show_(self):
-        for r in self:
-            r.loai_record_show = r.loai_record
+    
+
     @api.constrains('diem')
     @skip_depends_if_not_congviec_decorator
     def parent_diem_change_children_diem(self):
@@ -178,7 +182,6 @@ class TVCV(models.Model):
     @api.multi
     def name_get(self,from_name_search=False):
         def get_names(cat):
-            ''' Return the list [cat.name, cat.parent_id.name, ...] '''
             res = []
             if cat.name != False:
                 while cat:
@@ -187,27 +190,27 @@ class TVCV(models.Model):
             return res
         res = []
         for  r in self:
-            name = ' / '.join(reversed(get_names(r)))      
+            name = ' / '.join(reversed(get_names(r)))    
             
-            if from_name_search ==False:
+            if r.loai_record ==u'Công Việc':
+            
+#             if from_name_search ==False:
+#                 adict=[
+# #                                                                 ('id',{'pr':u'TVCV id'}),
+#                                                                 ('code',{}),#'pr':u'Mã'
+#                                                                 ('name',{'func': lambda x:name}),
+# #                                                                 ('diem',{'pr':u'Điểm'}),
+# #                                                                 ('don_vi',{'pr':u'Đơn Vị','func':lambda r: r.name}),
+#                                                                #('do_phuc_tap',{'pr':u'Độ Phức Tạp'})
+#                                                                ]
+#             else:
                 adict=[
-#                                                                 ('id',{'pr':u'TVCV id'}),
-                                                                ('code',{}),#'pr':u'Mã'
-                                                                ('name',{'func': lambda x:name}),
-#                                                                 ('diem',{'pr':u'Điểm'}),
-#                                                                 ('don_vi',{'pr':u'Đơn Vị','func':lambda r: r.name}),
-                                                               #('do_phuc_tap',{'pr':u'Độ Phức Tạp'})
-                                                               ]
-            else:
-                adict=[
-#                                                                 ('id',{'pr':u'TVCV id'}),
-                                                                ('code',{}),#'pr':u'Mã'
-                                                                ('name',{'func': lambda x:name}),
-                                                                ('diem',{'pr':u'Điểm'}),
-                                                                ('don_vi',{'pr':u'Đơn Vị','func':lambda r: r.name}),
-                                                               #('do_phuc_tap',{'pr':u'Độ Phức Tạp'})
-                                                               ]
-            name = name_compute(r,adict)
+                                                                    ('code',{}),
+                                                                    ('name',{'func': lambda x:name}),
+                                                                    ('diem',{'pr':u'Điểm','func': lambda val,r: u'%s/%s/%s'%(r.do_phuc_tap,r.thoi_gian_hoan_thanh,val),'karg':{'r':r}}),
+    #                                                                 ('don_vi',{'pr':u'Đơn Vị','func':lambda r: r.name}),
+                                                                   ]
+                name = name_compute(r,adict)
             res.append((r.id,name))
         return res
     

@@ -6,10 +6,10 @@ import re
 
 def get_width(num_characters):
     return int((1+num_characters) * 256)
-not_horiz_center_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align: wrap on , vert centre; borders: left thin,right thin, top thin, bottom thin")
-header_bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 240 ; align:  vert centre;  pattern: pattern solid, fore_colour gray25;borders: left thin, right thin, top thin, bottom thin")
+# not_horiz_center_border_style = xlwt.easyxf("font:  name Times New Roman, height 240 ;align: wrap on , vert centre; borders: left thin,right thin, top thin, bottom thin")
+# header_bold_style = xlwt.easyxf("font: bold on, name Times New Roman, height 240 ; align:  vert centre;  pattern: pattern solid, fore_colour gray25;borders: left thin, right thin, top thin, bottom thin")
 
-EMPTY_CHAR = [u'',u' ',u'\xa0',u'#N/A',u'N/A']
+EMPTY_CHAR = [u'',u' ',u'\xa0',u'#N/A',u'N/A',u'NA']
 def check_is_string_depend_python_version(val):
     if VERSION_INFO==2:
         check_str = isinstance(val,unicode) or isinstance(val,str)

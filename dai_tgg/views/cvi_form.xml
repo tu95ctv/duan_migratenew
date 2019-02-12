@@ -150,7 +150,7 @@
                               <!--      <field name="percent_diemtt" attrs="{'readonly':[('cam_sua','=',True)]}" /> -->
                               <field name="diemtc" />
                               <field name="valid_cd" invisible="1" />
-                              <field name="percent_diemtc" attrs="{'invisible' : [('is_sep', '=', False),('is_admin', '=', False)]}" groups="dai_tgg.show_cot_lanh_dao_group" />
+                              <field name="percent_diemtc" attrs="{'invisible' : [('is_sep', '=', False),('is_admin', '=', False)]}"   groups="dai_tgg.show_cot_lanh_dao_group" />
                               <field name="diemld" attrs="{'invisible' : [('is_sep', '=', False),('is_admin', '=', False)]}" groups="dai_tgg.show_cot_lanh_dao_group" />
                               <field name="ti_le_chia_diem" attrs="{'readonly':[('cam_sua','=',True)]}" />
                               <field name="valid_diemtc" invisible="1" />

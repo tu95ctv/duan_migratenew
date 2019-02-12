@@ -116,6 +116,7 @@
                <field name="do_phuc_tap" />
                <field name="thoi_gian_hoan_thanh" />
                <field name="diem" />
+              <!--   <field name="valid_cong_thuc_diem"/>-->
                <field name="dot_xuat_hay_dinh_ky" />
                <field name="ghi_chu" />
                <field name="diem_percent" groups="dai_tgg.show_tvcv_con" />

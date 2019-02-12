@@ -21,8 +21,8 @@ class CTR(models.Model):
     cvi_show =  fields.Char(compute='cvi_show_',string=u'Công Việc/Sự Cố/ Sự Vụ')
     
 #     giao_ca_ids = fields.One2many('cvi','giao_ca_id',string=u'Giao Ca Sau')
-    ton_dong_ca_truoc_ids = fields.Many2many('cvi', compute='ton_dong_ca_truoc_ids_',string=u'Tồn đọng ca trước')
-    
+    ton_dong_ca_truoc_ids = fields.Many2many('cvi',string=u'Tồn đọng ca trước')
+    ton_dong_show_number =  fields.Integer(default=20,string=u'Số dòng tồn động muốn hiển thị')
     
     @api.onchange('member_ids')
     def member_ids_oc(self):
@@ -31,17 +31,16 @@ class CTR(models.Model):
         truc_ca_tvcv_id =  self.env['tvcv'].search([('name','=',u'Trực ca')])
         cvi_ids_tvcv =  self.cvi_ids.mapped('tvcv_id')
         if  (not cvi_ids_tvcv or truc_ca_tvcv_id == cvi_ids_tvcv) :#and not self.cvi_ids:
-            rt = list(map(lambda m:(0,0,{'user_id':m,'loai_record':u'Công Việc','tvcv_id':truc_ca_tvcv_id.id}),self.member_ids))
-#             self.write({'cvi_ids':rt})
+            rt = list(map(lambda m:(0,0,{'user_id':m,'loai_record':u'Công Việc','tvcv_id':truc_ca_tvcv_id.id,'state':'confirmed'}),self.member_ids))
             return {'value':
                     {'cvi_ids':rt
                      }
                     }
-    @api.depends('name')
+    @api.onchange('ton_dong_show_number')
     def ton_dong_ca_truoc_ids_(self):
         for r in self:
             domain =['|',('is_giao_ca','=',True),('gio_ket_thuc','=',False)]
-            ton_dong_ca_truoc_ids = self.env['cvi'].search(domain,limit=20,order='id desc')
+            ton_dong_ca_truoc_ids = self.env['cvi'].search(domain,limit=self.ton_dong_show_number,order='id desc')
             r.ton_dong_ca_truoc_ids = ton_dong_ca_truoc_ids
 #     @api.depends('cvi_ids')
 #     def cvi_show_(self):

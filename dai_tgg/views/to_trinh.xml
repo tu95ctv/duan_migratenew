@@ -48,7 +48,7 @@
       
       
       
-            <menuitem id="dai_tgg.totrinh_menu" parent="else_more_menu" action="dai_tgg.totrinh_action" sequence="9" />
+            <menuitem id="dai_tgg.totrinh_menu" parent="else_more_menu" action="dai_tgg.totrinh_action" sequence="8" />
       
 </data>
 </odoo>

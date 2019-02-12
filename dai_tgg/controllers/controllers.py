@@ -30,7 +30,7 @@ from odoo.addons.dai_tgg.models.dl_models.dl_bcn import  dl_cvi
 from odoo.addons.dai_tgg.models.dl_models.dl_p3 import  dl_p3
 
 
-from odoo.addons.downloadwizard.download_tool import  download_by_url
+from odoo.addons.downloadwizard.download_tool import  download_all_model_by_url
 
 # def FIELDNAME_FIELDATTR_flat(FIELDNAME_FIELDATTR,item_seperate=';',k_v_separate = ':'):
 #     alist = []
@@ -259,29 +259,12 @@ class DownloadCvi(http.Controller):
     
     
     @http.route('/web/binary/download_model',type='http', auth="public")
-    def download_all_model_controller(self,model, id, **kw):
-        pick_func = {'tvcv':download_tvcv,'res.users':download_user,'download_bcn':dl_bcn,'cvi':dl_cvi,'download_p3':dl_p3}
-        response = download_by_url(model,id,kw,pick_func)
-        return response
-#         active_domain = kw['active_domain']
-#         active_domain = active_domain.replace("'",'"')
-#         active_domain = json.loads(active_domain)
-#         dj_obj = request.env['downloadwizard.download'].browse(int(id))
-#         call_func = pick_func[model]
-#         workbook,name = call_func(dj_obj,active_domain)
-#         name = unidecode(name).replace(' ','_')
-#         response = request.make_response(None,
-#             headers=[('Content-Type', 'application/vnd.ms-excel'),
-#                     ('Content-Disposition', 'attachment; filename=%s;target=blank' %name)],
-#             )
-#         workbook.save(response.stream)
+    def download_all_model_controller(self,**kw):
+        response = download_all_model_by_url(kw)
         return response
     
-#     class DownloadQuants(http.Controller):
-    
-    
-#     def gen_pick_func(self): 
-#         return {}
+
+
         
     
 

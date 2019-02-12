@@ -2,6 +2,8 @@
 from odoo import models, fields, api,exceptions,tools,_
 import re
 from odoo.addons.dai_tgg.models.model_dict_folder.tao_instance_new import importthuvien
+from odoo.addons.dai_tgg.models.model_dict_folder.model_dict import default_import_xl_setting
+
 # from odoo.addons.dai_tgg.models.tao_instance import import_strect
 
 # from odoo.addons.dai_tgg.models.model_dict import gen_model_dict
@@ -72,19 +74,27 @@ class ImportThuVien(models.Model):
     line_not_has_quant =  fields.Text()
     only_xuat_thuoc_tinh =  fields.Boolean()
     dac_tinh = fields.Char()
-    
     categ_id = fields.Many2one('product.category')
     
-    allow_check_excel_obj_is_exist_func  = fields.Boolean(string=u'Cho phép đối chiếu product excel obj với product exist object')
-    write_when_val_exist  = fields.Boolean()
-    cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat  = fields.Boolean(default=True)
-    cho_phep_co_pn_cap_nhat_empty_pn  = fields.Boolean(default = True)
     
-#     not_update_field_if_instance_exist_default  = fields.Boolean()
-    cho_phep_exist_val_before_loop_fields_func = fields.Boolean(default = True)
+    
+#     default_import_xl_setting = {'default_cho_phep_exist_val_before_loop_fields_func':True,
+#              'default_write_when_val_exist':False,
+#              'default_allow_check_excel_obj_is_exist_func':False,
+#              'default_cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat':False,
+#              'default_cho_phep_co_pn_cap_nhat_empty_pn':False,
+#              }
+
+    
+    cho_phep_exist_val_before_loop_fields_func = fields.Boolean(default = default_import_xl_setting['default_cho_phep_exist_val_before_loop_fields_func'])
+    write_when_val_exist  = fields.Boolean(default = default_import_xl_setting['default_write_when_val_exist'])
+    allow_check_excel_obj_is_exist_func  = fields.Boolean(string=u'Cho phép đối chiếu product excel obj với product exist object',default = default_import_xl_setting['default_allow_check_excel_obj_is_exist_func'])
+    cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat  = fields.Boolean(default = default_import_xl_setting['default_cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat'])
+    cho_phep_co_pn_cap_nhat_empty_pn  = fields.Boolean(default = default_import_xl_setting['default_cho_phep_co_pn_cap_nhat_empty_pn'])
+    
+    
     
     is_admin = fields.Boolean(compute='is_admin_')
-#     allow_product_qty_dieu_chinh = fields.Boolean()
     mode = fields.Selection([(u'1',u'mode 1 (tim location goc bằng key)'),(u'2',u'mode 2 ( tìm location góc bằng cột trạm)')])
     @api.onchange('sheet_name_select')
     def sheet_name_select_oc_(self):

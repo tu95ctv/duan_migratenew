@@ -206,8 +206,22 @@
                <field name="gio_bat_dau" />
                <field name="gio_ket_thuc" />
                <field name="duration" />
+                <field name="slncl" />
+                <field name="diemtc" />
                <field name="is_bc" />
                <field name="is_giao_ca" />
+              
+              <!-- 
+               <field name="state"></field>
+               <field name="is_sep"></field>
+               <field name="is_admin"></field>
+               <field name="cd_parent_id"></field>
+               <field name="gd_parent_id"></field>
+               <field name="hd_parent_id"></field>
+               <field name="cam_sua"></field>
+               <field name="cd_children_ids"></field>
+                -->
+               
               <!--  <field name="comments_show" /> -->
                <field name="department_id" />
                <!--  <field name="ctr_ids"  /> -->
@@ -223,7 +237,7 @@
          <field name="model">cvi</field>
          <field name="priority">15</field>
          <field name="mode">primary</field>
-         <field name="inherit_id" ref="dai_tgg.cvi_list_sample" />
+         <field name="inherit_id" ref="cvi_list_sample" />
          <field name="arch" type="xml">
             <xpath expr="//tree" position="attributes">
                <attribute name="create">false</attribute>
@@ -231,18 +245,13 @@
          </field>
       </record>
      
-      <record id="cvi_form_no_create" model="ir.ui.view">
-         <field name="name">cvi list sample no create</field>
-         <field name="model">cvi</field>
-         <field name="mode">primary</field>
-         <field name="priority">15</field>
-         <field name="inherit_id" ref="dai_tgg.cvi_form" />
-         <field name="arch" type="xml">
-            <xpath expr="//form" position="attributes">
-              <!-- <attribute name="create">false</attribute> --> 
-            </xpath>
-         </field>
-      </record>
+      
+ 
+     
+     
+     
+      
+     
      
       <record model="ir.actions.act_window" id="suco_action">
          <field name="name">Sự Cố</field>
@@ -251,8 +260,13 @@
          <field name="context">{'default_loai_record':'Sự Cố'}</field>
          <field name="view_mode">tree,form</field>
          <field name="search_view_id" ref="suco_search" />
-         <field name="view_id" ref="dai_tgg.cvi_list_sample_no_create" />
+       <!-- <field name="view_id" ref="dai_tgg.cvi_list_sample" /> -->  
+         <!-- <field name="view_id" ref="dai_tgg.cvi_list_sample_no_create" /> -->
+         <field name="view_id" ></field>
       </record>
+      
+      
+      
       
       
       <!-- END SỰ CỐ-->
@@ -264,9 +278,38 @@
          <field name="context">{'default_loai_record':'Sự Vụ'}</field>
          <field name="view_mode">tree,form</field>
          <field name="search_view_id" ref="suco_search" />
-         <field name="view_id" ref="dai_tgg.cvi_list_sample_no_create" />
+         <!-- <field name="view_id" ref="dai_tgg.cvi_list_sample" /> 
+        <field name="view_id" ref="dai_tgg.cvi_list_sample_no_create" /> -->
       </record>
+      
+      <!-- 
+       <record id="su_vu_action_view" model="ir.actions.act_window.view">
+         <field eval="2" name="sequence" />
+         <field name="view_mode">tree</field>
+         <field name="view_id" ref="cvi_list_sample_no_create" />
+         <field name="act_window_id" ref="suvu_action" />
+      </record>
+       -->
+      
+      
+      
       <!-- END SU VU -->
+      <!-- 
+      <record id="action_view" model="ir.ui.view">
+         <field name="name">cvi list sample no create</field>
+         <field name="model">ir.actions.actions</field>
+      
+         <field name="inherit_id" ref="base.action_view" />
+         <field name="arch" type="xml">
+           	<field name="type" position="after">
+           		<field name="view_id"></field>
+           	</field>
+         </field>
+      </record>
+       -->
+      
+      
+      
       <menuitem name=" Menu Công Việc" id="menu_menu" parent="ctrtvcv_icon" sequence="1" />
       <menuitem name=" Công Việc" id="cvi_menu" parent="menu_menu" action="cvi_action" sequence="1" />
 		<menuitem id="suco_menu" parent="ctrmenu_menu" action="suco_action" sequence="2" />

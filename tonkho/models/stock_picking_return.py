@@ -16,11 +16,11 @@ class ReturnPickingLine(models.TransientModel):
 
 class ReturnPicking(models.TransientModel):
     _inherit = 'stock.return.picking'
-    location_id_show = fields.Many2one('stock.location',compute='location_id_show_',string=u'Kho trả về')
-    
-    @api.depends('location_id')
-    def location_id_show_(self):
-        self.location_id_show = self.location_id
+#     location_id_show = fields.Many2one('stock.location',compute='location_id_show_',string=u'Kho trả về')
+#     
+#     @api.depends('location_id')
+#     def location_id_show_(self):
+#         self.location_id_show = self.location_id
     loai_tra_hay_chuyen_tiep = fields.Selection([('tra_do_huy',u'Trả do hủy'),('tra_do_muon',u'Trả do mượn'),('chuyen_tiep',u'Chuyển tiếp')],string=u'Loại trả vật tư')
 
     @api.model

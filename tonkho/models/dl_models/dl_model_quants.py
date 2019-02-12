@@ -1,21 +1,12 @@
 # -*- coding: utf-8 -*-
 # from odoo.addons.tonkho.models.dl_models.dl_model import  download_model
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  download_model
-from odoo.addons.downloadwizard.models.dl_models.dl_model import  get_width
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  stt_
 
 from openerp.http import request
 import xlwt
 from odoo.exceptions import UserError
 from copy import deepcopy
-
-# def get_width(num_characters):
-#     return int((1+num_characters) * 256)
-
-# 
-# def stt_(v,needdata): 
-#     v = needdata['a_instance_dict']['stt_not_model']['val']  +1   
-#     return v      
 
 def tu_shelf_(v,needdata, stock_type=None):
     location_id = needdata['a_instance_dict']['location_id']['val_before_func']
@@ -36,16 +27,17 @@ def download_quants(dl_obj,append_domain = []):
     
     FIELDNAME_FIELDATTR_quants = [
          ('stt_not_model',{'is_not_model_field':True,'string':u'STT', 'func':stt_}),
+         ('id',{}),
          ('stt',{'skip_field':not dl_obj.is_not_skip_field_stt}),
-         ('product_id',{'func':lambda v,n: v.name,'string':u'Tên Vật Tư','width':get_width(30)}),
+         ('product_id',{'func':lambda v,n: v.name,'string':u'Tên Vật Tư','width':30}),
          ('thiet_bi_id',{'func':lambda v,n: v.name,}),
          ('brand_id',{'func':lambda v,n: v.name}), 
          ('product_uom_id',{'string':u'ĐVT'}), 
          ('tracking',{'func':tracking_}),
          ('categ_id',{'func':lambda v,n: v.name }),
-#          ('pn_id',{'func':lambda v,n: v.name,'width':get_width(20)}),
          ('pn',{}),
          ('lot_id',{'func':lambda v,n: v.name,'string':u'Serial number'}),
+         
          ('location_id',{'func':lambda v,n: v.name_get_1_record(),'write_to_excel':False,'split':[
                  ('tram',{'is_not_model_field':True,'string':u'Trạm','func':tu_shelf_,'kargs':{'stock_type':'tram'}}),         
                  ('phong_may',{'is_not_model_field':True,'string':u'Phòng máy','func':tu_shelf_,'kargs':{'stock_type':'phong_may'}}),
@@ -54,6 +46,8 @@ def download_quants(dl_obj,append_domain = []):
                  ('stt_trong_self',{'is_not_model_field':True,'string':u'STT trong shelf/số thùng','func':tu_shelf_,'kargs':{'stock_type':'stt_trong_self'}}),
                  ('slot',{'is_not_model_field':True,'string':u'Slot','func':tu_shelf_,'kargs':{'stock_type':'slot'}})     
              ]}),
+                                  
+         ('location_id_complete',{'transfer_fname':'location_id','string':'kho tên đầy đủ','func':lambda v,n: v.name_get_1_record()}),
           ('quantity',{'string':u'Số lượng'}),
           ('qty_dieu_chinh',{'transfer_fname':'quantity','string':u'Số lượng điều chỉnh','skip_field':not dl_obj.is_xuat_dc}),
          ('tram_dc',{'is_not_model_field':True,'string':u'Trạm điều chuyển','skip_field':not dl_obj.is_xuat_kho_dc}),         
@@ -69,7 +63,7 @@ def download_quants(dl_obj,append_domain = []):
         'exported_model':'stock.quant',
         'FIELDNAME_FIELDATTR':FIELDNAME_FIELDATTR_quants,
         'gen_domain':gen_domain_stock_quant,
-        'search_para':{'order': 'stt asc'},#desc
+#         'search_para':{'order': 'stt asc'},#desc
         }
     
     if not dl_obj.is_moi_sheet_moi_loai:

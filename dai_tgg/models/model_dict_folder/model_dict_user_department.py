@@ -3,7 +3,7 @@ from odoo.exceptions import UserError
 import datetime
 from odoo.addons.dai_tgg.mytools import convert_vn_datetime_to_utc_datetime
 
-def convert_vn_datetime_to_utc_datetime_2(v):
+def convert_vn_str_datetime_to_utc_str_datetime(v):
     if v:
         dt_v = datetime.datetime.strptime(v,'%d/%m/%Y %H:%M:%S')
     #     raise UserError(u'%s-%s'%(v,type(v)))
@@ -108,17 +108,17 @@ def gen_user_department_model_dict():
                                                ]
                                     }
                  ),
-                ('sequence_id',{'fields':[
-                    ('name',{'xl_title':None,'func':lambda v,n:n['vof_dict']['name']['val'] ,'key':True,'required':True}),
-                    ('sequence_id_bbbg',{'model':'ir.sequence', 'for_excel_readonly':True,
-                                                    'fields':[('name',{'xl_title':None, 'func':lambda v,n:n['vof_dict']['name']['val']+',' +'BBBG','key':True})]
-                                         }),
-                    ('sequence_id_ttr',{'model':'ir.sequence', 'for_excel_readonly':True,
-                                                    'fields':[('name',{'xl_title':None, 'func':lambda v,n:n['vof_dict']['name']['val']+',' +'TTR','key':True})]
-                                         }),
-                                               ]
-                                    }
-                 ),
+#                 ('sequence_id',{'fields':[
+#                     ('name',{'xl_title':None,'func':lambda v,n:n['vof_dict']['name']['val'] ,'key':True,'required':True}),
+#                     ('sequence_id_bbbg',{'model':'ir.sequence', 'for_excel_readonly':True,
+#                                                     'fields':[('name',{'xl_title':None, 'func':lambda v,n:n['vof_dict']['name']['val']+',' +'BBBG','key':True})]
+#                                          }),
+#                     ('sequence_id_ttr',{'model':'ir.sequence', 'for_excel_readonly':True,
+#                                                     'fields':[('name',{'xl_title':None, 'func':lambda v,n:n['vof_dict']['name']['val']+',' +'TTR','key':True})]
+#                                          }),
+#                                                ]
+#                                     }
+#                  ),
                 ('partner_id',{'key':False,'required':False,
                                    'fields':[
                                             ('name',{'xl_title':None,  'key':True, 'required': True, 'func':lambda val,needdata: needdata['vof_dict']['name']['val']}),
@@ -135,6 +135,11 @@ def gen_user_department_model_dict():
                     
                 ('default_location_id',{'fields':[
                     ('name',{'xl_title':u'default_location_id','func':None,'key':True,'required':True}),
+                    ('location_id',{'fields':[
+                        ('stock_type',{'set_val':'dai'}),
+                        ('name',{'key':True,'set_val':u'Đài HCM dự phòng'}),
+                        ('stock_type',{'key':True,'set_val':u'dai'}),
+                        ]}),
                     ('partner_id_of_stock_for_report',{'fields':[('name',{'func': lambda v,n:n['vof_dict']['name']['val'], 'key':True,'required':True}),
                                                ]
                                     }),
@@ -151,6 +156,11 @@ def gen_user_department_model_dict():
                  ),
                 ('default_location_running_id',{'model':'stock.location','fields':[
                         ('name',{'xl_title':u'default_location_id_running','func':None,'key':True,'required':True}),
+                        ('location_id',{'fields':[
+                            ('stock_type',{'set_val':'dai'}),
+                            ('name',{'key':True,'set_val':u'Đài HCM Đang chạy'}),
+                            ('stock_type',{'key':True,'set_val':u'dai'}),
+                            ]}),
                         ('usage',{'xl_title':u'usage','func':None,'key':False,'required':False}),
                         ('is_kho_cha',{'set_val':True}),
                         ('stock_type',{'set_val':'tram'}),
@@ -264,8 +274,8 @@ def gen_user_department_model_dict():
                           ]}
                        ),
                       ('noi_dung',{'xl_title':u'Nội dung'}),
-                      ('gio_bat_dau',{'key':True,'xl_title':u'Giờ bắt đầu','bypass_check_type':True,'func':convert_vn_datetime_to_utc_datetime_2}),
-                      ('gio_ket_thuc',{'key':True,'xl_title':u'Giờ Kết Thúc','bypass_check_type':True,'func':convert_vn_datetime_to_utc_datetime_2}),
+                      ('gio_bat_dau',{'key':True,'xl_title':u'Giờ bắt đầu','bypass_check_type':True,'func':convert_vn_str_datetime_to_utc_str_datetime}),
+                      ('gio_ket_thuc',{'key':True,'xl_title':u'Giờ Kết Thúc','bypass_check_type':True,'func':convert_vn_str_datetime_to_utc_str_datetime}),
                       ('slncl',{'xl_title':u'Số lượng người chia điểm'}),
                       ('ti_le_chia_diem',{'xl_title':u'Tỉ lệ chia điểm'}),
 #                       ('cd_children_ids',{'fields':[('user_id',{'fields':[

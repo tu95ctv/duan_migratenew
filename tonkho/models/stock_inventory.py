@@ -14,7 +14,12 @@ class Inventory(models.Model):
     filename = fields.Char()
     log = fields.Text(string=u'Log import file')
     sheet_name = fields.Char(u'Tên sheet(Nếu bỏ trống lấy sheet đầu, all => tất cả các sheets)',help=u'Nếu bỏ trống lấy sheet đầu, all => tất cả các sheets')
-
+    
+    choosed_stock_quants_ids = fields.Many2many('stock.quant',compute='choosed_stock_quants_ids_',store=False)
+    @api.depends('line_ids.stock_quant_id')
+    def choosed_stock_quants_ids_(self):
+        for r in self:
+            r.choosed_stock_quants_ids =  r.line_ids.mapped('stock_quant_id')
     
     # Hàm ghi đè
     @api.model

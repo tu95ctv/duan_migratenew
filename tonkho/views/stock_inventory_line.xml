@@ -11,6 +11,7 @@
                     <field name="categ_id"></field>
                     <field name="tracking"></field>
                 </field>
+              
             </field>
         </record>
         <record id="action_inventory_line_tonkho" model="ir.actions.act_window">

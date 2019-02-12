@@ -1,5 +1,6 @@
  # -*- coding: utf-8 -*-
-from odoo.addons.dai_tgg.models.model_dict_folder.tool_tao_instance import get_key,get_width,header_bold_style,VERSION_INFO,get_by_key_tram
+from odoo.addons.dai_tgg.models.model_dict_folder.tool_tao_instance import get_key,get_width,VERSION_INFO,get_by_key_tram
+from odoo.addons.downloadwizard.models.dl_models.dl_model  import header_bold_style
 from collections import  OrderedDict
 from odoo.exceptions import UserError
 import re

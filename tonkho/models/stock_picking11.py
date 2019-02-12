@@ -6,7 +6,7 @@ from odoo.tools.translate import _
 from odoo.tools.float_utils import float_compare
 from datetime import timedelta
 from odoo.addons.dai_tgg.models.model_dict_folder.tao_instance_new import importthuvien
-from odoo.addons.dai_tgg.models.model_dict_folder.model_dict import gen_model_dict
+from odoo.addons.dai_tgg.models.model_dict_folder.model_dict import gen_model_dict,default_import_xl_setting
 from odoo.addons.tonkho.models.dl_models.xl_tranfer_bb import write_xl_bb
 from odoo.addons.tonkho.models.check_file import check_imported_file_sml
 
@@ -129,12 +129,50 @@ class StockPicking(models.Model):
                 r.stt_trong_bien_ban_in = 1
                 
     ban_giao_or_nghiem_thu = fields.Selection(BG_lst,default=u'BBBG', string=u'B/giao hay N/thu',copy=False)
-    location_id_partner_id =  fields.Many2one('res.partner',related='location_id.partner_id_of_stock_for_report',store=False,readonly=True)
-    location_dest_id_partner_id =  fields.Many2one('res.partner',related='location_dest_id.partner_id_of_stock_for_report',store=False,readonly=True)
+    
+    
+#     location_id_partner_id =  fields.Many2one('res.partner',related='location_id.partner_id_of_stock_for_report',store=False,readonly=True)
+    is_required_doi_tac_giao =  fields.Boolean(compute='is_required_doi_tac_giao_')
+    @api.depends('location_id')
+    def is_required_doi_tac_giao_(self):
+        for r in self:
+            location_id_name =  r.location_id.name
+            if location_id_name in [u'Đối tác giao',u'Đối tác nhận']:
+                r.is_required_doi_tac_giao = True
+    
+#     location_dest_id_partner_id =  fields.Many2one('res.partner',related='location_dest_id.partner_id_of_stock_for_report',store=False,readonly=True)
+    is_required_doi_tac_nhan =  fields.Boolean(compute='is_required_doi_tac_nhan_')
+    @api.depends('location_dest_id')
+    def is_required_doi_tac_nhan_(self):
+        for r in self:
+            location_id_name =  r.location_dest_id.name
+            if location_id_name in [u'Đối tác giao',u'Đối tác nhận']:
+                r.is_required_doi_tac_nhan = True
+                
     doi_tac_giao_id = fields.Many2one('res.partner',u'Đơn vị  giao',copy=False)
     doi_tac_nhan_id = fields.Many2one('res.partner',u'Đơn vị nhận', copy=False)
     # Field thêm để lọc         
     choosed_stock_quants_ids = fields.Many2many('stock.quant',compute='choosed_stock_quants_ids_',store=False)
+    
+    
+    sheet_name = fields.Char()
+    sheet_name_select = fields.Selection([
+                                   (u'All',u'All'),
+                                   (u'Vô tuyến',u'Vô tuyến'),
+                                   (u'Chuyển mạch',u'Chuyển mạch'),
+                                   (u'Truyền dẫn',u'Truyền dẫn'),
+                                   (u'IP',u'IP'),
+                                   (u'GTGT',u'GTGT'),
+                                   (u'Khác',u'Khác'),
+                                   (u'XFP, SFP các loại',u'XFP, SFP các loại')  ],rejquired=True)
+    
+    
+    sheet_name =  fields.Char()
+    @api.onchange('sheet_name_select')
+    def sheet_name_select_oc_(self):
+        if self.sheet_name_select:
+            self.sheet_name = self.sheet_name_select
+    
     @api.depends('move_line_ids.stock_quant_id')
     def choosed_stock_quants_ids_(self):
         for r in self:
@@ -197,11 +235,21 @@ class StockPicking(models.Model):
     # import file
     file = fields.Binary(string='File Import')
     filename = fields.Char()
-    allow_check_excel_obj_is_exist_func  = fields.Boolean(string=u'Cho phép đối chiếu product excel obj với product exist object')
-    write_when_val_exist  = fields.Boolean()
-    cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat  = fields.Boolean(default=True)
-    cho_phep_co_pn_cap_nhat_empty_pn  = fields.Boolean(default = True)
-    cho_phep_exist_val_before_loop_fields_func = fields.Boolean(default = True)
+    
+#     default_import_xl_setting = {'default_cho_phep_exist_val_before_loop_fields_func':True,
+#              'default_write_when_val_exist':False,
+#              'default_allow_check_excel_obj_is_exist_func':False,
+#              'default_cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat':False,
+#              'default_cho_phep_co_pn_cap_nhat_empty_pn':False,
+#              }
+#    
+    cho_phep_exist_val_before_loop_fields_func = fields.Boolean(default = default_import_xl_setting['default_cho_phep_exist_val_before_loop_fields_func'])
+    write_when_val_exist  = fields.Boolean(default = default_import_xl_setting['default_write_when_val_exist'])
+    allow_check_excel_obj_is_exist_func  = fields.Boolean(string=u'Cho phép đối chiếu product excel obj với product exist object',default = default_import_xl_setting['default_allow_check_excel_obj_is_exist_func'])
+    cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat  = fields.Boolean(default = default_import_xl_setting['default_cho_phep_empty_pn_tuong_duong_voi_pn_duy_nhat'])
+    cho_phep_co_pn_cap_nhat_empty_pn  = fields.Boolean(default = default_import_xl_setting['default_cho_phep_co_pn_cap_nhat_empty_pn'])
+    
+    
     skip_stt = fields.Boolean(u'Skip (bỏ qua) trường STT khi import')
     allow_cate_for_ghi_chu =  fields.Boolean(string=u"Lấy Tiêu đề làm ghi chú")
     range_1 = fields.Integer(string=u'stt dòng tiêu đề đầu')
@@ -215,8 +263,8 @@ class StockPicking(models.Model):
     # có thể xóa
     title_row_for_import = fields.Integer()
     # Download biên bản
-    font_height_table =fields.Integer(default=12)
-    font_height =fields.Integer(default=13)
+    font_height =fields.Integer(default=12,string=u'Font height table')
+    font_height_another =fields.Integer(default=12,string=u'Font height khác')
     is_set_tt_col =  fields.Boolean(string=u'Có cột tình trạng?')
     is_not_show_y_kien_ld =  fields.Boolean(string=u'Không thêm dòng ý kiến lãnh đạo')
     empty_ghi_chu_in_bb =  fields.Boolean(string=u'Tự ghi chú trong BB excel')
@@ -246,9 +294,11 @@ class StockPicking(models.Model):
     @api.model
     def default_get(self,fields):
         default_location_id = self.env.user.department_id.default_location_id.id
+        default_dest_location_id = self.env.user.department_id.default_location_running_id.id
+
         rs = super(StockPicking, self).default_get(fields)
         rs['location_id'] = default_location_id
-        rs['location_dest_id'] =default_location_id
+        rs['location_dest_id'] =default_dest_location_id
         return rs
     #depends
     #  compute show_validate theo is_validate_mode
@@ -331,23 +381,28 @@ class StockPicking(models.Model):
         return res
     #field_view_get
     
+    
+    def domain_for_location(self,res,doc,location_id='location_id',exclude_location_names = (u'Đối tác nhận',u'Điều chỉnh giảm')):
+        doi_tac_nhan_list = self.env['stock.location'].search([('name','in',exclude_location_names)]).mapped('id')
+        domain_exclude = "('id','not in',%s)"%(tuple(doi_tac_nhan_list),)
+        if self.user_has_groups('base.group_erp_manager'):
+            domain = "[('is_kho_cha','=',True),%s]"%domain_exclude
+        else:
+            domain = "['|',('cho_phep_khac_tram_chon','=', True),'&',('is_kho_cha','=',True),('department_id','=', department_id),%s]"%domain_exclude
+        
+        nodes =  doc.xpath("//field[@name='%s']"%location_id)
+        if len(nodes):
+            node = nodes[0]
+            node.set('domain',domain )
+            
     @api.model
     def fields_view_get(self, view_id=None, view_type=False, toolbar=False, submenu=False):
         res = super(StockPicking, self).fields_view_get(view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu)
         if view_type in ['form']:
-            fields = res.get('fields')# không được
-            if self.user_has_groups('base.group_erp_manager'):
-                domain = "[('is_kho_cha','=',True)]"
-            else:
-                domain = "['|',('cho_phep_khac_tram_chon','=', True),'&',('is_kho_cha','=',True),('department_id','=', department_id)]"
-
             doc = etree.XML(res['arch'])
-            nodes =  doc.xpath("//field[@name='location_id']")
-            if len(nodes):
-                node = nodes[0]
-                node.set('domain',domain )
+            self.domain_for_location(res,doc,location_id='location_id',exclude_location_names = (u'Đối tác nhận',u'Điều chỉnh giảm'))
+            self.domain_for_location(res,doc,location_id='location_dest_id',exclude_location_names = (u'Đối tác giao',u'Điều chỉnh tăng'))
             res['arch'] = etree.tostring(doc, encoding='unicode')
-            
         if view_type =='search':
             doc = etree.fromstring(res['arch'])
             nodes =  doc.xpath("//field[@name='location_id']")
@@ -430,7 +485,8 @@ class StockPicking(models.Model):
         if self.is_dl_right_now:
             return {
              'type' : 'ir.actions.act_url',
-             'url': '/web/binary/download_xl_bbbg?model=stock.picking&id=%s'%(self.id),
+#              'url': '/web/binary/download_xl_bbbg?model=stock.picking&id=%s'%(self.id),
+             'url': '/web/binary/download_model/tonkho?download_model=stock.picking&download_model_id=%s&download_key=%s'%(self.id,'write_xl_bb'),
              'target': 'new',
              }
         dl_obj = self
@@ -453,7 +509,8 @@ class StockPicking(models.Model):
         if self.is_dl_right_now:
             return {
              'type' : 'ir.actions.act_url',
-             'url': '/web/binary/download_checked_import_sml_file?model=stock.picking&id=%s'%(self.id),
+#              'url': '/web/binary/download_checked_import_sml_file?model=stock.picking&id=%s'%(self.id),
+             'url': '/web/binary/download_model/tonkho?download_model=stock.picking&download_model_id=%s&download_key=%s'%(self.id,'check_imported_file_sml'),
              'target': 'new',
              }
         dl_obj = self

@@ -4,6 +4,7 @@ from odoo.osv import expression
 import datetime
 import os,inspect,sys
 KHO_SELECTION= [
+                                ('dai',u'Đài'),
                                  ('tram',u'Trạm'),
                                  ('phong_may',u'Phòng máy'),
                                  ('tu',u'Tủ'),

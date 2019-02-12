@@ -16,8 +16,8 @@ text_template,\
 setting,\
 stock_inventory,\
 stock_picking_return,\
-tonkho_download,\
-tonkho_cvi,\
+download_tk,\
+cvi_tk,\
 pn_nhom_brand_thiet_bi
 
 # res_config_setting,\

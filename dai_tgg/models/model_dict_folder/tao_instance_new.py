@@ -17,9 +17,7 @@ from copy import deepcopy
 # VERSION_INFO   = sys.version_info[0]
 
 from odoo.addons.dai_tgg.models.model_dict_folder.model_dict import gen_model_dict
-# from odoo.addons.dai_tgg.models.model_dict import ALL_MODELS_DICT
 from xlutils.copy import copy
-# from odoo.addons.tonkho.controllers.controllers import  get_width
 
 
 
@@ -27,7 +25,8 @@ from xlutils.copy import copy
 ### new ##
 
 
-from odoo.addons.dai_tgg.models.model_dict_folder.tool_tao_instance import not_horiz_center_border_style,read_excel_cho_field,check_is_string_depend_python_version,empty_string_to_False,get_key#,get_width,header_bold_style,VERSION_INFO
+from odoo.addons.dai_tgg.models.model_dict_folder.tool_tao_instance import read_excel_cho_field,check_is_string_depend_python_version,empty_string_to_False,get_key#,get_width,header_bold_style,VERSION_INFO
+from odoo.addons.downloadwizard.models.dl_models.dl_model  import wrap_center_vert_border_style
 from odoo.addons.dai_tgg.models.model_dict_folder.get_or_create_func import get_or_create_object_has_x2m
 from odoo.addons.dai_tgg.models.model_dict_folder.recursive_func import muon_xuat_dac_tinh_gi,ordered_a_model_dict,recursive_add_model_name_to_field_attr,define_col_index,define_col_index,check_xem_att_co_nam_ngoai_khong,write_get_or_create_title,check_col_index_match_xl_title,rut_gon_key
 # from odoo.addons.dai_tgg.models.model_dict_folder.recursive_func import tim_type_cua_attr
@@ -270,7 +269,7 @@ def read_val_for_ci(self,model_name, field_name, set_val,col_index,
                         get_or_create_display = u'Chưa'
                     else:
                         get_or_create_display = u'empty cell'
-                sheet_of_copy_wb.write(row,sheet.ncols + offset_write_xl , get_or_create_display,not_horiz_center_border_style)
+                sheet_of_copy_wb.write(row,sheet.ncols + offset_write_xl , get_or_create_display,wrap_center_vert_border_style)
     return obj,val,True      
 #F1 
 def get_a_field_val(self,field_name,field_attr,key_tram,
@@ -317,6 +316,9 @@ def get_a_field_val(self,field_name,field_attr,key_tram,
     karg = get_key( field_attr,'karg',{})
     if karg ==None:
         karg ={}
+    func_pre_func = field_attr.get('func_pre_func')
+    if func_pre_func:
+        val = func_pre_func(val, needdata,self)
     if func:
         try:
             val = func(val, needdata,**karg)
@@ -387,7 +389,10 @@ def get_a_field_val(self,field_name,field_attr,key_tram,
     valid_field_func = field_attr.get('valid_field_func')
     if valid_field_func:
         valid_field_func(val,obj,needdata,self)
-        
+    
+    
+    
+    
         
     print ("row: ", row,'model_name: ',model_name,'-field: ', field_name, '-val: ', val)
     check_type_of_val(field_attr,val,field_name,model_name)
@@ -471,6 +476,7 @@ def create_instance (self, MODEL_DICT,
                     is_write = True,
 #                     search_func_para={},
                      ):
+        
     key_search_dict = {}
     update_dict = {}
     model_name = get_key(MODEL_DICT, 'model')
@@ -540,7 +546,7 @@ def create_instance (self, MODEL_DICT,
 #                                                    search_func_para=search_func_para,
                                                    
                                                    
-                                                   setting=setting,
+                                                    setting=setting,
                                                     is_search = is_search,
                                                     is_create = is_create,
                                                     is_write = is_write,
@@ -707,6 +713,7 @@ def importthuvien(odoo_or_self_of_wizard,
         COPY_MODEL_DICT = deepcopy(CHOOSED_MODEL_DICT)
         needdata['vof_dict'] = COPY_MODEL_DICT.get('fields') 
         needdata['sheet_name'] = sheet_name
+#         needdata['key_tram'] = key_tram
 #         if key_tram:
 #             rut_gon_key(COPY_MODEL_DICT,key_tram)
         sheet = xl_workbook.sheet_by_name(sheet_name)
@@ -777,14 +784,21 @@ def importthuvien(odoo_or_self_of_wizard,
             workbook_copy = copy(xl_workbook)
             sheet_of_copy_wb = workbook_copy.get_sheet(0)
             write_get_or_create_title(CHOOSED_MODEL_DICT,sheet,sheet_of_copy_wb, row_title_index, key_tram)
+            is_search = True
+            is_create = False
+            is_write = False
         else:
+            is_search = True
+            is_create = True
+            is_write = True
             workbook_copy = None
             sheet_of_copy_wb = None
         #!R7
         
         
         merge_tuple_list =  sheet.merged_cells
-        
+#         if check_file:
+#             raise UserError(u'kkakakaka check file')
         for number_row_count,row in enumerate(range(first_row, last_row)):
             print ('sheet_name*******',sheet_name,'row',row)
 #             COPY_MODEL_DICT_old = deepcopy(COPY_MODEL_DICT)
@@ -794,7 +808,10 @@ def importthuvien(odoo_or_self_of_wizard,
                               check_file = check_file,
                               sheet_of_copy_wb = sheet_of_copy_wb,
 #                               mode_no_create_in_main_instance = mode_no_create_in_main_instance,
-                              setting=setting
+                              setting=setting,
+                               is_search = is_search,
+                                is_create = is_create,
+                                is_write = is_write,
                                )
         model_name = get_key(COPY_MODEL_DICT, 'model')
         

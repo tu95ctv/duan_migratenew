@@ -51,9 +51,7 @@
                                     </div>
                         </div>
                     </div>
-                    
-                    
-                   <div class="col-xs-12 col-md-6 o_setting_box" title="not_allow_check_lot_id_in_different_location">
+                    <div class="col-xs-12 col-md-6 o_setting_box" title="not_allow_check_lot_id_in_different_location">
                         <div class="o_setting_left_pane">
                             <field name="not_allow_check_lot_id_in_different_location" />
                         </div>
@@ -64,8 +62,6 @@
                                     </div>
                         </div>
                     </div>
-                    
-                    
                     <div class="col-xs-12 col-md-6 o_setting_box" title="group_show_thong_tin_khong_dau">
                         <div class="o_setting_left_pane">
                             <field name="group_show_thong_tin_khong_dau" />
@@ -77,9 +73,7 @@
                                     </div>
                         </div>
                     </div>
-                    
-                    
-                      <div class="col-xs-12 col-md-6 o_setting_box" title="write_field_categ_id">
+                    <div class="col-xs-12 col-md-6 o_setting_box" title="write_field_categ_id">
                         <div class="o_setting_left_pane">
                             <field name="write_field_categ_id" />
                         </div>
@@ -90,9 +84,6 @@
                                     </div>
                         </div>
                     </div>
-                    
-                    
-                    
                     <div class="col-xs-12 col-md-6 o_setting_box" title="group write field">
                         <div class="o_setting_left_pane">
                             <field name="group_write_field" />
@@ -104,8 +95,6 @@
                                     </div>
                         </div>
                     </div>
-                    
-                    
                     <div class="col-xs-12 col-md-6 o_setting_box" title="not use default excel import_setting">
                         <div class="o_setting_left_pane">
                             <field name="not_use_default_excel_import_setting" />
@@ -117,26 +106,6 @@
                                     </div>
                         </div>
                     </div>
-                    
-                    
-                    
-           
-                    
-                    
-                    
-                    
-                    <!-- 
-   					    <div class="col-xs-12 col-md-6 o_setting_box" title="font height">
-                        <div class="o_setting_left_pane">
-                            <field name="font_height" />
-                        </div>
-                        <div class="o_setting_right_pane">
-                            <label for="font_height" />
-                            <div class="text-muted">
-                                     Chiều cao của font trong báo cáo
-                                    </div>
-                        </div></div>
-                 -->
                 </xpath>
             </field>
         </record>

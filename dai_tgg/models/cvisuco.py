@@ -8,9 +8,10 @@ class CviSuCo(models.Model):
     
     _name = 'cvisuco'
     _auto = False
-    
+    tvcv_id = fields.Many2one('tvcv', string=u'TVCV/ Loại sự cố/ Loại sự vụ',ondelete='restrict')
+
     is_giao_ca = fields.Boolean(u'Giao ca')
-    cvi_id = fields.Many2one('cvi',u'Sự cố liên quan')
+    cvi_id = fields.Many2one('cvi',u'Sự cố/công việc liên quan')
     cvi_cm_ids = fields.One2many('cvi','cvi_id',u'Công việc, comment liên quan')
     nguyen_nhan     = fields.Char(string=u'Nguyên nhân')
     name = fields.Char(compute='name_',store=True)
@@ -23,25 +24,24 @@ class CviSuCo(models.Model):
 #     department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',required=True,readonly=True,default = lambda self:  self.env.user.department_id.id,ondelete='restrict')
     department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',ondelete='restrict',
 #                                        default= lambda self:self.env.user.department_id.id
-                                    compute="department_id_",store=True
+                                    compute="department_id_",store=True,copy=False
                                     )
     department_ids = fields.Many2many('hr.department', string=u'Đơn vị liên quan' )
     loai_record = fields.Selection([(u'Công Việc',u'Công Việc'),
                                     (u'Sự Cố',u'Sự Cố'),
                                     (u'Sự Vụ',u'Sự Vụ'),
                                     (u'Comment',u'Comment')
-                                    ], string = u'Loại Record')
+                                    ], string = u'Loại Record',default=u'Công Việc')
     loai_record_show =  fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record',compute='loai_record_show_')
     ngay_bat_dau =  fields.Date(compute='ngay_bat_dau_',store=True,string=u'Ngày')
     gio_bat_dau = fields.Datetime(string=u'Giờ bắt đầu', default=fields.Datetime.now)
     gio_ket_thuc = fields.Datetime(string=u'Giờ Kết Thúc',default=fields.Datetime.now)
     duration = fields.Float(digits=(6, 1), help='Duration in Hours',compute = '_get_duration', store = True,string=u'Thời lượng (giờ)')
-    user_id = fields.Many2one('res.users',default =  lambda self: self.env.uid, readonly=True, string=u'Nhân viên tạo',required=True)   
+    user_id = fields.Many2one('res.users',default =  lambda self: self.env.uid, readonly=True, string=u'Nhân viên tạo',required=True,copy=False)   
 #     ctr_ids  = fields.Many2many('ctr','ctr_cvi_relate','cvi_id','ctr_id',string=u'Ca Trực')
     
-    ctr_id  = fields.Many2one('ctr',string=u'Ca Trực')
+    ctr_id  = fields.Many2one('ctr',string=u'Ca Trực',copy=False)
 #     ctr_show = fields.Char(compute='ctr_show_',string=u'Số ca trực')
-    tvcv_id = fields.Many2one('tvcv', string=u'TVCV/ Loại sự cố/ Loại sự vụ',ondelete='restrict')
 #     comment_ids = fields.One2many('cvi','cvi_id',string=u'Comments')
 #     comments_show = fields.Char(compute='comments_show_',string=u'Comments')
     trig_field = fields.Boolean()

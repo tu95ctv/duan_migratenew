@@ -8,8 +8,7 @@ import xlrd, xlwt
 from odoo.addons.dai_tgg.mytools import  convert_odoo_datetime_to_vn_str
 from collections import  OrderedDict
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  write_all_row,generate_easyxf
-# from odoo.addons.tonkho.controllers.controllers import  download_ml_for_bb
-# from odoo.addons.tonkho.controllers.controllers import  get_width
+
 
 from odoo.addons.tonkho.models.dl_models.dl_model_ml import  download_ml_for_bb
 from odoo.addons.downloadwizard.models.dl_models.dl_model import  get_width
@@ -17,8 +16,7 @@ from odoo.addons.downloadwizard.models.dl_models.dl_model import\
 vert_center_style,\
 bold_center_style,\
 center_style,\
-center_underline_style,\
-bbbg_style,\
+bold_center_18_style,\
 wrap_normal_style
 
 
@@ -40,7 +38,7 @@ def write_merge_cell(row,col,merge_tuple_list):
 #         )
 #     return w.output[0][1], w.style_list
 
-def table_(ws,f_name,fixups,needdata,row,dl_obj,IS_SET_TT_COL=False,all_tot_and_ghom_all_tot=False,font_height=12):
+def table_bien_ban_(ws,f_name,fixups,needdata,row,dl_obj,IS_SET_TT_COL=False,all_tot_and_ghom_all_tot=False,font_height=12):
     nrow = download_ml_for_bb(dl_obj, 
                                worksheet=ws,
                                row_index=row,
@@ -121,14 +119,14 @@ def xac_nhan_lanh_dao_(ws,f_name,fixups,needdata,row,dl_obj):
 #     
     
 def write_xl_bb(dl_obj):
-    font_height = dl_obj.font_height
-    wrap_normal_style = xlwt.easyxf(generate_easyxf(height=font_height,align_wrap=True))  
-    bold_center_style = xlwt.easyxf(generate_easyxf(height=font_height, vert = 'center',horiz = 'center',bold=True))
-    bbbg_style = xlwt.easyxf(generate_easyxf(bold=True,height=18 + (font_height-12) , vert = 'center',horiz = 'center'))
-    font_height_table =dl_obj.font_height_table
+    font_height_another = dl_obj.font_height_another
+    wrap_normal_style = xlwt.easyxf(generate_easyxf(height=font_height_another,align_wrap=True))  
+    bold_center_style = xlwt.easyxf(generate_easyxf(height=font_height_another, vert = 'center',horiz = 'center',bold=True))
+    bold_center_18_style = xlwt.easyxf(generate_easyxf(bold=True,height=18 + (font_height_another-12) , vert = 'center',horiz = 'center'))
+    font_height_table =dl_obj.font_height
 
     def ong_ba_(ws,f_name,fixups,needdata,row,dl_obj,source_member_ids='source_member_ids'):
-        vert_center_style = xlwt.easyxf(generate_easyxf(vert = 'center',height=font_height))
+        vert_center_style = xlwt.easyxf(generate_easyxf(vert = 'center',height=font_height_another))
         nrow = 0
         for c,i in enumerate(getattr(dl_obj,source_member_ids)):
             nrow +=1
@@ -160,7 +158,7 @@ def write_xl_bb(dl_obj):
                     ('chxhcnvn',{'range':[0,0,3,7],'val':u'CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', 'style':xlwt.easyxf(generate_easyxf(bold=True,height=12, vert = 'center',horiz = 'center'))}),
                     ('dltdhp',{'range':[1,1,3,7],'val':u'Độc lập - Tự do - Hạnh Phúc', 'style':xlwt.easyxf(generate_easyxf(bold=True,underline=True,height=12, vert = 'center',horiz = 'center'))}),
                     ('so',{'range':[2,2,0,2],'val':u'Số: %s/%s-%s'%(dl_obj.stt_trong_bien_ban_in,dl_obj.ban_giao_or_nghiem_thu,dl_obj.department_id.short_name), 'style':xlwt.easyxf(generate_easyxf(height=12, vert = 'center',horiz = 'center'))}),
-                    ('bbg',{'range':[3,3,0,7],'val':u'BIÊN BẢN BÀN GIAO VẬT TƯ', 'style':bbbg_style,'height':1119,'off_set':1}),
+                    ('bbg',{'range':[3,3,0,7],'val':u'BIÊN BẢN BÀN GIAO VẬT TƯ', 'style':bold_center_18_style,'height':1119,'off_set':1}),
                     ('to_trinh',{'range':[5,5,0,7],'val':None, 'val_func': to_trinh_ ,'height':600,'style':wrap_normal_style}),
                     ('hom_nay',{'range':[6,0],'val':None, 'val_func': hom_nay_ }),
 #                     ('ddbg',{'range':[8,0],'val':u'Đại diện bên giao%s'%(' (%s)'%dl_obj.location_id.partner_id_of_stock_for_report.name if dl_obj.location_id.partner_id_of_stock_for_report  else '' )}),
@@ -175,7 +173,7 @@ def write_xl_bb(dl_obj):
                     
                     
                     
-                    ('table',{'range':['auto', 0],'val':None,'func':table_ ,'offset':2 ,
+                    ('table',{'range':['auto', 0],'val':None,'func':table_bien_ban_ ,'offset':2 ,
                               'kargs': {'IS_SET_TT_COL':IS_SET_TT_COL,'all_tot_and_ghom_all_tot':all_tot_and_ghom_all_tot,'font_height':font_height_table}}),
                     
                     
@@ -211,7 +209,7 @@ def write_xl_bb(dl_obj):
     
     
     
-    wb = write_all_row(fixups,dl_obj,set_cols_width,font_height=font_height)
+    wb = write_all_row(fixups,dl_obj,set_cols_width,font_height=font_height_another)
     filename = '%s_%s_%s'%(dl_obj.department_id.short_name,dl_obj.ban_giao_or_nghiem_thu,dl_obj.stt_trong_bien_ban_in)
     name = "%s%s" % (filename, '.xls')
     return wb,name

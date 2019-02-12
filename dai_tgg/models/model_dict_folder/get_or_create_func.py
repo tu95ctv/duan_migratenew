@@ -20,7 +20,7 @@ def get_or_create_object_has_x2m (self, class_name, search_dict,
                                  exist_val=False,
 #                                  search_func_para={},
                                  setting= {},
-                                 check_file = True,
+                                check_file = False,
                                 is_search = True,
                                 is_create = True,
                                 is_write = True,
@@ -193,12 +193,11 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
             return return_obj,get_or_create
     allow_write_all_field = setting['allow_write']
     if is_write  :  
-        print ('class_name',class_name,'write_dict',write_dict)
         if exist_val:
             searched_object = exist_val
         if searched_object :# write
             if len(searched_object) > 1:
-                raise UserError (u' len(searched_object) > 1, domain: %s'%(domain))
+                raise UserError (u' exist_val: %s len(searched_object) > 1, searched_object: %s'%(exist_val,searched_object))
             for f_name,val in write_dict.items():
                 field_attr = model_dict['fields'][f_name]
                 f_name = get_key(field_attr, 'transfer_name') or f_name
@@ -240,7 +239,7 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
                     diff = check_diff_write_val_with_exist_obj(orm_field_val,val)
                     if diff:
                         if raise_if_diff:
-                            raise UserError(u'model:%s-f_name:%s - orm_field_val: %s -  val:%s '%(class_name,f_name,orm_field_val,val))
+                            raise UserError(u'raise_if_diff model:%s-f_name:%s - orm_field_val: %s -  val:%s '%(class_name,f_name,orm_field_val,val))
                         if write_field:
                             write_dict_new[f_name] = val
                         
@@ -255,7 +254,6 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
             else:#'not update'
                 this_model_noti_dict['skipupdate'] = this_model_noti_dict.get('skipupdate',0) + 1
         
-#     if is_return_get_or_create:
     return return_obj, get_or_create# bool(searched_object)
 
 def check_diff_write_val_with_exist_obj(orm_field_val,field_dict_val):

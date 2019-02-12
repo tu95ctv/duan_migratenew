@@ -45,7 +45,7 @@ class Thuebao(models.Model):
 #     _rec_name = 'date'
     date = fields.Date(required=True)
     name =  fields.Char(compute='name_')
-    thuebaoline_ids =  fields.One2many('dai_tgg.thuebaoline','thuebao_id',copy=True)
+    thuebaoline_ids =  fields.One2many('dai_tgg.thuebaoline','thuebao_id',copy=True,string=u'Các dòng thuê bao')
     @api.depends('date')
     def name_(self):
         for r in self:

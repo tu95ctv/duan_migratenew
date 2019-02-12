@@ -20,6 +20,16 @@ class StockLocation(models.Model):
     complete_name_khong_dau = fields.Char(compute='complete_name_khong_dau_',store=True, string=u'Tên đầy đủ không dấu')
 #     not_show_in_bb =  fields.Boolean()
 
+    @api.one
+    @api.depends('name', 'location_id.complete_name')
+    def _compute_complete_name(self):
+        """ Forms complete name of location from parent location to child location. """
+        if self.location_id.stock_type !=u'dai' and self.location_id.complete_name:
+            self.complete_name = '%s/%s' % (self.location_id.complete_name, self.name)
+        else:
+            self.complete_name = self.name
+            
+            
     @api.depends('complete_name','stock_type')
     def complete_name_khong_dau_(self):
         for r in self:
@@ -48,10 +58,27 @@ class StockLocation(models.Model):
                 raise UserError(_('You have to set a name for this location.'))
             name = location.get_name_with_type() + "/ " + name
         return name
+    
+#     def name_get_1_record(self):
+#         location = self
+#         name = location.get_name_with_type()
+#         parent_id = location.location_id 
+#         while parent_id and location.usage != 'view':
+# #             location = location.location_id
+#             if not name:
+#                 raise UserError(_('You have to set a name for this location.'))
+#             name = parent_id.get_name_with_type() + "/ " + name
+#             parent_id = parent_id.location_id
+#         return name
+    
+    
 #     
     def name_get(self):
         ret_list = []
         show_loc_type = self._context.get('show_loc_type')
+#         show_loc_type = False
+#         not_show_loc_type = self._context.get('not_show_loc_type')
+#         show_loc_type = False
         for location in self:
             if  show_loc_type:
                 name = location.name_get_1_record()
@@ -62,6 +89,7 @@ class StockLocation(models.Model):
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
+        print ("***self._context",self._context)
         limit = 100
         product_id_for_search_quant_d4 = self._context.get('product_id_for_search_quant_d4')
         if product_id_for_search_quant_d4:

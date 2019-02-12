@@ -258,8 +258,8 @@ class Cvi(models.Model):
 #     cvi_lien_quan_ids = fields.Many2many('cvi','cvi_cvi_relate','cvi_id','cvi_lien_quan_id', string=u'Công Việc/Sự Cố/ Sự Vụ Liên quan')
     gd_parent_id = fields.Many2one('cvi',string=u'Công Việc Giai Đoạn Cha',ondelete='cascade')
     gd_children_ids = fields.One2many('cvi','gd_parent_id',string=u'Các CV Giai Đoạn Con')
-    cd_parent_id = fields.Many2one('cvi',string=u'Công Việc Chia Điểm Cha',ondelete='cascade')# ondelete='restrict' #ondelete='cascade', ondelete='set null'
-    cd_children_ids = fields.One2many('cvi','cd_parent_id',string=u'Các CV Chia Điểm Con')
+    cd_parent_id = fields.Many2one('cvi',string=u'Công Việc Chia Điểm Cha',ondelete='cascade',copy=False)# ondelete='restrict' #ondelete='cascade', ondelete='set null'
+    cd_children_ids = fields.One2many('cvi','cd_parent_id',string=u'Các CV Chia Điểm Con',copy=False)
     hd_parent_id = fields.Many2one('cvi',string=u'Công Việc Hưởng điểm Cha',ondelete='cascade')# ondelete='restrict' #ondelete='cascade', ondelete='set null'
     hd_children_ids = fields.One2many('cvi','hd_parent_id',string=u'Các CV Hưởng Điểm Con')
     diem_goc = fields.Float(digits=(6,2),string=u'Điểm Góc',compute='diem_goc_',store=True)# 
@@ -283,7 +283,7 @@ class Cvi(models.Model):
                                   (u'Thiếu giai đoạn',u'Thiếu giai đoạn'),
                                   (u'Thiếu giai đoạn và Chia điểm không đủ 100%',u'Thiếu giai đoạn và Chia điểm không đủ 100%'),
                                   (u'Kiểm tra điểm OK',u'Kiểm tra điểm OK'),         
-                                                           ],compute='valid_diemtc_',store=True,string=u'Kết luận Valid')
+                                                           ],compute='valid_diemtc_',store=True,string=u'Kiểm tra điểm')
     
     #MIDLE FIELD , Trung gian
     len_gd_child = fields.Integer(compute='len_gd_child_',store=True)
@@ -294,6 +294,13 @@ class Cvi(models.Model):
     is_has_tvcv_con = fields.Boolean(compute='is_has_tvcv_con_')
     thu_vien_da_chon_list = fields.Char(compute='thu_vien_da_chon_list_')   
     cd_user_id = fields.Char(compute='cd_user_id_')  
+    
+#     is_diem_tv_change = fields.Boolean(compute = 'is_diem_tv_change_',u'có thay đổi điểm thư viện')
+#     
+#     @api.depends()
+#     def is_diem_tv_change_(self):
+#         self.is_diem_tv_change = self.tvcv_id.diem != self.diem_tvi
+        
 #     context_get =  fields.Text(compute='context_get_')
     
     
@@ -307,13 +314,12 @@ class Cvi(models.Model):
     @api.onchange('loai_record','tvcv_id')
     def tvcv_id_oc_(self):
         member_ids = self._context.get('member_ids')
-        print ('**member_ids',member_ids)
         if self.loai_record==u'Công Việc' and member_ids !=None:
             if not self.cd_children_ids:
                 member_ids = member_ids[0][2]#[[6, False, [1, 46]]]
                 member_ids = [member_id for member_id in member_ids if member_id != self.user_id.id]
                 if member_ids:
-                    rt = list(map(lambda m:(0,0,{'user_id':m,'loai_record':u'Công Việc'}),member_ids))
+                    rt = list(map(lambda m:(0,0,{'user_id':m,'loai_record':u'Công Việc','percent_diemtc':100}),member_ids))
                     return {'value':
                             {'cd_children_ids':rt
                              }
@@ -448,7 +454,9 @@ class Cvi(models.Model):
     def len_gd_child_(self):
         for r in self:
             r.len_gd_child = len(r.gd_children_ids)
-    @api.depends('tvcv_id.diem','so_luong','so_lan','len_gd_child')
+            
+#     @api.depends('tvcv_id.diem','so_luong','so_lan','len_gd_child')
+    @api.depends('diem_tvi','so_luong','so_lan','len_gd_child')
     @skip_depends_if_not_congviec_decorator
     def diem_remain_gd_(self):
         for r in self:
@@ -462,7 +470,8 @@ class Cvi(models.Model):
                     diem_remain_gd = 0
                 r.diem_remain_gd = diem_remain_gd
  
-    @api.depends('so_luong','so_lan', 'tvcv_id.diem','gd_parent_id.diem_remain_gd','loai_record')
+#     @api.depends('so_luong','so_lan', 'tvcv_id.diem','gd_parent_id.diem_remain_gd','loai_record')# mới sửa ngày 15/1
+    @api.depends('so_luong','so_lan', 'diem_tvi','gd_parent_id.diem_remain_gd','loai_record')
     @skip_depends_if_not_congviec_decorator
     def diem_goc_(self):
         for r in self:
@@ -722,19 +731,15 @@ class Cvi(models.Model):
     @api.constrains('slncl')
     @skip_depends_if_not_congviec_decorator
     def slncl_constrains(self):
-#         if  self._context['from_import']:
-#             raise UserError(u'kakaka')
         for r in self:
-#             print 'fields.Datetime.from_string(r.write_date)',fields.Datetime.from_string(r.write_date),'fields.Datetime.from_string(r.create_date)',fields.Datetime.from_string(r.create_date)
-#             if r.slncl > 1 and fields.Datetime.from_string(r.create_date)  == fields.Datetime.from_string(r.write_date):
-            if  fields.Datetime.from_string(r.create_date)  == fields.Datetime.from_string(r.write_date):
-                if not self._context.get('from_import'):
-                    ti_le_chia_diem = 100.0/r.slncl
-                    r.ti_le_chia_diem = ti_le_chia_diem
-                if r.cd_parent_id:
-                    r.cd_parent_id.write({'ti_le_chia_diem':ti_le_chia_diem})
-                    r.cd_parent_id.cd_children_ids.write({'ti_le_chia_diem':ti_le_chia_diem})
-#                 print 'ti_le_chia_diem',ti_le_chia_diem,'r.ti_le_chia_diem',r.ti_le_chia_diem,'r.ti_le_chia_diem==ti_le_chia_diem',r.ti_le_chia_diem==ti_le_chia_diem,'r.ti_le_chia_diem==33.33',r.ti_le_chia_diem==33.33
+#             if r.loai_record ==u'Công Việc':
+                if  fields.Datetime.from_string(r.create_date)  == fields.Datetime.from_string(r.write_date):
+                    if not self._context.get('from_import'):
+                        ti_le_chia_diem = 100.0/r.slncl
+                        r.ti_le_chia_diem = ti_le_chia_diem
+                    if r.cd_parent_id:
+                        r.cd_parent_id.write({'ti_le_chia_diem':ti_le_chia_diem})
+                        r.cd_parent_id.cd_children_ids.write({'ti_le_chia_diem':ti_le_chia_diem})
                 
     @api.constrains('loai_record','user_id')
     def user_id_constrains(self):
