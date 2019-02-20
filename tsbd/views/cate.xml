@@ -10,11 +10,14 @@
                 	<header>
                     <button name="trig" string="trig" type="object"  class="oe_highlight" ></button> 
                     <button name="bxh" string="bxh" type="object"  class="oe_highlight" ></button> 
+                    <button name="clear_bxh" string="clear_bxh" type="object"  class="oe_highlight" ></button> 
                 </header>
                 
                 	<group>
                		<field name="name"></field>
+               		<field name="cate_id"></field>
                		<field name="cate_ids"></field>
+               		<field name="bang_match_ids"></field>
                		<field name="match_ids"></field>
                		</group>
                     </sheet>

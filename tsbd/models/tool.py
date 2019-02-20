@@ -14,62 +14,7 @@ import datetime
 from odoo.osv import expression
 from odoo.exceptions import UserError
 
-def get_or_create_object_sosanh_old(self, class_name, search_dict,
-                                write_dict ={},is_must_update=False, noti_dict=None,
-                                inactive_include_search = False):
-    
-    
-    if noti_dict !=None:
-        this_model_noti_dict = noti_dict.setdefault(class_name,{})
-    else:
-        this_model_noti_dict = None
-    if inactive_include_search:
-        domain_not_active = ['|',('active','=',True),('active','=',False)]
-    else:
-        domain_not_active = []
-    domain = []
-    for i in search_dict:
-        tuple_in = (i,'=',search_dict[i])
-        domain.append(tuple_in)
-    domain = expression.AND([domain_not_active, domain])
-    searched_object  = self.env[class_name].search(domain)
-    if not searched_object:
-        search_dict.update(write_dict)
-        #print '***search_dict***',search_dict
-        created_object = self.env[class_name].create(search_dict)
-        if this_model_noti_dict !=None:
-            this_model_noti_dict['create'] = this_model_noti_dict.get('create', 0) + 1
-        return_obj =  created_object
-    else:
-        if not is_must_update:
-            is_write = False
-            for f_name in write_dict:
-                field_dict_val = write_dict[f_name]
-                orm_field_val = getattr(searched_object, f_name,None)
-                if orm_field_val ==None:
-                    continue
-                try:
-                    converted_orm_val_to_dict_val = getattr(orm_field_val, 'id', orm_field_val)
-                    if converted_orm_val_to_dict_val == None: #recorderset.id ==None when recorder sset = ()
-                        converted_orm_val_to_dict_val = False
-                except:#not singelton
-                    pass
-                if isinstance(orm_field_val, datetime.date):
-                    converted_orm_val_to_dict_val = fields.Date.from_string(orm_field_val)
-                if converted_orm_val_to_dict_val != field_dict_val:
-                    is_write = True
-                    break
-        else:
-            is_write = True
-        if is_write:
-            searched_object.write(write_dict)
-            if this_model_noti_dict !=None:
-                this_model_noti_dict['update'] = this_model_noti_dict.get('update',0) + 1
-        else:#'not update'
-            if this_model_noti_dict !=None:
-                this_model_noti_dict['skipupdate'] = this_model_noti_dict.get('skipupdate',0) + 1
-        return_obj = searched_object
-    return return_obj
+
 def get_key(field_attr, attr,default_if_not_attr=None):
     return field_attr.get(attr,default_if_not_attr)
 def check_diff_write_val_with_exist_obj(orm_field_val,field_dict_val):
@@ -201,7 +146,7 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
             searched_object = exist_val
         if searched_object :# write
             if len(searched_object) > 1:
-                raise UserError (u' exist_val: %s len(searched_object) > 1, searched_object: %s, %s'%(exist_val,searched_object, searched_object.mapped('name')))
+                raise ValueError (u' exist_val: %s len(searched_object) > 1, searched_object: %s, %s'%(exist_val,searched_object, searched_object.mapped('id')))
             for f_name,val in write_dict.items():
                 try:
                     field_attr = model_dict['fields'][f_name]
@@ -264,12 +209,14 @@ def get_or_create_object_sosanh(self, class_name, search_dict,
                 this_model_noti_dict['skipupdate'] = this_model_noti_dict.get('skipupdate',0) + 1
         
     return return_obj# bool(searched_object)
+class GethtmlError(Exception):
+    pass
 
 def request_html(url):
     headers = { 'User-Agent' : 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36' }
     count_fail = 0
     while 1:
-        print ('dang get %s'%url)
+        print ('dang get url: %s'%url)
         try:
             if VERSION_INFO == 3:
                 req = url_lib.Request(url, None, headers)
@@ -286,5 +233,5 @@ def request_html(url):
             count_fail +=1
             sleep(5)
             if count_fail ==5:
-                raise ValueError(u'error when get html')
+                raise GethtmlError(u'%s'%url)
             

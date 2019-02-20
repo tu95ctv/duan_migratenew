@@ -20,6 +20,7 @@
                     <button name="leech_a_match" string="leech_a_match" type="object"  class="oe_highlight" ></button> 
                     <button name="leech_all_match" string="leech_all_match" type="object"  class="oe_highlight" ></button>
                     <button name="leech_all_season" string="leech_all_season" type="object"   ></button>
+                    <button name="leech_all_season_auto_get_period" string="leech_all_season_auto_get_period" type="object"   ></button>
                     <button name="test" string="Test" type="object"  class="oe_highlight" ></button> 
                     <button name="clean_match" string="clean_match" type="object"  class="oe_highlight" ></button> 
                     <button name="trig" string="trig" type="object"  class="oe_highlight" ></button> 

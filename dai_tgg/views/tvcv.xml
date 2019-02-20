@@ -92,6 +92,11 @@
                      <field name="children_ids" context="{'you_at_thu_vien_con':True, 'default_loai_record':'Công Việc',}" attrs="{'invisible':[('co_cong_viec_cha','=',True)]}" />
                      </group>
                   </group>
+                  <div class="oe_chatter">
+                       <!--  <field name="message_follower_ids" widget="mail_followers" groups="base.group_user" />
+                        <field name="activity_ids" widget="mail_activity" /> -->
+                        <field name="message_ids" widget="mail_thread" />
+                    </div>
                </sheet>
             </form>
          </field>
@@ -109,7 +114,7 @@
                 <field name="name_viet_tat" groups="base.group_erp_manager"/>
                  -->
                <field name="code" />
-               <field name="state"></field>
+               <!-- <field name="state"></field> -->
                <field name="department_id"></field>
                <field name="cong_viec_cate_id" />
                <field name="don_vi" />

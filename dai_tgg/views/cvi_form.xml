@@ -50,8 +50,7 @@
                        <field name="loai_record" attrs="{'invisible':[('tvcv_id','!=',False)],'required':True}" invisible="context.get('default_loai_record')" /> 
                         <field name="loai_record_show" attrs="{'invisible':[('tvcv_id','=',False)]}" invisible="context.get('default_loai_record')" />
                         <field name="user_id" readonly="1"  attrs="{'invisible':[('loai_record','!=','Công Việc')]}" /> <!-- 'readonly':[('is_admin','=', False),('cam_sua','=', True)], -->
-                        <field name="department_id" attrs="{'readonly':[('is_admin','=', False)]}" /><!--  attrs="{'readonly':[('is_admin','=', False)]}"   -->
-                        
+                        <field name="department_id"/><!--   attrs="{'readonly':[('is_admin','=', False)]}" "   -->
                         <field name="cd_parent_id" readonly="1" attrs="{'invisible':[('cd_parent_id','=',False)]}" />
                         <field name="gd_parent_id" readonly="1" attrs="{'invisible':[('gd_parent_id','=',False)]}" />
                         <field name="hd_parent_id" readonly="1" attrs="{'invisible':[('hd_parent_id','=',False)]}" />
@@ -60,7 +59,6 @@
                     	<field name="cvi_id" readonly="context.get('default_cvi_id')" ></field>
                     	<field name="ctr_id" readonly="1"/>
                     	<field name="is_giao_ca"/>
-                    	<!-- <field name="context_get" groups="base.group_erp_manager"/> -->
                      </group>
                      <group>
                         <field name="ngay_bat_dau" invisible="1" />
@@ -133,7 +131,6 @@
                               <field name="cam_sua" invisible="1" />
                               <field name="is_admin" invisible="1" />
                               <field name="is_sep" invisible="1" />
-                             <!--  <field name="user_id" attrs="{'readonly':[('cam_sua','=',True)],'required':True}" context="{'cd_user_id':parent.get('cd_user_id')}" domain="['|','|',('department_id','=',parent.department_id),('department_id','child_of',parent.department_id),('department_id','parent_of',parent.department_id)]" /> -->
                              <field name="user_id"  attrs="{'readonly':[('cam_sua','=',True)],'required':True}" 
                               domain="[('department_id','=',parent.department_id)]" />
                              <field name="department_id"></field>

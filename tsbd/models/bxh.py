@@ -4,10 +4,7 @@ from odoo import models, fields, api
 from odoo.exceptions import UserError
 from datetime import datetime, timedelta
 from odoo.addons.tsbd.models.tool import  request_html
-# from odoo.addons.tsbd.models.leech import  detail_match
-
 from bs4 import BeautifulSoup
-# import re
 
 class BXH(models.Model):
     _name = 'tsbd.bxh'
@@ -40,6 +37,7 @@ class BXH(models.Model):
     away_th = fields.Integer()
     away_match_number =  fields.Integer()
     diem = fields.Integer(compute='diem_', store=True)
+    diem_dd = fields.Integer()
     score_sum = fields.Integer(compute='score_sum_',store=True)
     lost_score_sum = fields.Integer(compute='score_sum_',store=True)
     @api.depends('away_tg','home_tg')

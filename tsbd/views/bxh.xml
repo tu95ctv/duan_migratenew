@@ -9,6 +9,7 @@
                     <field name="stt"></field>
                     <field name="match_number" />
                     <field name="diem" />
+                    <field name="diem_dd" />
                     <field name="hsbt" />
                     <field name="score_sum" />
                     <field name="lost_score_sum" />

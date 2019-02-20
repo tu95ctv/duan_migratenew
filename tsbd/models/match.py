@@ -18,7 +18,6 @@ from odoo.addons.tsbd.models.bet import handicap_winning_
 class Team(models.Model):
     _name='tsbd.team'
     name = fields.Char()
-    
     @api.multi
     def name_get(self):
         rs = []
@@ -35,131 +34,7 @@ class Team(models.Model):
     
     
     
- 
-class Cate(models.Model):  
-    _name = 'tsbd.cate' 
-    name = fields.Char()
-    match_ids = fields.One2many('tsbd.match', 'cate_id')
-    cate_ids = fields.One2many('tsbd.bxh','cate_id')
-    @api.multi
-    def trig(self):
-        matchs= self.env['tsbd.match'].search([])
-        matchs.write({'trig':True})
-    @api.multi
-    def bxh(self):
-        nha_khach_hoa_rt = []
-       
-        rt_home_goal = {}
-        rs = self.env['tsbd.match'].read_group([(('cate_id','=', self.id)),('state','!=', u'Chưa bắt đầu')],['team1','score1', 'score2'],['team1'], lazy=False)
-        for ateam in rs:
-            ateams = {}
-            ateams['home_match_number'] = ateam['__count']
-            ateams['team'] = ateam['team1']
-            ateams['score1'] = ateam['score1']
-            ateams['score2'] = ateam['score2']
-            rt_home_goal[ateam['team1'][0]] = ateams
-            
-        
-        rt_away_goal = {}
-        rs = self.env['tsbd.match'].read_group([(('cate_id','=', self.id)),('state','!=', u'Chưa bắt đầu')],['team2','score1', 'score2'],['team2'], lazy=False)
-        for ateam in rs:
-            ateams = {}
-            ateams['away_match_number'] = ateam['__count']
-            ateams['team'] = ateam['team2']
-            ateams['score1'] = ateam['score1']
-            ateams['score2'] = ateam['score2']
-            rt_away_goal[ateam['team2'][0]] = ateams
-            
-            
-            
-        
-        rt_home_win= {}
-        rs = self.env['tsbd.match'].read_group([(('cate_id','=', self.id)),('state','!=', u'Chưa bắt đầu')],['team1','winner','score1', 'score2'],['team1', 'winner'], lazy=False)
-        for ateam in rs:
-            if ateam['team1'] == ateam['winner']:
-                ateams = {}
-                ateams['team'] = ateam['team1']
-                ateams['home_win_count'] = ateam['__count']
-                ateams['score1'] = ateam['score1']
-                ateams['score2'] = ateam['score2']
-                rt_home_win[ateam['team1'][0]] = ateams
-        nha_khach_hoa_rt.append(rt_home_win)  
-        
-        
-        rt_away_win= {}
-        rs = self.env['tsbd.match'].read_group([(('cate_id','=', self.id)),('state','!=', u'Chưa bắt đầu')],['team2','winner','score1', 'score2'],['team2', 'winner'], lazy=False)
-        for ateam in rs:
-            if ateam['team2'] == ateam['winner']:
-                ateams = {}
-                ateams['team'] = ateam['team2']
-                ateams['away_win_count'] = ateam['__count']
-                ateams['score1'] = ateam['score1']
-                ateams['score2'] = ateam['score2']
-                rt_away_win[ateam['team2'][0]] = ateams
-        nha_khach_hoa_rt.append(rt_away_win)  
-        
-        
-        
-        
-        #san nhà
-        rt_home_draw = {}
-        rs = self.env['tsbd.match'].read_group([(('cate_id','=', self.id)),('state','!=', u'Chưa bắt đầu'),('winner','=', False),('loser','=', False)],['team1','score1', 'score2'],['team1'], lazy=False)
-        for ateam in rs:
-            ateams = {}
-            ateams['team'] = ateam['team1']
-            ateams['home_draw_count'] = ateam['__count']
-            ateams['score1'] = ateam['score1']
-            ateams['score2'] = ateam['score2']
-            rt_home_draw[ateam['team1'][0]] = ateams
-        nha_khach_hoa_rt.append(ateams)  
-        
-        #san khach
-        rt_away_draw = {}
-        rs = self.env['tsbd.match'].read_group([(('cate_id','=', self.id)),('state','!=', u'Chưa bắt đầu'),('winner','=', False),('loser','=', False)],['team2','score1', 'score2'],['team2'], lazy=False)
-        
-        for ateam in rs:
-            ateams = {}
-            ateams['team'] = ateam['team2']
-            ateams['away_draw_count'] = ateam['__count']
-            ateams['score1'] = ateam['score1']
-            ateams['score2'] = ateam['score2']
-            
-            rt_away_draw[ateam['team2'][0]] = ateams
-        
-        nha_khach_hoa_rt.append(rt_away_draw)  
-        rs = {}
-        
-        sum_teams = {}
-        bxh_ids = []
-        for team,ateam  in rt_home_win.items():
-            new_ateam = {}
-#             new_ateam['team'] = team
-            new_ateam['home_t'] = ateam['home_win_count']
-            new_ateam['away_t'] = rt_away_win.get(team, {}).get('away_win_count',0)
-           
-            new_ateam['home_h'] = rt_home_draw.get(team, {}).get('home_draw_count',0)
-            new_ateam['away_h'] = rt_away_draw.get(team, {}).get('away_draw_count',0)
-            
-            new_ateam['home_tg'] = rt_home_goal.get(team, {}).get('score1',0)
-            new_ateam['home_th'] = rt_home_goal.get(team, {}).get('score2',0)
-            new_ateam['home_match_number'] = rt_home_goal.get(team, {}).get('home_match_number',0)
 
-            new_ateam['away_tg'] = rt_away_goal.get(team, {}).get('score2',0)
-            new_ateam['away_th'] = rt_away_goal.get(team, {}).get('score1',0)
-            new_ateam['away_match_number'] = rt_away_goal.get(team, {}).get('away_match_number',0)
-            new_ateam['cate_id'] = self.id
-            
-            bxh_id = get_or_create_object_sosanh(self,'tsbd.bxh', {'team_id':team}, new_ateam,is_must_update = True)
-            bxh_ids.append(bxh_id.id)
-            sum_teams[team] = new_ateam
-            
-#         self.bxh_ids = [(6,0,bxh_ids)]
-#         leech_ids
-        bxh_ids = self.env['tsbd.bxh'].search([('cate_id','=',self.id)])
-        for stt,r in enumerate(bxh_ids) :
-            r.stt = stt +1
-#         self.log = ''
-#         self.log1 = u'%s - %s - %s - %s'%(len(rt_home_win), len(rt_away_win), len(rt_home_draw), len(rt_away_draw))
         
         
 class BetScore(models.Model):
@@ -199,6 +74,55 @@ sign = lambda x: (-1, 1)[x > 0]
 class Match(models.Model):
     _name = 'tsbd.match'
     _order = 'date desc'
+    
+    @api.multi
+    def create_match_for_test(self):
+        m = self.env['tsbd.match'].create({'team1':1,'score1':False})
+        print ('match',m)
+        
+    @api.multi
+    def get_infor_test(self):
+        for r in self:
+            team_match_limit = r.team_match_limit
+            limit = team_match_limit and u'limit %s'%r.team_match_limit or ''
+            limit = ''
+            team =r.team1.id
+            rs = 0
+            for number_team in [1,2]:
+#                 where =  'team%(team)s = %(team_id)s'
+                where =  'team1 = %(team_id)s or team2 = %(team_id)s'%{'team_id':team}
+                have =  'having A.team%(team)s= %(team_id)s'%{'team':number_team,'team_id':team}
+                sql_query = '''select A.team%(team)s,sum(A.handicap_wl%(team)s) from (select team%(team)s, handicap_wl%(team)s from tsbd_match  where %(where)s %(limit)s) A   group by team%(team)s %(have)s
+    '''%{'team':number_team,'team_id':team, 'limit':limit,'where':where,'have':have}
+                self.env.cr.execute(sql_query)
+                rs2 = self.env.cr.dictfetchall()
+#                 rs2 = list(filter(lambda i: i['team%s'%number_team] ==team,rs2))
+#                 raise UserError(u'%s'%rs2)
+                if rs2:
+                    rs2 = rs2[0]['sum']
+                    rs +=rs2
+        raise UserError(u'%s'%rs)
+
+    
+    @api.multi
+    def get_infor_test2(self):
+#         sql_query = 'select score2,score1,link from tsbd_match where id = 704'
+        sql_query = '''select A.team2,sum(A.handicap_wl2) from (select team2, handicap_wl2 from tsbd_match  where team2 = 16) A   group by team2
+'''
+        self.env.cr.execute(sql_query)
+        rs1 = self.env.cr.dictfetchall()
+        
+        sql_query = '''select A.team1,sum(A.handicap_wl1) from (select team1, handicap_wl1 from tsbd_match  where team1 = 16) A   group by team1
+'''
+        self.env.cr.execute(sql_query)
+        rs2 = self.env.cr.dictfetchall()
+        
+        raise UserError(u'%s %s'%(rs1,rs2))
+            
+  
+    
+        
+        
     @api.multi    
     def detail_match_button(self):
         pass
@@ -232,6 +156,7 @@ class Match(models.Model):
     log = fields.Text()
     parse_log = fields.Text()
     link = fields.Char()
+    trig = fields.Boolean()
     betscoreline_ids = fields.One2many('tsbd.betscoreline', 'match_id')
     def default_time(self):
         if 'leech_all_match_function' in self._context:
@@ -244,6 +169,9 @@ class Match(models.Model):
     current_time =  fields.Float()
     state = fields.Char()
     cate_id = fields.Many2one('tsbd.cate')
+    bang_id = fields.Many2one('tsbd.cate')
+    
+    period_id = fields.Many2one('tsbd.period')
     name = fields.Char(compute='name_',store=True)
     @api.depends('team1','team2','time','score1','score2')
     def name_(self):
@@ -281,43 +209,165 @@ class Match(models.Model):
     
     predict_ids = fields.One2many('tsbd.predict','match_id')
     total_winning_amount = fields.Float(compute='total_winning_amount_',store=True)
-    link = fields.Char()
+    @api.depends('bet_ids')
+    def total_winning_amount_(self):
+        for r in self:
+            r.total_winning_amount = sum(r.bet_ids.mapped('winning_amount'))
     
-    handicap_winner = fields.Selection([(u'cua_tren',u'Cửa trên'), (u'cua_duoi',u'Cửa dưới'), (u'hoa_tien',u'Hòa tiền'), (u'team1',u'team1'), (u'team2',u'team2')], compute='_handicap_winner', store=True)
-    trig = fields.Boolean()
-#     keo_chap_thang_thua = fields.Selection([(u'1_2',u'nửa kèo'), (u'toan_keo', u'Ăn thua'), (u'co_the_hoa',u'Có thể hòa tiền')], compute='_keo_chap_thang_thua', store=True)
-    keo_chap_thang_thua = fields.Float(compute='_keo_chap_thang_thua', store=True)
-   
-    bet_winner = fields.Many2one('tsbd.team', compute='_handicap_winner', store= True)
-    bet_loser = fields.Many2one('tsbd.team', compute='_handicap_winner', store= True)
+
+    winner = fields.Selection([('doi_nha',u'Đội nhà'), ('doi_khach',u'Đội khách'), ('hoa',u'Hai đội hòa')], compute='_match_winner', store= True)
+    loser = fields.Selection([('doi_nha',u'Đội nhà'), ('doi_khach',u'Đội khách'), ('hoa',u'Hai đội hòa')], compute='_match_winner', store= True)
+    @api.depends('score1','score2','trig')
+    @adecorator
+    def _match_winner(self):
+        for r in self:
+            if r.score1 > r.score2:
+                r.winner = 'doi_nha'
+                r.loser = 'doi_khach'
+            elif r.score1< r.score2:
+                r.winner = 'doi_khach'
+                r.loser = 'doi_nha'    
+            else:
+                r.winner = 'hoa'
+                r.loser = 'hoa'    
+    # compute fields 
+    keo_0_025_05 = fields.Float(compute='_keo_0_025_05', store=True)
+    @api.depends('score1', 'score2', 'begin_handicap','state','trig')
+    def _keo_0_025_05(self):
+        for r in self:
+            r.keo_0_025_05 = abs(r.begin_handicap - float(int(r.begin_handicap)))
     
+    handicap_0_05_1 = fields.Float(compute='handicap_wl_compute_', store=True)
     
-    winner = fields.Many2one('tsbd.team', compute='_match_winner', store= True)
-    loser = fields.Many2one('tsbd.team', compute='_match_winner', store= True)
-    over_or_under = fields.Selection([('over','Over'), ('under','Under')], compute='over_or_under_', store=True)
-    ou_win_lost = fields.Float(compute='over_or_under_', store=True)
-    ou_win_lost_amount = fields.Float(compute='over_or_under_', store=True)
+    cua_tren_hay_cua_duoi = fields.Selection([(u'cua_tren',u'Cửa trên'), (u'cua_duoi',u'Cửa dưới'), (u'hoa_tien',u'Hòa tiền'), (u'team1',u'team1'), (u'team2',u'team2')], 
+                                       compute='handicap_wl_compute_', store=True)
+    handicap_bet_winner = fields.Selection([('team1',u'Team1'), ('team2',u'Team 2'), ('hoa',u'Hòa')], compute='handicap_wl_compute_', store= True)
+    handicap_bet_loser = fields.Selection([('team1',u'Team1'), ('team2',u'Team 2'), ('hoa',u'Hòa')], compute='handicap_wl_compute_', store= True)
+    handicap_wl1 = fields.Float(compute='handicap_wl_compute_', store=True)
+    handicap_wl2 = fields.Float(compute='handicap_wl_compute_', store=True)
+    handicap_win_amount = fields.Float(compute='handicap_wl_compute_', store=True)
+    handicap_lost_amount = fields.Float(compute='handicap_wl_compute_', store=True)
+    handicap_wl_amount1 = fields.Float(compute='handicap_wl_compute_', store=True)
+    handicap_wl_amount2 = fields.Float(compute='handicap_wl_compute_', store=True)
+    
+    @api.depends('score1', 'score2', 'begin_handicap','state', 'trig')
+    @adecorator
+    def handicap_wl_compute_(self):
+        for r in self:
+            if r.state != u'Chưa bắt đầu':
+                ratio, amount = handicap_winning_(None, bet_kind='handicap1',mode='predict', match_id =r)
+                r.handicap_wl1 = ratio
+                r.handicap_wl2 = -ratio
+                r.handicap_0_05_1 = abs(ratio)
+                if ratio > 0:
+                    doi_thang = 'team1'
+                    r.handicap_bet_winner ='team1'
+                    r.handicap_bet_loser = 'team2'
+                    r.handicap_win_amount = amount
+                    ratio_handicap_lost, handicap_lost_amount = handicap_winning_(None, bet_kind='handicap2',mode='predict', match_id =r)
+                    r.handicap_lost_amount = handicap_lost_amount
+                    r.handicap_wl_amount1 = amount
+                    r.handicap_wl_amount2 = handicap_lost_amount
+                elif ratio < 0:
+                    doi_thang = 'team2'
+                    r.handicap_bet_winner = 'team2'
+                    r.handicap_bet_loser = 'team1'
+                    ratio_handicap_win, handicap_win_amount = handicap_winning_(None, bet_kind='handicap2', mode='predict', match_id =r)
+                    r.handicap_lost_amount = amount
+                    r.handicap_win_amount = handicap_win_amount
+                    r.handicap_wl_amount1 = amount
+                    r.handicap_wl_amount2 = handicap_win_amount
+                else:
+                    doi_thang= 'hoa_tien'
+                    r.handicap_bet_winner = 'hoa'
+                    r.handicap_bet_loser = 'hoa'
+                adict  ={}
+                if r.begin_handicap > 0:
+                    adict = {'team1':'cua_tren', 'team2':'cua_duoi'}
+                elif r.begin_handicap < 0:
+                    adict = {'team2':'cua_tren', 'team1':'cua_duoi'}
+                rs = adict.get(doi_thang, doi_thang)
+                r.cua_tren_hay_cua_duoi = rs       
+    context_team_handicap_wl = fields.Float(compute='context_team_handicap_wl_')
+    @api.depends('team1','team2','handicap_wl1','handicap_wl2')
+    @adecorator
+    def context_team_handicap_wl_(self):
+        team = self._context.get('team')
+        if team:
+            for r in self:
+                if r.team1.id == team:
+                    r.context_team_handicap_wl = r.handicap_wl1
+                elif r.team2.id == team:
+                    r.context_team_handicap_wl = r.handicap_wl2
+    sum_handicap_wl1 = fields.Float(compute='sum_handicap_wl1_2_')
+    sum_handicap_wl2 = fields.Float(compute='sum_handicap_wl1_2_')
+    @api.depends('team1', 'team2','team_match_limit','handicap_wl1','handicap_wl2','team_match_limit')
+    def sum_handicap_wl1_2_(self):
+        for r in self:
+            team_match_limit = r.team_match_limit
+            limit = team_match_limit and u'limit %s'%r.team_match_limit or ''
+            for f_name in ['1','2']:
+#                 team_id =r.team1.id
+                team_id =getattr(r,'team%s'%f_name).id
+                rs = 0
+                for number_team in [1,2]:
+    #                 where =  'team%(team)s = %(team_id)s'
+                    where =  "(team1 = %(team_id)s or team2 = %(team_id)s) and state = 'Kết thúc' order by date desc"%{'team_id':team_id}
+                    have =  'having A.team%(number_team)s= %(team_id)s'%{'number_team':number_team,'team_id':team_id}
+                    sql_query = '''select A.team%(number_team)s,sum(A.handicap_wl%(number_team)s) from (select team%(number_team)s, handicap_wl%(number_team)s from tsbd_match  where %(where)s %(limit)s) A   group by team%(number_team)s %(have)s
+        '''%{'number_team':number_team,'team_id':team_id, 'limit':limit,'where':where,'have':have}
+    #                 raise UserError(u'%s'%sql_query)
+                    self.env.cr.execute(sql_query)
+                    rs2 = self.env.cr.dictfetchall()
+    #                 rs2 = list(filter(lambda i: i['team%s'%number_team] ==team,rs2))
+    #                 raise UserError(u'%s'%rs2)
+                    if rs2:
+                        rs2 = rs2[0]['sum']
+                        rs +=rs2
+                setattr(r,'sum_handicap_wl%s'%f_name,rs)
+                
+                
+                
+                
+    over_or_under = fields.Selection([('over','Over'), ('under','Under'),('draw',u'Hòa')], compute='over_or_under_compute_', store=True)
+    over_0_05_1 = fields.Float(compute='over_or_under_compute_', store=True)
+    over_wl = fields.Float(compute='over_or_under_compute_', store=True)
+    under_wl = fields.Float(compute='over_or_under_compute_', store=True)
+    over_wl_amount = fields.Float(compute='over_or_under_compute_', store=True)
+    under_wl_amount = fields.Float(compute='over_or_under_compute_', store=True)
+    ou_win_amount = fields.Float(compute='over_or_under_compute_', store=True)
+    ou_lost_amount = fields.Float(compute='over_or_under_compute_', store=True)
     @api.depends('score1','score2','begin_ou','trig')
     @adecorator
-    def over_or_under_(self):
+    def over_or_under_compute_(self):
         for r in self:
-            ratio, amount = handicap_winning_(None, bet_kind='over',mode='predict', match_id =r, skip_tinh_tien=False)
-            if ratio > 0:
+            ratio_over, over_amount = handicap_winning_(None, bet_kind='over',mode='predict', match_id =r)
+            r.over_wl = ratio_over
+            r.under_wl = -ratio_over
+            r.over_0_05_1 = abs(ratio_over)
+            if ratio_over > 0:
                 r.over_or_under = 'over'
-            elif ratio < 0:
+                ratio_under, under_amount = handicap_winning_(None, bet_kind='under',mode='predict', match_id =r)
+                r.ou_win_amount = over_amount
+                r.ou_lost_amount = under_amount
+            elif ratio_over < 0:
                 r.over_or_under = 'under'
-                ratio2, amount = handicap_winning_(None, bet_kind='under',mode='predict', match_id =r, skip_tinh_tien=False)
-            r.ou_win_lost = ratio
-            r.ou_win_lost_amount = amount
-    team1_over = fields.Integer(compute = 'team1_over_under_')
-    team1_under = fields.Integer(compute = 'team1_over_under_')
+                ratio_under, under_amount = handicap_winning_(None, bet_kind='under',mode='predict', match_id =r)
+                r.ou_win_amount = under_amount
+                r.ou_lost_amount = over_amount
+            else:
+                r.over_or_under = 'draw'
+                under_amount = 0
+            r.over_wl_amount = over_amount
+            r.under_wl_amount = under_amount
+            
     
-    team2_over = fields.Integer(compute = 'team1_over_under_')
-    team2_under = fields.Integer(compute = 'team1_over_under_')
-    
-    
+    team1_over = fields.Integer(compute = 'team1_team_2_over_under_')
+    team1_under = fields.Integer(compute = 'team1_team_2_over_under_')
+    team2_over = fields.Integer(compute = 'team1_team_2_over_under_')
+    team2_under = fields.Integer(compute = 'team1_team_2_over_under_')
     @api.depends('team1_match_ids','trig')
-    def team1_over_under_(self):
+    def team1_team_2_over_under_(self):
         for r in self:
             teams =[('team1',r.team1.id), ('team2',r.team2.id)]
             for team_name, team in teams:
@@ -326,22 +376,7 @@ class Match(models.Model):
                     over_or_under = adict['over_or_under']
                     if over_or_under =='over' or over_or_under =='under':
                         setattr(r, '%s_%s'%(team_name,over_or_under), adict['__count'])
-                   
-                
-    win_lost = fields.Float(compute='win_lost_')
-    @api.depends('keo_chap_thang_thua','bet_winner')
-    def win_lost_(self):
-        team = self._context.get('team')
-        if team:
-            for r in self:
-                bet_winner_id  = r.bet_winner.id 
-                if r.bet_winner:
-                    if bet_winner_id == team:
-                        r.win_lost = r.handicap_win_lost
-                    else:
-                        r.win_lost = -r.handicap_win_lost
-                        
-                        
+    
     team1_match_ids = fields.Many2many('tsbd.match', 'match_match_rel', 'match_id', 'team1_match_id', compute='team1_match_ids_')
     team_match_limit = fields.Integer()
     @api.depends('team1','team_match_limit')
@@ -349,7 +384,6 @@ class Match(models.Model):
         for r in self:
             rs = self.env['tsbd.match'].search(['|', ('team1', '=', r.team1.id ), ('team2', '=', r.team1.id ),('state','!=',u'Chưa bắt đầu')],limit=r.team_match_limit or None)
             r.team1_match_ids = [(6,0,rs.ids)]
-            
     team2_match_ids = fields.Many2many('tsbd.match', 'match_matchofteam2_rel', 'match_id', 'team2_match_id', compute='team2_match_ids_', )
     @api.depends('team2', 'team_match_limit')
     def team2_match_ids_(self):
@@ -357,146 +391,8 @@ class Match(models.Model):
             rs = self.env['tsbd.match'].search(['|', ('team1', '=', r.team2.id ), ('team2', '=', r.team2.id ),('state','!=',u'Chưa bắt đầu')],limit=r.team_match_limit or None)
             r.team2_match_ids = [(6,0,rs.ids)]
             
-    sum_handicap_win_lost1 = fields.Float(compute='sum_handicap_win_lost1_', store=True)
-    
-    @api.depends('team1', 'team2','team_match_limit')
-    def sum_handicap_win_lost1_(self):
-        print ('đã vô sum_handicap_win_lost1_')
-        for r in self:
-            limit = r.team_match_limit or None
-            team =r.team1.id
-            rs1 = self.env['tsbd.match'].read_group([('team1', '=', team )],['team1','handicap_win_lost1'], ['team1'],limit= limit,lazy=True )
-            rs2 = self.env['tsbd.match'].read_group([('team2', '=', team )],['team2','handicap_win_lost2'], ['team2'] , limit=limit, lazy=True)
-            try:
-                r.sum_handicap_win_lost1 = rs1[0]['handicap_win_lost1'] + rs2[0]['handicap_win_lost2']
-            except:
-                pass
-    sum_handicap_win_lost2 = fields.Float(compute='sum_handicap_win_lost2_', store=True)
-    @api.depends('team1', 'team2','team_match_limit')
-    def sum_handicap_win_lost2_(self):
-        for r in self:
-            team =r.team2.id
-            rs1 = self.env['tsbd.match'].read_group([('team1', '=', team )],['team1','handicap_win_lost1'], ['team1'], limit=r.team_match_limit or None,lazy=False )
-            rs2 = self.env['tsbd.match'].read_group([('team2', '=', team )],['team2','handicap_win_lost2'], ['team2'] ,limit=r.team_match_limit or None, lazy=False)
-            try:
-                r.sum_handicap_win_lost2 = rs1[0]['handicap_win_lost1'] + rs2[0]['handicap_win_lost2']
-            except:
-                pass
-            
-            
-        
-    
-        
-
-#     str_win_lost1 = fields.Char(compute='str_win_lost1_')
-#     @api.depends('team1_match_ids')
-#     def str_win_lost1_(self):
-#         for r in self:
-#             alist = []
-#             for m in  r.with_context(team=r.team1.id).team1_match_ids:
-#                 alist.append(m.win_lost)
-#             r.str_win_lost1 = alist
-    
-#     str_win_lost2 = fields.Char(compute='str_win_lost2_')
-#     @api.depends('team2_match_ids')
-#     def str_win_lost2_(self):
-#         for r in self:
-#             alist = []
-#             for m in  r.with_context(team=r.team2.id).team2_match_ids:
-#                 alist.append(m.win_lost)
-#             r.str_win_lost2 = alist
-#             
-#             
-            
-    handicap_win_lost = fields.Float(compute='handicap_win_lost_', store=True)
-    handicap_win_lost1 = fields.Float(compute='handicap_win_lost_', store=True)
-    handicap_win_lost2 = fields.Float(compute='handicap_win_lost_', store=True)
-    
-    @api.depends('score1','score2','begin_handicap', 'trig')
-    @adecorator
-    def handicap_win_lost_(self):
-        for r in self:
-            winning_difference = (r.score1 - r.score2 - r.begin_handicap)
-            winning_difference_abs = abs(winning_difference)
-            if winning_difference_abs ==0.25:
-                winning_difference_abs = 0.5
-            elif winning_difference_abs ==0:
-                winning_difference_abs =0
-            else:
-                winning_difference_abs =1
-            dau = sign(winning_difference)
-            r.handicap_win_lost = winning_difference_abs
-            
-            r.handicap_win_lost1 = dau*winning_difference_abs
-            r.handicap_win_lost2 = -dau*winning_difference_abs
-        
-   
-    
-                        
    
    
-    
-    
-                
-            
-    
-   
-    
-    @api.depends('score1','score2','trig')
-#     @adecorator
-    def _match_winner(self):
-        for r in self:
-            if r.score1 > r.score2:
-                r.winner = r.team1
-                r.loser = r.team2
-            elif r.score1< r.score2:
-                r.winner = r.team2
-                r.loser = r.team1         
-        
-        
-    @api.depends('score1', 'score2', 'begin_handicap','state','trig')
-    
-    def _keo_chap_thang_thua(self):
-        for r in self:
-            keo_chap_thang_thua = abs(r.begin_handicap - float(int(r.begin_handicap)))
-            if keo_chap_thang_thua ==0.75:
-                keo_chap_thang_thua = 0.25
-#             if keo_chap_thang_thua
-            print ('keo_chap_thang_thua',keo_chap_thang_thua)
-            r.keo_chap_thang_thua = keo_chap_thang_thua
-        
-    @api.depends('score1', 'score2', 'begin_handicap','state', 'trig')
-    def _handicap_winner(self):
-        for r in self:
-            if r.state != u'Chưa bắt đầu':
-                diff = (r.score1 - r.score2 - r.begin_handicap)
-                if diff > 0:
-                    doi_thang = 'team1'
-                    r.bet_winner = r.team1
-                    r.bet_loser = r.team2
-                elif diff < 0:
-                    doi_thang = 'team2'
-                    r.bet_winner = r.team2
-                    r.bet_loser = r.team1
-                else:
-                    doi_thang= 'hoa_tien'
-                adict  ={}
-                if r.begin_handicap > 0:
-                    adict = {'team1':'cua_tren', 'team2':'cua_duoi'}
-                elif r.begin_handicap < 0:
-                    adict = {'team2':'cua_tren', 'team1':'cua_duoi'}
-       
-                rs = adict.get(doi_thang, doi_thang)
-                r.handicap_winner = rs           
-                
-                
-                
-    
-    
-    @api.depends('bet_ids')
-    def total_winning_amount_(self):
-        for r in self:
-            r.total_winning_amount = sum(r.bet_ids.mapped('winning_amount'))
     
     is_copy_begin_to_curent = fields.Boolean()
     statictis_match_ids =  fields.Many2many('tsbd.match','match_statictis_match_rel','match_id', 'statictis_match_id')

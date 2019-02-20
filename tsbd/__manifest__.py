@@ -31,6 +31,7 @@
         'views/leech.xml',
         'views/bxh.xml',
         'views/cate.xml',
+        'views/team.xml',
         'views/early_match.xml',
     ],
     # only loaded in demonstration mode

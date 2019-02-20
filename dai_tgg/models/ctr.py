@@ -15,26 +15,19 @@ class CTR(models.Model):
     gio_ket_thuc_ca = fields.Datetime(u'Giờ Kết Thúc ca',default=lambda self: self.gio_bat_dau_defaut_or_ket_thuc_(is_tinh_gio_bat_dau_or_ket_thuc = 'gio_ket_thuc'))#
     department_id = fields.Many2one('hr.department',string=u'Đơn vị',default=lambda self:self.env.user.department_id, readonly=True, required=True,ondelete='restrict')
     member_ids = fields.Many2many('res.users', string=u'Những thành viên trực',default =  lambda self : [self.env.user.id],required=True)
-#     cvi_ids = fields.Many2many('cvi','ctr_cvi_relate','ctr_id','cvi_id',string=u'Công Việc/Sự Cố/Sự Vụ')
     cvi_ids = fields.One2many('cvi','ctr_id',string=u'Công Việc/Sự Cố/Sự Vụ')
-
     cvi_show =  fields.Char(compute='cvi_show_',string=u'Công Việc/Sự Cố/ Sự Vụ')
-    
-#     giao_ca_ids = fields.One2many('cvi','giao_ca_id',string=u'Giao Ca Sau')
     ton_dong_ca_truoc_ids = fields.Many2many('cvi',string=u'Tồn đọng ca trước')
     ton_dong_show_number =  fields.Integer(default=20,string=u'Số dòng tồn động muốn hiển thị')
     
     @api.onchange('member_ids')
     def member_ids_oc(self):
-        print ('self.member_ids***',self.member_ids)
-        print ("self.member_ids.mapped('id')",self.member_ids.mapped('id'))
         truc_ca_tvcv_id =  self.env['tvcv'].search([('name','=',u'Trực ca')])
         cvi_ids_tvcv =  self.cvi_ids.mapped('tvcv_id')
         if  (not cvi_ids_tvcv or truc_ca_tvcv_id == cvi_ids_tvcv) :#and not self.cvi_ids:
-            rt = list(map(lambda m:(0,0,{'user_id':m,'loai_record':u'Công Việc','tvcv_id':truc_ca_tvcv_id.id,'state':'confirmed'}),self.member_ids))
+            new_trucca_cvi = list(map(lambda m:(0,0,{'user_id':m,'loai_record':u'Công Việc','tvcv_id':truc_ca_tvcv_id.id,'state':'confirmed'}),self.member_ids))
             return {'value':
-                    {'cvi_ids':rt
-                     }
+                                    {'cvi_ids': new_trucca_cvi}
                     }
     @api.onchange('ton_dong_show_number')
     def ton_dong_ca_truoc_ids_(self):
@@ -123,6 +116,26 @@ class CTR(models.Model):
                 return gio_ket_thuc_utc
             else:
                 return False
+    
+    @api.model
+    def create(self, vals):
+        new_ctx = dict(self._context, **{'write_create_parent_dict':vals})
+        print ('***vals in create of ca truc',vals)
+        cv = super(CTR, self.with_context(new_ctx)).create(vals)
+        return cv
+
+    @api.multi
+    def write(self, vals):
+        print ('vals in write of catruc', vals)
+#         print ('vals in write',vals)
+#         if 'slncl' in vals:
+#             raise UserError(u'kkakaka')
+#         if 'cd_parent_id' in vals:
+#             raise UserError(u'cd_parent_id %s'%vals)
+        new_ctx = dict(self._context, **{'write_create_parent_dict':vals})
+        res = super(CTR, self.with_context(new_ctx)).write(vals)
+        return res    
+    
 #     @api.model
 #     def default_get(self, fields):
 #         res = super(CTR, self).default_get(fields)

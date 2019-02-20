@@ -23,8 +23,10 @@ class CviSuCo(models.Model):
     doitac_ids = fields.Many2many('res.partner',string=u'Đối Tác')
 #     department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',required=True,readonly=True,default = lambda self:  self.env.user.department_id.id,ondelete='restrict')
     department_id = fields.Many2one('hr.department',string=u'Đơn vị tạo',ondelete='restrict',
-#                                        default= lambda self:self.env.user.department_id.id
-                                    compute="department_id_",store=True,copy=False
+                                    default= lambda self:self.env.user.department_id.id,
+#                                     compute="department_id_",
+#                                     store=True,
+                                    copy=False
                                     )
     department_ids = fields.Many2many('hr.department', string=u'Đơn vị liên quan' )
     loai_record = fields.Selection([(u'Công Việc',u'Công Việc'),

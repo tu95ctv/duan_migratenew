@@ -42,12 +42,13 @@ class KhongDauModel(models.Model):
         
 class TVCV(models.Model):
     _name = 'tvcv'
+
     _parent_name = 'parent_id'
-    _inherit = ['khongdaumodel']
+    _inherit = ['khongdaumodel', 'mail.thread']
     _auto = True
     
     
-    department_id = fields.Many2one('hr.department',ondelete='restrict')
+    department_id = fields.Many2one('hr.department',ondelete='restrict', string=u'Đài')
     name = fields.Char(string=u'Tên công việc',required=True)
     loai_record = fields.Selection([(u'Công Việc',u'Công Việc'),(u'Sự Cố',u'Sự Cố'),(u'Sự Vụ',u'Sự Vụ'),(u'Comment',u'Comment')], string = u'Loại Record')
     code = fields.Char(string=u'Mã công việc')
@@ -55,7 +56,7 @@ class TVCV(models.Model):
     
     do_phuc_tap = fields.Integer(string=u'Độ Phức Tạp')
     thoi_gian_hoan_thanh = fields.Integer(string=u'Thời Gian Hoàn Thành')
-    diem = fields.Float(digits=(6, 2),string=u'Điểm',implied_group='base.group_erp_manager')
+    diem = fields.Float(digits=(6, 2),string=u'Điểm',implied_group='base.group_erp_manager', track_visibility='onchange')
     
     @api.onchange('do_phuc_tap','thoi_gian_hoan_thanh')
     def  to_diem_oc_(self):
@@ -70,8 +71,8 @@ class TVCV(models.Model):
     children_ids = fields.One2many('tvcv','parent_id',string=u'Các TVCV Giai Đoạn Con')
     parent_id = fields.Many2one('tvcv',string=u'TVCV Giai Đoạn Cha')
     ghi_chu = fields.Text(u'Ghi Chú')
-    active = fields.Boolean(default=True)
-    state = fields.Selection([('draft',u'Bản Nháp'),('confirmed',u'Xác Nhận')],default='draft')
+    active = fields.Boolean(default=True,)
+    state = fields.Selection([('draft',u'Bản Nháp'),('confirmed',u'Xác Nhận')],default='draft', string=u'Trạng thái')
     is_bc =  fields.Boolean(u'Có báo cáo',default=True)
    
     is_has_children = fields.Boolean(string=u'Có TVCV Giai Đoạn Con',compute='is_has_children_',store=True)
